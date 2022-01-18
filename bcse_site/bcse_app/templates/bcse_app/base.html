@@ -1,0 +1,86 @@
+{% load base_extras %}
+{% load bcse_extras %}
+{% load compress %}
+<html>
+<head>
+  {% block media %}
+    {% block jquery %}
+      <!-- jQuery library -->
+      <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+      <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+      <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    {% endblock %}
+
+    {% block css %}
+      <link rel="stylesheet" href="https://use.typekit.net/bkp5oip.css">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+      {% compress css %}
+        <link type="text/less" rel="stylesheet" href="{% staticfile 'less/style.less' %}" media="screen" charset="utf-8"/>
+      {% endcompress %}
+    {% endblock %}
+  {% endblock %}
+</head>
+
+<body id="page-top" class="index">
+  {% block header %}
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'bcse:home' %}">
+
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item {% navactive request 'bcse:home' %}">
+              <a class="nav-link" aria-current="page" href="{% url 'bcse:home' %}">Home</a>
+            </li>
+            <li class="nav-item dropdown {% navactive request 'bcse:workshops' %}">
+              <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Professional Learning</a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li class="{% navactive request 'bcse:workshops' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' %}">All Workshops</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown {% navactive request 'bcse:reservations' %}">
+              <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Baxter Box Program</a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li class="{% navactive request 'bcse:reservations' %}"><a class="dropdown-item" href="{% url 'bcse:reservations' %}">All Reservations</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link">Student Programs</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link">Sign In/Sign Up</a>
+            </li>
+          </ul>
+
+
+        </div>
+      </div>
+    </nav>
+    <div class="anniversary_banner">Fostering Tomorrow's Innovators since 2009</div>
+  {% endblock %}
+  {% block content %}
+    <ul class="messages bg-light-gray">
+      {% if messages %}
+        <i class="far fa-times-circle"></i>
+      {% endif %}
+      {% for message in messages %}
+        {% if not message.extra_tags or message.extra_tags != 'modal_message' %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% endblock %}
+</body>
+<footer>
+  {% block footer %}
+  {% endblock %}
+</footer>
+</html>

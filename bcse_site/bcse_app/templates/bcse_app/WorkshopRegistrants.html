@@ -1,0 +1,42 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <h1> {{workshop_registration_setting.workshop.name}} - Registrants</h1>
+    <label><a href="{% url 'bcse:workshops' %}">&lt;&lt;Workshops</a></label>
+    | <label><a href="{% url 'bcse:workshop' workshop_registration_setting.workshop.id %}">Workshop</a></label>
+    | <label><a href="{% url 'bcse:workshop_registration_setting' workshop_registration_setting.id %}">Registration Setting</a></label>
+    | <label>Registrants</label>
+
+    <div id="workshops">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th> ID</th>
+            <th> Email </th>
+            <th> User </th>
+            <th> Full Name </th>
+            <th> Created Date </th>
+            <th> Status </th>
+            <th> Edit </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for registrant in workshop_registration_setting.workshop_registrants.all %}
+            <tr>
+              <td> {{registrant.id}}</td>
+              <td> {{registrant.user.user.email}} </td>
+              <td> {{registrant.user.user.username}} </td>
+              <td> {{registrant.user.user.get_full_name}}</td>
+              <td> {{registrant.created_date|date}}</td>
+              <td> {{registrant.get_status_display}} </td>
+              <td>  </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,18 @@
+div#reservation_container {
+  display: flex;
+}
+div#reservation_container div.reservation_form {
+  flex: 0 0 30%;
+}
+div#reservation_container div.availability_calendar {
+  flex: 0 0 70%;
+}
+div#reservation_container div.availability_calendar table.calendar td.selected_date {
+  background-color: orange;
+}
+div#reservation_container div.availability_calendar table.calendar td div.available {
+  background-color: lightgreen;
+}
+div#reservation_container div.availability_calendar table.calendar td div.unavailable {
+  background-color: red;
+}

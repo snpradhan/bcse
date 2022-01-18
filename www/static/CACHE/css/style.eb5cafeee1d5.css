@@ -1,0 +1,6 @@
+table.calendar {
+  border: 1px solid black;
+}
+table.calendar td.selected_date {
+  background-color: orange;
+}

@@ -1,0 +1,45 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    {% if form.instance.id %}
+      <h1> {{form.instance.name}} </h1>
+    {% else %}
+      <h1> Create Workshop </h1>
+    {% endif %}
+    <label><a href="{% url 'bcse:workshops' %}">&lt;&lt;Workshops</a></label>
+    | <label>Workshop</label>
+    {% if workshop_registration_setting %}
+      | <label><a href="{% url 'bcse:workshop_registration_setting' workshop_registration_setting.id %}">Registration Setting</a></label>
+      | <label><a href="{% url 'bcse:workshop_registrants' workshop_registration_setting.id %}">Registrants</a></label>
+    {% endif %}
+    <div id="workshop_container">
+      <div class="workshop_form">
+        <form method="post" enctype="multipart/form-data" id="workshopForm">
+          {% csrf_token %}
+          {{form.management_form}}
+
+          {% for field in form %}
+            <div class="form-group">
+              <label for="id_{{field.name}}" class="form-label"> {{field.label}}</label>
+              <div>{{field}}</div>
+              <div class="error">{{ field.errors }}</div>
+            </div>
+          {% endfor %}
+          <button class="btn btn-success" type="submit" id="submit">
+            Save Workshop
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(function (){
+      
+    });
+  </script>
+{% endblock %}

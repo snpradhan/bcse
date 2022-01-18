@@ -1,0 +1,47 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <h1> Workshops </h1>
+    <label><a class="btn btn-success" href="{% url 'bcse:newWorkshop' %}" role="button">Create Workshop</a></label>
+    <div id="workshops">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th> Workshop ID</th>
+            <th> Workshop Type </th>
+            <th> Name </th>
+            <th> Start Date </th>
+            <th> End Date </th>
+            <th> Location </th>
+            <th> Registration Enabled? </th>
+            <th> Status </th>
+            <th> Created Date</th>
+            <th> Modified Date </th>
+            <th> Edit </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for workshop in workshops %}
+            <tr>
+              <td> {{workshop.id}}</td>
+              <td> {{workshop.workshop_category}} </td>
+              <td> {{workshop.name}} </td>
+              <td> {{workshop.start_date|date}}</td>
+              <td> {{workshop.end_date|date}}</td>
+              <td> {{workshop.location}} </td>
+              <td> {{workshop.enable_registration|yesno}} </td>
+              <td> {{workshop.get_status_display}} </td>
+              <td> {{workshop.created_date|date}} </td>
+              <td> {{workshop.modified_date|date}} </td>
+              <td> <a class="btn btn-secondary" role="button" href="{% url 'bcse:workshop' workshop.id %}">Edit</a> </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% endblock %}
