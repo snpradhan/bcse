@@ -4,13 +4,9 @@
 {% block content %}
   {{block.super}}
   <div class="content">
-    <h1> {{workshop_registration_setting.workshop.name}} - Registrants</h1>
-    <label><a href="{% url 'bcse:workshops' %}">&lt;&lt;Workshops</a></label>
-    | <label><a href="{% url 'bcse:workshop' workshop_registration_setting.workshop.id %}">Workshop</a></label>
-    | <label><a href="{% url 'bcse:workshop_registration_setting' workshop_registration_setting.id %}">Registration Setting</a></label>
-    | <label>Registrants</label>
-
-    <div id="workshops">
+    <div class="workshop_container container">
+      <h1 class="center"> {{workshop.name}}</h1>
+      {% include "bcse_app/WorkshopTabs.html" with tab='registrants' %}
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
@@ -20,11 +16,11 @@
             <th> Full Name </th>
             <th> Created Date </th>
             <th> Status </th>
-            <th> Edit </th>
+            <th> Action </th>
           </tr>
         </thead>
         <tbody>
-          {% for registrant in workshop_registration_setting.workshop_registrants.all %}
+          {% for registrant in workshop.registration_setting.workshop_registrants.all %}
             <tr>
               <td> {{registrant.id}}</td>
               <td> {{registrant.user.user.email}} </td>
@@ -32,7 +28,7 @@
               <td> {{registrant.user.user.get_full_name}}</td>
               <td> {{registrant.created_date|date}}</td>
               <td> {{registrant.get_status_display}} </td>
-              <td>  </td>
+              <td> <a class="edit_registration modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' workshop.id registrant.id %}" href="#">Edit</a> </td>
             </tr>
           {% endfor %}
         </tbody>

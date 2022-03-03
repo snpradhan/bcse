@@ -4,8 +4,12 @@
 {% block content %}
   {{block.super}}
   <div class="content">
-    <h1> Reservation </h1>
-    <label><a href="{% url 'bcse:reservations' %}">&lt;&lt;Reservations</a></label>
+    {% if form.instance.id %}
+      <h1> {{form.instance}} </h1>
+    {% else %}
+      <h1> Create Reservation </h1>
+    {% endif %}
+    {% include "bcse_app/ReservationTabs.html" with reservation=form.instance %}
     <div id="reservation_container">
       <div class="reservation_form">
         <form method="post" enctype="multipart/form-data" id="reservationForm">
@@ -13,7 +17,7 @@
           {{form.management_form}}
 
           {% for field in form %}
-            <div class="form-group">
+            <div class="form-group mb-3">
               <label for="id_{{field.name}}" class="form-label"> {{field.label}}</label>
               <div>{{field}}</div>
               <div class="error">{{ field.errors }}</div>

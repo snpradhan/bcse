@@ -2,6 +2,12 @@
 
 {% block content %}
   {{block.super}}
-  <div class="content">Hello, world. You're at the bcse homepage.</div>
+  <div class="content">
+    Hello, world. You're at the bcse homepage.
+    {% if user.is_authenticated %}
+      <br>
+      And you are logged in.
+    {% endif %}
+  </div>
 
 {% endblock %}

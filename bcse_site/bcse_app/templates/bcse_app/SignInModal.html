@@ -1,0 +1,76 @@
+
+<div class="modal-dialog modal-sm">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Log in to BCSE</h3>
+      <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+    </div>
+    <div id="loginMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" id="formSignIn" method="post" action="{% url 'bcse:signin' %}{% if redirect_url %}?next={{redirect_url}}{% endif %}">
+      {% csrf_token %}
+      {{form.management_form}}
+      <div class="modal-body">
+        {% for field in form %}
+          <div class="form-group mb-3">
+            <label for="id_{{field.name}}">{{ field.label }}</label>
+            <div>{{field}}</div>
+            <div class="error">{{ field.errors }}</div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" id="submit" class="btn btn-success">
+            Login
+          </button>
+        </div>
+        <hr>
+        <a class="signup modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-href="{% url 'bcse:signup' %}" href="#">Sign Up</a>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function (){
+    $("#formSignIn").submit(function(e) {
+      e.preventDefault();
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        context: this,
+        success: function(data, status) {
+          if(data['success'] == true){
+            $('#signin').modal('toggle');
+            window.parent.location.href = data['redirect_url'];
+          }
+          else{
+            $('#signin').html(data['html']);
+          }
+        },
+        error: function(){
+          alert("Something went wrong.");
+        }
+      });
+    });
+    $("a.modal-open").click(function(e){
+      //e.preventDefault();
+      var url = $(this).data('href');
+      var target = $(this).data('bs-target');
+      $(target).load(url, function() {
+        $(this).show();
+        $('#signin').modal('hide');
+      });
+    });
+  });
+</script>
+

@@ -1,0 +1,6 @@
+{% if reservation.id %}
+  <div class="tabs mb-3">
+    <label><a href="{% url 'bcse:reservationView' reservation.id %}">View</a></label>
+    | <label><a href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></label>
+  </div>
+{% endif %}

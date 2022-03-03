@@ -1,0 +1,33 @@
+{% if registration %}
+  {% if registration.message %}
+    {{registration.message}}
+  {% elif registration.form %}
+    <form method="POST" id="formWorkshopRegistration_{{workshop.id}}" action="{% url 'bcse:workshopRegistration' workshop.id %}" class="formWorkshopRegistration">
+      {% csrf_token %}
+      {% if user.userProfile.user_role == 'A' %}
+        {{registration.form.workshop_registration_setting.as_hidden}}
+        <div class="form-group mb-3">
+          <label for="id_{{registration.form.user.name}}" class="form-label"> {{registration.form.user.label}}</label>
+          <div>{{registration.form.user}}</div>
+          <div class="error">{{ registration.form.user.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{registration.form.status.name}}" class="form-label"> {{registration.form.status.label}}</label>
+          <div>{{registration.form.status}}</div>
+          <div class="error">{{ registration.form.status.errors }}</div>
+        </div>
+      {% else %}
+        {{registration.form.workshop_registration_setting.as_hidden}}
+        {{registration.form.user.as_hidden}}
+        {{registration.form.status.as_hidden}}
+      {% endif %}
+      <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+        {% if workshop.registration_setting.registration_type == 'R' %}
+          Register
+        {% else %}
+          Apply
+        {% endif %}
+      </button>
+    </form>
+  {% endif %}
+{% endif %}

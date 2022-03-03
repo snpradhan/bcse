@@ -1,0 +1,91 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    {% if userForm.instance.id %}
+      <h1> {{userForm.instance.get_full_name}} </h1>
+    {% else %}
+      <h1> Create User </h1>
+    {% endif %}
+    {% include "bcse_app/UserProfileTabs.html" with userProfile=userProfileForm.instance %}
+    <div class="user_profile_form">
+      <form method="post" enctype="multipart/form-data" id="formUserProfile">
+        {% csrf_token %}
+        {{userForm.management_form}}
+        <div class="form-group mb-3">
+          <label for="id_{{userForm.email.name}}" class="form-label">
+            {{ userForm.email.label }}
+            {% if userForm.email.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{userForm.email}}</div>
+          <div class="error">{{ userForm.email.errors }}</div>
+        </div>
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{userForm.first_name.name}}" class="form-label">{{ userForm.first_name.label }}</label>
+            <div>{{userForm.first_name}}</div>
+            <div class="error">{{ userForm.first_name.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{userForm.last_name.name}}" class="form-label">{{ userForm.last_name.label }}</label>
+            <div>{{userForm.last_name}}</div>
+            <div class="error">{{ userForm.last_name.errors }}</div>
+          </div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{userForm.email.name}}" class="form-label">
+            {{ userForm.username.label }}
+            {% if userForm.username.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{userForm.username}}</div>
+          <div class="error">{{ userForm.username.errors }}</div>
+        </div>
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{userForm.password1.name}}">{{ userForm.password1.label }}</label>
+            <div>{{userForm.password1}}</div>
+            <div class="error">{{ userForm.password1.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{userForm.password2.name}}">{{ userForm.password2.label }}</label>
+            <div>{{userForm.password2}}</div>
+            <div class="error">{{ userForm.password2.errors }}</div>
+          </div>
+        </div>
+        {% for field in userProfileForm %}
+          <div class="form-group mb-3">
+            <label for="id_{{field.name}}" class="form-label"> {{field.label}}</label>
+            <div>{{field}}</div>
+            <div class="error">{{ field.errors }}</div>
+          </div>
+        {% endfor %}
+        <div class="form-group mb-3">
+          {{userForm.is_active}}
+          <label for="id_{{userForm.is_active.name}}" class="form-label">
+            {{ userForm.is_active.label }}
+            {% if userForm.is_active.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div class="error">{{ userForm.is_active.errors }}</div>
+        </div>
+
+        <button class="btn btn-success" type="submit" id="submit">
+          Save User Profile
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(function (){
+      
+    });
+  </script>
+{% endblock %}

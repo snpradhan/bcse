@@ -1,0 +1,47 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="workshops_container container">
+      <h1 class="center"> Workshops </h1>
+      {% include "bcse_app/WorkshopsButtons.html" with format='table' %}
+      {% for workshop_obj in workshop_list %}
+        {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
+          <div class="workshop_container">
+            <div class="tile">
+              <div class="image">
+                {% if workshop.image %}
+                <img src="{{workshop.image.url}}"/>
+                {% endif %}
+              </div>
+              <div class="details">
+                <h2><a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name|title}}</a></h2>
+                <h3 class="subtitle">{{workshop.sub_title|title}}</h3>
+                <p>
+                  {{workshop.summary|safe}}
+                </p>
+              </div>
+              <div class="date_location">
+                <div class="start">
+                  <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Starts: {{workshop.start_date|date}} {{workshop.start_time}}
+                </div>
+                <div class="end">
+                  <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Ends: {{workshop.end_date|date}} {{workshop.end_time}}
+                </div>
+                <div class="location">
+                  <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
+                </div>
+                <div class="workshop_registration">
+                  {% include "bcse_app/WorkshopRegistration.html" %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+
+{% endblock %}

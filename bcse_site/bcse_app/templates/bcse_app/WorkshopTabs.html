@@ -1,0 +1,21 @@
+{% if workshop.id and user.is_authenticated and user.userProfile.user_role in 'AS' %}
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:workshopView' workshop.id %}">View</a></label>
+    </li>
+    <li>
+      <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></label>
+    </li>
+    {% if workshop.enable_registration and workshop.registration_setting %}
+      <li>
+        <label><a class="nav-link {% if tab == 'registration_setting' %}active{% endif %}" href="{% url 'bcse:workshopRegistrationSetting' workshop.id %}">Registration Setting</a></label>
+      </li>
+      <li>
+        <label><a class="nav-link {% if tab == 'registrants' %}active{% endif %}" href="{% url 'bcse:workshopRegistrants' workshop.id %}">Registrants</a></label>
+      </li>
+    {% endif %}
+  </ul>
+
+{% endif %}
+
+

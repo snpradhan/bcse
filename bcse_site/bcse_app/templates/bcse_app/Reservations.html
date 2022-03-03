@@ -4,9 +4,11 @@
 {% block content %}
   {{block.super}}
   <div class="content">
-    <h1> Reservations </h1>
-    <label><a class="btn btn-success" href="{% url 'bcse:newReservation' %}" role="button">Make New Reservation</a></label>
-    <div id="reservations">
+    <div id="reservations" class="container">
+       <h1 class="center"> Reservations </h1>
+       <div class="button-row">
+        <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
+      </div>
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
@@ -22,7 +24,7 @@
             <th> Notes </th>
             <th> Location </th>
             <th> Status </th>
-            <th> Edit </th>
+            <th> Actions </th>
           </tr>
         </thead>
         <tbody>
@@ -53,7 +55,10 @@
                 {{reservation.user.work_place.city}}, {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
               </td>
               <td> {{reservation.get_status_display}} </td>
-              <td> <a class="btn btn-secondary" role="button" href="{% url 'bcse:reservation' reservation.id %}">Edit</a> </td>
+              <td>
+                <a class="btn" role="button" href="{% url 'bcse:reservationView' reservation.id %}">View</a>
+                <a class="btn" role="button" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
+              </td>
             </tr>
           {% endfor %}
         </tbody>

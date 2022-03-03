@@ -1,0 +1,70 @@
+
+<div class="modal-dialog modal-sm">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Edit Registration</h3>
+      <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+    </div>
+    <div id="registrationMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form method="POST" action="{% url 'bcse:workshopRegistrationEdit' workshop.id form.instance.id %}" id="formWorkshopRegistration">
+      {% csrf_token %}
+      <div class="modal-body">
+        {{form.workshop_registration_setting.as_hidden}}
+        {{form.user.as_hidden}}
+        <div class="form-group mb-3">
+          <label for="id_{{form.user.name}}" class="form-label"> {{form.user.label}}</label>
+          <div>{{form.instance.user}}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
+          <div>{{form.status}}</div>
+          <div class="error">{{ form.status.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success registration_save">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+    $('#formWorkshopRegistration').submit(function(e){
+      e.preventDefault();
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#workshop_registration').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#workshop_registration').html(data['html']);
+          }
+        },
+        error: function(){
+          alert("Something went wrong.");
+        }
+      });
+    });
+
+  });
+</script>
+
+

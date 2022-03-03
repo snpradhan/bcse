@@ -1,0 +1,67 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="workshop_container container">
+      {% include "bcse_app/WorkshopTabs.html" with tab='view' %}
+      <div class="tile workshop_header">
+        <div class="image">
+          {% if workshop.image %}
+            <img src="{{workshop.image.url}}">
+          {% endif %}
+        </div>
+        <div class="details">
+          <h2>{{workshop.name|title}}</h2>
+          <h3 class="subtitle">{{workshop.sub_title|title}}</h3>
+        </div>
+        <div class="date_location">
+          <div class="start">
+            <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Starts: {{workshop.start_date|date}} {{workshop.start_time}}
+          </div>
+          <div class="end">
+            <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Ends: {{workshop.end_date|date}} {{workshop.end_time}}
+          </div>
+          <div class="location">
+            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
+          </div>
+          <div class="workshop_registration">
+            {% include "bcse_app/WorkshopRegistration.html" %}
+          </div>
+        </div>
+      </div>
+
+      <div class="workshop_content">
+        {% if workshop.description %}
+          {{workshop.description|safe}}
+        {% endif %}
+      </div>
+
+      <div class="workshop_teacher_leader">
+        {% if workshop.teacher_leader %}
+          <hr>
+          <h3>About the Teacher</h3>
+          <div class="teacher_leader_info">
+            <div class="teacher_leader_image">
+              {% if workshop.teacher_leader.image %}
+                <img src="{{workshop.teacher_leader.image.url}}"/>
+              {% endif %}
+            </div>
+            <div class="teacher_leader_details">
+              <h4>{{workshop.teacher_leader.first_name}} {{workshop.teacher_leader.last_name}}</h4>
+              <h4>{{workshop.teacher_leader.school.name}}</h4>
+              <div>{{workshop.teacher_leader.bio|safe}}</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(function (){
+      
+    });
+  </script>
+{% endblock %}

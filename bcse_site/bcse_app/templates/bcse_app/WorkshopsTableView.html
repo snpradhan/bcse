@@ -4,9 +4,9 @@
 {% block content %}
   {{block.super}}
   <div class="content">
-    <h1> Workshops </h1>
-    <label><a class="btn btn-success" href="{% url 'bcse:newWorkshop' %}" role="button">Create Workshop</a></label>
-    <div id="workshops">
+    <div class="workshops_container container">
+      <h1 class="center"> Workshops </h1>
+      {% include "bcse_app/WorkshopsButtons.html" with format='list' %}
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
@@ -20,15 +20,18 @@
             <th> Status </th>
             <th> Created Date</th>
             <th> Modified Date </th>
-            <th> Edit </th>
+            {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+              <th> Actions </th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
-          {% for workshop in workshops %}
+          {% for workshop_obj in workshop_list %}
+            {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
             <tr>
               <td> {{workshop.id}}</td>
               <td> {{workshop.workshop_category}} </td>
-              <td> {{workshop.name}} </td>
+              <td> <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a> </td>
               <td> {{workshop.start_date|date}}</td>
               <td> {{workshop.end_date|date}}</td>
               <td> {{workshop.location}} </td>
@@ -36,8 +39,13 @@
               <td> {{workshop.get_status_display}} </td>
               <td> {{workshop.created_date|date}} </td>
               <td> {{workshop.modified_date|date}} </td>
-              <td> <a class="btn btn-secondary" role="button" href="{% url 'bcse:workshop' workshop.id %}">Edit</a> </td>
+              {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                <td>
+                  <a class="btn btn-success" role="button" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a>
+                </td>
+              {% endif %}
             </tr>
+            {% endwith %}
           {% endfor %}
         </tbody>
       </table>

@@ -28,8 +28,8 @@ CONTENT_STATUS_CHOICES = (
 USER_ROLE_CHOICES = (
     ('A', 'Admin'),
     ('T', 'Teacher'),
-    ('O', 'Other Professional'),
-    ('S', 'Staff'),
+    ('P', 'Other Professional'),
+    ('S', 'BCSE Staff'),
 )
 
 WORKPLACE_CHOICES = (
@@ -79,14 +79,18 @@ def upload_file_to(instance, filename):
 
   if isinstance(instance, EquipmentType):
     file_path = 'equipmentType'
-  elif isinstance(instance, WorkshopType):
-    file_path = 'workshopType'
+  elif isinstance(instance, WorkshopCategory):
+    file_path = 'workshopCategory'
   elif isinstance(instance, Workshop):
     file_path = 'workshop'
   elif isinstance(instance, UserProfile):
     file_path = 'user'
   elif isinstance(instance, ActivityKit):
     file_path = 'activityKit'
+  elif isinstance(instance, TeacherLeader):
+    file_path = 'teacherLeader'
+  elif isinstance(instance, Team):
+    file_path = 'team'
 
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
@@ -95,12 +99,12 @@ class WorkPlace(models.Model):
   name = models.CharField(null=False, blank=True, max_length=256, help_text='Name of Work Place')
   work_place_type = models.CharField(max_length=1, choices=WORKPLACE_CHOICES)
   district_number = models.CharField(null=True, blank=True, max_length=256, help_text='District Number for School')
-  hub = models.CharField(null=True, blank=True, max_length=1, choices=HUB_CHOICES, help_text='Hub for School')
-  street_address_1 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 1')
+  street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
   street_address_2 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 2')
-  city = models.CharField(null=True, blank=True, max_length=256, help_text='City')
-  state = USStateField(null=True, blank=True, help_text='State')
-  zip_code = models.CharField(null=False, blank=True, max_length=256, help_text='Zip Code of Work Place')
+  city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
+  state = USStateField(null=False, blank=False, help_text='State')
+  zip_code = models.CharField(null=False, blank=False, max_length=256, help_text='Zip Code of Work Place')
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -111,10 +115,11 @@ class WorkPlace(models.Model):
       return '%s' % (self.name)
 
 class UserProfile(models.Model):
-  user = models.OneToOneField(User, unique=True, null=False, on_delete=models.CASCADE)
+  user = models.OneToOneField(User, unique=True, null=False, related_name="userProfile", on_delete=models.CASCADE)
   work_place = models.ForeignKey(WorkPlace, null=True, related_name="users", on_delete=models.SET_NULL)
   user_role = models.CharField(max_length=1, choices=USER_ROLE_CHOICES)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Profile image')
+  validation_code = models.CharField(null=False, max_length=5)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -168,11 +173,16 @@ class WorkshopCategory(models.Model):
 
 class Workshop (models.Model):
   workshop_category = models.ForeignKey(WorkshopCategory, null=False, related_name="workshop", on_delete=models.CASCADE)
+  teacher_leader = models.ForeignKey('TeacherLeader', null=True, blank=True, on_delete=models.SET_NULL)
   name = models.CharField(null=False, max_length=256, help_text='Name of Workshop')
+  sub_title = models.CharField(null=True, blank=True, max_length=256)
+  summary = RichTextField(null=True, blank=True)
   description = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Workshop')
   start_date = models.DateField(null=True, blank=True, help_text='Workshop start date')
+  start_time = models.TimeField(null=True, blank=True, help_text='Workshop start time')
   end_date = models.DateField(null=True, blank=True, help_text='Workshop end date')
+  end_time = models.TimeField(null=True, blank=True, help_text='Workshop end time')
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
   enable_registration =  models.BooleanField(default=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
@@ -186,15 +196,32 @@ class Workshop (models.Model):
       return '%s - %s' % (self.workshop_category, self.name)
 
 
+class TeacherLeader(models.Model):
+  first_name = models.CharField(null=False, max_length=256, help_text='First name of the teacher')
+  last_name = models.CharField(null=False, max_length=256, help_text='Last name of the teacher')
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of the teacher leader')
+  school = models.ForeignKey(WorkPlace, null=True, on_delete=models.SET_NULL)
+  bio = RichTextField(null=True, blank=True)
+
+  class Meta:
+      ordering = ['-id']
+
+  def __str__(self):
+      return '%s %s' % (self.first_name, self.last_name)
+
+
 class WorkshopRegistrationSetting(models.Model):
-  workshop = models.OneToOneField(Workshop, null=False, related_name="registration", on_delete=models.CASCADE)
+  workshop = models.OneToOneField(Workshop, null=False, related_name="registration_setting", on_delete=models.CASCADE)
   registration_type = models.CharField(null=True, blank=True, max_length=1, choices=WORKSHOP_REGISTRATION_TYPE_CHOICES)
   capacity = models.IntegerField(null=True, blank=True, help_text='Maximum capacity for this workshop. Leave blank for unlimited capacity')
   enable_waitlist = models.BooleanField(default=False)
   waitlist_capacity = models.IntegerField(null=True, blank=True, help_text='Capacity for the waitlist. Leave blank for unlimited waitlist capacity')  
-  open_date = models.DateTimeField(null=True, blank=True, help_text="The date registration is open. Leave blank if registration is always open")
-  close_date = models.DateTimeField(null=True, blank=True, help_text="The date registration is closed. Leave blank if registration is always open")
+  open_date = models.DateField(null=True, blank=True, help_text="The date registration is open. Leave blank if registration is always open")
+  open_time = models.TimeField(null=True, blank=True)
+  close_date = models.DateField(null=True, blank=True, help_text="The date registration is closed. Leave blank if registration is always open")
+  close_time = models.TimeField(null=True, blank=True)
   registrants = models.ManyToManyField(UserProfile, through='Registration', null=True, blank=True)
+  confirmation_message = RichTextField(null=True, blank=True)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -213,6 +240,7 @@ class Registration(models.Model):
 
   class Meta:
       ordering = ['-id']
+      unique_together = ('workshop_registration_setting', 'user')
 
   def __str__(self):
       return '%s - Registration' % (self.workshop_registration_setting.workshop.name)

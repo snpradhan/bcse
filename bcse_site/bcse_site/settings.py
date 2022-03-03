@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bcse_app',
     'localflavor',
+    'storages',
     'ckeditor',
     'ckeditor_uploader',
     'compressor',
@@ -53,6 +54,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'bcse_site.urls'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_HOST = 's3-us-east-1.amazonaws.com'
+AWS_S3_URL = '%s.%s/' % (AWS_STORAGE_BUCKET_NAME, AWS_S3_HOST)
+AWS_S3_SECURE_URLS = True       # use http instead of https
+AWS_QUERYSTRING_AUTH = False
+AWS_DEFAULT_ACL = 'public-read'
 
 TEMPLATES = [
     {
@@ -91,8 +100,8 @@ CKEDITOR_CONFIGS = {
              ['Styles', 'Format', 'Font', 'FontSize', 'TextColor',
              'BGColor', 'Maximize', 'ShowBlocks', '-','Source','-','RemoveFormat']
         ],
-        'height': 100,
-        'width': '98%',
+        'height': '100%',
+        'width': '100%',
         'allowedContent': True,
         'mathJaxLib': '//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML',
         'codeSnippet_theme': 'monokai_sublime',

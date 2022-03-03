@@ -1,0 +1,60 @@
+footer {
+
+
+  .partners {
+    background-color: @nu-light-purple;
+    padding: 1.5em 5%;
+
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .partner {
+      vertical-align: middle;
+
+      img {
+        max-width: 100%;
+        position: relative;
+      }
+
+      &.baxter {
+        flex: 0 0 30%;
+      }
+      &.ocep {
+        flex: 0 0 20%;
+      }
+      &.lmsa {
+        flex: 0 0 10%;
+      }
+      &.rlhs {
+        flex: 0 0 10%;
+      }
+    }
+  }
+
+  .credits {
+    background-color: @nu-purple;
+    color:  white;
+    padding: 1em 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .credit {
+      flex: 0 0 33%;
+
+      &.social {
+        display: flex;
+        justify-content: flex-end;
+        gap:  1em;
+      }
+
+      a {
+        color:  inherit;
+      }
+    }
+
+  }
+
+}
