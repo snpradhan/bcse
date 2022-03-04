@@ -1,6 +1,8 @@
 {% if registration %}
   {% if registration.message %}
-    {{registration.message}}
+    <div class="message">
+      {{registration.message}}
+    </div>
   {% elif registration.form %}
     <form method="POST" id="formWorkshopRegistration_{{workshop.id}}" action="{% url 'bcse:workshopRegistration' workshop.id %}" class="formWorkshopRegistration">
       {% csrf_token %}
@@ -21,13 +23,15 @@
         {{registration.form.user.as_hidden}}
         {{registration.form.status.as_hidden}}
       {% endif %}
-      <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
-        {% if workshop.registration_setting.registration_type == 'R' %}
-          Register
-        {% else %}
-          Apply
-        {% endif %}
-      </button>
+      <div class="form-group mb-3 center">
+        <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+          {% if workshop.registration_setting.registration_type == 'R' %}
+            Register
+          {% else %}
+            Apply
+          {% endif %}
+        </button>
+      </div>
     </form>
   {% endif %}
 {% endif %}

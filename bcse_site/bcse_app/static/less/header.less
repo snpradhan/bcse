@@ -1,33 +1,81 @@
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 
+  .navbar {
+    background-color: #ffffff;
 
-.navbar {
-  a.navbar-brand {
-    background: url(/static/img/BCSEEvergreen2019.png) center / contain no-repeat;
-    width: 250px;
-    height: 50px;
-  }
- .navbar-nav {
-    gap: 1em;
-
-    li a {
-      font-weight : bold !important;
-      color : @baxter-gray !important;
-      font-size: 1em !important;
-      letter-spacing: 0.5px;
-      padding: 0.5em 1em;
-      text-transform: uppercase;
+    a.navbar-brand {
+      background: url(/static/img/BCSEEvergreen2019.png) center / contain no-repeat;
+      width: 250px;
+      height: 50px;
     }
-    li.active > a {
-      border-bottom: 3px solid @nu-purple;
+
+   ul.navbar-nav {
+
+      gap: 1em;
+
+      & > li.active, & > li:hover, & > li.active-trail {
+        & > a {
+          border-bottom: 3px solid @nu-purple;
+          background-color: unset !important;
+        }
+      }
+      & > li {
+        margin: 0 0.25em;
+      }
+      li a{
+        font-weight : bold !important;
+        color : @baxter-gray !important;
+        font-size: 1em !important;
+        letter-spacing: 0.5px;
+        padding: 0.5em 1em;
+        text-transform: uppercase;
+      }
+      li ul.dropdown-menu {
+        z-index: 1001;
+        background-color: @bcse-white;
+        padding: 0 1px;
+
+        span.caret {
+          display: none !important;
+        }
+        & > li {
+          border-bottom: 1px solid @bcse-white;;
+        }
+        & > li > a {
+          background-color: fade(@nu-purple, 50%);
+          font-size: 1em !important;
+          padding: 0.75em 1em;
+          color: @bcse-white !important;
+        }
+        & > li > a:hover {
+          background-color: fade(@nu-purple, 85%);
+        }
+        & > li.active > a {
+          background-color: @bcse-white;
+          color: @bcse-white !important;
+          background-color: fade(@nu-purple, 85%);
+        }
+        ul.dropdown-menu {
+          left: 100% !important;
+        }
+      }
+
     }
   }
-}
 
-.anniversary_banner {
-  background-color: @nu-purple;
-  color: #ffffff;
-  text-align: center;
-  vertical-align: middle;
-  font-size: 2em;
-  font-weight: 500;
+  .anniversary_banner {
+    background-color: @nu-purple;
+    color: #ffffff;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 2em;
+    font-weight: 500;
+    position: sticky;
+    top: 65px;
+    z-index: 1000;
+  }
+
 }

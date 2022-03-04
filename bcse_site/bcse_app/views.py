@@ -360,12 +360,11 @@ def workshopEdit(request, id=''):
     else:
       workshop = models.Workshop()
 
+    workshop_categories = models.WorkshopCategory.objects.all()
+
     if request.method == 'GET':
       form = forms.WorkshopForm(instance=workshop)
-      workshop_categories = models.WorkshopCategory.objects.all()
-
       context = {'form': form, 'workshop_registration_setting': workshop_registration_setting, 'workshop_categories': workshop_categories}
-
       return render(request, 'bcse_app/WorkshopEdit.html', context)
 
     elif request.method == 'POST':
@@ -379,9 +378,8 @@ def workshopEdit(request, id=''):
         messages.success(request, "Workshop saved")
         return shortcuts.redirect('bcse:workshopEdit', id=savedWorkshop.id)
       else:
-        workshop_categories = models.WorkshopCategory.objects.all()
+        messages.error(request, "Workshop could not be saved. Check the errors below.")
         context = {'form': form, 'workshop_registration_setting': workshop_registration_setting, 'workshop_categories': workshop_categories}
-
         return render(request, 'bcse_app/WorkshopEdit.html', context)
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
@@ -421,10 +419,13 @@ def workshopRegistration(request, workshop_id):
 
   registration = {}
   form = workshop_registration = message = None
+  registration_open = False
 
   workshop = models.Workshop.objects.get(id=workshop_id)
+  registration_setting_status = workshopRegistrationSettingStatus(workshop)
 
   if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
+
     if workshop.registration_setting.registration_type == 'R':
       default_registration_status = 'R'
     else:
@@ -436,6 +437,7 @@ def workshopRegistration(request, workshop_id):
       else:
         message = 'Please login to apply to this workshop'
     else:
+
       if request.user.userProfile.user_role in ['A', 'S']:
         workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
       else:
@@ -444,11 +446,14 @@ def workshopRegistration(request, workshop_id):
           message = workshopRegistrationMessage(workshop_registration)
         except models.Registration.DoesNotExist:
           workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=default_registration_status)
-
+          if registration_setting_status['message']:
+            message = registration_setting_status['message']
 
   if request.method == 'GET':
     if workshop_registration:
-      form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
+      if request.user.userProfile.user_role in ['A', 'S'] or registration_setting_status['registration_open']:
+        form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
+
     registration['form'] = form
     registration['instance'] = workshop_registration
     registration['message'] = message
@@ -488,6 +493,90 @@ def workshopRegistration(request, workshop_id):
     else:
       print('request non ajax')
       return registration
+
+################################################
+# Check if registration is open for a workshop
+# if not provide a message when registration
+# will open or was closed
+################################################
+def workshopRegistrationSettingStatus(workshop):
+
+  current_datetime = datetime.datetime.now()
+  current_date = current_datetime.date()
+  registration_open = False
+  open_datetime = open_date = close_datetime = close_date = open_close = open_close_date = None
+  message = None
+
+  if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type and current_date < workshop.start_date:
+    #check if registration open date exists
+    if workshop.registration_setting.open_date:
+      if workshop.registration_setting.open_time:
+        open_datetime = datetime.datetime.combine(workshop.registration_setting.open_date, workshop.registration_setting.open_time)
+      else:
+        open_date = workshop.registration_setting.open_date
+
+    #check if registration close date exists
+    if workshop.registration_setting.close_date:
+      if workshop.registration_setting.close_time:
+        close_datetime = datetime.datetime.combine(workshop.registration_setting.close_date, workshop.registration_setting.close_time)
+      else:
+        close_date = workshop.registration_setting.close_date
+
+    #if no open and close dates provided then registration is open
+    if open_datetime is None and open_date is None and close_datetime is None and close_date is None:
+      registration_open = True
+
+    elif open_datetime is not None:
+      if close_datetime is not None:
+        if open_datetime <= current_datetime and current_datetime <= close_datetime:
+          registration_open = True
+        else:
+          if current_datetime < open_datetime:
+            open_close = 'opens'
+            open_close_date = open_datetime
+          else:
+            open_close = 'closed'
+            open_close_date = close_datetime
+
+      elif close_date is not None:
+        if open_datetime <= current_datetime and current_date <= close_date:
+          registration_open = True
+        else:
+          if current_datetime < open_datetime:
+            open_close = 'opens'
+            open_close_date = open_datetime
+          else:
+            open_close = 'closed'
+            open_close_date = close_date
+
+    elif open_date is not None:
+      if close_datetime is not None:
+        if open_date <= current_date and current_datetime <= close_datetime:
+          registration_open = True
+        else:
+          if current_date < open_date:
+            open_close = 'opens'
+            open_close_date = open_date
+          else:
+            open_close = 'closed'
+            open_close_date = close_datetime
+
+      elif close_date is not None:
+        if open_date <= current_date and current_date <= close_date:
+          registration_open = True
+        else:
+          if current_date < open_date:
+            open_close = 'opens'
+            open_close_date = open_date
+          else:
+            open_close = 'closed'
+            open_close_date = close_date
+
+    if open_close and open_close_date:
+      message = 'Registration %s on %s' % (open_close, open_close_date.strftime("%B %d, %Y"))
+
+  return {'registration_open': registration_open, 'message': message}
+
 
 def workshopRegistrationEdit(request, workshop_id='', id=''):
 
@@ -536,17 +625,17 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
 
 def workshopRegistrationMessage(workshop_registration):
 
+  message = None
+
   if workshop_registration.workshop_registration_setting.registration_type == 'R':
     registration_type = 'registration'
   else:
     registration_type = 'application'
 
-  message = ''
-
   if workshop_registration.status == 'R':
-    message = 'You are registered for this workshop'
+    message = 'You have registered for this workshop'
   elif workshop_registration.status == 'A':
-    message = 'You have applied for this workshop'
+    message = 'You have applied to this workshop'
   elif workshop_registration.status == 'P':
     message = 'You %s is pending for this workshop' % registration_type
   elif workshop_registration.status == 'N':

@@ -1,47 +1,4 @@
 
-/* ----------- smartphone ----------- */
-/* Portrait and Landscape */
-@media only screen and (min-width: 320px) and (max-width: 667px) {
-  body {
-    font-size: 10px !important;
-  }
-}
-@media only screen and (min-width: 668px) and (max-width: 767px) {
-  body {
-    font-size: 11px !important;
-  }
-}
-/* ----------- tablet ----------- */
-/* Portrait and Landscape */
-@media only screen and (min-width: 768px) and (max-width: 1024px) {
-  body {
-    font-size: 12px !important;
-  }
-}
-
-@media only screen and (min-width: 1025px) and (max-width: 1199px) {
-  body {
-    font-size: 13px !important;
-  }
-}
-/* ----------- laptop and desktop ----------- */
-@media screen and (min-width: 1200px) and (max-width: 1600px) {
-  body {
-    font-size: 14px !important;
-  }
-}
-@media screen and (min-width: 1601px) and (max-width: 1919px) {
-  body {
-    font-size: 15px !important;
-  }
-}
-
-/* ----------- larger screens ----------- */
-@media screen and (min-width: 1920px) {
-  body {
-    font-size: 16px !important;
-  }
-}
 
 body {
   font-family : din-2014, sans-serif !important;
@@ -262,11 +219,20 @@ body {
         margin-right: 0.5em;
       }
 
-      div.start, div.end, div.location {
+      div.start, div.end, div.location, div.message {
         margin-bottom: 1em;
         font-weight: 600;
         font-size: 1.1em;
       }
+      div.workshop_registration {
+        margin-top: 2em;
+
+        div.message {
+          color: @nu-purple;
+          text-align: center;
+        }
+      }
+
     }
   }
   @media only screen and (max-width: 767px) {
