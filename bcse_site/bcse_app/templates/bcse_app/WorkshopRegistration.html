@@ -1,7 +1,13 @@
 {% if registration %}
   {% if registration.message %}
-    <div class="message">
-      {{registration.message}}
+    <div class="message {{registration.message_class}}">
+      <div>{{registration.message}}</div>
+      <br>
+      {% if registration.instance.id %}
+        <a role="button" class="btn btn-danger btn-small" href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}">
+          Delete
+        </a>
+      {% endif %}
     </div>
   {% elif registration.form %}
     <form method="POST" id="formWorkshopRegistration_{{workshop.id}}" action="{% url 'bcse:workshopRegistration' workshop.id %}" class="formWorkshopRegistration">

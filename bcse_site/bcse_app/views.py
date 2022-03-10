@@ -418,7 +418,7 @@ def workshopView(request, id=''):
 def workshopRegistration(request, workshop_id):
 
   registration = {}
-  form = workshop_registration = message = None
+  form = workshop_registration = message = message_class = None
   registration_open = False
 
   workshop = models.Workshop.objects.get(id=workshop_id)
@@ -436,18 +436,21 @@ def workshopRegistration(request, workshop_id):
         message = 'Please login to register for this workshop'
       else:
         message = 'Please login to apply to this workshop'
+      message_class = 'info'
     else:
-
       if request.user.userProfile.user_role in ['A', 'S']:
         workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
       else:
         try:
           workshop_registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
-          message = workshopRegistrationMessage(workshop_registration)
+          registration_message = workshopRegistrationMessage(workshop_registration)
+          message = registration_message['message']
+          message_class = registration_message['message_class']
         except models.Registration.DoesNotExist:
-          workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=default_registration_status)
+          workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
           if registration_setting_status['message']:
             message = registration_setting_status['message']
+            message_class = 'info'
 
   if request.method == 'GET':
     if workshop_registration:
@@ -457,25 +460,29 @@ def workshopRegistration(request, workshop_id):
     registration['form'] = form
     registration['instance'] = workshop_registration
     registration['message'] = message
+    registration['message_class'] = message_class
 
     return registration
 
   elif request.method == 'POST':
     data = request.POST.copy()
+    registration_id = None
     form = forms.WorkshopRegistrationForm(data, instance=workshop_registration, prefix='workshop-%s'%workshop.id)
-
     if form.is_valid():
       saved_registration = form.save()
+      registration_id = saved_registration.id
       if request.user.userProfile.user_role in ['A', 'S']:
         messages.success(request, "Workshop registration for user %s saved" % saved_registration.user)
         form = forms.WorkshopRegistrationForm(instance=workshop_registration)
       else:
-        message = workshopRegistrationMessage(saved_registration)
-        print(message)
+        registration_message = workshopRegistrationMessage(saved_registration)
+        message = registration_message['message']
+        message_class = registration_message['message_class']
 
       registration['form'] = form
       registration['instance'] = workshop_registration
       registration['message'] = message
+      registration['message_class'] = message_class
       success = True
 
     else:
@@ -485,11 +492,15 @@ def workshopRegistration(request, workshop_id):
       registration['form'] = form
       registration['instance'] = workshop_registration
       registration['message'] = message
+      registration['message_class'] = message_class
       success = False
 
     if request.is_ajax():
-      response_data = {'success': success, 'message': message}
-      return http.HttpResponse(json.dumps(response_data), content_type = 'application/json')
+      response_data = {'success': success, 'message': message, 'message_class': message_class}
+      if(registration_id):
+        response_data['registration_id'] = registration_id
+        response_data['workshop_id'] = workshop.id
+      return http.HttpResponse(json.dumps(response_data), content_type='application/json')
     else:
       print('request non ajax')
       return registration
@@ -505,9 +516,15 @@ def workshopRegistrationSettingStatus(workshop):
   current_date = current_datetime.date()
   registration_open = False
   open_datetime = open_date = close_datetime = close_date = open_close = open_close_date = None
-  message = None
+  message = default_registration_status = None
 
   if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type and current_date < workshop.start_date:
+    #default registration status
+    if workshop.registration_setting.registration_type == 'R':
+      default_registration_status = 'R'
+    else:
+      default_registration_status = 'A'
+
     #check if registration open date exists
     if workshop.registration_setting.open_date:
       if workshop.registration_setting.open_time:
@@ -572,10 +589,32 @@ def workshopRegistrationSettingStatus(workshop):
             open_close = 'closed'
             open_close_date = close_date
 
+    #check if the current date is outside the registration open dates
     if open_close and open_close_date:
       message = 'Registration %s on %s' % (open_close, open_close_date.strftime("%B %d, %Y"))
+    elif registration_open:
+      #check if workshop capacity has reached
+      if workshop.registration_setting.registration_type == 'R' and workshop.registration_setting.capacity is not None and workshop.registration_setting.capacity >= 0:
+        total_registrations = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R').count()
+        #capacity has reached
+        if total_registrations >= workshop.registration_setting.capacity:
+          #check if there is room in the waitlist
+          if workshop.registration_setting.enable_waitlist:
+            if workshop.registration_setting.waitlist_capacity is not None and workshop.registration_setting.waitlist_capacity >= 0:
+              total_waitlisted = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').count()
+              if total_waitlisted >= workshop.registration_setting.waitlist_capacity:
+                registration_open = False
+                message = 'We have reached capacity for this workshop'
+              else:
+                default_registration_status = 'W'
+            else:
+              default_registration_status = 'W'
+          else:
+            registration_open = False
+            message = 'We have reached capacity for this workshop'
 
-  return {'registration_open': registration_open, 'message': message}
+
+  return {'registration_open': registration_open, 'message': message, 'default_registration_status': default_registration_status}
 
 
 def workshopRegistrationEdit(request, workshop_id='', id=''):
@@ -587,6 +626,8 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
     if '' != id:
       registration = models.Registration.objects.get(id=id)
       workshop = models.Workshop.objects.get(id=workshop_id)
+      if registration.workshop_registration_setting.workshop.id != workshop.id:
+        raise CustomException('Registration does not belong to the workshop')
 
     if request.method == 'GET':
       form = forms.WorkshopRegistrationForm(instance=registration)
@@ -608,7 +649,6 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/WorkshopRegistrationModal.html', context, request)
 
-      print('before returning')
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
@@ -623,9 +663,39 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+def workshopRegistrationDelete(request, workshop_id='', id=''):
+
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to edit this registration')
+    else:
+      registration = models.Registration.objects.get(id=id)
+      workshop = models.Workshop.objects.get(id=workshop_id)
+
+      if request.user.userProfile.user_role not in ['A', 'S']:
+        if request.user.userProfile != registration.user:
+          raise CustomException('You do not have the permission to edit this registration')
+
+      if registration.workshop_registration_setting.workshop.id != workshop.id:
+        raise CustomException('Registration does not belong to the workshop')
+
+      registration.delete()
+      messages.success(request, "Registration has been deleted")
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.Registration.DoesNotExist:
+    messages.success(request, "Registration not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 def workshopRegistrationMessage(workshop_registration):
 
-  message = None
+  message = message_class = None
 
   if workshop_registration.workshop_registration_setting.registration_type == 'R':
     registration_type = 'registration'
@@ -633,17 +703,25 @@ def workshopRegistrationMessage(workshop_registration):
     registration_type = 'application'
 
   if workshop_registration.status == 'R':
-    message = 'You have registered for this workshop'
+    message = 'You are registered for this workshop'
+    message_class = 'success'
   elif workshop_registration.status == 'A':
     message = 'You have applied to this workshop'
+    message_class = 'success'
+  elif workshop_registration.status == 'C':
+    message = 'You %s has been accepted for this workshop' % registration_type
+    message_class = 'success'
   elif workshop_registration.status == 'P':
     message = 'You %s is pending for this workshop' % registration_type
+    message_class = 'warning'
   elif workshop_registration.status == 'N':
     message = 'Your %s is cancelled for this workshop' % registration_type
+    message_class = 'error'
   elif workshop_registration.status == 'W':
     message = 'Your %s is waitlisted for this workshop' % registration_type
+    message_class = 'warning'
 
-  return message
+  return {'message': message, 'message_class': message_class}
 
 def workshops(request, flag='list'):
 

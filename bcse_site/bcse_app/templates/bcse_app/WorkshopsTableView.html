@@ -40,8 +40,9 @@
               <td> {{workshop.created_date|date}} </td>
               <td> {{workshop.modified_date|date}} </td>
               {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-                <td>
-                  <a class="btn btn-success" role="button" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a>
+                <td width="15%">
+                  <a class="btn btn-small" role="button" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a>
+                  <a class="btn btn-small" role="button" href="{% url 'bcse:workshopView' workshop.id %}">View</a>
                 </td>
               {% endif %}
             </tr>

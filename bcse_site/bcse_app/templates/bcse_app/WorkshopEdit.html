@@ -15,6 +15,11 @@
         <form method="post" enctype="multipart/form-data" id="formWorkshop">
           {% csrf_token %}
           {{form.media}}
+          <div class="form-group mb-3 right">
+            <button class="btn" type="submit" id="submit_top">
+              Save Workshop
+            </button>
+          </div>
 
           <div class="form-group mb-3">
             <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}</label>
@@ -98,7 +103,7 @@
           </div>
 
           <div class="form-group mb-3 right">
-            <button class="btn btn-success" type="submit" id="submit">
+            <button class="btn" type="submit" id="submit_bottom">
               Save Workshop
             </button>
           </div>

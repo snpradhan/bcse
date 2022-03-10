@@ -19,6 +19,7 @@ urlpatterns = [
     path('workshop/<int:id>/registrants/', views.workshopRegistrants, name='workshopRegistrants'),
     path('workshop/<int:workshop_id>/registration/', views.workshopRegistration, name='workshopRegistration'),
     path('workshop/<int:workshop_id>/registration/<int:id>/edit', views.workshopRegistrationEdit, name='workshopRegistrationEdit'),
+    path('workshop/<int:workshop_id>/registration/<int:id>/delete', views.workshopRegistrationDelete, name='workshopRegistrationDelete'),
     path('signin/', views.userSignin, name='signin'),
     path('signin_redirect/', views.signinRedirect, name='signinRedirect'),
     path('signin/<str:user_name>/', views.userSignin, name='signin'),

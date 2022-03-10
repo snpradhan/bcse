@@ -84,6 +84,30 @@
 
   <script type="text/javascript">
     $(function (){
+      $('#id_registration_type').on('change', function(e){
+        if($(this).val() == 'R') {
+          $('#id_capacity').closest('.form-group').show();
+          $('#id_enable_waitlist').closest('.form-group').show();
+        }
+        else{
+          $('#id_capacity').val("").closest('.form-group').hide();
+          $('#id_enable_waitlist').removeAttr('checked').closest('.form-group').hide();
+          $('#id_waitlist_capacity').val("").closest('.form-group').hide();
+        }
+      });
+
+      $('#id_enable_waitlist:visible').on('change', function(e){
+        if($(this).is(':checked')) {
+          $('#id_waitlist_capacity').closest('.form-group').show();
+        }
+        else {
+          $('#id_waitlist_capacity').val("").closest('.form-group').hide();
+        }
+      });
+
+      $('#id_registration_type').trigger('change');
+      $('#id_enable_waitlist:visible').trigger('change');
+
       
     });
   </script>
