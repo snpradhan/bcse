@@ -6,11 +6,11 @@
   <div class="content">
     <div class="workshop_container container">
       <h1 class="center"> {{workshop.name}}</h1>
-      {% include "bcse_app/WorkshopTabs.html" with tab='registration_setting' %}
       <div class="workshop_form">
         <form method="post" enctype="multipart/form-data" id="formWorkshopRegistrationSetting">
           {% csrf_token %}
           {{form.management_form}}
+          {% include "bcse_app/WorkshopTabs.html" with tab='registration_setting' %}
 
           <div>{{form.workshop.as_hidden}}</div>
           <div>{{form.registrants.as_hidden}}</div>

@@ -338,12 +338,53 @@ def checkAvailability(current_reservation_id, equipment_types, start_date, end_d
 
   return equipment_availability_matrix
 
-
+@login_required
 def workshopCategory(request, id=''):
-  workshop_category = models.WorkshopCategory.objects.get(id=id)
-  response_data = {'success': True, 'id': workshop_category.id, 'name': workshop_category.name, 'need_teacher_info': workshop_category.need_teacher_info}
-  return http.HttpResponse(json.dumps(response_data), content_type = 'application/json')
 
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop categories')
+    if '' != id:
+      workshop_category = models.WorkshopCategory.objects.get(id=id)
+    else:
+      workshop_category = models.WorkshopCategory()
+
+    if request.method == 'GET':
+      form = forms.WorkshopCategoryForm(instance=workshop_category)
+      context = {'form': form}
+      return render(request, 'bcse_app/WorkshopCategoryEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.WorkshopCategoryForm(data, files=request.FILES, instance=workshop_category)
+      if form.is_valid():
+        savedCategory = form.save()
+        messages.success(request, "Workshop Category saved")
+        return shortcuts.redirect('bcse:workshopCategory', id=savedCategory.id)
+      else:
+        print(form.errors)
+        message.error(request, "Workshop Category could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/WorkshopCategoryEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def workshopCategories(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop categories')
+
+    workshop_categories = models.WorkshopCategory.objects.all()
+    context = {'workshop_categories': workshop_categories}
+    return render(request, 'bcse_app/WorkshopCategories.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def workshopEdit(request, id=''):
 
@@ -922,3 +963,15 @@ def userProfileEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+@login_required
+def adminConfiguration(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in 'AS':
+      raise CustomException('You do not have the permission to access this configuration')
+
+    context = {}
+    return render(request, 'bcse_app/AdminConfiguration.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))

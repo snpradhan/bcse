@@ -14,6 +14,7 @@ urlpatterns = [
     path('workshop/<int:id>/view', views.workshopView, name='workshopView'),
     path('workshop/<int:id>/delete', views.workshopDelete, name='workshopDelete'),
     path('workshopCategory/<int:id>', views.workshopCategory, name='workshopCategory'),
+    path('workshopCategory/new', views.workshopCategory, name='workshopCategoryNew'),
     path('workshop/new', views.workshopEdit, name='workshopNew'),
     path('workshops/<str:flag>', views.workshops, name='workshops'),
     path('workshop/<int:id>/registration_setting/edit', views.workshopRegistrationSetting, name='workshopRegistrationSetting'),
@@ -28,4 +29,6 @@ urlpatterns = [
     path('signout/', views.userSignout, name='signout'),
     path('userProfile/<int:id>/edit', views.userProfileEdit, name='userProfileEdit'),
     path('userProfile/<int:id>/view', views.userProfileView, name='userProfileView'),
+    path('adminConfiguration/', views.adminConfiguration, name='adminConfiguration'),
+    path('workshopCategories/', views.workshopCategories, name='workshopCategories'),
 ]

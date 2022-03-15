@@ -24,6 +24,11 @@ def navactive(request, urls, *args):
       return "active"
   return ""
 
+@register.simple_tag
+def leftnavactive(request, token):
+  if token in request.path:
+    return "show"
+  return ""
 
 @register.simple_tag
 def settings_value(name):

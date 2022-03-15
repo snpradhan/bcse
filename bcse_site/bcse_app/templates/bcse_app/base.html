@@ -71,6 +71,11 @@
                 <li class="nav-item">
                   <a class="nav-link">About Us</a>
                 </li>
+                {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                  <li class="{% navactive request 'bcse:adminConfiguration' %}">
+                    <a class="dropdown-item" href="{% url 'bcse:adminConfiguration' %}">Admin Configuration</a>
+                  </li>
+                {% endif %}
                 {% if user.is_anonymous %}
                   <li class="nav-item">
                     <a class="nav-link signin modal-open" data-bs-toggle="modal" data-bs-target="#signin" data-href="{% url 'bcse:signin' %}" href="#">Sign In/Sign Up</a>

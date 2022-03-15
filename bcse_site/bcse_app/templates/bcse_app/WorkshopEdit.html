@@ -10,11 +10,13 @@
       {% else %}
         <h1 class="center"> Create Workshop </h1>
       {% endif %}
-      {% include "bcse_app/WorkshopTabs.html" with workshop=form.instance tab='edit' %}
+
       <div class="workshop_form">
         <form method="post" enctype="multipart/form-data" id="formWorkshop">
           {% csrf_token %}
           {{form.media}}
+
+          {% include "bcse_app/WorkshopTabs.html" with workshop=form.instance tab='edit' %}
 
           <div class="form-group mb-3">
             <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}</label>

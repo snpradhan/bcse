@@ -12,11 +12,14 @@
           My Workshops
         {% endif %}
       </h1>
+      {% now 'Y-m-d' as current_date %}
       {% include "bcse_app/WorkshopsButtons.html" with format='list' %}
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th> Workshop ID</th>
+            {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+              <th> Workshop ID</th>
+            {% endif %}
             <th> Workshop Type </th>
             <th> Title </th>
             <th> Start Date/Time </th>
@@ -44,9 +47,17 @@
           {% for workshop_obj in workshop_list %}
             {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
             <tr>
-              <td> {{workshop.id}}</td>
+              {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                <td> {{workshop.id}}</td>
+              {% endif %}
               <td> {{workshop.workshop_category}} </td>
-              <td> <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a> </td>
+              <td>
+                {% if user.is_authenticated and user.userProfile.user_role in 'AS' or workshop.status == 'A' %}
+                  <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a>
+                {% else %}
+                  {{workshop.name}}
+                {% endif %}
+              </td>
               <td>
                 {{workshop.start_date|date}}
                 {% if workshop.start_time %}
@@ -96,20 +107,25 @@
                 {% else %}
                   <td>{{registration.instance.get_status_display}}</td>
                   <td width="15%">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Action
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                          <a class="dropdown-item delete_registration" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
-                          data-title="{{workshop.name}}">
-                            Delete Registration
-                          </a>
-                        </li>
-                      </ul>
+                    {% if workshop.status == 'A'%}
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                          Action
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
+                          {% if current_date < workshop.start_date|date:'Y-m-d' %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                              <a class="dropdown-item delete_registration" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
+                              data-title="{{workshop.name}}">
+                                Delete Registration
+                              </a>
+                            </li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                    {% endif %}
                   </td>
                 {% endif %}
               {% endif %}

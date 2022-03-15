@@ -1,0 +1,49 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  {% if form.instance.id %}
+    <h1 class="center"> {{form.instance.name}} </h1>
+  {% else %}
+    <h1 class="center"> Create Workshop Category </h1>
+  {% endif %}
+  <div class="workshop_category_form">
+    <form method="post" enctype="multipart/form-data" id="formWorkshopCategory">
+      {% csrf_token %}
+      {{form.media}}
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
+        <div>{{form.name}}</div>
+        <div class="error">{{ form.name.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.description.name}}" class="form-label"> {{form.description.label|title}}</label>
+        <div>{{form.description}}</div>
+        <div class="error">{{ form.description.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.workshop_type.name}}" class="form-label"> {{form.workshop_type.label|title}}</label>
+        <div>{{form.workshop_type}}</div>
+        <div class="error">{{ form.workshop_type.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
+        <div>{{form.image}}</div>
+        <div class="error">{{ form.image.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
+        <div>{{form.status}}</div>
+        <div class="error">{{ form.status.errors }}</div>
+      </div>
+      <div class="form-group mb-3 right">
+        <button class="btn" type="submit" id="submit_bottom">
+          Save Workshop Category
+        </button>
+      </div>
+
+    </form>
+  </div>
+{% endblock %}
