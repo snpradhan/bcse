@@ -15,11 +15,6 @@
         <form method="post" enctype="multipart/form-data" id="formWorkshop">
           {% csrf_token %}
           {{form.media}}
-          <div class="form-group mb-3 right">
-            <button class="btn" type="submit" id="submit_top">
-              Save Workshop
-            </button>
-          </div>
 
           <div class="form-group mb-3">
             <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}</label>
@@ -103,6 +98,9 @@
           </div>
 
           <div class="form-group mb-3 right">
+            {% if form.instance.id %}
+              <button class="btn btn-danger delete_workshop" data-href="{% url 'bcse:workshopDelete' form.instance.id %}" data-title="{{form.instance.name}}" data-registrants="{{form.instance.registration_setting.registrants.all|length}}">Delete</button>
+            {% endif %}
             <button class="btn" type="submit" id="submit_bottom">
               Save Workshop
             </button>

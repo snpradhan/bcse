@@ -32,6 +32,59 @@ $(function (){
       },
     });
   });
+
+
+  $('.delete_workshop').on('click', function(e){
+    e.preventDefault();
+    var link = $(this).data('href');
+    var title = $(this).data('title');
+    var registrants = $(this).data('registrants');
+
+    bootbox.confirm({ title: 'Confirm',
+                      message: "<p>Do you want to delete the workshop <strong>"+title+"</strong></p>",
+                      buttons: {
+                        confirm: {
+                            label: 'Delete',
+                            className: 'btn btn-small btn-danger'
+                        },
+                        cancel: {
+                            label: 'Cancel',
+                            className: 'btn btn-small'
+                        }
+                      },
+                      callback: function(result){
+                        if (result == true) {
+                          window.location = link;
+                        }
+                      },
+                    });
+  });
+
+  $('.delete_registration').on('click', function(e){
+    e.preventDefault();
+    var link = $(this).data('href');
+    var title = $(this).data('title');
+
+    bootbox.confirm({ title: 'Confirm',
+                      message: "<p>Do you want to delete your registration for <strong>"+title+"</strong></p>",
+                      buttons: {
+                        confirm: {
+                            label: 'Delete',
+                            className: 'btn btn-small btn-danger'
+                        },
+                        cancel: {
+                            label: 'Cancel',
+                            className: 'btn btn-small'
+                        }
+                      },
+                      callback: function(result){
+                        if (result == true) {
+                          window.location = link;
+                        }
+                      },
+                    });
+  });
+
 });
 
 

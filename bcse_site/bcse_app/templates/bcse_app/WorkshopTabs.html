@@ -1,17 +1,40 @@
-{% if workshop.id and user.is_authenticated and user.userProfile.user_role in 'AS' %}
+{% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-      <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:workshopView' workshop.id %}">View</a></label>
+      <label><a class="nav-link" aria-current="page" href="{% url 'bcse:workshops' 'table' %}">Back to Workshops</a></label>
     </li>
-    <li>
-      <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></label>
-    </li>
-    {% if workshop.enable_registration and workshop.registration_setting %}
-      <li>
-        <label><a class="nav-link {% if tab == 'registration_setting' %}active{% endif %}" href="{% url 'bcse:workshopRegistrationSetting' workshop.id %}">Registration Setting</a></label>
+    {% if workshop.id %}
+      <li class="nav-item">
+        <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:workshopView' workshop.id %}">View</a></label>
       </li>
-      <li>
-        <label><a class="nav-link {% if tab == 'registrants' %}active{% endif %}" href="{% url 'bcse:workshopRegistrants' workshop.id %}">Registrants</a></label>
+      <li class="nav-item">
+        <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></label>
+      </li>
+      {% if workshop.enable_registration and workshop.registration_setting %}
+        <li class="nav-item">
+          <label><a class="nav-link {% if tab == 'registration_setting' %}active{% endif %}" href="{% url 'bcse:workshopRegistrationSetting' workshop.id %}">Registration Setting</a></label>
+        </li>
+        <li class="nav-item">
+          <label><a class="nav-link {% if tab == 'registrants' %}active{% endif %}" href="{% url 'bcse:workshopRegistrants' workshop.id %}">Registrants</a></label>
+        </li>
+      {% endif %}
+    {% elif tab == 'edit' %}
+      <li class="nav-item">
+        <label><a class="nav-link active" aria-current="page">Edit</a></label>
+      </li>
+    {% endif %}
+
+    {% if tab == 'edit' %}
+      <li class="nav-item right">
+        <button class="btn" type="submit" id="submit_top">
+          Save Workshop
+        </button>
+      </li>
+    {% elif tab == 'registration_setting' %}
+      <li class="nav-item right">
+        <button class="btn" type="submit" id="submit_top">
+          Save Registration Setting
+        </button>
       </li>
     {% endif %}
   </ul>

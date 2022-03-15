@@ -5,24 +5,39 @@
   {{block.super}}
   <div class="content">
     <div class="workshops_container container">
-      <h1 class="center"> Workshops </h1>
+      <h1 class="center">
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          Workshops
+        {% else %}
+          My Workshops
+        {% endif %}
+      </h1>
       {% include "bcse_app/WorkshopsButtons.html" with format='list' %}
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th> Workshop ID</th>
             <th> Workshop Type </th>
-            <th> Name </th>
-            <th> Start Date </th>
-            <th> End Date </th>
+            <th> Title </th>
+            <th> Start Date/Time </th>
+            <th> End Date/Time </th>
             <th> Location </th>
-            <th> Registration Enabled? </th>
-            <th> Status </th>
-            <th> Created Date</th>
-            <th> Modified Date </th>
-            {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-              <th> Actions </th>
+            {% if user.is_authenticated %}
+              {% if user.userProfile.user_role in 'AS' %}
+                <th> Registration Enabled? </th>
+                <th> Capacity </th>
+                <th> Waitlist Enabled?</th>
+                <th> Waitlist Capacity</th>
+                <th> Number of Registrants</th>
+                <th> Created Date</th>
+                <th> Modified Date </th>
+                <th> Workshop Status </th>
+              {% else %}
+                <th> Registration Status </th>
+              {% endif %}
+                <th> Actions </th>
             {% endif %}
+
           </tr>
         </thead>
         <tbody>
@@ -32,18 +47,71 @@
               <td> {{workshop.id}}</td>
               <td> {{workshop.workshop_category}} </td>
               <td> <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a> </td>
-              <td> {{workshop.start_date|date}}</td>
-              <td> {{workshop.end_date|date}}</td>
+              <td>
+                {{workshop.start_date|date}}
+                {% if workshop.start_time %}
+                  - {{workshop.start_time}}
+                {% endif %}
+              </td>
+              <td> {{workshop.end_date|date}}
+                {% if workshop.end_time %}
+                  - {{workshop.end_time}}
+                {% endif %}</td>
               <td> {{workshop.location}} </td>
-              <td> {{workshop.enable_registration|yesno}} </td>
-              <td> {{workshop.get_status_display}} </td>
-              <td> {{workshop.created_date|date}} </td>
-              <td> {{workshop.modified_date|date}} </td>
-              {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-                <td width="15%">
-                  <a class="btn btn-small" role="button" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a>
-                  <a class="btn btn-small" role="button" href="{% url 'bcse:workshopView' workshop.id %}">View</a>
-                </td>
+              {% if user.is_authenticated %}
+                {% if user.userProfile.user_role in 'AS' %}
+                  <td> {{workshop.enable_registration|yesno|title}} </td>
+                  <td>
+                    {% if workshop.enable_registration %}
+                      {{workshop.capacity}}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if workshop.enable_registration %}
+                      {{workshop.waitlist_enabled}}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if workshop.enable_waitlist %}
+                      {{workshop.waitlist_capacity}}
+                    {% endif %}
+                  </td>
+                  <td> {{workshop.registration_setting.registrants.all|length}}</td>
+                  <td> {{workshop.created_date|date}} </td>
+                  <td> {{workshop.modified_date|date}} </td>
+                  <td> {{workshop.get_status_display}} </td>
+
+                  <td width="15%">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Action
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></li>
+                        <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item delete_workshop" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="{{workshop.name}}" data-registrants="{{workshop.registration_setting.registrants.all|length}}">Delete</a></li>
+                      </ul>
+                  </td>
+                {% else %}
+                  <td>{{registration.instance.get_status_display}}</td>
+                  <td width="15%">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Action
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <a class="dropdown-item delete_registration" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
+                          data-title="{{workshop.name}}">
+                            Delete Registration
+                          </a>
+                        </li>
+                      </ul>
+                  </td>
+                {% endif %}
               {% endif %}
             </tr>
             {% endwith %}

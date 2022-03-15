@@ -12,6 +12,7 @@ urlpatterns = [
     path('reservations', views.reservations, name='reservations'),
     path('workshop/<int:id>/edit', views.workshopEdit, name='workshopEdit'),
     path('workshop/<int:id>/view', views.workshopView, name='workshopView'),
+    path('workshop/<int:id>/delete', views.workshopDelete, name='workshopDelete'),
     path('workshopCategory/<int:id>', views.workshopCategory, name='workshopCategory'),
     path('workshop/new', views.workshopEdit, name='workshopNew'),
     path('workshops/<str:flag>', views.workshops, name='workshops'),

@@ -14,6 +14,7 @@
 
       {% block js %}
         <script src="https://kit.fontawesome.com/e8f42db089.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
         <script type="text/javascript" src="{% staticfile 'js/modal.js' %}"></script>
         <script type="text/javascript" src="{% staticfile 'js/bcse.js' %}"></script>
       {% endblock %}
@@ -50,7 +51,11 @@
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Professional Learning</a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:workshops' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
-                    <li class="{% navactive request 'bcse:workshops' 'table' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'table' %}">Workshops Table</a></li>
+                    {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
+                    <li class="{% navactive request 'bcse:workshops' 'table' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:workshops' 'table' %}">My Workshops</a>
+                    </li>
+                    {% endif %}
                     <li class="{% navactive request 'bcse:reservations' %}"><a class="dropdown-item" href="{% url 'bcse:reservations' %}">All Reservations</a></li>
                   </ul>
                 </li>
@@ -133,6 +138,19 @@
             </div>
             <div class="modal-body">
               <p class="warning"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal" id="confirmation" role="dialog">
+        <div class="modal-dialog modal-md">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h3 class="left">Warning</h3>
+            </div>
+            <div class="modal-body">
+              <p class="confirmation"></p>
             </div>
           </div>
         </div>

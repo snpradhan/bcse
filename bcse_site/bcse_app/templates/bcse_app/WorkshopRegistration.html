@@ -4,7 +4,7 @@
       <div>{{registration.message}}</div>
       <br>
       {% if registration.instance.id %}
-        <a role="button" class="btn btn-danger btn-small" href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}">
+        <a role="button" class="btn btn-danger btn-small delete_registration" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}" data-title="{{workshop.name}}">
           Delete
         </a>
       {% endif %}

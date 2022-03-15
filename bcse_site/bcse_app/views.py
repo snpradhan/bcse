@@ -391,6 +391,28 @@ def workshopEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+def workshopDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete this workshop')
+
+    workshop_registration_setting = None
+
+    if '' != id:
+      workshop = models.Workshop.objects.get(id=id)
+      workshop.delete()
+      messages.success(request, "Workshop deleted")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 def workshopView(request, id=''):
   try:
     if '' != id:
@@ -723,12 +745,22 @@ def workshopRegistrationMessage(workshop_registration):
 
   return {'message': message, 'message_class': message_class}
 
+
 def workshops(request, flag='list'):
 
   if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
     workshops = models.Workshop.objects.all().filter(status='A')
+
+  if request.user.is_authenticated:
+    if request.user.userProfile.user_role in ['A', 'S']:
+      workshops = models.Workshop.objects.all()
+    else:
+      if flag =='list':
+        workshops = models.Workshop.objects.all().filter(status='A')
+      else:
+        workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user=request.user.userProfile)
   else:
-    workshops = models.Workshop.objects.all()
+    workshops = models.Workshop.objects.all().filter(status='A')
 
   workshop_list = []
   for workshop in workshops:

@@ -5,6 +5,10 @@
   {{block.super}}
   <div class="content">
     <div class="workshop_container container">
+      {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+        <h1 class="center"> {{workshop.name}} </h1>
+      {% endif %}
+
       {% include "bcse_app/WorkshopTabs.html" with tab='view' %}
       <div class="tile workshop_header">
         <div class="image">

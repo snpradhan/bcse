@@ -213,6 +213,7 @@ class TeacherLeader(models.Model):
 class WorkshopRegistrationSetting(models.Model):
   workshop = models.OneToOneField(Workshop, null=False, related_name="registration_setting", on_delete=models.CASCADE)
   registration_type = models.CharField(null=True, blank=True, max_length=1, choices=WORKSHOP_REGISTRATION_TYPE_CHOICES)
+  survey_url = models.URLField(null=True, blank=True)
   capacity = models.IntegerField(null=True, blank=True, help_text='Maximum capacity for this workshop. Leave blank for unlimited capacity')
   enable_waitlist = models.BooleanField(default=False)
   waitlist_capacity = models.IntegerField(null=True, blank=True, help_text='Capacity for the waitlist. Leave blank for unlimited waitlist capacity')  
