@@ -99,9 +99,10 @@
                       </button>
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item delete_workshop" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="{{workshop.name}}" data-registrants="{{workshop.registration_setting.registrants.all|length}}">Delete</a></li>
+                        <li><a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="the workshop <strong>{{workshop.name}}</strong>">Delete</a></li>
                       </ul>
                   </td>
                 {% else %}
@@ -117,8 +118,8 @@
                           {% if current_date < workshop.start_date|date:'Y-m-d' %}
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                              <a class="dropdown-item delete_registration" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
-                              data-title="{{workshop.name}}">
+                              <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
+                              data-title="your registration for <strong>{{workshop.name}}</strong>">
                                 Delete Registration
                               </a>
                             </li>

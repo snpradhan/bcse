@@ -30,9 +30,24 @@
               <td> {{registrant.user.user.get_full_name}}</td>
               <td> {{registrant.created_date|date}}</td>
               <td> {{registrant.get_status_display}} </td>
-              <td width="15%">
-                <a role="button" class="btn btn-small registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' workshop.id registrant.id %}" href="#">Edit</a>
-                <a role="button" class="btn btn-small btn-danger registration_delete" href="{% url 'bcse:workshopRegistrationDelete' workshop.id registrant.id %}">Delete</a>
+              <td>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' workshop.id registrant.id %}" href="#">Edit</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registrant.id %}"
+                      data-title="the registration for <strong>{{registrant.user.user.get_full_name}}</strong>">
+                        Delete
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </td>
             </tr>
           {% endfor %}

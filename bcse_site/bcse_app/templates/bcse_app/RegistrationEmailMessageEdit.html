@@ -1,0 +1,103 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  {% if form.instance.id %}
+    <h1 class="center"> Registration Email Message for {{form.instance.get_registration_status_display}} </h1>
+  {% else %}
+    <h1 class="center"> Create Registration Email Message </h1>
+  {% endif %}
+  <div class="workshop_category_form">
+    <form method="post" enctype="multipart/form-data" id="formWorkshopCategory">
+      {% csrf_token %}
+      {{form.media}}
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.registration_status.name}}" class="form-label"> {{form.registration_status.label|title}}</label>
+        <div>{{form.registration_status}}</div>
+        <div class="error">{{ form.registration_status.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.email_subject.name}}" class="form-label"> {{form.email_subject.label|title}}</label>
+        <div>{{form.email_subject}}</div>
+        <div class="error">{{ form.email_subject.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.email_message.name}}" class="form-label"> {{form.email_message.label|title}}</label>
+        <div>{{form.email_message}}</div>
+        <div class="error">{{ form.email_message.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <a role="button" data-bs-toggle="collapse" aria-expanded="false" href="#replacement_patterns" aria-controls="replacement_patterns">
+         <label class="form-label">Replacement Patterns</label>
+        </a>
+        <div class="collapse" id="replacement_patterns">
+          <table class="table table-bordered table-striped" >
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>[workshop_category]</td>
+                <td>Workshop Category</td>
+              </tr>
+              <tr>
+                <td>[workshop_title]</td>
+                <td>Workshop Title</td>
+              </tr>
+              <tr>
+                <td>[workshop_sub_title]</td>
+                <td>Workshop Sub Title</td>
+              </tr>
+              <tr>
+                <td>[workshop_start_date]</td>
+                <td>Workshop Start Date</td>
+              </tr>
+              <tr>
+                <td>[workshop_start_time]</td>
+                <td>Workshop Start Time</td>
+              </tr>
+              <tr>
+                <td>[workshop_end_date]</td>
+                <td>Workshop End Date</td>
+              </tr>
+              <tr>
+                <td>[workshop_end_time]</td>
+                <td>Workshop End Time</td>
+              </tr>
+              <tr>
+                <td>[workshop_summary]</td>
+                <td>Workshop Summary</td>
+              </tr>
+              <tr>
+                <td>[workshop_location]</td>
+                <td>Workshop Location</td>
+              </tr>
+              <tr>
+                <td>[workshop_survey_url]</td>
+                <td>Workshop Survey URL</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="warning">You may use one or more replacement patterns in the Subject or Message fields</div>
+        </div>
+      </div>
+      
+      <div class="form-group mb-3 right">
+        {% if form.instance.id %}
+          <button class="btn btn-danger delete action" data-href="{% url 'bcse:registrationEmailMessageDelete' form.instance.id %}"
+                  data-title="registration email message for status <strong>{{form.instance.get_registration_status_display}}</strong>">
+            Delete
+          </button>
+        {% endif %}
+        <button class="btn" type="submit" id="submit_bottom">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

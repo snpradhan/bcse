@@ -57,6 +57,7 @@ WORKSHOP_REGISTRATION_STATUS_CHOICES = (
   ('R', 'Registered'),
   ('A', 'Applied'),
   ('C', 'Accepted'),
+  ('D', 'Denied'),
   ('N', 'Cancelled'),
   ('W', 'Waitlisted'),
   ('P', 'Pending'),
@@ -223,7 +224,6 @@ class WorkshopRegistrationSetting(models.Model):
   close_date = models.DateField(null=True, blank=True, help_text="The date registration is closed. Leave blank if registration is always open")
   close_time = models.TimeField(null=True, blank=True)
   registrants = models.ManyToManyField(UserProfile, through='Registration', null=True, blank=True)
-  confirmation_message = RichTextField(null=True, blank=True)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -246,6 +246,17 @@ class Registration(models.Model):
 
   def __str__(self):
       return '%s - Registration' % (self.workshop_registration_setting.workshop.name)
+
+class RegistrationEmailMessage(models.Model):
+  registration_status = models.CharField(null=False, blank=False, max_length=1, unique=True, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
+  email_subject = models.CharField(null=False, max_length=256)
+  email_message = RichTextField(null=False, blank=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['registration_status']
+
 
 class ActivityKit(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable Kit')

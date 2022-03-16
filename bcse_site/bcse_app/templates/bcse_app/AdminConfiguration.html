@@ -12,17 +12,26 @@
             <a class="nav-link" href="{% url 'bcse:adminConfiguration' %}">Admin Home</a>
           </li>
           <li><hr class="dropdown-divider"></li>
-          <li class="nav-item {% navactive request 'bcse:workshopCategories' %}">
-            <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#workshop_config" aria-controls="workshop_config">
-              Workshop Configuration
-            </a>
-            <ul class="collapse navbar-nav {% leftnavactive request 'workshopCategories' %} {% leftnavactive request 'workshopCategory' %}" id="workshop_config">
+          <li class="nav-item {% if 'workshopCategories' in request.path or 'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}active{% endif %}">
+            {% if 'workshopCategories' in request.path or  'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}
+              <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#workshop_config" aria-controls="workshop_config">
+                Workshop Configuration
+              </a>
+            {% else %}
+              <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#workshop_config" aria-controls="workshop_config">
+                Workshop Configuration
+              </a>
+            {% endif %}
+            <ul class="collapse navbar-nav {% leftnavactive request 'workshopCategories' %}
+                {% leftnavactive request 'workshopCategory' %}
+                {% leftnavactive request 'registrationEmailMessages' %}
+                {% leftnavactive request 'registrationEmailMessage' %}" id="workshop_config">
 
-              <li class="{% navactive request 'bcse:workshopCategories' %}">
+              <li class="{% if 'workshopCategories' in request.path or  'workshopCategory' in request.path %} active {% endif %}">
                 <a href="{% url 'bcse:workshopCategories' %}">Workshop Categories</a>
               </li>
-              <li class="">
-                <a href="">Confirmation Messages</a>
+              <li class="{% if 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %} active {% endif %}">
+                <a href="{% url 'bcse:registrationEmailMessages' %}">Registration Email Messages</a>
               </li>
             </ul>
           </li>

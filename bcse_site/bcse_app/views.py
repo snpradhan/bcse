@@ -339,7 +339,75 @@ def checkAvailability(current_reservation_id, equipment_types, start_date, end_d
   return equipment_availability_matrix
 
 @login_required
-def workshopCategory(request, id=''):
+def registrationEmailMessages(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view registration messages')
+
+    registration_messages = models.RegistrationEmailMessage.objects.all()
+    context = {'registration_messages': registration_messages}
+    return render(request, 'bcse_app/RegistrationEmailMessages.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def registrationEmailMessageEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit registration messages')
+    if '' != id:
+      registration_confirmation = models.RegistrationEmailMessage.objects.get(id=id)
+    else:
+      registration_confirmation = models.RegistrationEmailMessage()
+
+    if request.method == 'GET':
+      form = forms.RegistrationEmailMessageForm(instance=registration_confirmation)
+      context = {'form': form}
+      return render(request, 'bcse_app/RegistrationEmailMessageEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.RegistrationEmailMessageForm(data, files=request.FILES, instance=registration_confirmation)
+      if form.is_valid():
+        savedMessage = form.save()
+        messages.success(request, "Registration confirmation message saved")
+        return shortcuts.redirect('bcse:registrationEmailMessageEdit', id=savedMessage.id)
+      else:
+        print(form.errors)
+        messages.error(request, "Registration email message could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/RegistrationEmailMessageEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def registrationEmailMessageDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete this workshop')
+
+    if '' != id:
+      registration_confirmation = models.RegistrationEmailMessage.objects.get(id=id)
+      registration_confirmation.delete()
+      messages.success(request, "Registration email message deleted")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.RegistrationEmailMessage.DoesNotExist:
+    messages.success(request, "Registration email message not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def workshopCategoryEdit(request, id=''):
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -359,7 +427,7 @@ def workshopCategory(request, id=''):
       if form.is_valid():
         savedCategory = form.save()
         messages.success(request, "Workshop Category saved")
-        return shortcuts.redirect('bcse:workshopCategory', id=savedCategory.id)
+        return shortcuts.redirect('bcse:workshopCategoryEdit', id=savedCategory.id)
       else:
         print(form.errors)
         message.error(request, "Workshop Category could not be saved. Check the errors below.")
@@ -371,6 +439,27 @@ def workshopCategory(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def workshopCategoryDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop categories')
+    if '' != id:
+      workshop_category = models.WorkshopCategory.objects.get(id=id)
+      workshop_category.delete()
+      messages.success(request, "Workshop category deleted")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.WorkshopCategory.DoesNotExist:
+    messages.success(request, "Workshop category not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 @login_required
 def workshopCategories(request):
@@ -458,7 +547,7 @@ def workshopView(request, id=''):
   try:
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
-      if workshop.status != 'A':
+      if workshop.status != 'A' or workshop.workshop_category.status != 'A':
         if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
           raise CustomException('You do not have the permission to view this workshop')
 
@@ -797,7 +886,7 @@ def workshops(request, flag='list'):
       workshops = models.Workshop.objects.all()
     else:
       if flag =='list':
-        workshops = models.Workshop.objects.all().filter(status='A')
+        workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
       else:
         workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user=request.user.userProfile)
   else:

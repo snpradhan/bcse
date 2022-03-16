@@ -6,7 +6,7 @@ body {
     font-style: normal;
     font-weight: 700;
     line-height: 1em;
-    font-size: 3em;
+    font-size: 2.5em;
     color : rgb(0, 0, 0);
     margin-bottom: 0.75em;
     hyphens : none !important;
@@ -182,6 +182,7 @@ body {
       justify-content: space-between;
 
       div.left-navigation {
+        font-weight: 700;
         flex: 0 0 20%;
         border-right: 1px solid black;
         ul.collapse {
@@ -190,11 +191,46 @@ body {
             margin-bottom: 0.5em;
           }
         }
+
+        li.active > a {
+          text-decoration: underline;
+
+        }
       }
       div.right-content {
         flex: 0 0 80%;
       }
     }
+
+    ul.dropdown-menu {
+      li {
+        a.dropdown-item {
+          cursor: pointer;
+        }
+      }
+    }
+    a[data-bs-toggle="collapse"][aria-expanded='true']::after {
+      display: inline-block;
+      margin-left: .255em;
+      vertical-align: .255em;
+      content: "";
+      border-top: .3em solid;
+      border-right: .3em solid transparent;
+      border-bottom: 0;
+      border-left: .3em solid transparent;
+    }
+    a[data-bs-toggle="collapse"][aria-expanded='false']::after {
+      display: inline-block;
+      margin-left: .255em;
+      vertical-align: .255em;
+      content: "";
+      border-top: .3em solid;
+      border-right: .3em solid transparent;
+      border-bottom: 0;
+      border-left: .3em solid transparent;
+      transform: rotate(-90deg);
+    }
+
 
   }
   div#spinner {

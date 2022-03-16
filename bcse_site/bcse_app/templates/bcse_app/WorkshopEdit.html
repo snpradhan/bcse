@@ -101,10 +101,10 @@
 
           <div class="form-group mb-3 right">
             {% if form.instance.id %}
-              <button class="btn btn-danger delete_workshop" data-href="{% url 'bcse:workshopDelete' form.instance.id %}" data-title="{{form.instance.name}}" data-registrants="{{form.instance.registration_setting.registrants.all|length}}">Delete</button>
+              <button class="btn btn-danger delete action" data-href="{% url 'bcse:workshopDelete' form.instance.id %}" data-title="the workshop <strong>{{form.instance.name}}</strong>">Delete</button>
             {% endif %}
             <button class="btn" type="submit" id="submit_bottom">
-              Save Workshop
+              Save
             </button>
           </div>
         </form>

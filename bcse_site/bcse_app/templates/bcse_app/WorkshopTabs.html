@@ -24,16 +24,10 @@
       </li>
     {% endif %}
 
-    {% if tab == 'edit' %}
+    {% if tab == 'edit' or tab == 'registration_setting' %}
       <li class="nav-item right">
         <button class="btn" type="submit" id="submit_top">
-          Save Workshop
-        </button>
-      </li>
-    {% elif tab == 'registration_setting' %}
-      <li class="nav-item right">
-        <button class="btn" type="submit" id="submit_top">
-          Save Registration Setting
+          Save
         </button>
       </li>
     {% endif %}

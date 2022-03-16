@@ -29,7 +29,23 @@
           <td> {{workshop_category.created_date}}</td>
           <td> {{workshop_category.modified_date}} </td>
           <td>
-            <a class="btn btn-small" href="{% url 'bcse:workshopCategory' workshop_category.id %}" role="button">Edit</a>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'bcse:workshopCategoryEdit' workshop_category.id %}">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopCategoryDelete' workshop_category.id %}"
+                  data-title="the workshop category <strong>{{workshop_category.name}}</strong>">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
           </td>
         </tr>
       {% endfor %}
