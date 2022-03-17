@@ -23,6 +23,9 @@
             <div class="error">{{ field.errors }}</div>
           </div>
         {% endfor %}
+        <div class="form-group" id="spinner">
+          <img src="/static/img/page-loader.gif" class="icon"/>
+        </div>
       </div>
       <div class="modal-footer">
         <div class="form-group buttons">
@@ -48,9 +51,14 @@
         url: this.action,
         data: $(this).serialize(),
         context: this,
+        beforeSend: function(){
+          $('#formSignUp #spinner').show();
+        },
+        complete: function(){
+          $('#formSignUp #spinner').hide();
+        },
         success: function(data, status) {
           if(data['success'] == true){
-            $('#signin').modal('toggle');
             window.parent.location.href = data['redirect_url'];
           }
           else{
