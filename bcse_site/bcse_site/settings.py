@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-5rzd8xmwjp_&3txyul)evn(v*p@g&2aa%ax9t=5n$%cas&l=s#'
 
 ALLOWED_HOSTS = ['*']
-
+SITE_ID = 1
 
 # Application definition
 
@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sites',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',

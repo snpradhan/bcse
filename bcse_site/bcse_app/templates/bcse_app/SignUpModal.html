@@ -1,18 +1,17 @@
 <div class="modal-dialog modal-lg">
   <div class="modal-content">
     <div class="modal-header">
-      
       {% if user.is_authenticated %}
          <h3 class="left">Create User</h3>
       {% else %}
         <h3 class="left">Create an Account</h3>
       {% endif %}
-      <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div id="SignUpMsg" class="msg">
       <ul class="errorlist">
         {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
         {% endfor %}
       </ul>
     </div>
@@ -41,6 +40,7 @@
           </div>
           {% endif %}
         </div>
+
         <div class="row mb-3">
           <div class="form-group col-md-6">
             <label for="id_{{form.first_name.name}}">{{ form.first_name.label }}</label>
@@ -54,11 +54,6 @@
           </div>
         </div>
 
-        <div class="form-group mb-3">
-          <label for="id_{{form.username.name}}">{{ form.username.label }}</label>
-          <div>{{form.username}}</div></div>
-          <div class="error">{{ form.username.errors }}</div>
-        </div>
         <div class="row mb-3">
           <div class="form-group col-md-6">
             <label for="id_{{form.password1.name}}">{{ form.password1.label }}</label>
@@ -74,7 +69,9 @@
 
         <div class="form-group mb-3">
           <label for="id_{{form.user_role.name}}">{{ form.user_role.label }}</label>
-          <div>{{form.user_role}}</div>
+          {% for radio in form.user_role %}
+            <div>{{radio.tag}}&nbsp;&nbsp;{{radio.choice_label}}</div>
+          {% endfor %}
           <div class="error">{{ form.user_role.errors }}</div>
         </div>
 
@@ -83,11 +80,13 @@
           <div>{{form.work_place}}</div>
           <div class="error">{{ form.work_place.errors }}</div>
         </div>
+
         <div class="form-group mb-3">
           <label for="id_{{form.new_work_place_flag.name}}">{{ form.new_work_place_flag.label }}</label>
           <div>{{form.new_work_place_flag}}</div>
           <div class="error">{{ form.new_work_place_flag.errors }}</div>
         </div>
+
         <div id="work_place_form" style="display: none;">
           <div class="form-group mb-3">
             <label for="id_{{work_place_form.work_place_type.name}}"> {{ work_place_form.work_place_type.label }} </label>
@@ -134,6 +133,9 @@
             </div>
           </div>
         </div>
+        <div class="form-group" id="spinner">
+          <img src="/static/img/page-loader.gif" class="icon"/>
+        </div>
       </div>
 
       <div class="modal-footer">
@@ -143,7 +145,9 @@
           {% else %}
             <button type="submit" class="btn btn-success" id="submit">Sign Up</button>
           {% endif %}
+        </div>
       </div>
+
     </form>
   </div>
 </div>
@@ -159,12 +163,15 @@
       if($(this).is(':checked')){
         $('select#id_work_place').prop('disabled', 'disabled');
         $('div#work_place_form').show();
+        $('div#work_place_form :input').prop('disabled', false);
       }
       else {
         $('div#work_place_form').hide();
+        $('div#work_place_form :input').prop('disabled', true);
         $('select#id_work_place').prop('disabled', false);
       }
     });
+    $('input[name="new_work_place_flag"]').trigger('change');
 
     /**************************/
 
@@ -193,9 +200,8 @@
     });
 
 
-    /*$("#formSignUp").submit(function(e){
+    $("#formSignUp").submit(function(e){
       e.preventDefault();
-      alert('submitting');
       $.ajax({
         type: $(this).attr('method'),
         url: this.action,
@@ -210,13 +216,7 @@
         success: function(data, status) {
           if(data['success'] == true){
             $('#signup').modal('toggle');
-            if(data['message']){
-              $('#signup .modal-body p').html(data['message']);
-              $('#signup').modal('toggle');
-            }
-            else {
-              window.parent.location.href = data['redirect_url'];
-            }
+            window.parent.location.href = data['redirect_url'];
           }
           else{
             $('#signup').html(data['html']);
@@ -226,7 +226,7 @@
           alert("Something went wrong.");
         }
       });
-    });*/
+    });
 
   });
 </script>

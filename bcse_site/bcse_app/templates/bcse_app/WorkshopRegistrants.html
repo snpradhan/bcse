@@ -12,7 +12,6 @@
           <tr>
             <th> Registration ID</th>
             <th> User ID </th>
-            <th> Username </th>
             <th> Email </th>
             <th> Full Name </th>
             <th> Created Date </th>
@@ -25,7 +24,6 @@
             <tr>
               <td> {{registrant.id}}</td>
               <td> {{registrant.user.id}}</td>
-              <td> {{registrant.user.user.username}} </td>
               <td> {{registrant.user.user.email}} </td>
               <td> {{registrant.user.user.get_full_name}}</td>
               <td> {{registrant.created_date|date}}</td>

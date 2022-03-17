@@ -3,7 +3,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="left">Log in to BCSE</h3>
-      <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div id="loginMsg" class="msg">
       <ul class="errorlist">
@@ -31,7 +31,7 @@
           </button>
         </div>
         <hr>
-        <a class="signup modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-href="{% url 'bcse:signup' %}" href="#">Sign Up</a>
+        <a class="signup modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-bs-dismiss="modal" data-href="{% url 'bcse:signup' %}" href="#">Sign Up</a>
 
       </div>
     </form>

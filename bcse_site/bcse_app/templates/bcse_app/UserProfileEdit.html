@@ -36,16 +36,6 @@
             <div class="error">{{ userForm.last_name.errors }}</div>
           </div>
         </div>
-        <div class="form-group mb-3">
-          <label for="id_{{userForm.email.name}}" class="form-label">
-            {{ userForm.username.label }}
-            {% if userForm.username.field.required %}
-              (<span class="required">*</span>)
-            {% endif %}
-          </label>
-          <div>{{userForm.username}}</div>
-          <div class="error">{{ userForm.username.errors }}</div>
-        </div>
         <div class="row mb-3">
           <div class="form-group col-md-6">
             <label for="id_{{userForm.password1.name}}">{{ userForm.password1.label }}</label>

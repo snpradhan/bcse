@@ -71,10 +71,12 @@
                 <li class="nav-item">
                   <a class="nav-link">About Us</a>
                 </li>
-                {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-                  <li class="{% navactive request 'bcse:adminConfiguration' %}">
-                    <a class="dropdown-item" href="{% url 'bcse:adminConfiguration' %}">Admin Configuration</a>
-                  </li>
+                {% if user.is_authenticated %}
+                  {% if user.userProfile.user_role == 'A' or  user.userProfile.user_role == 'S' %}
+                    <li class="{% navactive request 'bcse:adminConfiguration' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:adminConfiguration' %}">Admin Configuration</a>
+                    </li>
+                  {% endif %}
                 {% endif %}
                 {% if user.is_anonymous %}
                   <li class="nav-item">
@@ -160,9 +162,9 @@
           </div>
         </div>
       </div>
-      <div class="modal" id="signin" tabindex="-1" role="dialog" data-backdrop="static"></div>
-      <div class="modal" id="signup" role="dialog" data-backdrop="static"></div>
-      <div class="modal" id="workshop_registration" role="dialog"></div>
+      <div class="modal" id="signin" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
+      <div class="modal" id="signup" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
+      <div class="modal" id="workshop_registration" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
       <div class="modal" id="password" role="dialog"></div>
       <div class="modal" id="curriculumModal" role="dialog"></div>
       <div class="modal" id="profile" role="dialog"></div>

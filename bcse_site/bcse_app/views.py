@@ -15,6 +15,7 @@ from django.template.loader import render_to_string, get_template
 import json
 import csv
 from django.utils.crypto import get_random_string
+from django.contrib.sites.models import Site
 
 # Create your views here.
 
@@ -24,8 +25,8 @@ from django.http import HttpResponse
 ####################################
 # USER LOGIN
 ####################################
-def userSignin(request, user_name=''):
-  username = password = ''
+def userSignin(request, user_email=''):
+  email = password = ''
   print(request.method)
   redirect_url = request.GET.get('next', '')
   if request.method == 'POST':
@@ -33,14 +34,9 @@ def userSignin(request, user_name=''):
     form = forms.SignInForm(data)
     response_data = {}
     if form.is_valid():
-      username_email = form.cleaned_data['username_email'].lower()
+      email = form.cleaned_data['email'].lower()
       password = form.cleaned_data['password']
-      username = None
-      if User.objects.filter(username__iexact=username_email).count() == 1:
-        username = username_email
-      elif User.objects.filter(email__iexact=username_email).count() == 1:
-        username = User.objects.get(email__iexact=username_email).username.lower()
-      user = authenticate(username=username, password=password)
+      user = authenticate(username=email, password=password)
 
       if user.is_active:
         login(request, user)
@@ -59,8 +55,8 @@ def userSignin(request, user_name=''):
 
     return http.HttpResponse(json.dumps(response_data), content_type="application/json")
   elif request.method == 'GET':
-    if user_name:
-      form = forms.SignInForm(initial={'username_email': user_name})
+    if user_email:
+      form = forms.SignInForm(initial={'email': user_email})
     else:
       form = forms.SignInForm()
     context = {'form': form, 'redirect_url': redirect_url}
@@ -112,29 +108,23 @@ def userSignup(request):
           response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
           return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
-      #convert username to lowercase
-      username = form.cleaned_data['username'].lower()
-      user = User.objects.create_user(username,
+      user = User.objects.create_user(form.cleaned_data['email'].lower(),
                                       form.cleaned_data['email'].lower(),
                                       form.cleaned_data['password1'])
       user.first_name = form.cleaned_data['first_name']
       user.last_name = form.cleaned_data['last_name']
-      #Admin, Researcher, Author, School Admin or Teacher account created by anonymous user is set as inactive
-      if form.cleaned_data['account_type'] in  ['A', 'T', 'P', 'S'] and request.user.is_anonymous:
-          user.is_active = False
-      else:
-          user.is_active = True
+      user.is_active = True
       user.save()
 
       role = ''
       newUser = models.UserProfile()
-      if form.cleaned_data['account_type'] == 'T' or form.cleaned_data['account_type'] == 'P':
+      if form.cleaned_data['user_role'] == 'T' or form.cleaned_data['user_role'] == 'P':
         newUser.validation_code = get_random_string(length=5)
 
         #get the work place id
         selected_work_place = form.cleaned_data['work_place']
-        new_work_place_flag = form.cleaned_data['new_work_place']
-        if new_work_place:
+        new_work_place_flag = form.cleaned_data['new_work_place_flag']
+        if new_work_place_flag:
           if work_place_form.is_valid():
             #create a new school entry
             new_work_place = work_place_form.save(commit=False)
@@ -155,7 +145,7 @@ def userSignup(request):
         newUser.save()
 
       # Admin or Staff account creation
-      elif form.cleaned_data['account_type'] in ['A', 'S']:
+      elif form.cleaned_data['user_role'] in ['A', 'S']:
         newUser.user = user
         newUser.save()
 
@@ -165,13 +155,13 @@ def userSignup(request):
 
       #anonymous user creates an account
       if request.user.is_anonymous:
-
         #account type created is Teacher or Professional
-        if form.cleaned_data['account_type'] in ['T', 'P']:
-          #send an email with the username and validation code to validate the account
+        if form.cleaned_data['user_role'] in ['T', 'P']:
+          #send an email with the validation code to validate the account
           #send_account_validation_email(newUser)
           response_data['success'] = True
-          response_data['message'] = 'An email has been sent to %s to validate your account.  Please validate your account with in 24 hours.' % newUser.user.email
+          messages.success(request, 'Your account has been successfully created. You may now login with your email and password.')
+          #messages.success(request, 'An email has been sent to %s to validate your account.  Please validate your account with in 24 hours.' % newUser.user.email);
 
         else:
           response_data['success'] = False
@@ -180,12 +170,10 @@ def userSignup(request):
         response_data['redirect_url'] = '/'
 
       else:
-        response_data['message'] = '%s account has been created.' % newUser.get_user_role_display()
+        messages.success(request, '%s account has been created.' % newUser.get_user_role_display())
         #send_account_by_admin_confirmation_email(newUser, form.cleaned_data['password1'])
-        url = '/'
-
         response_data['success'] = True
-        response_data['redirect_url'] = url
+        response_data['redirect_url'] = '/'
 
     else:
       print(form.errors)
@@ -1020,8 +1008,7 @@ def userProfileEdit(request, id=''):
     elif request.method == 'POST':
       data = request.POST.copy()
       data.__setitem__('user_profile-user', userProfile.user.id)
-      #convert username and email to lowercase before save
-      data.__setitem__('user-username', data.__getitem__('user-username').lower())
+      #convert email to lowercase before save
       data.__setitem__('user-email', data.__getitem__('user-email').lower())
       data.__setitem__('user-password', userProfile.user.password)
       data.__setitem__('user-last_login', userProfile.user.last_login)
