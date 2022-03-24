@@ -21,6 +21,21 @@ from django.contrib.sites.models import Site
 
 from django.http import HttpResponse
 
+####################################
+# ADMIN CONFIGURATION
+####################################
+@login_required
+def adminConfiguration(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in 'AS':
+      raise CustomException('You do not have the permission to access this configuration')
+
+    context = {}
+    return render(request, 'bcse_app/AdminConfiguration.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # USER LOGIN
@@ -1040,14 +1055,71 @@ def userProfileEdit(request, id=''):
 
 
 @login_required
-def adminConfiguration(request):
+def teacherLeaders(request):
   try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in 'AS':
-      raise CustomException('You do not have the permission to access this configuration')
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view teacher leaders')
 
-    context = {}
-    return render(request, 'bcse_app/AdminConfiguration.html', context)
+    teacher_leaders = models.TeacherLeader.objects.all()
+    context = {'teacher_leaders': teacher_leaders}
+    return render(request, 'bcse_app/TeacherLeaders.html', context)
 
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def teacherLeaderEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit teacher leader')
+    if '' != id:
+      teacher_leader = models.TeacherLeader.objects.get(id=id)
+    else:
+      teacher_leader = models.TeacherLeader()
+
+    if request.method == 'GET':
+      form = forms.TeacherLeaderForm(instance=teacher_leader)
+      context = {'form': form}
+      return render(request, 'bcse_app/TeacherLeaderEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.TeacherLeaderForm(data, files=request.FILES, instance=teacher_leader)
+      if form.is_valid():
+        savedTeacherLeader = form.save()
+        messages.success(request, "Teacher Leader saved")
+        return shortcuts.redirect('bcse:teacherLeaderEdit', id=savedTeacherLeader.id)
+      else:
+        print(form.errors)
+        message.error(request, "Teacher Leader could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/TeacherLeaderEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def teacherLeaderDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete teacher leader')
+    if '' != id:
+      teacher_leader = models.TeacherLeader.objects.get(id=id)
+      teacher_leader.delete()
+      messages.success(request, "Teacher Leader deleted")
+
+    return shortcuts.redirect('bcse:teacherLeaders')
+
+  except models.TeacherLeader.DoesNotExist:
+    messages.success(request, "Teacher Leader not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))

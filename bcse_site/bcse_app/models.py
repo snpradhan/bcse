@@ -204,6 +204,8 @@ class TeacherLeader(models.Model):
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of the teacher leader')
   school = models.ForeignKey(WorkPlace, null=True, on_delete=models.SET_NULL)
   bio = RichTextField(null=True, blank=True)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
       ordering = ['-id']

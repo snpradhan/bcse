@@ -25,13 +25,18 @@
             <ul class="collapse navbar-nav {% leftnavactive request 'workshopCategories' %}
                 {% leftnavactive request 'workshopCategory' %}
                 {% leftnavactive request 'registrationEmailMessages' %}
-                {% leftnavactive request 'registrationEmailMessage' %}" id="workshop_config">
+                {% leftnavactive request 'registrationEmailMessage' %}
+                {% leftnavactive request 'teacherLeaders' %}
+                {% leftnavactive request 'teacherLeader' %}" id="workshop_config">
 
               <li class="{% if 'workshopCategories' in request.path or  'workshopCategory' in request.path %} active {% endif %}">
                 <a href="{% url 'bcse:workshopCategories' %}">Workshop Categories</a>
               </li>
               <li class="{% if 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %} active {% endif %}">
                 <a href="{% url 'bcse:registrationEmailMessages' %}">Registration Email Messages</a>
+              </li>
+              <li class="{% if 'teacherLeaders' in request.path or  'teacherLeader' in request.path %} active {% endif %}">
+                <a href="{% url 'bcse:teacherLeaders' %}">Teacher Leaders</a>
               </li>
             </ul>
           </li>

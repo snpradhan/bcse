@@ -1,0 +1,67 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  {% if form.instance.id %}
+    <h1 class="center"> Teacher Leader - {{form.instance.first_name}} {{form.instance.last_name}} </h1>
+  {% else %}
+    <h1 class="center"> Create Teacher Leader </h1>
+  {% endif %}
+  <div class="admin_form">
+    <form method="post" enctype="multipart/form-data" id="formTeacherLeader">
+      {% csrf_token %}
+      {{form.media}}
+
+      <div class="row mb-3">
+        <div class="form-group col-md-6">
+          <label for="id_{{form.first_name.name}}">{{ form.first_name.label }}</label>
+          <div>{{form.first_name}}</div>
+          <div class="error">{{ form.first_name.errors }}</div>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="id_{{form.last_name.name}}">{{ form.last_name.label }}</label>
+          <div>{{form.last_name}}</div>
+          <div class="error">{{ form.last_name.errors }}</div>
+        </div>
+      </div>
+
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.school.name}}" class="form-label"> {{form.school.label|title}}</label>
+        <div>{{form.school}}</div>
+        <div class="error">{{ form.school.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.bio.name}}" class="form-label"> {{form.bio.label|title}}</label>
+        <div>{{form.bio}}</div>
+        <div class="error">{{ form.bio.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
+        {% if form.instance.id and form.instance.image.url %}
+          <div class="image_preview">
+            <img src="{{form.instance.image.url}}" class="icon" alt="">
+          </div>
+        {% endif %}
+        <div>{{form.image}}</div>
+        <div class="error">{{ form.image.errors }}</div>
+      </div>
+
+
+      
+      <div class="form-group mb-3 right">
+        {% if form.instance.id %}
+          <button class="btn btn-danger delete action" data-href="{% url 'bcse:teacherLeaderDelete' form.instance.id %}" data-title="the teacher leader <strong>{{form.instance.first_name}} {{form.instance.last_name}}</strong>">
+            Delete
+          </button>
+        {% endif %}
+        <button class="btn" type="submit" id="submit_bottom">
+          Save
+        </button>
+      </div>
+
+    </form>
+  </div>
+{% endblock %}

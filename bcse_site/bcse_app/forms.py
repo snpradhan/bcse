@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from bcse_app import models
+from bcse_app import models, widgets, utils
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
@@ -374,4 +374,21 @@ class WorkPlaceForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
 
+####################################
+# Teacher Leader Form
+####################################
+class TeacherLeaderForm(ModelForm):
 
+  class Meta:
+    model = models.TeacherLeader
+    exclude = ('created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(TeacherLeaderForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
