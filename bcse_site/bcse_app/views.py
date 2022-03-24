@@ -400,7 +400,7 @@ def registrationEmailMessageDelete(request, id=''):
       registration_confirmation.delete()
       messages.success(request, "Registration email message deleted")
 
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return shortcuts.redirect('bcse:registrationEmailMessages')
 
   except models.RegistrationEmailMessage.DoesNotExist:
     messages.success(request, "Registration email message not found")
@@ -454,7 +454,7 @@ def workshopCategoryDelete(request, id=''):
       workshop_category.delete()
       messages.success(request, "Workshop category deleted")
 
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return shortcuts.redirect('bcse:workshopCategories')
 
   except models.WorkshopCategory.DoesNotExist:
     messages.success(request, "Workshop category not found")
@@ -537,7 +537,7 @@ def workshopDelete(request, id=''):
       workshop.delete()
       messages.success(request, "Workshop deleted")
 
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return shortcuts.redirect('bcse:workshops', flag='table')
 
   except models.Workshop.DoesNotExist:
     messages.success(request, "Workshop not found")
