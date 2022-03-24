@@ -78,11 +78,19 @@
             <div>{{form.description}}</div>
             <div class="error">{{ form.description.errors }}</div>
           </div>
+
           <div class="form-group mb-3">
             <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
+            {% if form.instance.id and form.instance.image.url %}
+              <div class="image_preview">
+                <img src="{{form.instance.image.url}}" class="icon" alt="">
+              </div>
+            {% endif %}
             <div>{{form.image}}</div>
             <div class="error">{{ form.image.errors }}</div>
           </div>
+
+
           <div class="form-group mb-3">
             <label for="id_{{form.location.name}}" class="form-label"> {{form.location.label|title}}</label>
             <div>{{form.location}}</div>

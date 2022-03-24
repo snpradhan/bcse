@@ -265,6 +265,9 @@ class WorkshopForm(ModelForm):
   class Meta:
     model = models.Workshop
     exclude = ('created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
 
 
   def __init__(self, *args, **kwargs):
@@ -350,6 +353,9 @@ class WorkshopCategoryForm(ModelForm):
   class Meta:
     model = models.WorkshopCategory
     exclude = ('created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
 
   def __init__(self, *args, **kwargs):
     super(WorkshopCategoryForm, self).__init__(*args, **kwargs)
