@@ -59,14 +59,14 @@
                 {% endif %}
               </td>
               <td>
-                {{workshop.start_date|date}}
+                {{workshop.start_date|date:"F j, Y"}}
                 {% if workshop.start_time %}
-                  - {{workshop.start_time}}
+                  {{workshop.start_time|date:"g:i A"}}
                 {% endif %}
               </td>
-              <td> {{workshop.end_date|date}}
+              <td> {{workshop.end_date|date:"F j, Y"}}
                 {% if workshop.end_time %}
-                  - {{workshop.end_time}}
+                  {{workshop.end_time|date:"g:i A"}}
                 {% endif %}</td>
               <td> {{workshop.location}} </td>
               {% if user.is_authenticated %}
@@ -88,8 +88,8 @@
                     {% endif %}
                   </td>
                   <td> {{workshop.registration_setting.registrants.all|length}}</td>
-                  <td> {{workshop.created_date|date}} </td>
-                  <td> {{workshop.modified_date|date}} </td>
+                  <td> {{workshop.created_date|date:"F j, Y g:i A"}} </td>
+                  <td> {{workshop.modified_date|date:"F j, Y g:i A"}} </td>
                   <td> {{workshop.get_status_display}} </td>
 
                   <td width="15%">

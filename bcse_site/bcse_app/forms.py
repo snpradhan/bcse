@@ -269,7 +269,6 @@ class WorkshopForm(ModelForm):
       'image': widgets.FileInput,
     }
 
-
   def __init__(self, *args, **kwargs):
     super(WorkshopForm, self).__init__(*args, **kwargs)
 
@@ -277,6 +276,8 @@ class WorkshopForm(ModelForm):
       if field_name not in ['enable_registration']:
         if field_name in ['start_date', 'end_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
+        elif field_name in ['start_time', 'end_time']:
+          field.widget.attrs['class'] = 'form-control timepicker'
         else:
           field.widget.attrs['class'] = 'form-control'
       else:
@@ -301,6 +302,8 @@ class WorkshopRegistrationSettingForm(ModelForm):
       if field_name not in ['enable_waitlist']:
         if field_name in ['open_date', 'close_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
+        elif field_name in ['open_time', 'close_time']:
+          field.widget.attrs['class'] = 'form-control timepicker'
         else:
           field.widget.attrs['class'] = 'form-control'
       else:

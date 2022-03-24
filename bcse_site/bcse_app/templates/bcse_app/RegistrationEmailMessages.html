@@ -26,8 +26,8 @@
           <td> {{email_message.get_registration_status_display}} </td>
           <td> {{email_message.email_subject}} </td>
           <td> {{email_message.email_message|safe}} </td>
-          <td> {{email_message.created_date}}</td>
-          <td> {{email_message.modified_date}} </td>
+          <td> {{email_message.created_date|date:"F j, Y g:i A"}}</td>
+          <td> {{email_message.modified_date|date:"F j, Y g:i A"}} </td>
           <td>
             <div class="btn-group">
               <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

@@ -41,8 +41,8 @@
                   {% endfor %}
                 </ul>
               </td>
-              <td>{{reservation.delivery_date|date}}</td>
-              <td>{{reservation.return_date|date}}</td>
+              <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
+              <td>{{reservation.return_date|date:"F j, Y"}}</td>
               <td> {{reservationnum_of_classes}} </td>
               <td> {{reservation.num_of_students}} </td>
               <td> {{reservation.notes}} </td>

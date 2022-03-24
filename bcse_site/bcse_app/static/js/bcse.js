@@ -1,6 +1,20 @@
 $(function (){
 
-  $(".datepicker").datepicker();
+  $(".datepicker").datepicker({
+    dateFormat: "MM dd, yy"
+  });
+
+  $(".timepicker").timepicker({
+    timeFormat: 'hh:mm p',
+    interval: 15,
+    minTime: '12:00am',
+    maxTime: '11:45pm',
+    //defaultTime: '08:00am',
+    startTime: '12:00am',
+    dynamic: false,
+    dropdown: true,
+    scrollbar: true
+  });
 
   $('.registration_submit').on('click', function(e){
     e.preventDefault();
