@@ -51,6 +51,7 @@ $(function (){
                             className: 'btn btn-small'
                         }
                       },
+                      closeButton: false,
                       callback: function(result){
                         if (result == true) {
                           window.location = link;

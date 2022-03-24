@@ -28,14 +28,15 @@
         </div>
       </div>
       <div class="modal-footer">
-        <div class="form-group buttons">
+        <div class="form-group buttons right">
           <button type="submit" id="submit" class="btn btn-success">
-            Login
+            Sign In
           </button>
+          <br><br>
+          <div>
+            Don't have an account? <a class="signup modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-bs-dimiss="modal" data-href="{% url 'bcse:signup' %}"><strong>Sign Up</strong></a>
+          </div>
         </div>
-        <hr>
-        <a class="signup modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-bs-dismiss="modal" data-href="{% url 'bcse:signup' %}" href="#">Sign Up</a>
-
       </div>
     </form>
   </div>
@@ -70,7 +71,7 @@
         }
       });
     });
-    $("a.modal-open").click(function(e){
+    $("a.signup.modal-open").click(function(e){
       //e.preventDefault();
       var url = $(this).data('href');
       var target = $(this).data('bs-target');
