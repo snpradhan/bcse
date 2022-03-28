@@ -1,141 +1,126 @@
-{% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
 
-{% block content %}
-  {{block.super}}
-  <div class="content">
-    <div class="workshops_container container">
-      <h1 class="center">
+{% if workshop_list %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-          Workshops
-        {% else %}
-          My Workshops
+          <th> Workshop ID</th>
         {% endif %}
-      </h1>
-      {% now 'Y-m-d' as current_date %}
-      {% include "bcse_app/WorkshopsButtons.html" with format='list' %}
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-              <th> Workshop ID</th>
+        <th> Workshop Type </th>
+        <th> Title </th>
+        <th> Start Date/Time </th>
+        <th> End Date/Time </th>
+        <th> Location </th>
+        {% if user.is_authenticated %}
+          {% if user.userProfile.user_role in 'AS' %}
+            <th> Registration Enabled? </th>
+            <th> Capacity </th>
+            <th> Waitlist Enabled?</th>
+            <th> Waitlist Capacity</th>
+            <th> Number of Registrants</th>
+            <th> Created Date</th>
+            <th> Modified Date </th>
+            <th> Workshop Status </th>
+          {% else %}
+            <th> Registration Status </th>
+          {% endif %}
+            <th> Actions </th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for workshop_obj in workshop_list %}
+        {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
+        <tr>
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+            <td> {{workshop.id}}</td>
+          {% endif %}
+          <td> {{workshop.workshop_category}} </td>
+          <td>
+            {% if user.is_authenticated and user.userProfile.user_role in 'AS' or workshop.status == 'A' %}
+              <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a>
+            {% else %}
+              {{workshop.name}}
             {% endif %}
-            <th> Workshop Type </th>
-            <th> Title </th>
-            <th> Start Date/Time </th>
-            <th> End Date/Time </th>
-            <th> Location </th>
-            {% if user.is_authenticated %}
-              {% if user.userProfile.user_role in 'AS' %}
-                <th> Registration Enabled? </th>
-                <th> Capacity </th>
-                <th> Waitlist Enabled?</th>
-                <th> Waitlist Capacity</th>
-                <th> Number of Registrants</th>
-                <th> Created Date</th>
-                <th> Modified Date </th>
-                <th> Workshop Status </th>
-              {% else %}
-                <th> Registration Status </th>
-              {% endif %}
-                <th> Actions </th>
+          </td>
+          <td>
+            {{workshop.start_date|date:"F j, Y"}}
+            {% if workshop.start_time %}
+              {{workshop.start_time|date:"g:i A"}}
             {% endif %}
-
-          </tr>
-        </thead>
-        <tbody>
-          {% for workshop_obj in workshop_list %}
-            {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
-            <tr>
-              {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-                <td> {{workshop.id}}</td>
-              {% endif %}
-              <td> {{workshop.workshop_category}} </td>
+          </td>
+          <td> {{workshop.end_date|date:"F j, Y"}}
+            {% if workshop.end_time %}
+              {{workshop.end_time|date:"g:i A"}}
+            {% endif %}</td>
+          <td> {{workshop.location}} </td>
+          {% if user.is_authenticated %}
+            {% if user.userProfile.user_role in 'AS' %}
+              <td> {{workshop.enable_registration|yesno|title}} </td>
               <td>
-                {% if user.is_authenticated and user.userProfile.user_role in 'AS' or workshop.status == 'A' %}
-                  <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a>
-                {% else %}
-                  {{workshop.name}}
+                {% if workshop.enable_registration %}
+                  {{workshop.capacity}}
                 {% endif %}
               </td>
               <td>
-                {{workshop.start_date|date:"F j, Y"}}
-                {% if workshop.start_time %}
-                  {{workshop.start_time|date:"g:i A"}}
+                {% if workshop.enable_registration %}
+                  {{workshop.waitlist_enabled}}
                 {% endif %}
               </td>
-              <td> {{workshop.end_date|date:"F j, Y"}}
-                {% if workshop.end_time %}
-                  {{workshop.end_time|date:"g:i A"}}
-                {% endif %}</td>
-              <td> {{workshop.location}} </td>
-              {% if user.is_authenticated %}
-                {% if user.userProfile.user_role in 'AS' %}
-                  <td> {{workshop.enable_registration|yesno|title}} </td>
-                  <td>
-                    {% if workshop.enable_registration %}
-                      {{workshop.capacity}}
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if workshop.enable_registration %}
-                      {{workshop.waitlist_enabled}}
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if workshop.enable_waitlist %}
-                      {{workshop.waitlist_capacity}}
-                    {% endif %}
-                  </td>
-                  <td> {{workshop.registration_setting.registrants.all|length}}</td>
-                  <td> {{workshop.created_date|date:"F j, Y g:i A"}} </td>
-                  <td> {{workshop.modified_date|date:"F j, Y g:i A"}} </td>
-                  <td> {{workshop.get_status_display}} </td>
-
-                  <td width="15%">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Action
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="the workshop <strong>{{workshop.name}}</strong>">Delete</a></li>
-                      </ul>
-                  </td>
-                {% else %}
-                  <td>{{registration.instance.get_status_display}}</td>
-                  <td width="15%">
-                    {% if workshop.status == 'A'%}
-                      <div class="btn-group">
-                        <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                          Action
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
-                          {% if current_date < workshop.start_date|date:'Y-m-d' %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                              <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
-                              data-title="your registration for <strong>{{workshop.name}}</strong>">
-                                Delete Registration
-                              </a>
-                            </li>
-                          {% endif %}
-                        </ul>
-                      </div>
-                    {% endif %}
-                  </td>
+              <td>
+                {% if workshop.enable_waitlist %}
+                  {{workshop.waitlist_capacity}}
                 {% endif %}
-              {% endif %}
-            </tr>
-            {% endwith %}
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+              </td>
+              <td> {{workshop.registration_setting.registrants.all|length}}</td>
+              <td> {{workshop.created_date|date:"F j, Y g:i A"}} </td>
+              <td> {{workshop.modified_date|date:"F j, Y g:i A"}} </td>
+              <td> {{workshop.get_status_display}} </td>
 
-{% endblock %}
+              <td width="15%">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="the workshop <strong>{{workshop.name}}</strong>">Delete</a></li>
+                  </ul>
+              </td>
+            {% else %}
+              <td>{{registration.instance.get_status_display}}</td>
+              <td width="15%">
+                {% if workshop.status == 'A'%}
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      Action
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
+                      {% if current_date < workshop.start_date|date:'Y-m-d' %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
+                          data-title="your registration for <strong>{{workshop.name}}</strong>">
+                            Delete Registration
+                          </a>
+                        </li>
+                      {% endif %}
+                    </ul>
+                  </div>
+                {% endif %}
+              </td>
+            {% endif %}
+          {% endif %}
+        </tr>
+        {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="warning center">No workshops matching your search criteria found</div>
+{% endif %}

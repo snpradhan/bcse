@@ -1,5 +1,82 @@
 $(function (){
 
+  var timeout = null;
+
+  function bindRegistrationSubmit(){
+    $('.registration_submit').on('click', function(e){
+      e.preventDefault();
+      var workshop_registration_container = $(this).closest('.workshop_registration');
+      var form = $(this).closest('form');
+      $.ajax({
+        type: $(form).attr('method'),
+        url: $(form).attr('action'),
+        data: $(form).serialize(),
+        success: function(data){
+          console.log(data);
+          if (data['success'] = true) {
+            if (data['html']) {
+              $(workshop_registration_container).html(data['html']);
+              if (data['admin_message']) {
+                bootbox.alert({
+                  title: 'Registration Confirmation',
+                  message: data['admin_message'],
+                  closeButton: false
+                });
+              }
+              bindRegistrationSubmit();
+              bindDeleteAction()
+            }
+            else {
+              displayErrorDialog();
+            }
+          }
+          else {
+            displayErrorDialog();
+          }
+          return false;
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+          displayErrorDialog();
+        },
+      });
+    });
+  }
+
+  function bindDeleteAction() {
+    $('.delete.action').on('click', function(e){
+      e.preventDefault();
+      var link = $(this).data('href');
+      var title = $(this).data('title');
+
+      bootbox.confirm({ title: 'Confirm',
+                        message: "<p>Do you want to delete "+title+"</p>",
+                        buttons: {
+                          confirm: {
+                              label: 'Delete',
+                              className: 'btn btn-small btn-danger'
+                          },
+                          cancel: {
+                              label: 'Cancel',
+                              className: 'btn btn-small'
+                          }
+                        },
+                        closeButton: false,
+                        callback: function(result){
+                          if (result == true) {
+                            window.location = link;
+                          }
+                        },
+                      });
+    });
+  }
+
+  function displayErrorDialog(){
+    bootbox.alert({title: "Error",
+                  message: "Something went wrong.  Try again later!",
+                  closeButton: false
+                });
+  }
+
   $(".datepicker").datepicker({
     dateFormat: "MM dd, yy"
   });
@@ -16,63 +93,61 @@ $(function (){
     scrollbar: true
   });
 
-  $('.registration_submit').on('click', function(e){
+  $('form.filter_form').on('submit', function(e){
     e.preventDefault();
-    var workshop_registration_container = $(this).closest('.workshop_registration');
-    var form = $(this).closest('form');
+    var form = $(this);
+    const queryString = $(form).serialize();
+    var url = $(form).attr('action')+'?'+queryString;
+    console.log(queryString);
     $.ajax({
       type: $(form).attr('method'),
-      url: $(form).attr('action'),
-      data: $(form).serialize(),
+      url: url,
       success: function(data){
         if(data['success'] = true) {
-          if(data['message']) {
-            var delete_url = '/workshop/'+data['workshop_id']+'/registration/'+data['registration_id']+'/delete';
-            var delete_button = '<a role="button" class="btn btn-danger btn-small" href="'+delete_url+'" >Delete</a>';
-            var message = '<div class="message '+data['message_class']+'"><div>'+data['message']+'</div><br>'+delete_button+'</div>';
-            $(workshop_registration_container).html(message);
-          }
-          else {
-            location.reload();
-          }
+          $('div.workshops').html(data['html']);
+          bindRegistrationSubmit();
+          bindDeleteAction();
         }
         else{
-          alert("Something went wrong.  Try again later!");
+          displayErrorDialog();
         }
         return false;
       },
       error: function(xhr, ajaxOptions, thrownError){
-        alert("Something went wrong.  Try again later!");
+        displayErrorDialog();
       },
     });
   });
 
-
-  $('.delete.action').on('click', function(e){
-    e.preventDefault();
-    var link = $(this).data('href');
-    var title = $(this).data('title');
-
-    bootbox.confirm({ title: 'Confirm',
-                      message: "<p>Do you want to delete "+title+"</p>",
-                      buttons: {
-                        confirm: {
-                            label: 'Delete',
-                            className: 'btn btn-small btn-danger'
-                        },
-                        cancel: {
-                            label: 'Cancel',
-                            className: 'btn btn-small'
-                        }
-                      },
-                      closeButton: false,
-                      callback: function(result){
-                        if (result == true) {
-                          window.location = link;
-                        }
-                      },
-                    });
+  //submit search form on input change
+  $('form.filter_form :input').on('change', function(e){
+    clearTimeout(timeout);
+    var form = $(this).closest('form');
+    timeout = setTimeout(function(){
+      $(form).submit();
+    }, 800);
   });
+
+  $('form.filter_form #clear').on('click', function(e){
+    $('form.filter_form')[0].reset();
+    var form = $(this).closest('form');
+    $(form).submit();
+  });
+
+  $('#filter_toggle label').click(function(){
+    $('#filter_toggle label').toggle();
+    $('#filter_fields').toggle();
+  });
+
+  //disable Enter key press
+  $("form").bind("keypress", function(e) {
+    if (e.keyCode == 13) {
+      return false;
+    }
+  });
+
+  bindRegistrationSubmit();
+  bindDeleteAction();
 
 });
 

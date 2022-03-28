@@ -1,7 +1,7 @@
 <div id="workshops_view">
-  {% if format == 'list' %}
-    <a class="btn" href="{% url 'bcse:workshops' 'list' %}" role="button">Switch to List View</a>
-  {% else %}
+  {% if flag == 'list' %}
     <a class="btn" href="{% url 'bcse:workshops' 'table' %}" role="button">Switch to Table View</a>
+  {% else %}
+    <a class="btn" href="{% url 'bcse:workshops' 'list' %}" role="button">Switch to List View</a>
   {% endif %}
 </div>

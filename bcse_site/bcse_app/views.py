@@ -573,7 +573,7 @@ def workshopView(request, id=''):
 def workshopRegistration(request, workshop_id):
 
   registration = {}
-  form = workshop_registration = message = message_class = None
+  form = workshop_registration = user_message = admin_message = message_class = None
   registration_open = False
 
   workshop = models.Workshop.objects.get(id=workshop_id)
@@ -588,9 +588,9 @@ def workshopRegistration(request, workshop_id):
 
     if request.user.is_anonymous:
       if default_registration_status == 'R':
-        message = 'Please login to register for this workshop'
+        user_message = 'Please login to register for this workshop'
       else:
-        message = 'Please login to apply to this workshop'
+        user_message = 'Please login to apply to this workshop'
       message_class = 'info'
     else:
       if request.user.userProfile.user_role in ['A', 'S']:
@@ -599,12 +599,12 @@ def workshopRegistration(request, workshop_id):
         try:
           workshop_registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
           registration_message = workshopRegistrationMessage(workshop_registration)
-          message = registration_message['message']
+          user_message = registration_message['message']
           message_class = registration_message['message_class']
         except models.Registration.DoesNotExist:
           workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
           if registration_setting_status['message']:
-            message = registration_setting_status['message']
+            user_message = registration_setting_status['message']
             message_class = 'info'
 
   if request.method == 'GET':
@@ -614,7 +614,7 @@ def workshopRegistration(request, workshop_id):
 
     registration['form'] = form
     registration['instance'] = workshop_registration
-    registration['message'] = message
+    registration['user_message'] = user_message
     registration['message_class'] = message_class
 
     return registration
@@ -627,34 +627,39 @@ def workshopRegistration(request, workshop_id):
       saved_registration = form.save()
       registration_id = saved_registration.id
       if request.user.userProfile.user_role in ['A', 'S']:
-        messages.success(request, "Workshop registration for user %s saved" % saved_registration.user)
-        form = forms.WorkshopRegistrationForm(instance=workshop_registration)
+        workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
+        form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
+        admin_message = "Workshop registration for user %s saved" % saved_registration.user
+        registration['admin_message'] = admin_message
       else:
         registration_message = workshopRegistrationMessage(saved_registration)
         message = registration_message['message']
         message_class = registration_message['message_class']
+        registration['user_message'] = user_message
+        registration['message_class'] = message_class
 
       registration['form'] = form
       registration['instance'] = workshop_registration
-      registration['message'] = message
-      registration['message_class'] = message_class
       success = True
-
     else:
       print(form.errors)
-      messages.success(request, "There were some errors")
+      if not request.is_ajax():
+        messages.success(request, "There were some errors")
+      if request.user.userProfile.user_role in ['A', 'S']:
+        admin_message = "Something went wrong with the workshop registration"
+        registration['admin_message'] = admin_message
+      else:
+        registration['user_message'] = user_message
 
       registration['form'] = form
       registration['instance'] = workshop_registration
-      registration['message'] = message
       registration['message_class'] = message_class
       success = False
 
     if request.is_ajax():
-      response_data = {'success': success, 'message': message, 'message_class': message_class}
-      if(registration_id):
-        response_data['registration_id'] = registration_id
-        response_data['workshop_id'] = workshop.id
+      response_data = {'success': success, 'admin_message': admin_message}
+      context = {'workshop': workshop, 'registration': registration}
+      response_data['html'] = render_to_string('bcse_app/WorkshopRegistration.html', context, request)
       return http.HttpResponse(json.dumps(response_data), content_type='application/json')
     else:
       print('request non ajax')
@@ -879,11 +884,9 @@ def workshopRegistrationMessage(workshop_registration):
   return {'message': message, 'message_class': message_class}
 
 
-def workshops(request, flag='list'):
+def workshopsBaseQuery(request, flag='list'):
 
-  if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-    workshops = models.Workshop.objects.all().filter(status='A')
-
+  workshops = None
   if request.user.is_authenticated:
     if request.user.userProfile.user_role in ['A', 'S']:
       workshops = models.Workshop.objects.all()
@@ -895,6 +898,13 @@ def workshops(request, flag='list'):
   else:
     workshops = models.Workshop.objects.all().filter(status='A')
 
+  return workshops
+
+def workshops(request, flag='list'):
+
+  workshops = workshopsBaseQuery(request, flag)
+  searchForm = forms.WorkshopsSearchForm(user=request.user)
+
   workshop_list = []
   for workshop in workshops:
     registration = None
@@ -902,13 +912,100 @@ def workshops(request, flag='list'):
       registration = workshopRegistration(request, workshop.id)
     workshop_list.append({'workshop': workshop, 'registration': registration})
 
+  context = {'workshop_list': workshop_list, 'searchForm': searchForm, 'flag': flag}
 
-  context = {'workshop_list': workshop_list}
+  return render(request, 'bcse_app/WorkshopsBaseView.html', context)
 
-  if flag == 'list':
-    return render(request, 'bcse_app/WorkshopsListView.html', context)
-  else:
-    return render(request, 'bcse_app/WorkshopsTableView.html', context)
+
+
+
+####################################
+# filter workshops queryset based on search criteria
+####################################
+def workshopsSearch(request, flag='list'):
+
+  workshops = workshopsBaseQuery(request, flag)
+
+  if request.method == 'GET':
+
+    query_filter = Q()
+    keyword_filter = None
+    workshop_category_filter = None
+    starts_after_filter = None
+    ends_before_filter = None
+    registration_filter = None
+
+    keywords = request.GET.get('keywords', '')
+    starts_after = request.GET.get('starts_after', '')
+    ends_before = request.GET.get('ends_before', '')
+    registration_open = request.GET.get('registration_open', '')
+    workshop_category = request.GET.get('workshop_category', '')
+    sort_by = request.GET.get('sort_by', '')
+
+    if keywords:
+      keyword_filter = Q(name__icontains=keywords) | Q(sub_title__icontains=keywords)
+      keyword_filter = keyword_filter | Q(workshop_category__name__icontains=keywords)
+      keyword_filter = keyword_filter | Q(teacher_leader__first_name__icontains=keywords)
+      keyword_filter = keyword_filter | Q(teacher_leader__last_name__icontains=keywords)
+      keyword_filter = keyword_filter | Q(summary__icontains=keywords)
+      keyword_filter = keyword_filter | Q(description__icontains=keywords)
+      keyword_filter = keyword_filter | Q(location__icontains=keywords)
+
+    if workshop_category:
+      workshop_category_filter = Q(workshop_category__id=workshop_category)
+
+    if starts_after:
+      starts_after = datetime.datetime.strptime(starts_after, '%B %d, %Y')
+      starts_after_filter = Q(start_date__gte=starts_after)
+
+    if ends_before:
+      ends_before = datetime.datetime.strptime(ends_before, '%B %d, %Y')
+      ends_before_filter = Q(end_date__lte=ends_before)
+
+    if keyword_filter:
+      query_filter = keyword_filter
+    if workshop_category_filter:
+      query_filter = query_filter & workshop_category_filter
+    if starts_after_filter:
+      query_filter = query_filter & starts_after_filter
+    if ends_before_filter:
+      query_filter = query_filter & ends_before_filter
+
+    workshops = workshops.filter(query_filter)
+
+    if registration_open:
+      workshops_with_open_registration = []
+      for workshop in workshops:
+        registration_setting_status = workshopRegistrationSettingStatus(workshop)
+        if registration_setting_status['registration_open']:
+          workshops_with_open_registration.append(workshop.id)
+
+      workshops.filter(id__in=workshops_with_open_registration)
+
+    if sort_by:
+      if sort_by == 'title':
+        workshops = workshops.order_by('name')
+      elif sort_by == 'start_date':
+        workshops = workshops.order_by('start_date')
+
+    workshop_list = []
+    for workshop in workshops:
+      registration = None
+      if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
+        registration = workshopRegistration(request, workshop.id)
+      workshop_list.append({'workshop': workshop, 'registration': registration})
+
+    context = {'workshop_list': workshop_list}
+    response_data = {}
+    response_data['success'] = True
+    if flag == 'list':
+      response_data['html'] = render_to_string('bcse_app/WorkshopsListView.html', context, request)
+    else:
+      response_data['html'] = render_to_string('bcse_app/WorkshopsTableView.html', context, request)
+
+    return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  return http.HttpResponseNotAllowed(['GET'])
 
 
 def workshopRegistrationSetting(request, id=''):

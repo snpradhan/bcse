@@ -401,3 +401,35 @@ class TeacherLeaderForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
+# Workshop Search Form
+####################################
+class WorkshopsSearchForm(forms.Form):
+
+  workshop_category = forms.ModelChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().filter(status='A').order_by('name'))
+  starts_after = forms.DateField(required=False, label=u'Starts on/after')
+  ends_before = forms.DateField(required=False, label=u'Ends on/before')
+  registration_open = forms.BooleanField(required=False)
+  keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Title'), ('start_date', 'Start Date')))
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(WorkshopsSearchForm, self).__init__(*args, **kwargs)
+
+
+    if user.is_anonymous or user.userProfile.user_role not in 'AS':
+      self.fields.pop('workshop_category')
+
+    for field_name, field in self.fields.items():
+      if field_name in ['registration_open']:
+        field.widget.attrs['class'] = 'form-check-input'
+      elif field_name in ['starts_after', 'ends_before']:
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+      if field.help_text:
+        field.widget.attrs['placeholder'] = field.help_text

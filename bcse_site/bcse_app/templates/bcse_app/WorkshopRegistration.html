@@ -1,10 +1,10 @@
 {% if registration %}
-  {% if registration.message %}
+  {% if registration.user_message %}
     <div class="message {{registration.message_class}}">
-      <div>{{registration.message}}</div>
+      <div>{{registration.user_message}}</div>
       <br>
-      {% if registration.instance.id  and now < workshop.start_date %}
-        <a role="button" class="btn btn-danger btn-small delete_registration" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}" data-title="{{workshop.name}}">
+      {% if registration.instance.id  and current_date < workshop.start_date|date:'Y-m-d' %}
+        <a role="button" class="btn btn-danger btn-small delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}" data-title="your registration for <strong>{{workshop.name}}</strong>">
           Delete
         </a>
       {% endif %}

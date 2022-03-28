@@ -1,0 +1,31 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="workshops_container container">
+       <h1 class="center">
+        {% if user.is_authenticated and user.userProfile.user_role in 'TP' and flag == 'table' %}
+          My Workshops
+        {% else %}
+          Workshops
+        {% endif %}
+      </h1>
+      {% include "bcse_app/WorkshopsButtons.html" %}
+      {% include "bcse_app/WorkshopsSearch.html" %}
+      <div class="form-group" id="spinner">
+        <img src="/static/img/page-loader.gif" class="icon"/>
+      </div>
+      <div class="workshops">
+        {% now 'Y-m-d' as current_date %}
+
+        {% if flag == 'table' %}
+          {% include "bcse_app/WorkshopsTableView.html" %}
+        {% else %}
+          {% include "bcse_app/WorkshopsListView.html" %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

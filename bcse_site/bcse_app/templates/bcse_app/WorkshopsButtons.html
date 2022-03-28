@@ -1,6 +1,6 @@
 {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
   <div class="button-row">
     <a class="btn" href="{% url 'bcse:workshopNew' %}" role="button">Create Workshop</a>
-    {% include "bcse_app/WorkshopViewSwitch.html" with flag=flag %}
+    {% include "bcse_app/WorkshopViewSwitch.html" %}
   </div>
 {% endif %}

@@ -1,0 +1,52 @@
+<div class="filter_container">
+  <form method="get" action="{% url 'bcse:workshopsSearch' flag %}" id="workshop_filter_form" class="filter_form">
+    {% csrf_token %}
+    {{searchForm.media}}
+    <div class="form-group right" id="filter_toggle">
+      <label style="display:none;">Show Filters <span class="fa fa-plus-circle"></span></label>
+      <label>Hide Filters <span class="fa fa-minus-circle"></span></label>
+    </div>
+
+    <div id="filter_fields">
+      <div class="row mb-3">
+        {% if searchForm.workshop_category %}
+          <div class="form-group col-md-3">
+            <label for="id_{{searchForm.workshop_category.name}}" class="form-label"> {{searchForm.workshop_category.label|title}}</label>
+            <div>{{searchForm.workshop_category}}</div>
+            <div class="error">{{ searchForm.workshop_category.errors }}</div>
+          </div>
+        {% endif %}
+        <div class="form-group col">
+          <label for="id_{{searchForm.starts_after.name}}" class="form-label"> {{searchForm.starts_after.label|title}}</label>
+          <div>{{searchForm.starts_after}}</div>
+          <div class="error">{{ searchForm.starts_after.errors }}</div>
+        </div>
+        <div class="form-group col">
+          <label for="id_{{searchForm.ends_before.name}}" class="form-label"> {{searchForm.ends_before.label|title}}</label>
+          <div>{{searchForm.ends_before}}</div>
+          <div class="error">{{ searchForm.ends_before.errors }}</div>
+        </div>
+
+        <div class="form-group col">
+          <label for="id_{{searchForm.registration_open.name}}" class="form-label"> {{searchForm.registration_open.label|title}}</label>
+          <div>{{searchForm.registration_open}}</div>
+          <div class="error">{{ searchForm.registration_open.errors }}</div>
+        </div>
+        <div class="form-group col">
+          <label for="id_{{searchForm.keywords.name}}" class="form-label"> {{searchForm.keywords.label|title}}</label>
+          <div>{{searchForm.keywords}}</div>
+          <div class="error">{{ searchForm.keywords.errors }}</div>
+        </div>
+        <div class="form-group col">
+          <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
+          <div>{{searchForm.sort_by}}</div>
+          <div class="error">{{ searchForm.sort_by.errors }}</div>
+        </div>
+      </div>
+      <div class="form-group right">
+        <button class="btn" type="button" id="clear">Clear Filter</button>
+      </div>
+    </div>
+
+  </form>
+</div>

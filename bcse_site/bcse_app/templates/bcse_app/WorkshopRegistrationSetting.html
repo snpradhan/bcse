@@ -51,7 +51,10 @@
             </div>
             <div class="col">
               <label for="id_{{form.open_time.name}}" class="form-label"> {{form.open_time.label|title}}</label>
-              <div>{{form.open_time}}</div>
+              <div class="input-group">
+                {{form.open_time}}
+                <span class="input-group-text"><i class="fa fa-clock"></i></span>
+              </div>
               <div class="error">{{ form.open_time.errors }}</div>
             </div>
           </div>
@@ -66,7 +69,10 @@
             </div>
             <div class="col">
               <label for="id_{{form.close_time.name}}" class="form-label"> {{form.close_time.label|title}}</label>
-              <div>{{form.close_time}}</div>
+              <div class="input-group">
+                {{form.close_time}}
+               <span class="input-group-text"><i class="fa fa-clock"></i></span>
+              </div>
               <div class="error">{{ form.close_time.errors }}</div>
             </div>
           </div>

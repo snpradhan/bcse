@@ -21,6 +21,7 @@ urlpatterns = [
     path('workshop/<int:workshop_id>/registration/<int:id>/edit', views.workshopRegistrationEdit, name='workshopRegistrationEdit'),
     path('workshop/<int:workshop_id>/registration/<int:id>/delete', views.workshopRegistrationDelete, name='workshopRegistrationDelete'),
     path('workshops/<str:flag>', views.workshops, name='workshops'),
+    path('workshops/search/<str:flag>', views.workshopsSearch, name='workshopsSearch'),
 
     path('signin/', views.userSignin, name='signin'),
     path('signin_redirect/', views.signinRedirect, name='signinRedirect'),
