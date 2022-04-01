@@ -16,6 +16,8 @@ import json
 import csv
 from django.utils.crypto import get_random_string
 from django.contrib.sites.models import Site
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
 
 # Create your views here.
 
@@ -478,8 +480,8 @@ def workshopCategories(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+@login_required
 def workshopEdit(request, id=''):
-
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit this workshop')
@@ -1220,3 +1222,183 @@ def teacherLeaderDelete(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def users(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view users')
+
+    users = models.UserProfile.objects.all()
+    order_by = 'user__email'
+    direction = request.GET.get('direction') or 'asc'
+    ignorecase = request.GET.get('ignorecase') or 'false'
+    sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+    users = paginate(request, users, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+
+    searchForm = forms.UsersSearchForm(user=request.user)
+
+    context = {'users': users, 'searchForm': searchForm}
+    return render(request, 'bcse_app/Users.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# filter users queryset based on search criteria
+####################################
+@login_required
+def usersSearch(request):
+
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to search users')
+
+    if request.method == 'GET':
+
+      query_filter = Q()
+      email_filter = None
+      first_name_filter = None
+      last_name_filter = None
+      user_role_filter = None
+      work_place_filter = None
+      joined_after_filter = None
+      joined_before_filter = None
+      status_filter = None
+
+      email = request.GET.get('email', '')
+      first_name = request.GET.get('first_name', '')
+      last_name = request.GET.get('last_name', '')
+      user_role = request.GET.get('user_role', '')
+      work_place = request.GET.get('work_place', '')
+      joined_after = request.GET.get('joined_after', '')
+      joined_before = request.GET.get('joined_before', '')
+      status = request.GET.get('status', '')
+      sort_by = request.GET.get('sort_by', '')
+
+      if email:
+        email_filter = Q(user__email__icontains=email)
+
+      if first_name:
+        first_name_filter = Q(user__first_name__icontains=first_name)
+      if last_name:
+        last_name_filter = Q(user__last_name__icontains=last_name)
+
+      if user_role:
+        user_role_filter = Q(user_role=user_role)
+
+      if work_place:
+        work_place_filter = Q(work_place=work_place)
+
+      if joined_after:
+        joined_after_filter = Q(created_date__gte=joined_after)
+
+      if joined_before:
+        joined_before_filter = Q(created_date__lte=joined_before)
+
+      if status:
+        if status == 'A':
+          status_filter = Q(user__is_active=True)
+        else:
+          status_filter = Q(user__is_active=False)
+
+      if email_filter:
+        query_filter = email_filter
+      if first_name_filter:
+        query_filter = query_filter & first_name_filter
+      if last_name_filter:
+        query_filter = query_filter & last_name_filter
+      if user_role_filter:
+        query_filter = query_filter & user_role_filter
+
+      if work_place_filter:
+        query_filter = query_filter & work_place_filter
+
+      if joined_after_filter:
+        query_filter = query_filter & joined_after_filter
+
+      if joined_before_filter:
+        query_filter = query_filter & joined_before_filter
+
+      if status_filter:
+        query_filter = query_filter & status_filter
+
+
+
+      users = models.UserProfile.objects.all().filter(query_filter)
+
+      if sort_by:
+        if sort_by == 'email':
+          order_by = 'user__email'
+        elif sort_by == 'first_name':
+          order_by = 'user__first_name'
+        elif sort_by == 'last_name':
+          order_by = 'user__last_name'
+        elif sort_by == 'date_joined':
+          order_by = 'created_date'
+      else:
+        order_by = 'user__email'
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+      users = paginate(request, users, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+
+      context = {'users': users}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/UsersTableView.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+#paginate the queryset based on the items per page and sort order
+####################################
+@login_required
+def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAGE):
+
+  ordering_list = []
+
+  if sort_order:
+    for order in sort_order:
+      order_by = order['order_by']
+      direction = order['direction']
+      ignorecase = order['ignorecase']
+
+      ordering = order_by
+
+      if ignorecase == 'true':
+        ordering = Lower(ordering)
+        if direction == 'desc':
+          ordering = ordering.desc()
+      else:
+        if direction == 'desc':
+          ordering = '-{}'.format(ordering)
+
+      ordering_list.append(ordering)
+
+    queryset = queryset.order_by(*ordering_list)
+
+  paginator = Paginator(queryset, count)
+  page = request.GET.get('page')
+  try:
+    object_list = paginator.page(page)
+  except PageNotAnInteger:
+    # If page is not an integer, deliver first page.
+    object_list = paginator.page(1)
+  except EmptyPage:
+    # If page is out of range (e.g. 9999), deliver last page of results.
+    object_list = paginator.page(paginator.num_pages)
+
+  return object_list

@@ -433,3 +433,34 @@ class WorkshopsSearchForm(forms.Form):
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# User Search Form
+####################################
+class UsersSearchForm(forms.Form):
+  email = forms.CharField(required=False, max_length=256, label=u'Email')
+  first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
+  last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
+  user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
+  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'))
+  joined_after = forms.DateField(required=False, label=u'Joined on/after')
+  joined_before = forms.DateField(required=False, label=u'Joined on/before')
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('email', 'Email'),
+                                                      ('first_name', 'First Name'),
+                                                      ('last_name', 'Last Name'),
+                                                      ('date_joined', 'Date Joined')))
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(UsersSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      if field_name in ['joined_after', 'joined_before']:
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+      if field.help_text:
+        field.widget.attrs['placeholder'] = field.help_text

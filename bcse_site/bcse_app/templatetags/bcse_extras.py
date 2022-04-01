@@ -18,3 +18,11 @@ def daterange(start_date, end_date):
   days = delta.days + 1
   for n in range(int(days)):
     yield start_date + datetime.timedelta(n)
+
+@register.filter
+def get_page_start_index(paginator, page_number):
+  return paginator.page(page_number).start_index()
+
+@register.filter
+def get_page_end_index(paginator, page_number):
+  return paginator.page(page_number).end_index()

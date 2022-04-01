@@ -4,52 +4,54 @@
 
 {% block content %}
   {{block.super}}
-  <div class="content">
+  <div class="content admin">
     <div class="admin_config_container container">
       <div class="left-navigation">
-        <ul class="navbar-nav">
-          <li class="nav-item {% navactive request 'bcse:adminConfiguration' %}">
-            <a class="nav-link" href="{% url 'bcse:adminConfiguration' %}">Admin Home</a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li class="nav-item {% if 'workshopCategories' in request.path or 'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}active{% endif %}">
-            {% if 'workshopCategories' in request.path or  'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}
-              <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#workshop_config" aria-controls="workshop_config">
-                Workshop Configuration
-              </a>
-            {% else %}
-              <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#workshop_config" aria-controls="workshop_config">
-                Workshop Configuration
-              </a>
-            {% endif %}
-            <ul class="collapse navbar-nav {% leftnavactive request 'workshopCategories' %}
-                {% leftnavactive request 'workshopCategory' %}
-                {% leftnavactive request 'registrationEmailMessages' %}
-                {% leftnavactive request 'registrationEmailMessage' %}
-                {% leftnavactive request 'teacherLeaders' %}
-                {% leftnavactive request 'teacherLeader' %}" id="workshop_config">
+        <div class="admin_menu">
+          <ul class="navbar-nav">
+            <li class="nav-item {% navactive request 'bcse:adminConfiguration' %}">
+              <a class="nav-link" href="{% url 'bcse:adminConfiguration' %}">Admin Home</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="nav-item {% if 'workshopCategories' in request.path or 'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}active{% endif %}">
+              {% if 'workshopCategories' in request.path or  'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}
+                <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#workshop_config" aria-controls="workshop_config">
+                  Workshop Configuration
+                </a>
+              {% else %}
+                <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#workshop_config" aria-controls="workshop_config">
+                  Workshop Configuration
+                </a>
+              {% endif %}
+              <ul class="collapse navbar-nav {% leftnavactive request 'workshopCategories' %}
+                  {% leftnavactive request 'workshopCategory' %}
+                  {% leftnavactive request 'registrationEmailMessages' %}
+                  {% leftnavactive request 'registrationEmailMessage' %}
+                  {% leftnavactive request 'teacherLeaders' %}
+                  {% leftnavactive request 'teacherLeader' %}" id="workshop_config">
 
-              <li class="{% if 'workshopCategories' in request.path or  'workshopCategory' in request.path %} active {% endif %}">
-                <a href="{% url 'bcse:workshopCategories' %}">Workshop Categories</a>
-              </li>
-              <li class="{% if 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %} active {% endif %}">
-                <a href="{% url 'bcse:registrationEmailMessages' %}">Registration Email Messages</a>
-              </li>
-              <li class="{% if 'teacherLeaders' in request.path or  'teacherLeader' in request.path %} active {% endif %}">
-                <a href="{% url 'bcse:teacherLeaders' %}">Teacher Leaders</a>
-              </li>
-            </ul>
-          </li>
+                <li class="{% if 'workshopCategories' in request.path or  'workshopCategory' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:workshopCategories' %}">Workshop Categories</a>
+                </li>
+                <li class="{% if 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:registrationEmailMessages' %}">Registration Email Messages</a>
+                </li>
+                <li class="{% if 'teacherLeaders' in request.path or  'teacherLeader' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:teacherLeaders' %}">Teacher Leaders</a>
+                </li>
+              </ul>
+            </li>
 
-          <li><hr class="dropdown-divider"></li>
-          <li class="nav-item">
-            <a class="nav-link">Baxter Box Configuration</a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li class="nav-item">
-            <a class="nav-link">Users</a>
-          </li>
-        </ul>
+            <li><hr class="dropdown-divider"></li>
+            <li class="nav-item">
+              <a class="nav-link">Baxter Box Configuration</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'bcse:users' %}">Users</a>
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="right-content container">
         {% block configuration %}

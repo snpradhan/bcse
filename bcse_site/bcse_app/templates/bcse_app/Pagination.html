@@ -1,0 +1,21 @@
+{% load bcse_extras %}
+<div class="paginate">
+  <span class="counter">
+    Showing {{model.paginator|get_page_start_index:model.number}} to {{model.paginator|get_page_end_index:model.number}} of {{model.paginator.count}} entries.
+  </span>
+  <span class="page-links">
+    {% if model.has_previous %}
+      <a href="#" data-page="{{ model.previous_page_number }}" class="page">Previous</a>
+      &nbsp;
+    {% endif %}
+
+    <span class="current">
+      Page {{ model.number }} of {{ model.paginator.num_pages }}.
+    </span>
+
+    {% if model.has_next %}
+      &nbsp;
+      <a href="#" data-page="{{ model.next_page_number }}" class="page">Next</a>
+    {% endif %}
+  </span>
+</div>

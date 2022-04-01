@@ -77,6 +77,14 @@ $(function (){
                 });
   }
 
+  function bindPagination(){
+    $('div.paginate a.page').on('click', function(e){
+      var page = $(this).data('page');
+      $('form.filter_form input#page').val(page);
+      $('form.filter_form').submit();
+    });
+  }
+
   $(".datepicker").datepicker({
     dateFormat: "MM dd, yy"
   });
@@ -93,19 +101,34 @@ $(function (){
     scrollbar: true
   });
 
+  //generic filter form submit handler
   $('form.filter_form').on('submit', function(e){
     e.preventDefault();
     var form = $(this);
+    var form_id = $(this).attr('id');
+    //the container to place the search results
+    var result_container = $(this).closest('.content').find('.search_results');
     const queryString = $(form).serialize();
     var url = $(form).attr('action')+'?'+queryString;
     console.log(queryString);
     $.ajax({
       type: $(form).attr('method'),
       url: url,
+      beforeSend: function(){
+        $(result_container).html('');
+        $('#spinner').show();
+      },
+      complete: function(){
+        $('#spinner').hide();
+      },
       success: function(data){
+        $('#spinner').hide();
         if(data['success'] = true) {
-          $('div.workshops').html(data['html']);
-          bindRegistrationSubmit();
+          $(result_container).html(data['html']);
+          if(form_id == 'workshop_filter_form') {
+            bindRegistrationSubmit();
+          }
+          bindPagination();
           bindDeleteAction();
         }
         else{
@@ -118,6 +141,7 @@ $(function (){
       },
     });
   });
+
 
   //submit search form on input change
   $('form.filter_form :input').on('change', function(e){
@@ -146,6 +170,7 @@ $(function (){
     }
   });
 
+  bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();
 

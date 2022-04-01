@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'bcse_app.middleware.UpdateSession',
+    'bcse_app.middleware.OnlineNowMiddleware',
 ]
 
 ROOT_URLCONF = 'bcse_site.urls'
@@ -161,6 +163,9 @@ USE_L10N = False
 
 USE_TZ = True
 
+ONLINE_THRESHOLD = 60
+
+DEFAULT_ITEMS_PER_PAGE = 25
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

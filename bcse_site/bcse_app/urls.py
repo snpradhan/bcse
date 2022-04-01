@@ -28,6 +28,8 @@ urlpatterns = [
     path('signin/<str:user_email>/', views.userSignin, name='signin'),
     path('signup/', views.userSignup, name='signup'),
     path('signout/', views.userSignout, name='signout'),
+
+
     path('userProfile/<int:id>/edit', views.userProfileEdit, name='userProfileEdit'),
     path('userProfile/<int:id>/view', views.userProfileView, name='userProfileView'),
 
@@ -45,5 +47,8 @@ urlpatterns = [
     path('adminConfiguration/teacherLeader/<int:id>/delete', views.teacherLeaderDelete, name='teacherLeaderDelete'),
     path('adminConfiguration/teacherLeader/new', views.teacherLeaderEdit, name='teacherLeaderNew'),
     path('adminConfiguration/teacherLeaders/', views.teacherLeaders, name='teacherLeaders'),
+
+    path('adminConfiguration/users/', views.users, name='users'),
+    path('adminConfiguration/users/search', views.usersSearch, name='usersSearch'),
 
 ]

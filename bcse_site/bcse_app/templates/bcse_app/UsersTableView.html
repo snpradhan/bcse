@@ -1,0 +1,68 @@
+{% load bcse_extras %}
+
+{% if users %}
+  {% with online_users=request.online_now_ids %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th> User ID</th>
+        <th> Picture </th>
+        <th> Email </th>
+        <th> Full Name </th>
+        <th> Role </th>
+        <th> Work Place </th>
+        <th> Joined</th>
+        <th> Last Login </th>
+        <th> Action </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user_profile in users %}
+        <tr>
+          <td> {{user_profile.id}}</td>
+          <td>
+            {% if user_profile.image %}
+              <img class="icon" src="{{user_profile.image.url}}"/>
+            {% endif %}
+          </td>
+          <td> {{user_profile.user.email}} </td>
+          <td> {{user_profile.user.get_full_name}} </td>
+          <td> {{user_profile.get_user_role_display}} </td>
+          <td> {{user_profile.work_place}} </td>
+          <td> {{user_profile.created_date|date:"F j, Y g:i A"}}</td>
+          <td>
+            {% if user_profile.user.id in online_users %}
+              <div class="success">Online</div>
+            {% else %}
+              {{user_profile.user.last_login|date:"F j, Y g:i A"}}
+            {% endif %}
+          </td>
+          
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'bcse:teacherLeaderEdit' user_profile.id %}">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:teacherLeaderDelete' user_profile.id %}"
+                  data-title="the teacher leader <strong>{{user_profile.first_name}} {{user_profile.last_name}}</strong>">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=users %}
+  {% endwith %}
+{% else %}
+  <div class="warning center">No users matching your search criteria found</div>
+{% endif %}
