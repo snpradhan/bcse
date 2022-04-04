@@ -32,6 +32,13 @@
           <div>{{searchForm.registration_open}}</div>
           <div class="error">{{ searchForm.registration_open.errors }}</div>
         </div>
+        {% if searchForm.status %}
+          <div class="form-group col">
+            <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
+            <div>{{searchForm.status}}</div>
+            <div class="error">{{ searchForm.status.errors }}</div>
+          </div>
+        {% endif %}
         <div class="form-group col">
           <label for="id_{{searchForm.keywords.name}}" class="form-label"> {{searchForm.keywords.label|title}}</label>
           <div>{{searchForm.keywords}}</div>

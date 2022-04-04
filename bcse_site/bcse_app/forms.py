@@ -412,6 +412,7 @@ class WorkshopsSearchForm(forms.Form):
   starts_after = forms.DateField(required=False, label=u'Starts on/after')
   ends_before = forms.DateField(required=False, label=u'Ends on/before')
   registration_open = forms.BooleanField(required=False)
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Title'), ('start_date', 'Start Date')))
 
@@ -422,6 +423,7 @@ class WorkshopsSearchForm(forms.Form):
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('workshop_category')
+      self.fields.pop('status')
 
     for field_name, field in self.fields.items():
       if field_name in ['registration_open']:
