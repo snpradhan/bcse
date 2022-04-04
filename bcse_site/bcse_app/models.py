@@ -333,3 +333,34 @@ class Team(models.Model):
   def __str__(self):
       return '%s' % (self.name)
 
+
+# signal to check if registration status has changed
+# and then send an email to the registrant
+@receiver(pre_save, sender=Registration)
+def check_registration_status_change(sender, instance, **kwargs):
+  confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
+  userProfile = instance.user
+  workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
+  registration_setting = workshop.registration_setting
+
+  subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop)
+  body = replace_workshop_tokens(confirmation_message_object.email_message, workshop)
+
+  send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email], html_message=body)
+
+#
+# Replace workshop registration message tokens before sending out an email
+#
+def replace_workshop_tokens(text, workshop):
+  replaced_text = text
+  replaced_text = replaced_text.replace('[workshop_category]', workshop.workshop_category.name or '')
+  replaced_text = replaced_text.replace('[workshop_title]', workshop.name or '')
+  replaced_text = replaced_text.replace('[workshop_sub_title]', workshop.sub_title or '')
+  replaced_text = replaced_text.replace('[workshop_start_date]', workshop.start_date.strftime('%B %-d, %Y') or '')
+  replaced_text = replaced_text.replace('[workshop_start_time]', workshop.start_time.strftime('%-I:%M %p') or '')
+  replaced_text = replaced_text.replace('[workshop_end_date]', workshop.end_date.strftime('%B %-d, %Y') or '')
+  replaced_text = replaced_text.replace('[workshop_end_time]', workshop.end_time.strftime('%-I:%M %p'))
+  replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
+  replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
+  replaced_text = replaced_text.replace('[workshop_survey_url]', workshop.registration_setting.survey_url or '')
+  return replaced_text
