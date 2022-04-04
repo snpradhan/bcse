@@ -18,6 +18,8 @@ from django.utils.crypto import get_random_string
 from django.contrib.sites.models import Site
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
+from django.core.files.base import ContentFile
+import os
 
 # Create your views here.
 
@@ -526,6 +528,56 @@ def workshopEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+def workshopCopy(request, id=''):
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to copy this workshop')
+    if '' != id:
+      workshop = models.Workshop.objects.get(id=id)
+      title = workshop.name
+      workshop.pk = None
+      workshop.id = None
+      workshop.image = None
+      workshop.enable_registration = False
+      workshop.save()
+
+      original_workshop = models.Workshop.objects.get(id=id)
+      workshop.name = 'Copy of ' + title
+      workshop.created_date = datetime.datetime.now()
+      workshop.modified_date = datetime.datetime.now()
+
+      if original_workshop.image:
+        try:
+          source = original_workshop.image
+          filecontent = ContentFile(source.file.read())
+          filename = os.path.split(source.file.name)[-1]
+          filename_array = filename.split('.')
+          new_filename = filename_array[0] + '-' + str(workshop.id) + '.' + filename_array[1]
+          workshop.image.save(new_filename, filecontent)
+          workshop.save()
+          source.file.close()
+          original_workshop.image.save(filename, filecontent)
+          original_workshop.save()
+        except IOError as e:
+          workshop.save()
+      else:
+        workshop.save()
+
+      messages.success(request, "Workshop copied")
+      return shortcuts.redirect('bcse:workshopEdit', id=workshop.id)
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 def workshopDelete(request, id=''):
 
   try:
@@ -936,12 +988,14 @@ def workshopsSearch(request, flag='list'):
     starts_after_filter = None
     ends_before_filter = None
     registration_filter = None
+    status_filter = None
 
     keywords = request.GET.get('keywords', '')
     starts_after = request.GET.get('starts_after', '')
     ends_before = request.GET.get('ends_before', '')
     registration_open = request.GET.get('registration_open', '')
     workshop_category = request.GET.get('workshop_category', '')
+    status = request.GET.get('status', '')
     sort_by = request.GET.get('sort_by', '')
 
     if keywords:
@@ -956,6 +1010,9 @@ def workshopsSearch(request, flag='list'):
     if workshop_category:
       workshop_category_filter = Q(workshop_category__id=workshop_category)
 
+    if status:
+      status_filter = Q(status=status)
+
     if starts_after:
       starts_after = datetime.datetime.strptime(starts_after, '%B %d, %Y')
       starts_after_filter = Q(start_date__gte=starts_after)
@@ -964,8 +1021,11 @@ def workshopsSearch(request, flag='list'):
       ends_before = datetime.datetime.strptime(ends_before, '%B %d, %Y')
       ends_before_filter = Q(end_date__lte=ends_before)
 
+
     if keyword_filter:
       query_filter = keyword_filter
+    if status_filter:
+      query_filter = query_filter & status_filter
     if workshop_category_filter:
       query_filter = query_filter & workshop_category_filter
     if starts_after_filter:

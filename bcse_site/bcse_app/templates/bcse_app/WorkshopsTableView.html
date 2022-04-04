@@ -88,6 +88,8 @@
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
                     <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'bcse:workshopCopy' workshop.id %}">Clone</a></li>
+                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="the workshop <strong>{{workshop.name}}</strong>">Delete</a></li>
                   </ul>
               </td>
