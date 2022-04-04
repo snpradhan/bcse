@@ -6,11 +6,11 @@
     <thead>
       <tr>
         <th> User ID</th>
-        <th> Picture </th>
         <th> Email </th>
         <th> Full Name </th>
         <th> Role </th>
         <th> Work Place </th>
+        <th> Status </th>
         <th> Joined</th>
         <th> Last Login </th>
         <th> Action </th>
@@ -20,15 +20,11 @@
       {% for user_profile in users %}
         <tr>
           <td> {{user_profile.id}}</td>
-          <td>
-            {% if user_profile.image %}
-              <img class="icon" src="{{user_profile.image.url}}"/>
-            {% endif %}
-          </td>
           <td> {{user_profile.user.email}} </td>
           <td> {{user_profile.user.get_full_name}} </td>
           <td> {{user_profile.get_user_role_display}} </td>
           <td> {{user_profile.work_place}} </td>
+          <td> {{user_profile.user.is_active|yesno:"Active,No"}} </td>
           <td> {{user_profile.created_date|date:"F j, Y g:i A"}}</td>
           <td>
             {% if user_profile.user.id in online_users %}
