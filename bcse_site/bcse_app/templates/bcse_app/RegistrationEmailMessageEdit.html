@@ -29,6 +29,11 @@
         <div class="error">{{ form.email_message.errors }}</div>
       </div>
       <div class="form-group mb-3">
+        <label for="id_{{form.include_calendar_invite.name}}" class="form-label"> {{form.include_calendar_invite.label|title}}</label>
+        <div>{{form.include_calendar_invite}}</div>
+        <div class="error">{{ form.include_calendar_invite.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
         <a role="button" data-bs-toggle="collapse" aria-expanded="false" href="#replacement_patterns" aria-controls="replacement_patterns">
          <label class="form-label">Replacement Patterns</label>
         </a>

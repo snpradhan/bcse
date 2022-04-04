@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import io
 import datetime
+import pytz
 import string
 from ckeditor_uploader.fields import RichTextUploadingField
 from ckeditor.fields import RichTextField
@@ -12,11 +13,13 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, m2m_changed, pre_delete
 from django.db.models.functions import Upper
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.db.models import Func
 from PIL import Image
 import os
 from localflavor.us.models import USStateField
+from django.utils.timezone import make_aware
+from icalendar import Calendar, Event, vCalAddress, vText
 
 # Create your models here.
 
@@ -253,6 +256,7 @@ class RegistrationEmailMessage(models.Model):
   registration_status = models.CharField(null=False, blank=False, max_length=1, unique=True, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
   email_subject = models.CharField(null=False, max_length=256)
   email_message = RichTextField(null=False, blank=False)
+  include_calendar_invite = models.BooleanField(default=False)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -345,8 +349,15 @@ def check_registration_status_change(sender, instance, **kwargs):
 
   subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop)
   body = replace_workshop_tokens(confirmation_message_object.email_message, workshop)
+  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
 
-  send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email], html_message=body)
+  #check if calendar invite needs to be attached
+  if confirmation_message_object.include_calendar_invite:
+    filename = create_calendar_invite(workshop, userProfile)
+    email.attach_file(filename, 'text/calendar')
+
+  email.content_subtype = "html"
+  email.send()
 
 #
 # Replace workshop registration message tokens before sending out an email
@@ -364,3 +375,24 @@ def replace_workshop_tokens(text, workshop):
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
   replaced_text = replaced_text.replace('[workshop_survey_url]', workshop.registration_setting.survey_url or '')
   return replaced_text
+
+#
+# Create calendar invite (ics) file for the workshop
+#
+def create_calendar_invite(workshop, userProfile):
+  cal = Calendar()
+  event = Event()
+
+  event.add('summary', workshop.name)
+  event.add('dtstart', datetime.datetime.combine(workshop.start_date, workshop.start_time))
+  event.add('dtend', datetime.datetime.combine(workshop.end_date, workshop.end_time))
+  event.add('dtstamp', datetime.datetime.now())
+  event['location'] = vText(workshop.location)
+  cal.add_component(event)
+  filename = 'invite_%s_%s.ics' % (workshop.id, userProfile.id)
+
+  with open(filename, 'wb') as f:
+    f.write(cal.to_ical())
+    f.close()
+  return filename
+
