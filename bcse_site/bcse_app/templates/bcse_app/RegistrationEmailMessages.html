@@ -7,48 +7,50 @@
   <div class="button-row">
     <a class="btn" href="{% url 'bcse:registrationEmailMessageNew' %}" role="button">Create Registration Email Message</a>
   </div>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th> Message ID</th>
-        <th> Registration Status </th>
-        <th> Subject </th>
-        <th> Message </th>
-        <th> Created Date</th>
-        <th> Modified Date </th>
-        <th> Action </th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for email_message in registration_messages %}
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
         <tr>
-          <td> {{email_message.id}}</td>
-          <td> {{email_message.get_registration_status_display}} </td>
-          <td> {{email_message.email_subject}} </td>
-          <td> {{email_message.email_message|safe}} </td>
-          <td> {{email_message.created_date|date:"F j, Y g:i A"}}</td>
-          <td> {{email_message.modified_date|date:"F j, Y g:i A"}} </td>
-          <td>
-            <div class="btn-group">
-              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Action
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <a class="dropdown-item" href="{% url 'bcse:registrationEmailMessageEdit' email_message.id %}">Edit</a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:registrationEmailMessageDelete' email_message.id %}"
-                  data-title="registration email message for status <strong>{{email_message.get_registration_status_display}}</strong>">
-                    Delete
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </td>
+          <th> Message ID</th>
+          <th> Registration Status </th>
+          <th> Subject </th>
+          <th> Message </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for email_message in registration_messages %}
+          <tr>
+            <td> {{email_message.id}}</td>
+            <td> {{email_message.get_registration_status_display}} </td>
+            <td> {{email_message.email_subject}} </td>
+            <td> {{email_message.email_message|safe}} </td>
+            <td> {{email_message.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{email_message.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:registrationEmailMessageEdit' email_message.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:registrationEmailMessageDelete' email_message.id %}"
+                    data-title="registration email message for status <strong>{{email_message.get_registration_status_display}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

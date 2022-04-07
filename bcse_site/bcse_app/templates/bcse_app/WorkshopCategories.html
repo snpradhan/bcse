@@ -7,48 +7,50 @@
   <div class="button-row">
     <a class="btn" href="{% url 'bcse:workshopCategoryNew' %}" role="button">Create Workshop Category</a>
   </div>
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th> Workshop Category ID</th>
-        <th> Name </th>
-        <th> Description </th>
-        <th> Type </th>
-        <th> Created Date</th>
-        <th> Modified Date </th>
-        <th> Action </th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for workshop_category in workshop_categories %}
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
         <tr>
-          <td> {{workshop_category.id}}</td>
-          <td> {{workshop_category.name}} </td>
-          <td> {{workshop_category.description}} </td>
-          <td> {{workshop_category.get_workshop_type_display}} </td>
-          <td> {{workshop_category.created_date|date:"F j, Y g:i A"}}</td>
-          <td> {{workshop_category.modified_date|date:"F j, Y g:i A"}} </td>
-          <td>
-            <div class="btn-group">
-              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Action
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <a class="dropdown-item" href="{% url 'bcse:workshopCategoryEdit' workshop_category.id %}">Edit</a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopCategoryDelete' workshop_category.id %}"
-                  data-title="the workshop category <strong>{{workshop_category.name}}</strong>">
-                    Delete
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </td>
+          <th> Workshop Category ID</th>
+          <th> Name </th>
+          <th> Description </th>
+          <th> Type </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for workshop_category in workshop_categories %}
+          <tr>
+            <td> {{workshop_category.id}}</td>
+            <td> {{workshop_category.name}} </td>
+            <td> {{workshop_category.description}} </td>
+            <td> {{workshop_category.get_workshop_type_display}} </td>
+            <td> {{workshop_category.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{workshop_category.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:workshopCategoryEdit' workshop_category.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopCategoryDelete' workshop_category.id %}"
+                    data-title="the workshop category <strong>{{workshop_category.name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}
