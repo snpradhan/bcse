@@ -52,29 +52,35 @@ class SignInForm (forms.Form):
 class SignUpForm (forms.Form):
   email = forms.EmailField(required=True, max_length=75, label='Email')
   confirm_email = forms.EmailField(required=True, max_length=75, label='Confirm Email')
-  first_name = forms.CharField(required=True, max_length=30, label='First name')
-  last_name = forms.CharField(required=True, max_length=30, label='Last name')
+  first_name = forms.CharField(required=True, max_length=30, label='First Name')
+  last_name = forms.CharField(required=True, max_length=30, label='Last Name')
   password1 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Password')
   password2 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Confirm Password')
-  user_role = forms.ChoiceField(required=True, widget=forms.RadioSelect(), choices=models.USER_ROLE_CHOICES, label='I am a')
+  user_role = forms.ChoiceField(required=True, choices=(('', '---------'),)+models.USER_ROLE_CHOICES, label='I am a')
   work_place = forms.ModelChoiceField(required=False,
-                                  queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+                                  queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'), label='Work Place'
                                   #widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
                                                                   # attrs={'data-placeholder': 'Start typing the name if your work place ...',}),
                                   )
+  phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
+  iein = forms.CharField(required=False, max_length=20, label='IEIN #')
+  grades_taught = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.GRADES_CHOICES)
+  twitter_handle = forms.CharField(required=False, max_length=20, label='Twitter ID')
+  instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
   new_work_place_flag = forms.BooleanField(required=False, label='My work place is not listed')
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
 
     super(SignUpForm, self).__init__(*args, **kwargs)
-    if user.is_authenticated and hasattr(user, 'administrator'):
-      self.fields.pop('confirm_email')
+    if user.is_authenticated and user.userProfile.user_role in ['A', 'S']:
+      self.fields['user_role'].label = 'User Role'
+      self.fields['new_work_place_flag'].label = 'Work Place not listed'
     else:
-      self.fields['user_role'].choices = models.USER_ROLE_CHOICES[1:3]
+      self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['user_role', 'new_work_place_flag']:
+      if field_name not in ['new_work_place_flag']:
         field.widget.attrs['class'] = 'form-control'
       elif field_name == 'new_work_place_flag':
         field.widget.attrs['class'] = 'form-check-input'
@@ -144,6 +150,13 @@ class UserForm(ModelForm):
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
     super(UserForm, self).__init__(*args, **kwargs)
+
+    self.fields['email'].label = 'Email'
+
+    if user.is_authenticated:
+      if user.userProfile.user_role not in ['A', 'S']:
+        self.fields.pop('is_active')
+
     for field_name, field in list(self.fields.items()):
       if field_name not in ['is_active']:
         field.widget.attrs['class'] = 'form-control'
@@ -204,18 +217,20 @@ class UserProfileForm (ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['work_place', 'user_role', 'image', 'validation_code']
+    fields = ['work_place', 'user_role', 'image', 'validation_code', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle']
     widgets = {
-      #'work_place': autocomplete.ModelSelect2(url='school-autocomplete', attrs={'data-placeholder': 'Start typing the school name ...',})
+      'image': widgets.FileInput,
     }
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
 
     super(UserProfileForm, self).__init__(*args, **kwargs)
+    self.fields['twitter_handle'].label = 'Twitter ID'
+    self.fields['instagram_handle'].label = 'Instagram ID'
 
     if user.is_authenticated:
-      if user.userProfile.user_role == 'A':
+      if user.userProfile.user_role in ['A', 'S']:
         self.fields['validation_code'].widget.attrs['readonly'] = True
       else:
         self.fields['user_role'].widget.attrs['readonly'] = True

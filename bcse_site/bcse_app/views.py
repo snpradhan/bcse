@@ -101,12 +101,14 @@ def userSignup(request):
   ########### GET ###################
   if request.method == 'GET':
 
-    if request.user.is_anonymous or hasattr(request.user, 'administrator'):
+    if request.user.is_anonymous or request.user.userProfile.user_role in ['A', 'S']:
       form = forms.SignUpForm(user=request.user)
       work_place_form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
       context = {'form': form, 'work_place_form': work_place_form}
+      return render(request, 'bcse_app/SignUpModal.html', context)
+    else:
+      raise CustomException('You cannot create another user account')
 
-    return render(request, 'bcse_app/SignUpModal.html', context)
 
   elif request.method == 'POST':
     new_work_place = None
@@ -137,37 +139,39 @@ def userSignup(request):
 
       role = ''
       newUser = models.UserProfile()
-      if form.cleaned_data['user_role'] == 'T' or form.cleaned_data['user_role'] == 'P':
-        newUser.validation_code = get_random_string(length=5)
+      newUser.user_role = form.cleaned_data['user_role']
+      newUser.iein = form.cleaned_data['iein']
+      newUser.grades_taught = form.cleaned_data['grades_taught']
+      newUser.phone_number = form.cleaned_data['phone_number']
+      newUser.twitter_handle = form.cleaned_data['twitter_handle']
+      newUser.instagram_handle = form.cleaned_data['instagram_handle']
 
-        #get the work place id
-        selected_work_place = form.cleaned_data['work_place']
-        new_work_place_flag = form.cleaned_data['new_work_place_flag']
-        if new_work_place_flag:
-          if work_place_form.is_valid():
-            #create a new school entry
-            new_work_place = work_place_form.save(commit=False)
-            if user.is_active:
-              new_work_place.is_active = True
-            new_work_place.save()
-            newUser.work_place = new_work_place
+      if form.cleaned_data['user_role'] in ['A', 'S', 'T','P']:
+        if form.cleaned_data['user_role'] in ['T','P']:
+          newUser.validation_code = get_random_string(length=5)
+          #get the work place id
+          selected_work_place = form.cleaned_data['work_place']
+          new_work_place_flag = form.cleaned_data['new_work_place_flag']
+          if new_work_place_flag:
+            if work_place_form.is_valid():
+              #create a new school entry
+              new_work_place = work_place_form.save(commit=False)
+              if user.is_active:
+                new_work_place.is_active = True
+              new_work_place.save()
+              newUser.work_place = new_work_place
+            else:
+              print(work_place_form.errors)
+              user.delete()
+              context = {'form': form, 'work_place_form': work_place_form}
+              response_data['success'] = False
+              response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
+              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
           else:
-            print(work_place_form.errors)
-            user.delete()
-            context = {'form': form, 'work_place_form': work_place_form}
-            response_data['success'] = False
-            response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
-            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
-        else:
-          newUser.work_place = form.cleaned_data['work_place']
+            newUser.work_place = form.cleaned_data['work_place']
+
         newUser.user = user
         newUser.save()
-
-      # Admin or Staff account creation
-      elif form.cleaned_data['user_role'] in ['A', 'S']:
-        newUser.user = user
-        newUser.save()
-
 
       current_site = Site.objects.get_current()
       domain = current_site.domain
@@ -192,7 +196,6 @@ def userSignup(request):
         messages.success(request, '%s account has been created.' % newUser.get_user_role_display())
         #send_account_by_admin_confirmation_email(newUser, form.cleaned_data['password1'])
         response_data['success'] = True
-        response_data['redirect_url'] = '/'
 
     else:
       print(form.errors)
@@ -957,7 +960,7 @@ def workshopsBaseQuery(request, flag='list'):
 def workshops(request, flag='list'):
 
   workshops = workshopsBaseQuery(request, flag)
-  searchForm = forms.WorkshopsSearchForm(user=request.user)
+  searchForm = forms.WorkshopsSearchForm(user=request.user, prefix="workshop_search")
 
   workshop_list = []
   for workshop in workshops:
@@ -990,13 +993,13 @@ def workshopsSearch(request, flag='list'):
     registration_filter = None
     status_filter = None
 
-    keywords = request.GET.get('keywords', '')
-    starts_after = request.GET.get('starts_after', '')
-    ends_before = request.GET.get('ends_before', '')
-    registration_open = request.GET.get('registration_open', '')
-    workshop_category = request.GET.get('workshop_category', '')
-    status = request.GET.get('status', '')
-    sort_by = request.GET.get('sort_by', '')
+    keywords = request.GET.get('workshop_search-keywords', '')
+    starts_after = request.GET.get('workshop_search-starts_after', '')
+    ends_before = request.GET.get('workshop_search-ends_before', '')
+    registration_open = request.GET.get('workshop_search-registration_open', '')
+    workshop_category = request.GET.get('workshop_search-workshop_category', '')
+    status = request.GET.get('workshop_search-status', '')
+    sort_by = request.GET.get('workshop_search-sort_by', '')
 
     if keywords:
       keyword_filter = Q(name__icontains=keywords) | Q(sub_title__icontains=keywords)
@@ -1042,7 +1045,7 @@ def workshopsSearch(request, flag='list'):
         if registration_setting_status['registration_open']:
           workshops_with_open_registration.append(workshop.id)
 
-      workshops.filter(id__in=workshops_with_open_registration)
+      workshops = workshops.filter(id__in=workshops_with_open_registration)
 
     if sort_by:
       if sort_by == 'title':
@@ -1141,13 +1144,16 @@ def userProfileView(request, id=''):
     else:
       raise models.UserProfile.DoesNotExist
 
-    if request.user.userProfile.user_role != 'A' and request.user.id != userProfile.user.id:
+    if request.user.userProfile.user_role not in  ['A', 'S'] and request.user.id != userProfile.user.id:
       raise CustomException('You do not have the permission to view this user profile')
 
     if request.method == 'GET':
       context = {'userProfile': userProfile}
 
-      return render(request, 'bcse_app/UserProfileView.html', context)
+      if request.user.userProfile.user_role in  ['A', 'S']:
+        return render(request, 'bcse_app/UserProfileView.html', context)
+      else:
+        return render(request, 'bcse_app/MyProfileView.html', context)
 
     return http.HttpResponseNotAllowed(['GET'])
 
@@ -1184,29 +1190,56 @@ def userProfileEdit(request, id=''):
       data.__setitem__('user_profile-user', userProfile.user.id)
       #convert email to lowercase before save
       data.__setitem__('user-email', data.__getitem__('user-email').lower())
+      data.__setitem__('user-username', data.__getitem__('user-email').lower())
       data.__setitem__('user-password', userProfile.user.password)
       data.__setitem__('user-last_login', userProfile.user.last_login)
       data.__setitem__('user-date_joined', userProfile.user.date_joined)
 
       userForm = forms.UserForm(data, instance=userProfile.user, user=request.user, prefix='user')
       userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile")
+      print(request.FILES)
+      response_data = {}
 
       if userForm.is_valid(userProfile.user.id) and userProfileForm.is_valid():
         userForm.save()
         savedUserProfile = userProfileForm.save()
         messages.success(request, "User profile saved successfully")
-        return shortcuts.redirect('bcse:userProfileEdit', id=savedUserProfile.id)
-
+        response_data['success'] = True
       else:
         print(userForm.errors)
         print(userProfileForm.errors)
         context = {'userProfileForm': userProfileForm, 'userForm': userForm}
-        return render(request, 'bcse_app/UserProfileEdit.html', context)
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
 
   except models.UserProfile.DoesNotExist:
     messages.error(request, "User profile not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def userProfileDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete this user')
+    if '' != id:
+      userProfile = models.UserProfile.objects.get(id=id)
+      user = userProfile.user
+      user.delete()
+      messages.success(request, "User deleted")
+
+    return shortcuts.redirect('bcse:users')
+
+  except models.UserProfile.DoesNotExist:
+    messages.success(request, "User not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
@@ -1296,7 +1329,7 @@ def users(request):
     sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
     users = paginate(request, users, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
 
-    searchForm = forms.UsersSearchForm(user=request.user)
+    searchForm = forms.UsersSearchForm(user=request.user, prefix="user_search")
 
     context = {'users': users, 'searchForm': searchForm}
     return render(request, 'bcse_app/Users.html', context)
@@ -1328,15 +1361,15 @@ def usersSearch(request):
       joined_before_filter = None
       status_filter = None
 
-      email = request.GET.get('email', '')
-      first_name = request.GET.get('first_name', '')
-      last_name = request.GET.get('last_name', '')
-      user_role = request.GET.get('user_role', '')
-      work_place = request.GET.get('work_place', '')
-      joined_after = request.GET.get('joined_after', '')
-      joined_before = request.GET.get('joined_before', '')
-      status = request.GET.get('status', '')
-      sort_by = request.GET.get('sort_by', '')
+      email = request.GET.get('user_search-email', '')
+      first_name = request.GET.get('user_search-first_name', '')
+      last_name = request.GET.get('user_search-last_name', '')
+      user_role = request.GET.get('user_search-user_role', '')
+      work_place = request.GET.get('user_search-work_place', '')
+      joined_after = request.GET.get('user_search-joined_after', '')
+      joined_before = request.GET.get('user_search-joined_before', '')
+      status = request.GET.get('user_search-status', '')
+      sort_by = request.GET.get('user_search-sort_by', '')
 
       if email:
         email_filter = Q(user__email__icontains=email)

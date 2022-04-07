@@ -5,13 +5,13 @@
 {% block configuration %}
   <h1> Users </h1>
   <div class="button-row">
-    <a class="btn" href="{% url 'bcse:teacherLeaderNew' %}" role="button">Create User</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-href="{% url 'bcse:signup' %}" href="#" role="button">Create User</a>
   </div>
   {% include "bcse_app/UsersSearch.html" %}
   <div class="form-group" id="spinner">
     <img src="/static/img/page-loader.gif" class="icon"/>
   </div>
-  <div class="search_results">
+  <div class="users search_results">
     {% include "bcse_app/UsersTableView.html" %}
   </div>
 {% endblock %}

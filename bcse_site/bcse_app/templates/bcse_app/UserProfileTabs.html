@@ -1,6 +1,10 @@
 {% if userProfile.id %}
-  <div class="tabs mb-3">
-    <label><a href="{% url 'bcse:userProfileView' userProfile.id %}">View</a></label>
-    | <label><a href="{% url 'bcse:userProfileEdit' userProfile.id %}">Edit</a></label>
-  </div>
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <label><a class="nav-link active" href="{% url 'bcse:userProfileView' userProfile.id %}">View</a></label>
+    </li>
+    <li class="nav-item">
+      <label><a class="nav-link modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' userProfile.id %}" href="#">Edit</a></label>
+    </li>
+  </ul>
 {% endif %}

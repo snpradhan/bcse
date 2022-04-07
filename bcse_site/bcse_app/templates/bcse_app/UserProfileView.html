@@ -1,67 +1,7 @@
-{% extends "bcse_app/base.html" %}
+{% extends "bcse_app/AdminConfiguration.html" %}
 {% load bcse_extras %}
+{% load base_extras %}
 
-{% block content %}
-  {{block.super}}
-  <div class="content">
-    <h1> {{userProfile.user.get_full_name}} </h1>
-    {% include "bcse_app/UserProfileTabs.html" %}
-    <div id="user_profile_container">
-      <div class="image">
-        {% if userProfile.image %}
-          <img src="{{userProfile.image.url}}"/>
-        {% endif %}
-      </div>
-      <div class="about">
-        <div>
-          <label>Full Name:</label>
-          <div>{{userProfile.user.get_full_name}}</div>
-        </div>
-        <div>
-          <label>Email:</label>
-          <div>{{userProfile.user.email}}</div>
-        </div>
-      </div>
-      <div class="work_place">
-        {% with work_place=userProfile.work_place %}
-        <div>
-          <label>Place of Work:</label>
-          <div>{{work_place.name}}</div>
-        </div>
-        <div>
-          <label>Address:</label>
-          <div>
-            {% if work_place.district_number %}
-              {{work_place.district_number}}
-              <br>
-            {% endif %}
-            {% if work_place.street_address_1 %}
-              {{work_place.street_address_1}}
-              <br>
-            {% endif %}
-            {% if work_place.street_address_2 %}
-              {{work_place.street_address_2}}
-              <br>
-            {% endif %}
-            {% if work_place.city %}
-              {{work_place.city}},
-            {% endif %}
-            {% if work_place.state %}
-              {{work_place.state}}
-            {% endif %}
-            {% if work_place.zip_code %}
-              {{work_place.zip_code}}
-            {% endif %}
-          </div>
-        </div>
-        {% endwith %}
-      </div>
-    </div>
-  </div>
-
-  <script type="text/javascript">
-    $(function (){
-      
-    });
-  </script>
+{% block configuration %}
+  {% include "bcse_app/ProfileView.html" %}
 {% endblock %}

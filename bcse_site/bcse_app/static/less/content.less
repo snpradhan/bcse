@@ -41,6 +41,10 @@ body {
     -webkit-hyphens : none !important;
   }
 
+  label {
+    font-weight: bold;
+  }
+
   a {
     color: inherit;
     text-decoration: unset;
@@ -81,6 +85,20 @@ body {
     font-size: 0.85em !important;
   }
 
+  img.icon {
+    width: 6em;
+    height: auto;
+  }
+  i.profile {
+    font-size: 5em;
+  }
+  img.curve {
+    border-radius: 50%;
+  }
+  div.image_preview {
+    margin-bottom: 0.5em;
+  }
+
   div.content {
 
     padding: 0 10% 40px;
@@ -93,6 +111,11 @@ body {
     div.container {
       background-color: white;
       padding-bottom: 4em;
+
+      div.search_results {
+        width: 100%;
+        overflow-x: scroll;
+      }
     }
 
     div.button-row {
@@ -104,17 +127,16 @@ body {
     div#filter_toggle label {
       cursor: pointer;
     }
-    div#filter_fields {
+    div#filter_content {
       background-color: @nu-light-purple;
       padding: 1em;
-    }
 
-    img.icon {
-      width: 6em;
-      height: auto;
-    }
-    div.image_preview {
-      margin-bottom: 0.5em;
+      div#filter_fields {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1em;
+        flex-wrap: wrap;
+      }
     }
 
     div.paginate {
@@ -162,22 +184,40 @@ body {
       display: flex;
       justify-content: space-between;
 
-      div.image {
-        flex: 0 0 10%;
+      div.identity {
+        flex: 0 0 20%;
+        border-right: 1px solid gray;
+        padding: 0 1em;
+        text-align: center;
       }
       div.about {
-        flex: 0 0 50%;
-
+        flex: 0 0 40%;
+        border-right: 1px solid gray;
+        padding: 0 1em;
         & > div {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-start;
+
+          & > label {
+            flex: 0 0 30%;
+          }
+          & > div {
+            flex: 0 0 70%;
+          }
         }
       }
       div.work_place {
-        flex: 0 0 30%;
+        flex: 0 0 40%;
+        padding: 0 1em;
         & > div {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-start;
+          & > label {
+            flex: 0 0 30%;
+          }
+          & > div {
+            flex: 0 0 70%;
+          }
         }
       }
     }
@@ -220,6 +260,7 @@ body {
         font-weight: 700;
         flex: 0 0 15%;
         border-right: 1px solid black;
+        padding-left: 1em;
 
         div.admin_menu {
           position: sticky;
@@ -240,7 +281,8 @@ body {
       }
       div.right-content {
         flex: 0 0 85%;
-        max-width: 100%;
+        padding-left: 1em;
+        width: 80%;
       }
     }
 

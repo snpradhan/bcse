@@ -34,7 +34,12 @@
           </div>
           {% if form.confirm_email %}
           <div class="form-group col-md-6">
-            <label for="id_{{form.confirm_email.name}}">{{ form.confirm_email.label }}</label>
+            <label for="id_{{form.confirm_email.name}}">
+              {{ form.confirm_email.label }}
+              {% if form.confirm_email.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{form.confirm_email}}</div>
             <div class="error">{{ form.confirm_email.errors }}</div>
           </div>
@@ -43,12 +48,22 @@
 
         <div class="row mb-3">
           <div class="form-group col-md-6">
-            <label for="id_{{form.first_name.name}}">{{ form.first_name.label }}</label>
+            <label for="id_{{form.first_name.name}}">
+              {{ form.first_name.label }}
+              {% if form.first_name.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{form.first_name}}</div>
             <div class="error">{{ form.first_name.errors }}</div>
           </div>
           <div class="form-group col-md-6">
-            <label for="id_{{form.last_name.name}}">{{ form.last_name.label }}</label>
+            <label for="id_{{form.last_name.name}}">
+              {{ form.last_name.label }}
+              {% if form.last_name.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{form.last_name}}</div>
             <div class="error">{{ form.last_name.errors }}</div>
           </div>
@@ -56,78 +71,202 @@
 
         <div class="row mb-3">
           <div class="form-group col-md-6">
-            <label for="id_{{form.password1.name}}">{{ form.password1.label }}</label>
+            <label for="id_{{form.password1.name}}">
+              {{ form.password1.label }}
+              {% if form.password1.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{form.password1}}</div>
             <div class="error">{{ form.password1.errors }}</div>
           </div>
           <div class="form-group col-md-6">
-            <label for="id_{{form.password2.name}}">{{ form.password2.label }}</label>
+            <label for="id_{{form.password2.name}}">
+              {{ form.password2.label }}
+              {% if form.password2.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{form.password2}}</div>
             <div class="error">{{ form.password2.errors }}</div>
           </div>
         </div>
 
-        <div class="form-group mb-3">
-          <label for="id_{{form.user_role.name}}">{{ form.user_role.label }}</label>
-          {% for radio in form.user_role %}
-            <div>{{radio.tag}}&nbsp;&nbsp;{{radio.choice_label}}</div>
-          {% endfor %}
-          <div class="error">{{ form.user_role.errors }}</div>
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{form.user_role.name}}">
+              {{ form.user_role.label }}
+              {% if form.user_role.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{ form.user_role }}</div>
+            <div class="error">{{ form.user_role.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{form.phone_number.name}}">
+              {{ form.phone_number.label }}
+              {% if form.phone_number.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{ form.phone_number }}</div>
+            <div class="error">{{ form.phone_number.errors }}</div>
+          </div>
         </div>
 
-        <div class="form-group mb-3">
-          <label for="id_{{form.work_place.name}}">{{ form.work_place.label }}</label>
-          <div>{{form.work_place}}</div>
-          <div class="error">{{ form.work_place.errors }}</div>
+        <div class="row mb-3 school_related">
+          <div class="form-group col-md-6">
+            <label for="id_{{form.iein.name}}">
+              {{ form.iein.label }}
+              {% if form.iein.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{ form.iein }}</div>
+            <div class="error">{{ form.iein.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{form.grades_taught.name}}">
+              {{ form.grades_taught.label }}
+              {% if form.grades_taught.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.grades_taught}}</div>
+            <div class="error">{{ form.grades_taught.errors }}</div>
+          </div>
         </div>
 
-        <div class="form-group mb-3">
-          <label for="id_{{form.new_work_place_flag.name}}">{{ form.new_work_place_flag.label }}</label>
-          <div>{{form.new_work_place_flag}}</div>
-          <div class="error">{{ form.new_work_place_flag.errors }}</div>
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{form.twitter_handle.name}}">
+              {{ form.twitter_handle.label }}
+              {% if form.twitter_handle.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{ form.twitter_handle }}</div>
+            <div class="error">{{ form.twitter_handle.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{form.instagram_handle.name}}">
+              {{ form.instagram_handle.label }}
+              {% if form.instagram_handle.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.instagram_handle}}</div>
+            <div class="error">{{ form.instagram_handle.errors }}</div>
+          </div>
         </div>
+
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{form.work_place.name}}">
+              {{ form.work_place.label }}
+              {% if form.work_place.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.work_place}}</div>
+            <div class="error">{{ form.work_place.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{form.new_work_place_flag.name}}">
+              {{ form.new_work_place_flag.label }}
+              {% if form.new_work_place_flag.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.new_work_place_flag}}</div>
+            <div class="error">{{ form.new_work_place_flag.errors }}</div>
+          </div>
+        </div>
+
+
 
         <div id="work_place_form" style="display: none;">
           <div class="form-group mb-3">
-            <label for="id_{{work_place_form.work_place_type.name}}"> {{ work_place_form.work_place_type.label }} </label>
+            <label for="id_{{work_place_form.work_place_type.name}}">
+              {{ work_place_form.work_place_type.label }}
+              {% if work_place_form.work_place_type.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{work_place_form.work_place_type}}</div>
             <div class="error">{{ work_place_form.work_place_type.errors }}</div>
           </div>
           <div class="form-group mb-3">
-            <label for="id_{{work_place_form.name.name}}"> {{ work_place_form.name.label }} </label>
+            <label for="id_{{work_place_form.name.name}}">
+              {{ work_place_form.name.label }}
+              {% if work_place_form.name.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{work_place_form.name}}</div>
             <div class="error">{{ work_place_form.name.errors }}</div>
           </div>
           <div class="form-group mb-3">
-            <label for="id_{{work_place_form.district_number.name}}">{{ work_place_form.district_number.label }}</label>
+            <label for="id_{{work_place_form.district_number.name}}">
+              {{ work_place_form.district_number.label }}
+              {% if work_place_form.district_number.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
             <div>{{work_place_form.district_number}}</div>
             <div class="error">{{ work_place_form.district_number.errors }}</div>
           </div>
           <div class="row mb-3">
             <div class="form-group col-md-6">
-              <label for="id_{{work_place_form.street_address_1.name}}"> {{ work_place_form.street_address_1.label }} </label>
+              <label for="id_{{work_place_form.street_address_1.name}}">
+                {{ work_place_form.street_address_1.label }}
+                {% if work_place_form.street_address_1.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{work_place_form.street_address_1}}</div>
               <div class="error">{{ work_place_form.street_address_1.errors }}</div>
             </div>
             <div class="form-group col-md-6">
-              <label for="id_{{work_place_form.street_address_2.name}}"> {{ work_place_form.street_address_2.label }} </label>
+              <label for="id_{{work_place_form.street_address_2.name}}">
+                {{ work_place_form.street_address_2.label }}
+                {% if work_place_form.street_address_2.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{work_place_form.street_address_2}}</div>
               <div class="error">{{ work_place_form.street_address_2.errors }}</div>
             </div>
           </div>
           <div class="row mb-3">
             <div class="form-group col-md-4">
-              <label for="id_{{work_place_form.city.name}}"> {{ work_place_form.city.label }} </label>
+              <label for="id_{{work_place_form.city.name}}">
+                {{ work_place_form.city.label }}
+                {% if work_place_form.city.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{work_place_form.city}}</div>
               <div class="error">{{ work_place_form.city.errors }}</div>
             </div>
             <div class="form-group col-md-4">
-              <label for="id_{{work_place_form.state.name}}"> {{ work_place_form.state.label }} </label>
+              <label for="id_{{work_place_form.state.name}}">
+                {{ work_place_form.state.label }}
+                {% if work_place_form.state.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{work_place_form.state}}</div>
               <div class="error">{{ work_place_form.state.errors }}</div>
             </div>
             <div class="form-group col-md-4">
-              <label for="id_{{work_place_form.zip_code.name}}"> {{ work_place_form.zip_code.label }} </label>
+              <label for="id_{{work_place_form.zip_code.name}}">
+                {{ work_place_form.zip_code.label }}
+                {% if work_place_form.zip_code.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{work_place_form.zip_code}}</div>
               <div class="error">{{ work_place_form.zip_code.errors }}</div>
             </div>
@@ -175,22 +314,27 @@
 
     /**************************/
 
-    /*if($('select#id_work_place').length){
-      document.querySelector('select[name="work_place"]').onchange = function(){
-        if($(this).val() == "{{other_work_place.id}}"){
-          $("div#work_place_form").show();
-          $('input[name="work_place-name"]').prop('required', true);
-          $('input[name="work_place-city"]').prop('required', true);
-          generate_code();
-        }
-        else{
-          $("div#work_place_form").hide();
-          $('input[name="work_place-name"]').prop('required', false);
-          $('input[name="work_place-city"]').prop('required', false);
-        }
-      };
-      $('select#id_work_place').trigger('change');
-    }*/
+    $('select[name="user_role"]').on('change', function(){
+      if($(this).val() == "T"){
+        $('.school_related').show();
+      }
+      else{
+        $('.school_related').hide();
+      }
+    });
+    $('select[name="user_role"]').trigger('change');
+
+    $('select[name="work_place-work_place_type"]').on('change', function(){
+      if($(this).val() == "S"){
+        $('input[name="work_place-district_number"]').closest('.form-group').show();
+      }
+      else{
+        $('input[name="work_place-district_number"]').closest('.form-group').hide();
+      }
+    });
+
+    $('select[name="work_place-work_place_type"]').trigger('change');
+
     $('#agree').change(function(){
       if( $(this).is(':checked') ){
         $('#submit').prop('disabled', false);
@@ -215,7 +359,12 @@
         },
         success: function(data, status) {
           if(data['success'] == true){
-            window.parent.location.href = data['redirect_url'];
+            if(data['redirect_url']) {
+              window.parent.location.href = data['redirect_url'];
+            }
+            else {
+              location.reload();
+            }
           }
           else{
             $('#signup').html(data['html']);

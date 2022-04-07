@@ -1,0 +1,95 @@
+<h1> {{userProfile.user.get_full_name}} </h1>
+{% include "bcse_app/UserProfileTabs.html" %}
+<div id="user_profile_container">
+  <div class="identity">
+    {% if userProfile.image and userProfile.image.url %}
+      <img src="{{userProfile.image.url}}" class="icon curve mb-3"/>
+    {% else %}
+      <i class="fa fa-user profile mb-3"></i>
+    {% endif %}
+    <div>
+      <label>{{userProfile.user.email}}</label>
+    </div>
+  </div>
+
+  <div class="about">
+    <div class="mb-1">
+      <label>Full Name:</label>
+      <div>{{userProfile.user.get_full_name}}</div>
+    </div>
+    <div class="mb-1">
+      <label>Role:</label>
+      <div>{{userProfile.get_user_role_display}}</div>
+    </div>
+    <div class="mb-1">
+      <label>Phone #:</label>
+      <div>{{userProfile.phone_number|default_if_none:""}}</div>
+    </div>
+    <div class="mb-1">
+      <label>Twitter ID:</label>
+      <div>{{userProfile.twitter_handle|default_if_none:""}}</div>
+    </div>
+    <div class="mb-1">
+      <label>Instagram ID:</label>
+      <div>{{userProfile.instagram_handle|default_if_none:""}}</div>
+    </div>
+    {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+      <div class="mb-1">
+        <label>Account Status:</label>
+        <div>{{userProfile.user.is_active|yesno:"Active,Inactive"}}</div>
+      </div>
+    {% endif %}
+    <div class="mb-1">
+      <label>Profile Last Updated:</label>
+      <div>{{userProfile.modified_date|date:"F j, Y g:i A" }}</div>
+    </div>
+  </div>
+
+  <div class="work_place">
+    {% with work_place=userProfile.work_place %}
+    <div class="mb-1">
+      <label>Place of Work:</label>
+      <div>{{work_place.name}}</div>
+    </div>
+    {% if userProfile.user_role == 'T' %}
+      <div class="mb-1">
+        <label>IEIN #:</label>
+        <div>{{userProfile.iein|default_if_none:""}}</div>
+      </div>
+      <div class="mb-1">
+        <label>Grades Taught:</label>
+        <div>{{userProfile.get_grades_taught_display|default_if_none:""}}</div>
+      </div>
+    {% endif %}
+    {% if work_place.district_number %}
+      <div class="mb-1">
+        <label>District #:</label>
+        <div>{{work_place.district_number}}</div>
+      </div>
+    {% endif %}
+    <div class="mb-1">
+      <label>Street Address:</label>
+      <div>
+        {{work_place.street_address_1}}
+        {% if work_place.street_address_2 %}
+          <br>
+          {{work_place.street_address_2}}
+          <br>
+        {% endif %}
+      </div>
+    </div>
+    <div class="mb-1">
+      <label>City:</label>
+      <div>{{work_place.city}}</div>
+    </div>
+    <div class="mb-1">
+      <label>State:</label>
+      <div>{{work_place.state}}</div>
+    </div>
+    <div class="mb-1">
+      <label>Zip Code:</label>
+      <div>{{work_place.zip_code}}</div>
+    </div>
+  </div>
+  {% endwith %}
+</div>

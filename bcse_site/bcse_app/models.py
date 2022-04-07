@@ -29,8 +29,8 @@ CONTENT_STATUS_CHOICES = (
 )
 
 USER_ROLE_CHOICES = (
-    ('A', 'Admin'),
-    ('T', 'Teacher'),
+    ('A', 'BCSE Admin'),
+    ('T', 'K-12 Teacher or Administrator'),
     ('P', 'Other Professional'),
     ('S', 'BCSE Staff'),
 )
@@ -74,6 +74,13 @@ RESERVATION_STATUS_CHOICES = (
   ('N', 'Cancelled'),
 )
 
+GRADES_CHOICES = (
+  ('E', 'Elementary School'),
+  ('M', 'Middle School'),
+  ('H', 'High School'),
+  ('O', 'Other'),
+)
+
 def upload_file_to(instance, filename):
   import os
   now = datetime.datetime.now()
@@ -100,7 +107,7 @@ def upload_file_to(instance, filename):
 
 
 class WorkPlace(models.Model):
-  name = models.CharField(null=False, blank=True, max_length=256, help_text='Name of Work Place')
+  name = models.CharField(null=False, blank=False, max_length=256, help_text='Name of Work Place')
   work_place_type = models.CharField(max_length=1, choices=WORKPLACE_CHOICES)
   district_number = models.CharField(null=True, blank=True, max_length=256, help_text='District Number for School')
   street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
@@ -124,6 +131,11 @@ class UserProfile(models.Model):
   user_role = models.CharField(max_length=1, choices=USER_ROLE_CHOICES)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Profile image')
   validation_code = models.CharField(null=False, max_length=5)
+  phone_number = models.CharField(null=True, blank=True, max_length=20)
+  iein = models.CharField(null=True, blank=True, max_length=20)
+  grades_taught = models.CharField(max_length=1, choices=GRADES_CHOICES)
+  twitter_handle = models.CharField(null=True, blank=True, max_length=20)
+  instagram_handle = models.CharField(null=True, blank=True, max_length=20)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -389,7 +401,7 @@ def create_calendar_invite(workshop, userProfile):
   event.add('dtstamp', datetime.datetime.now())
   event['location'] = vText(workshop.location)
   cal.add_component(event)
-  filename = 'invite_%s_%s.ics' % (workshop.id, userProfile.id)
+  filename = '/tmp/invite_%s_%s.ics' % (workshop.id, userProfile.id)
 
   with open(filename, 'wb') as f:
     f.write(cal.to_ical())
