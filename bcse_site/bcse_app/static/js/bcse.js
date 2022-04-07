@@ -3,6 +3,7 @@ $(function (){
   var timeout = null;
 
   function bindRegistrationSubmit(){
+    $('.registration_submit').unbind('click');
     $('.registration_submit').on('click', function(e){
       e.preventDefault();
       var workshop_registration_container = $(this).closest('.workshop_registration');
@@ -43,6 +44,7 @@ $(function (){
   }
 
   function bindDeleteAction() {
+    $('.delete.action').unbind('click');
     $('.delete.action').on('click', function(e){
       e.preventDefault();
       var link = $(this).data('href');
@@ -83,6 +85,13 @@ $(function (){
       $('form.filter_form input#page').val(page);
       $('form.filter_form').submit();
     });
+  }
+
+  function auto_submit_search(form) {
+    clearTimeout(timeout);
+    timeout = setTimeout(function(){
+      $(form).submit();
+    }, 800);
   }
 
   $(".datepicker").datepicker({
@@ -130,6 +139,7 @@ $(function (){
           }
           bindPagination();
           bindDeleteAction();
+          bindModalOpen();
         }
         else{
           displayErrorDialog();
@@ -142,14 +152,9 @@ $(function (){
     });
   });
 
-
   //submit search form on input change
-  $('form.filter_form :input').on('change', function(e){
-    clearTimeout(timeout);
-    var form = $(this).closest('form');
-    timeout = setTimeout(function(){
-      $(form).submit();
-    }, 800);
+  $('form.filter_form :input').on('change', function(){
+    auto_submit_search($(this).closest('form'));
   });
 
   $('form.filter_form #clear').on('click', function(e){
@@ -160,7 +165,7 @@ $(function (){
 
   $('#filter_toggle label').click(function(){
     $('#filter_toggle label').toggle();
-    $('#filter_fields').toggle();
+    $('#filter_content').toggle();
   });
 
   //disable Enter key press
