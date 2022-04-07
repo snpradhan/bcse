@@ -51,7 +51,7 @@
                 </li>
                 <li class="nav-item dropdown {% navactive request 'bcse:workshops' 'list' %} {% navactive request 'bcse:workshops' 'table' %}">
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Professional Learning</a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:workshops' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
                     <li class="{% navactive request 'bcse:workshops' 'table' %}">
@@ -63,7 +63,7 @@
                 </li>
                 <li class="nav-item dropdown {% navactive request 'bcse:reservations' %}">
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Baxter Box Program</a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:reservations' %}"><a class="dropdown-item" href="{% url 'bcse:reservations' %}">All Reservations</a></li>
                   </ul>
                 </li>
@@ -89,7 +89,7 @@
                     <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">
                       {{user.get_full_name}}
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                       <li class="{% navactive request 'bcse:userProfileView' user.userProfile.id %}">
                         <a class="dropdown-item" href="{% url 'bcse:userProfileView' user.userProfile.id %}">My Profile</a>
                       </li>
@@ -169,7 +169,7 @@
       <div class="modal" id="workshop_registration" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
       <div class="modal" id="password" role="dialog"></div>
       <div class="modal" id="curriculumModal" role="dialog"></div>
-      <div class="modal" id="profile" role="dialog"></div>
+      <div class="modal" id="profile" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
       <div class="modal" id="validate" role="dialog"></div>
     {% endblock %}
 
