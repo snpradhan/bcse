@@ -133,9 +133,10 @@ class UserProfile(models.Model):
   validation_code = models.CharField(null=False, max_length=5)
   phone_number = models.CharField(null=True, blank=True, max_length=20)
   iein = models.CharField(null=True, blank=True, max_length=20)
-  grades_taught = models.CharField(max_length=1, choices=GRADES_CHOICES)
+  grades_taught = models.CharField(null=True, blank=True, max_length=1, choices=GRADES_CHOICES)
   twitter_handle = models.CharField(null=True, blank=True, max_length=20)
   instagram_handle = models.CharField(null=True, blank=True, max_length=20)
+  subscribe =  models.BooleanField(default=False)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

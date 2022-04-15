@@ -139,7 +139,7 @@
         </div>
 
         <div class="row mb-3">
-          <div class="form-group col-md-6">
+          <div class="form-group col-md-4">
             <label for="id_{{form.twitter_handle.name}}">
               {{ form.twitter_handle.label }}
               {% if form.twitter_handle.field.required %}
@@ -149,7 +149,7 @@
             <div>{{ form.twitter_handle }}</div>
             <div class="error">{{ form.twitter_handle.errors }}</div>
           </div>
-          <div class="form-group col-md-6">
+          <div class="form-group col-md-4">
             <label for="id_{{form.instagram_handle.name}}">
               {{ form.instagram_handle.label }}
               {% if form.instagram_handle.field.required %}
@@ -159,10 +159,20 @@
             <div>{{form.instagram_handle}}</div>
             <div class="error">{{ form.instagram_handle.errors }}</div>
           </div>
+          <div class="form-group col-md-4">
+            <label for="id_{{form.subscribe.name}}">
+              {{ form.subscribe.label }}
+              {% if form.subscribe.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.subscribe}}</div>
+            <div class="error">{{ form.subscribe.errors }}</div>
+          </div>
         </div>
 
         <div class="row mb-3">
-          <div class="form-group col-md-6">
+          <div class="form-group col-md-8">
             <label for="id_{{form.work_place.name}}">
               {{ form.work_place.label }}
               {% if form.work_place.field.required %}
@@ -172,7 +182,7 @@
             <div>{{form.work_place}}</div>
             <div class="error">{{ form.work_place.errors }}</div>
           </div>
-          <div class="form-group col-md-6">
+          <div class="form-group col-md-4">
             <label for="id_{{form.new_work_place_flag.name}}">
               {{ form.new_work_place_flag.label }}
               {% if form.new_work_place_flag.field.required %}

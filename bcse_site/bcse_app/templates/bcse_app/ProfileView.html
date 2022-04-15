@@ -33,6 +33,10 @@
       <label>Instagram ID:</label>
       <div>{{userProfile.instagram_handle|default_if_none:""}}</div>
     </div>
+    <div class="mb-1">
+      <label>Subscribed To Mailing List:</label>
+      <div>{{userProfile.subscribe|yesno:"Yes,No"}}</div>
+    </div>
     {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
       <div class="mb-1">
         <label>Account Status:</label>

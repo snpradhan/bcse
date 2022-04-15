@@ -64,10 +64,11 @@ class SignUpForm (forms.Form):
                                   )
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
   iein = forms.CharField(required=False, max_length=20, label='IEIN #')
-  grades_taught = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.GRADES_CHOICES)
+  grades_taught = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.GRADES_CHOICES, label='Grades Taught')
   twitter_handle = forms.CharField(required=False, max_length=20, label='Twitter ID')
   instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
-  new_work_place_flag = forms.BooleanField(required=False, label='My work place is not listed')
+  new_work_place_flag = forms.BooleanField(required=False, label='My Work Place Is Not Listed')
+  subscribe = forms.BooleanField(required=False, label='Subscribe To Our Mailing List')
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -75,15 +76,17 @@ class SignUpForm (forms.Form):
     super(SignUpForm, self).__init__(*args, **kwargs)
     if user.is_authenticated and user.userProfile.user_role in ['A', 'S']:
       self.fields['user_role'].label = 'User Role'
-      self.fields['new_work_place_flag'].label = 'Work Place not listed'
+      self.fields['new_work_place_flag'].label = 'Work Place Not Listed'
     else:
       self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['new_work_place_flag']:
+      if field_name not in ['new_work_place_flag', 'subscribe']:
         field.widget.attrs['class'] = 'form-control'
-      elif field_name == 'new_work_place_flag':
+      else:
         field.widget.attrs['class'] = 'form-check-input'
+        if field_name == 'subscribe':
+          field.initial = True
 
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
@@ -217,7 +220,7 @@ class UserProfileForm (ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['work_place', 'user_role', 'image', 'validation_code', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle']
+    fields = ['work_place', 'user_role', 'image', 'validation_code', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe']
     widgets = {
       'image': widgets.FileInput,
     }
@@ -228,6 +231,7 @@ class UserProfileForm (ModelForm):
     super(UserProfileForm, self).__init__(*args, **kwargs)
     self.fields['twitter_handle'].label = 'Twitter ID'
     self.fields['instagram_handle'].label = 'Instagram ID'
+    self.fields['subscribe'].label = 'Subscribe To Our Mailing List'
 
     if user.is_authenticated:
       if user.userProfile.user_role in ['A', 'S']:
@@ -237,7 +241,10 @@ class UserProfileForm (ModelForm):
         self.fields.pop('validation_code')
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name not in ['subscribe']:
+        field.widget.attrs['class'] = 'form-control'
+      else:
+        field.widget.attrs['class'] = 'form-check-input'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 

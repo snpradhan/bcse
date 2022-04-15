@@ -175,6 +175,11 @@ $(function (){
     }
   });
 
+  $('ul.messages').delay(30000).fadeOut('slow');
+  $('ul.messages i').click(function(){
+    $('ul.messages').hide();
+  });
+
   bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();

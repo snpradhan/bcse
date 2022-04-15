@@ -20,6 +20,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.core.files.base import ContentFile
 import os
+from mailchimp_marketing import Client
+from mailchimp_marketing.api_client import ApiClientError
+import hashlib
 
 # Create your views here.
 
@@ -145,6 +148,8 @@ def userSignup(request):
       newUser.phone_number = form.cleaned_data['phone_number']
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
+      if form.cleaned_data['subscribe']:
+        newUser.subscribe = True
 
       if form.cleaned_data['user_role'] in ['A', 'S', 'T','P']:
         if form.cleaned_data['user_role'] in ['T','P']:
@@ -172,6 +177,9 @@ def userSignup(request):
 
         newUser.user = user
         newUser.save()
+
+      if form.cleaned_data['subscribe']:
+        subscription(newUser, 'add')
 
       current_site = Site.objects.get_current()
       domain = current_site.domain
@@ -1195,6 +1203,12 @@ def userProfileEdit(request, id=''):
       data.__setitem__('user-last_login', userProfile.user.last_login)
       data.__setitem__('user-date_joined', userProfile.user.date_joined)
 
+      subscriber_hash = hashlib.md5(userProfile.user.email.lower().encode("utf-8")).hexdigest()
+      subscribed = userProfile.subscribe
+      old_email = userProfile.user.email
+      old_first_name = userProfile.user.first_name
+      old_last_name = userProfile.user.last_name
+
       userForm = forms.UserForm(data, instance=userProfile.user, user=request.user, prefix='user')
       userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile")
       print(request.FILES)
@@ -1203,6 +1217,17 @@ def userProfileEdit(request, id=''):
       if userForm.is_valid(userProfile.user.id) and userProfileForm.is_valid():
         userForm.save()
         savedUserProfile = userProfileForm.save()
+
+        #user unsubscribed
+        if subscribed and not savedUserProfile.subscribe:
+          subscription(savedUserProfile, 'delete', subscriber_hash)
+        #user subscribed
+        elif not subscribed and savedUserProfile.subscribe:
+          subscription(savedUserProfile, 'add')
+        #user email, first name or last name changed
+        elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name:
+          subscription(savedUserProfile, 'update', subscriber_hash)
+
         messages.success(request, "User profile saved successfully")
         response_data['success'] = True
       else:
@@ -1495,3 +1520,42 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
     object_list = paginator.page(paginator.num_pages)
 
   return object_list
+
+#######################################
+# Update mailing list subscription
+#######################################
+def subscription(userProfile, status, subscriber_hash=None):
+  api_key = settings.MAILCHIMP_API_KEY
+  server = settings.MAILCHIMP_DATA_CENTER
+  list_id = settings.MAILCHIMP_EMAIL_LIST_ID
+
+  mailchimp = Client()
+  mailchimp.set_config({
+      "api_key": api_key,
+      "server": server,
+  })
+
+  try:
+    if status == 'add':
+      member_info = {
+        "email_address": userProfile.user.email,
+        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name},
+        "status": "subscribed",
+      }
+      response = mailchimp.lists.add_list_member(list_id, member_info)
+
+    elif status == 'delete':
+      response = mailchimp.lists.delete_list_member(list_id, subscriber_hash)
+
+    else:
+      member_info = {
+        "email_address": userProfile.user.email,
+        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name},
+        "status": "subscribed",
+      }
+      response = mailchimp.lists.update_list_member(list_id, subscriber_hash, member_info)
+
+    #print("response: {}".format(response))
+
+  except ApiClientError as error:
+    print("An exception occurred: {}".format(error.text))
