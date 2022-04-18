@@ -40,11 +40,6 @@ WORKPLACE_CHOICES = (
   ('C', 'Company'),
 )
 
-HUB_CHOICES = (
-  ('N', 'North'),
-  ('C', 'Chicago'),
-)
-
 WORKSHOP_TYPE_CHOICES = (
   ('I', 'In-Person'),
   ('V', 'Virtual'),
@@ -162,7 +157,6 @@ class EquipmentType(models.Model):
 class Equipment (models.Model):
   equipment_type = models.ForeignKey(EquipmentType, null=False, related_name="equipment", on_delete=models.CASCADE)
   name = models.CharField(null=False, max_length=256, help_text='Name of Equipment')
-  hub = models.CharField(null=False, max_length=1, choices=HUB_CHOICES, help_text='Hub for Equipment')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
@@ -276,28 +270,14 @@ class RegistrationEmailMessage(models.Model):
   class Meta:
       ordering = ['registration_status']
 
-
-class ActivityKit(models.Model):
-  name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable Kit')
-  description = RichTextField(null=True, blank=True)
-  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Consumable Kit')
-  created_date = models.DateTimeField(auto_now_add=True)
-  modified_date = models.DateTimeField(auto_now=True)
-
-  class Meta:
-      ordering = ['name']
-
-  def __str__(self):
-      return '%s' % (self.name)
-
-
 class Activity(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Activity')
   description = RichTextField(null=True, blank=True)
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   workshop = models.ManyToManyField(Workshop, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
-  kit = models.OneToOneField(ActivityKit, null=False, blank=False, on_delete=models.CASCADE, help_text='Kit required for this activity')
+  kit_name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable Kit')
   equipment = models.ManyToManyField(EquipmentType, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Consumable Kit')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

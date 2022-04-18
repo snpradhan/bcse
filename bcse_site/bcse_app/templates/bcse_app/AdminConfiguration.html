@@ -43,9 +43,20 @@
             </li>
 
             <li><hr class="dropdown-divider"></li>
+
             <li class="nav-item">
-              <a class="nav-link">Baxter Box Configuration</a>
+              {% if 'activities' in request.path or  'activity' in request.path %}
+                <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#baxter_box_config" aria-controls="baxter_box_config">Baxter Box Configuration</a>
+              {% else %}
+                <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#baxter_box_config" aria-controls="baxter_box_config">Baxter Box Configuration</a>
+              {% endif %}
+              <ul class="collapse navbar-nav {% leftnavactive request 'activities' %} {% leftnavactive request 'activity' %}" id="baxter_box_config">
+                <li class="{% if 'activities' in request.path or  'activity' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:activities' %}">Activities</a>
+                </li>
+              </ul>
             </li>
+
             <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'users' in request.path or  'userProfile' in request.path %} active {% endif %}">
               <a class="nav-link" href="{% url 'bcse:users' %}">Users</a>

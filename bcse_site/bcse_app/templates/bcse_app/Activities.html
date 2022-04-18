@@ -1,0 +1,58 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Activities </h1>
+  <div class="button-row">
+    <a class="btn" href="{% url 'bcse:activityNew' %}" role="button">Create Activity</a>
+  </div>
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> Activity ID</th>
+          <th> Name </th>
+          <th> Description </th>
+          <th> Kit Name </th>
+          <th> Status </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for activity in activities %}
+          <tr>
+            <td> {{activity.id}}</td>
+            <td> {{activity.name}} </td>
+            <td> {{activity.description}} </td>
+            <td> {{activity.kit_name}} </td>
+            <td> {{activity.get_status_display}} </td>
+            <td> {{activity.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{activity.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:activityEdit' activity.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:activityDelete' activity.id %}"
+                    data-title="the activity <strong>{{activity.name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

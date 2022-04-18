@@ -216,20 +216,112 @@ def userSignup(request):
 
   return http.HttpResponseNotAllowed(['GET', 'POST'])
 
+####################################
+# REDIRECT TO HOMEPAGE AFTER LOGIN
+####################################
 @login_required
 def signinRedirect(request):
   messages.success(request, "You have signed in")
   return shortcuts.redirect('bcse:home')
 
+####################################
+# HOMEPAGE
+####################################
 def home(request):
   context = {}
   return render(request, 'bcse_app/Home.html', context)
 
+####################################
+# ACTIVITIES
+####################################
+@login_required
+def activities(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view activities')
+
+    activities = models.Activity.objects.all()
+    context = {'activities': activities}
+    return render(request, 'bcse_app/Activities.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# EDIT ACTIVITY
+####################################
+@login_required
+def activityEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit activity')
+    if '' != id:
+      activity = models.Activity.objects.get(id=id)
+    else:
+      activity = models.Activity()
+
+    if request.method == 'GET':
+      form = forms.ActivityForm(instance=activity)
+      context = {'form': form}
+      return render(request, 'bcse_app/ActivityEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ActivityFormForm(data, files=request.FILES, instance=activity)
+      if form.is_valid():
+        savedActivity = form.save()
+        messages.success(request, "Activity saved")
+        return shortcuts.redirect('bcse:activityEdit', id=savedActivity.id)
+      else:
+        print(form.errors)
+        message.error(request, "Activity could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/ActivityEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE ACTIVITY
+####################################
+@login_required
+def activityDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete activity')
+    if '' != id:
+      activity = models.Activity.objects.get(id=id)
+      activity.delete()
+      messages.success(request, "Activity deleted")
+
+    return shortcuts.redirect('bcse:activities')
+
+  except models.Activity.DoesNotExist:
+    messages.success(request, "Activity not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# RESERVATIONS
+####################################
 def reservations(request):
   reservations = models.Reservation.objects.all()
   context = {'reservations': reservations}
   return render(request, 'bcse_app/Reservations.html', context)
 
+
+####################################
+# EDIT RESERVATION
+####################################
 def reservationEdit(request, id=''):
 
   if '' != id:
@@ -290,6 +382,9 @@ def reservationEdit(request, id=''):
 
   return http.HttpResponseNotAllowed(['GET', 'POST'])
 
+####################################
+# VIEW RESERVATION
+####################################
 def reservationView(request, id=''):
   try:
     if '' != id:
@@ -304,7 +399,9 @@ def reservationView(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-
+####################################
+# CHECK EQUIPMENT AVAILABILITY
+####################################
 def checkAvailability(current_reservation_id, equipment_types, start_date, end_date, delivery_date, return_date):
   equipment_availability_matrix = {}
   delta = return_date - delivery_date
@@ -356,6 +453,9 @@ def checkAvailability(current_reservation_id, equipment_types, start_date, end_d
 
   return equipment_availability_matrix
 
+####################################################
+# WORKSHOP REGISTRATION CONFIRMATION MESSAGES
+####################################################
 @login_required
 def registrationEmailMessages(request):
   try:
@@ -370,6 +470,9 @@ def registrationEmailMessages(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################################
+# EDIT WORKSHOP REGISTRATION CONFIRMATION MESSAGE
+####################################################
 @login_required
 def registrationEmailMessageEdit(request, id=''):
 
@@ -404,6 +507,10 @@ def registrationEmailMessageEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+####################################################
+# DELETE WORKSHOP REGISTRATION CONFIRMATION MESSAGE
+####################################################
 def registrationEmailMessageDelete(request, id=''):
 
   try:
@@ -424,6 +531,9 @@ def registrationEmailMessageDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# EDIT WORKSHOP CATEGORY
+####################################
 @login_required
 def workshopCategoryEdit(request, id=''):
 
@@ -458,6 +568,9 @@ def workshopCategoryEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# DELETE WORKSHOP CATEGORY
+####################################
 @login_required
 def workshopCategoryDelete(request, id=''):
 
@@ -478,7 +591,9 @@ def workshopCategoryDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-
+####################################
+# WORKSHOP CATEGORIES
+####################################
 @login_required
 def workshopCategories(request):
   try:
@@ -493,6 +608,9 @@ def workshopCategories(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# EDIT WORKSHOP
+####################################
 @login_required
 def workshopEdit(request, id=''):
   try:
@@ -539,6 +657,9 @@ def workshopEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# CLONE WORKSHOP
+####################################
 def workshopCopy(request, id=''):
   try:
 
@@ -588,7 +709,9 @@ def workshopCopy(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-
+####################################
+# DELETE WORKSHOP
+####################################
 def workshopDelete(request, id=''):
 
   try:
@@ -611,6 +734,9 @@ def workshopDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# VIEW WORKSHOP
+####################################
 def workshopView(request, id=''):
   try:
     if '' != id:
@@ -634,7 +760,9 @@ def workshopView(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-
+###################################################
+# GET WORKSHOP REGISTRATION FOR THE LOGGED IN USER
+###################################################
 def workshopRegistration(request, workshop_id):
 
   registration = {}
@@ -842,6 +970,9 @@ def workshopRegistrationSettingStatus(workshop):
   return {'registration_open': registration_open, 'message': message, 'default_registration_status': default_registration_status}
 
 
+################################################
+# EDIT WORKSHOP REGISTRATION
+################################################
 def workshopRegistrationEdit(request, workshop_id='', id=''):
 
   try:
@@ -888,6 +1019,9 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+################################################
+# DELETE WORKSHOP REGISTRATION
+################################################
 def workshopRegistrationDelete(request, workshop_id='', id=''):
 
   try:
@@ -918,6 +1052,9 @@ def workshopRegistrationDelete(request, workshop_id='', id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+################################################
+# GET WORKSHOP REGISTRATION MESSAGE TO DISPLAY
+################################################
 def workshopRegistrationMessage(workshop_registration):
 
   message = message_class = None
@@ -949,6 +1086,9 @@ def workshopRegistrationMessage(workshop_registration):
   return {'message': message, 'message_class': message_class}
 
 
+################################################
+# WORKSHOPS BASE QUERY BEFORE APPLYING FILTERS
+################################################
 def workshopsBaseQuery(request, flag='list'):
 
   workshops = None
@@ -965,6 +1105,9 @@ def workshopsBaseQuery(request, flag='list'):
 
   return workshops
 
+################################################
+# VIEW WORKSHOPS
+################################################
 def workshops(request, flag='list'):
 
   workshops = workshopsBaseQuery(request, flag)
@@ -981,12 +1124,9 @@ def workshops(request, flag='list'):
 
   return render(request, 'bcse_app/WorkshopsBaseView.html', context)
 
-
-
-
-####################################
-# filter workshops queryset based on search criteria
-####################################
+##########################################################
+# FILTER WORKSHOP BASE QUERY BASED ON FILTER CRITERIA
+##########################################################
 def workshopsSearch(request, flag='list'):
 
   workshops = workshopsBaseQuery(request, flag)
@@ -1081,6 +1221,9 @@ def workshopsSearch(request, flag='list'):
   return http.HttpResponseNotAllowed(['GET'])
 
 
+##########################################################
+# WORKSHOP REGISTRATION SETTING
+##########################################################
 def workshopRegistrationSetting(request, id=''):
   try:
 
@@ -1122,6 +1265,10 @@ def workshopRegistrationSetting(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+##########################################################
+# LIST OF WORKSHOP REGISTRANTS
+##########################################################
 def workshopRegistrants(request, id=''):
   try:
 
@@ -1144,6 +1291,9 @@ def workshopRegistrants(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+##########################################################
+# VIEW USER PROFILE
+##########################################################
 def userProfileView(request, id=''):
   try:
 
@@ -1173,7 +1323,7 @@ def userProfileView(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# USER PROFILE
+# EDIT USER PROFILE
 ####################################
 @login_required
 def userProfileEdit(request, id=''):
@@ -1249,6 +1399,9 @@ def userProfileEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+##########################################################
+# DELETE USER PROFILE
+##########################################################
 @login_required
 def userProfileDelete(request, id=''):
 
@@ -1271,6 +1424,10 @@ def userProfileDelete(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+
+##########################################################
+# LIST OF TEACHER LEADERS
+##########################################################
 @login_required
 def teacherLeaders(request):
   try:
@@ -1286,6 +1443,9 @@ def teacherLeaders(request):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+##########################################################
+# EDIT TEACHER LEADERS
+##########################################################
 @login_required
 def teacherLeaderEdit(request, id=''):
 
@@ -1321,6 +1481,9 @@ def teacherLeaderEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+##########################################################
+# DELETE TEACHER LEADER
+##########################################################
 @login_required
 def teacherLeaderDelete(request, id=''):
 
@@ -1341,6 +1504,10 @@ def teacherLeaderDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+##########################################################
+# LIST OF USERS
+##########################################################
 @login_required
 def users(request):
   try:
@@ -1363,9 +1530,9 @@ def users(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-####################################
-# filter users queryset based on search criteria
-####################################
+####################################################
+# FILTER USER LIST BASED ON FILTER CRITERIA
+####################################################
 @login_required
 def usersSearch(request):
 
@@ -1480,9 +1647,9 @@ def usersSearch(request):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-####################################
-#paginate the queryset based on the items per page and sort order
-####################################
+########################################################################
+# PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER
+########################################################################
 @login_required
 def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAGE):
 
@@ -1522,7 +1689,7 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
   return object_list
 
 #######################################
-# Update mailing list subscription
+# UPDATE MAILING LIST SUBSCRIPTION
 #######################################
 def subscription(userProfile, status, subscriber_hash=None):
   api_key = settings.MAILCHIMP_API_KEY
