@@ -1,0 +1,54 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Equipment </h1>
+  <div class="button-row">
+    <a class="btn" href="{% url 'bcse:equipmentNew' %}" role="button">Create Equipment</a>
+  </div>
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> Equipment ID</th>
+          <th> Name </th>
+          <th> Status </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for equipment in equipments %}
+          <tr>
+            <td> {{equipment.id}}</td>
+            <td> {{equipment.name}} </td>
+            <td> {{equipment.get_status_display}} </td>
+            <td> {{equipment.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{equipment.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:equipmentEdit' equipment.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:equipmentDelete' equipment.id %}"
+                    data-title="the equipment <strong>{{equipment.name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

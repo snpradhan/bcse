@@ -45,14 +45,27 @@
             <li><hr class="dropdown-divider"></li>
 
             <li class="nav-item">
-              {% if 'activities' in request.path or  'activity' in request.path %}
+              {% if 'activities' in request.path or  'activity' in request.path  or 'equipmentType' in request.path %}
                 <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#baxter_box_config" aria-controls="baxter_box_config">Baxter Box Configuration</a>
               {% else %}
                 <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#baxter_box_config" aria-controls="baxter_box_config">Baxter Box Configuration</a>
               {% endif %}
-              <ul class="collapse navbar-nav {% leftnavactive request 'activities' %} {% leftnavactive request 'activity' %}" id="baxter_box_config">
-                <li class="{% if 'activities' in request.path or  'activity' in request.path %} active {% endif %}">
+              <ul class="collapse navbar-nav {% leftnavactive request 'activities' %}
+                                             {% leftnavactive request 'activity' %}
+                                             {% leftnavactive request 'equipmentTypes' %}
+                                             {% leftnavactive request 'equipmentType' %}
+                                             {% leftnavactive request 'equipments' %}
+                                             {% leftnavactive request 'equipment' %}"
+
+                                             id="baxter_box_config">
+                <li class="{% if 'activities' in request.path or 'activity' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:activities' %}">Activities</a>
+                </li>
+                <li class="{% if 'equipmentType' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:equipmentTypes' %}">Equipment Types</a>
+                </li>
+                <li class="{% if 'equipments' in request.path or 'equipment/' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:equipments' %}">Equipment</a>
                 </li>
               </ul>
             </li>

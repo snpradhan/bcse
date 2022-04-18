@@ -248,7 +248,6 @@ def activities(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-
 ####################################
 # EDIT ACTIVITY
 ####################################
@@ -269,7 +268,7 @@ def activityEdit(request, id=''):
       return render(request, 'bcse_app/ActivityEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.ActivityFormForm(data, files=request.FILES, instance=activity)
+      form = forms.ActivityForm(data, files=request.FILES, instance=activity)
       if form.is_valid():
         savedActivity = form.save()
         messages.success(request, "Activity saved")
@@ -282,6 +281,185 @@ def activityEdit(request, id=''):
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
 
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE ACTIVITY
+####################################
+@login_required
+def activityDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete activity')
+    if '' != id:
+      activity = models.Activity.objects.get(id=id)
+      activity.delete()
+      messages.success(request, "Activity deleted")
+
+    return shortcuts.redirect('bcse:activities')
+
+  except models.Activity.DoesNotExist:
+    messages.success(request, "Activity not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# EQUIPMENT TYPES
+####################################
+@login_required
+def equipmentTypes(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view equipment types')
+
+    equipment_types = models.EquipmentType.objects.all()
+    context = {'equipment_types': equipment_types}
+    return render(request, 'bcse_app/EquipmentTypes.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# EDIT EQUIPMENT TYPE
+####################################
+@login_required
+def equipmentTypeEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit equipment type')
+    if '' != id:
+      equipment_type = models.EquipmentType.objects.get(id=id)
+    else:
+      equipment_type = models.EquipmentType()
+
+    if request.method == 'GET':
+      form = forms.EquipmentTypeForm(instance=equipment_type)
+      context = {'form': form}
+      return render(request, 'bcse_app/EquipmentTypeEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.EquipmentTypeForm(data, files=request.FILES, instance=equipment_type)
+      if form.is_valid():
+        savedEquipmentType = form.save()
+        messages.success(request, "Equipment Type saved")
+        return shortcuts.redirect('bcse:equipmentTypeEdit', id=savedEquipmentType.id)
+      else:
+        print(form.errors)
+        message.error(request, "Equipment Type could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/EquipmentTypeEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE EQUIPMENT TYPE
+####################################
+@login_required
+def equipmentTypeDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete equipment type')
+    if '' != id:
+      equipment_type = models.EquipmentType.objects.get(id=id)
+      equipment_type.delete()
+      messages.success(request, "Equipment Type deleted")
+
+    return shortcuts.redirect('bcse:equipmentTypes')
+
+  except models.EquipmentType.DoesNotExist:
+    messages.success(request, "Equipment Type not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# EQUIPMENT LIST
+####################################
+@login_required
+def equipments(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view equipment list')
+
+    equipments = models.Equipment.objects.all()
+    context = {'equipments': equipments}
+    return render(request, 'bcse_app/Equipments.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# EDIT EQUIPMENT
+####################################
+@login_required
+def equipmentEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit equipment')
+    if '' != id:
+      equipment = models.Equipment.objects.get(id=id)
+    else:
+      equipment = models.Equipment()
+
+    if request.method == 'GET':
+      form = forms.EquipmentForm(instance=equipment)
+      context = {'form': form}
+      return render(request, 'bcse_app/EquipmentEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.EquipmentForm(data, files=request.FILES, instance=equipment)
+      if form.is_valid():
+        savedEquipment = form.save()
+        messages.success(request, "Equipment saved")
+        return shortcuts.redirect('bcse:equipmentEdit', id=savedEquipment.id)
+      else:
+        print(form.errors)
+        message.error(request, "Equipment could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/EquipmentEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE EQUIPMENT TYPE
+####################################
+@login_required
+def equipmentDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete equipment')
+    if '' != id:
+      equipment = models.Equipment.objects.get(id=id)
+      equipment.delete()
+      messages.success(request, "Equipment deleted")
+
+    return shortcuts.redirect('bcse:equipments')
+
+  except models.Equipment.DoesNotExist:
+    messages.success(request, "Equipment not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))

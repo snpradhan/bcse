@@ -42,6 +42,17 @@ urlpatterns = [
     path('adminConfiguration/activity/new', views.activityEdit, name='activityNew'),
     path('adminConfiguration/activities/', views.activities, name='activities'),
 
+    path('adminConfiguration/equipmentType/<int:id>/edit', views.equipmentTypeEdit, name='equipmentTypeEdit'),
+    path('adminConfiguration/equipmentType/<int:id>/delete', views.equipmentTypeDelete, name='equipmentTypeDelete'),
+    path('adminConfiguration/equipmentType/new', views.equipmentTypeEdit, name='equipmentTypeNew'),
+    path('adminConfiguration/equipmentTypes/', views.equipmentTypes, name='equipmentTypes'),
+
+    path('adminConfiguration/equipment/<int:id>/edit', views.equipmentEdit, name='equipmentEdit'),
+    path('adminConfiguration/equipment/<int:id>/delete', views.equipmentDelete, name='equipmentDelete'),
+    path('adminConfiguration/equipment/new', views.equipmentEdit, name='equipmentNew'),
+    path('adminConfiguration/equipments/', views.equipments, name='equipments'),
+
+
     path('adminConfiguration/workshopCategory/<int:id>/edit', views.workshopCategoryEdit, name='workshopCategoryEdit'),
     path('adminConfiguration/workshopCategory/<int:id>/delete', views.workshopCategoryDelete, name='workshopCategoryDelete'),
     path('adminConfiguration/workshopCategory/new', views.workshopCategoryEdit, name='workshopCategoryNew'),

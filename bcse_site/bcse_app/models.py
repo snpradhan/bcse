@@ -91,8 +91,8 @@ def upload_file_to(instance, filename):
     file_path = 'workshop'
   elif isinstance(instance, UserProfile):
     file_path = 'user'
-  elif isinstance(instance, ActivityKit):
-    file_path = 'activityKit'
+  elif isinstance(instance, Activity):
+    file_path = 'activity'
   elif isinstance(instance, TeacherLeader):
     file_path = 'teacherLeader'
   elif isinstance(instance, Team):

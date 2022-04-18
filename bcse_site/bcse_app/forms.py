@@ -268,6 +268,41 @@ class ActivityForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
+####################################
+# Equipment Type Form
+####################################
+class EquipmentTypeForm(ModelForm):
+
+  class Meta:
+    model = models.EquipmentType
+    exclude = ('created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(EquipmentTypeForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# Equipment Form
+####################################
+class EquipmentForm(ModelForm):
+
+  class Meta:
+    model = models.Equipment
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(EquipmentForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
 class ReservationForm(ModelForm):
   equipment_types = forms.ModelMultipleChoiceField(required=False,
                                   queryset=models.EquipmentType.objects.all().filter(status='A').order_by('name'))
