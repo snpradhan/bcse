@@ -5,6 +5,7 @@ from django import http, shortcuts, template
 from django.contrib import auth, messages
 from django.contrib.auth.models import User
 from django.db.models import Q, F
+from django.db.models.functions import Lower
 import datetime
 from .utils import Calendar
 import calendar
@@ -23,6 +24,7 @@ import os
 from mailchimp_marketing import Client
 from mailchimp_marketing.api_client import ApiClientError
 import hashlib
+
 
 # Create your views here.
 
@@ -492,10 +494,24 @@ def activityDelete(request, id=''):
 # RESERVATIONS
 ####################################
 def reservations(request):
-  reservations = models.Reservation.objects.all()
-  context = {'reservations': reservations}
-  return render(request, 'bcse_app/Reservations.html', context)
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to view reservations')
+    elif request.user.is_authenticated and request.user.userProfile.user_role not in ['A', 'S']:
+      reservations = models.Reservation.objects.all().filter(user__user=request.user)
+    else:
+      reservations = models.Reservation.objects.all()
 
+    sort_order = [{'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'}]
+    reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+    searchForm = forms.ReservationsSearchForm(user=request.user, prefix="reservation_search")
+
+    context = {'reservations': reservations, 'searchForm': searchForm}
+    return render(request, 'bcse_app/Reservations.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # EDIT RESERVATION
@@ -576,6 +592,154 @@ def reservationView(request, id=''):
     messages.error(request, 'Reservation not found')
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+####################################
+# DELETE RESERVATION
+####################################
+@login_required
+def reservationDelete(request, id=''):
+
+  try:
+
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to delete reservation')
+
+    if '' != id:
+      reservation = models.Reservation.objects.get(id=id)
+
+      #non admin/staff users cannot delete reservations that they do not own
+      if request.user.userProfile.user_role not in ['A', 'S'] and reservation.user.user != request.user:
+        raise CustomException('You do not have the permission to delete this reservation')
+
+      #reservations that are checked out or checked in cannot be deleted
+      elif reservation.status in ['O', 'I']:
+        raise CustomException('This reservation is %s and cannot be deleted' % reservation.get_status_display)
+
+      reservation.delete()
+      messages.success(request, "Reservation deleted")
+
+    return shortcuts.redirect('bcse:reservations')
+
+  except models.Reservation.DoesNotExist:
+    messages.success(request, "Reservation not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+##########################################################
+# FILTER RESERVATIONS BASED ON FILTER CRITERIA
+##########################################################
+def reservationsSearch(request):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to view reservations')
+    elif request.user.is_authenticated and request.user.userProfile.user_role not in ['A', 'S']:
+      reservations = models.Reservation.objects.all().filter(user__user=request.user)
+    else:
+      reservations = models.Reservation.objects.all()
+
+    if request.method == 'GET':
+
+      query_filter = Q()
+      keyword_filter = None
+      user_filter = None
+      activity_filter = None
+      equipment_filter = None
+      delivery_after_filter = None
+      return_before_filter = None
+      status_filter = None
+
+      keywords = request.GET.get('reservation_search-keywords', '')
+      user = request.GET.get('reservation_search-user', '')
+      activity = request.GET.get('reservation_search-activity', '')
+      equipment = request.GET.getlist('reservation_search-equipment', '')
+      delivery_after = request.GET.get('reservation_search-delivery_after', '')
+      return_before = request.GET.get('reservation_search-return_before', '')
+      status = request.GET.get('reservation_search-status', '')
+      sort_by = request.GET.get('reservation_search-sort_by', '')
+
+      if keywords:
+        keyword_filter = Q(activity__name__icontains=keywords) | Q(other_activity_name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(user__user__first_name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(user__user__last_name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(notes__icontains=keywords)
+
+      if user:
+        user_filter = Q(user=user)
+      if activity:
+        activity_filter = Q(activity=activity)
+      if status:
+        status_filter = Q(status=status)
+
+      if delivery_after:
+        delivery_after = datetime.datetime.strptime(delivery_after, '%B %d, %Y')
+        delivery_after_filter = Q(delivery_date__gte=delivery_after)
+
+      if return_before:
+        return_before = datetime.datetime.strptime(return_before, '%B %d, %Y')
+        return_before_filter = Q(return_date__lte=return_before)
+
+
+      if keyword_filter:
+        query_filter = keyword_filter
+
+      if user_filter:
+        query_filter = query_filter & user_filter
+      if activity_filter:
+        query_filter = query_filter & activity_filter
+      if equipment_filter:
+        query_filter = query_filter & equipment_filter
+
+      if status_filter:
+        query_filter = query_filter & status_filter
+      if delivery_after_filter:
+        query_filter = query_filter & delivery_after_filter
+      if return_before_filter:
+        query_filter = query_filter & return_before_filter
+
+      reservations = reservations.filter(query_filter)
+
+      if equipment:
+        for e in equipment:
+          reservations = reservations.filter(equipment__equipment_type__id=e)
+
+      reservations = reservations.distinct()
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      sort_order = []
+      if sort_by:
+        if sort_by == 'user':
+          sort_order.append({'order_by': 'user__user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+          sort_order.append({'order_by': 'user__user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'activity':
+          sort_order.append({'order_by': 'activity__name', 'direction': 'asc', 'ignorecase': 'true'})
+          sort_order.append({'order_by': 'other_activity_name', 'direction': 'asc', 'ignorecase': 'true'})
+
+        elif sort_by == 'delivery_date':
+          sort_order.append({'order_by': 'delivery_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'return_date':
+          sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'status':
+          sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
+
+      sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+
+      reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+
+      context = {'reservations': reservations}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/ReservationsTableView.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # CHECK EQUIPMENT AVAILABILITY

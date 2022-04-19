@@ -1,0 +1,86 @@
+{% load bcse_extras %}
+
+{% if reservations %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th> Reservation ID</th>
+        <th> Reservation Made On</th>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          <th> User </th>
+        {% endif %}
+        <th> Activity </th>
+        <th> Kit </th>
+        <th> Equipment </th>
+        <th> Delivery Date </th>
+        <th> Return Date </th>
+        <th> # of Classes </th>
+        <th> # of Students </th>
+        <th> Notes </th>
+        <th> Location </th>
+        <th> Status </th>
+        <th> Actions </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reservation in reservations %}
+        <tr>
+          <td> {{reservation.id}}</td>
+          <td>{{reservation.created_date|date:"F j, Y"}}</td>
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+            <td> {{reservation.user}} </td>
+          {% endif %}
+          <td> {{reservation.activity}} </td>
+          <td> {{reservation.activity.kit}} </td>
+          <td>
+            <ul>
+              {% for equipment in reservation.equipment.all %}
+                <li>{{equipment.equipment_type}}</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
+          <td>{{reservation.return_date|date:"F j, Y"}}</td>
+          <td> {{reservationnum_of_classes}} </td>
+          <td> {{reservation.num_of_students}} </td>
+          <td> {{reservation.notes}} </td>
+          <td>
+            {{reservation.user.work_place.name}}<br>
+            {{reservation.user.work_place.street_address_1}}<br>
+            {% if reservation.user.work_place.street_address_2 %}
+              {{reservation.user.work_place.street_address_2}}<br>
+            {% endif %}
+            {{reservation.user.work_place.city}}, {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
+          </td>
+          <td> {{reservation.get_status_display}} </td>
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="{% url 'bcse:reservationView' reservation.id %}">View</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}"
+                  data-title="the reservation with id <strong>{{reservation.id}}</strong>">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=reservations %}
+{% else %}
+  <div class="warning center">No reservations matching your search criteria found</div>
+{% endif %}

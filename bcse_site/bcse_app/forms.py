@@ -483,6 +483,43 @@ class TeacherLeaderForm(ModelForm):
 
 
 ####################################
+# Reservations Search Form
+####################################
+class ReservationsSearchForm(forms.Form):
+
+  user = forms.ModelChoiceField(required=False, queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'))
+  activity = forms.ModelChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'))
+  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'))
+  delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
+  return_before = forms.DateField(required=False, label=u'Return on/before')
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.RESERVATION_STATUS_CHOICES)
+  keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('user', 'User'),
+                                                       ('activity', 'Activity'),
+                                                       ('delivery_date', 'Delivery Date'),
+                                                       ('return_date', 'Return Date'),
+                                                       ('status', 'Status')))
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(ReservationsSearchForm, self).__init__(*args, **kwargs)
+
+    if user.is_anonymous or user.userProfile.user_role not in 'AS':
+      self.fields.pop('user')
+      self.fields.pop('status')
+
+    for field_name, field in self.fields.items():
+      if field_name in ['delivery_after', 'return_before']:
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+      if field.help_text:
+        field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
 # Workshop Search Form
 ####################################
 class WorkshopsSearchForm(forms.Form):

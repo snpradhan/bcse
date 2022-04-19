@@ -32,6 +32,9 @@
               Make Reservation
             {% endif %}
           </button>
+          {% if form.instance.id %}
+            <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' form.instance.id %}" data-title="this reservation">Delete</button>
+          {% endif %}
         </form>
       </div>
       <div class="availability_calendar">

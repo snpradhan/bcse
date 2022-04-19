@@ -1,0 +1,71 @@
+<div class="filter_container">
+  <form method="get" action="{% url 'bcse:reservationsSearch' %}" id="reservation_filter_form" class="filter_form">
+    {% csrf_token %}
+    {{searchForm.media}}
+    <div class="form-group right" id="filter_toggle">
+      <label style="display:none;">Show Filters <span class="fa fa-plus-circle"></span></label>
+      <label>Hide Filters <span class="fa fa-minus-circle"></span></label>
+    </div>
+
+    <div id="filter_content">
+      <div id="filter_fields">
+        {% if searchForm.user %}
+        <div class="form-group">
+          <label for="id_{{searchForm.user.name}}" class="form-label"> {{searchForm.user.label|title}}</label>
+          <div>{{searchForm.user}}</div>
+          <div class="error">{{ searchForm.user.errors }}</div>
+        </div>
+        {% endif %}
+        <div class="form-group">
+          <label for="id_{{searchForm.activity.name}}" class="form-label"> {{searchForm.activity.label|title}}</label>
+          <div>{{searchForm.activity}}</div>
+          <div class="error">{{ searchForm.activity.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.equipment.name}}" class="form-label"> {{searchForm.equipment.label|title}}</label>
+          <div>{{searchForm.equipment}}</div>
+          <div class="error">{{ searchForm.equipment.errors }}</div>
+        </div>
+        {% if searchForm.status %}
+          <div class="form-group">
+            <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
+            <div>{{searchForm.status}}</div>
+            <div class="error">{{ searchForm.status.errors }}</div>
+          </div>
+        {% endif %}
+        <div class="form-group">
+          <label for="id_{{searchForm.delivery_after.name}}" class="form-label"> {{searchForm.delivery_after.label|title}}</label>
+          <div class="input-group">
+            {{searchForm.delivery_after}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ searchForm.delivery_after.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.return_before.name}}" class="form-label"> {{searchForm.return_before.label|title}}</label>
+          <div class="input-group">
+            {{searchForm.return_before}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ searchForm.return_before.errors }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_{{searchForm.keywords.name}}" class="form-label"> {{searchForm.keywords.label|title}}</label>
+          <div>{{searchForm.keywords}}</div>
+          <div class="error">{{ searchForm.keywords.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
+          <div>{{searchForm.sort_by}}</div>
+          <div class="error">{{ searchForm.sort_by.errors }}</div>
+        </div>
+      </div>
+      <input type="hidden" name="page" id="page" value="1"/>
+      <div class="form-group right" id="filter_buttons">
+        <button class="btn" type="button" id="clear">Clear Filter</button>
+      </div>
+    </div>
+
+  </form>
+</div>

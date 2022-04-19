@@ -1,5 +1,6 @@
 {% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
+{% load base_extras %}
 
 {% block content %}
   {{block.super}}
@@ -9,60 +10,13 @@
        <div class="button-row">
         <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
       </div>
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th> Reservation ID</th>
-            <th> User </th>
-            <th> Activity </th>
-            <th> Kit </th>
-            <th> Equipment </th>
-            <th> Delivery Date </th>
-            <th> Return Date </th>
-            <th> # of Classes </th>
-            <th> # of Students </th>
-            <th> Notes </th>
-            <th> Location </th>
-            <th> Status </th>
-            <th> Actions </th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for reservation in reservations %}
-            <tr>
-              <td> {{reservation.id}}</td>
-              <td> {{reservation.user}} </td>
-              <td> {{reservation.activity}} </td>
-              <td> {{reservation.activity.kit}} </td>
-              <td>
-                <ul>
-                  {% for equipment in reservation.equipment.all %}
-                    <li>{{equipment.equipment_type}}</li>
-                  {% endfor %}
-                </ul>
-              </td>
-              <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
-              <td>{{reservation.return_date|date:"F j, Y"}}</td>
-              <td> {{reservationnum_of_classes}} </td>
-              <td> {{reservation.num_of_students}} </td>
-              <td> {{reservation.notes}} </td>
-              <td>
-                {{reservation.user.work_place.name}}<br>
-                {{reservation.user.work_place.street_address_1}}<br>
-                {% if reservation.user.work_place.street_address_2 %}
-                  {{reservation.user.work_place.street_address_2}}<br>
-                {% endif %}
-                {{reservation.user.work_place.city}}, {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
-              </td>
-              <td> {{reservation.get_status_display}} </td>
-              <td>
-                <a class="btn" role="button" href="{% url 'bcse:reservationView' reservation.id %}">View</a>
-                <a class="btn" role="button" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      {% include "bcse_app/ReservationsSearch.html" %}
+      <div class="form-group" id="spinner">
+        <img src="/static/img/page-loader.gif" class="icon"/>
+      </div>
+       <div class="reservations search_results">
+        {% include "bcse_app/ReservationsTableView.html" %}
+       </div>
     </div>
   </div>
   
