@@ -12,8 +12,10 @@
       <thead>
         <tr>
           <th> Equipment ID</th>
+          <th> Equipment Type</th>
           <th> Name </th>
           <th> Status </th>
+          <th> Reservation Status</th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -23,8 +25,10 @@
         {% for equipment in equipments %}
           <tr>
             <td> {{equipment.id}}</td>
+            <td> {{equipment.equipment_type}}</td>
             <td> {{equipment.name}} </td>
             <td> {{equipment.get_status_display}} </td>
+            <td> {{equipment|get_current_reservation_status}}</td>
             <td> {{equipment.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{equipment.modified_date|date:"F j, Y g:i A"}} </td>
             <td>
