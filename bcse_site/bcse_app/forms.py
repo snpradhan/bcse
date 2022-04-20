@@ -492,7 +492,7 @@ class ReservationsSearchForm(forms.Form):
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'))
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
   return_before = forms.DateField(required=False, label=u'Return on/before')
-  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.RESERVATION_STATUS_CHOICES)
+  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES)
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('user', 'User'),

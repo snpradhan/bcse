@@ -31,7 +31,7 @@
             <td> {{reservation.user}} </td>
           {% endif %}
           <td> {{reservation.activity}} </td>
-          <td> {{reservation.activity.kit}} </td>
+          <td> {{reservation.activity.kit_name}} </td>
           <td>
             <ul>
               {% for equipment in reservation.equipment.all %}

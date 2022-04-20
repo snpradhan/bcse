@@ -655,7 +655,7 @@ def reservationsSearch(request):
       equipment = request.GET.getlist('reservation_search-equipment', '')
       delivery_after = request.GET.get('reservation_search-delivery_after', '')
       return_before = request.GET.get('reservation_search-return_before', '')
-      status = request.GET.get('reservation_search-status', '')
+      status = request.GET.getlist('reservation_search-status', '')
       sort_by = request.GET.get('reservation_search-sort_by', '')
 
       if keywords:
@@ -669,7 +669,7 @@ def reservationsSearch(request):
       if activity:
         activity_filter = Q(activity=activity)
       if status:
-        status_filter = Q(status=status)
+        status_filter = Q(status__in=status)
 
       if delivery_after:
         delivery_after = datetime.datetime.strptime(delivery_after, '%B %d, %Y')
