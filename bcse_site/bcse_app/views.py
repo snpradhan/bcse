@@ -564,7 +564,6 @@ def reservationEdit(request, id=''):
             savedReservation.equipment.add(availability['most_available_equip'])
 
           savedReservation.save()
-
           messages.success(request, "Reservation made")
           return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
         else:
@@ -573,7 +572,11 @@ def reservationEdit(request, id=''):
                    'delivery_date': delivery_date, 'return_date': return_date, 'availability_calendar': availability_calendar,
                    'start_date': start_date, 'end_date': end_date}
           return render(request, 'bcse_app/ReservationEdit.html', context)
-
+    else:
+      print(form.errors)
+      messages.error(request, "Please correct the errors below and click Save again")
+      context = {'form': form}
+      return render(request, 'bcse_app/ReservationEdit.html', context)
   return http.HttpResponseNotAllowed(['GET', 'POST'])
 
 ####################################

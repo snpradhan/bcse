@@ -4,45 +4,141 @@
 {% block content %}
   {{block.super}}
   <div class="content">
-    {% if form.instance.id %}
-      <h1> {{form.instance}} </h1>
-    {% else %}
-      <h1> Create Reservation </h1>
-    {% endif %}
-    {% include "bcse_app/ReservationTabs.html" with reservation=form.instance %}
-    <div id="reservation_container">
-      <div class="reservation_form">
-        <form method="post" enctype="multipart/form-data" id="reservationForm">
-          {% csrf_token %}
-          {{form.management_form}}
+    <div class="reservation_container container">
+      {% if form.instance.id %}
+        <h1> {{form.instance}} </h1>
+      {% else %}
+        <h1> Create Reservation </h1>
+      {% endif %}
+      {% include "bcse_app/ReservationTabs.html" with reservation=form.instance tab='edit'%}
+      <div id="reservation_container">
+        <div class="reservation_form">
+          <form method="post" enctype="multipart/form-data" id="reservationForm">
+            {% csrf_token %}
 
-          {% for field in form %}
-            <div class="form-group mb-3">
-              <label for="id_{{field.name}}" class="form-label"> {{field.label}}</label>
-              <div>{{field}}</div>
-              <div class="error">{{ field.errors }}</div>
-            </div>
-          {% endfor %}
-          <input type="hidden" id="checking_availability" name="checking_availability" value="0"/>
-          <button class="btn btn-warning" type="submit" id="check_availability">Check Availibility</button>
-          <button class="btn btn-success" type="submit" id="submit">
-            {% if form.instance.id %}
-              Save Reservation
-            {% else %}
-              Make Reservation
+            {% if form.user %}
+              <div class="form-group mb-3">
+                <label for="id_{{form.user.name}}" class="form-label"> {{form.user.label}}</label>
+                <div>{{form.user}}</div>
+                <div class="error">{{ form.user.errors }}</div>
+              </div>
             {% endif %}
-          </button>
-          {% if form.instance.id %}
-            <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' form.instance.id %}" data-title="this reservation">Delete</button>
-          {% endif %}
-        </form>
-      </div>
-      <div class="availability_calendar">
-        {% if availability_calendar %}
-          {% for calendar in availability_calendar %}
-            {{calendar|safe}}
-          {% endfor %}
-        {% endif %}
+            <div class="form-group mb-3">
+              <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}</label>
+              <div>{{form.activity}}</div>
+              <div class="error">{{ form.activity.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}</label>
+              <div>{{form.other_activity}}</div>
+              <div class="error">{{ form.other_activity.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}}</label>
+              <div>{{form.other_activity_name}}</div>
+              <div class="error">{{ form.other_activity_name.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}}</label>
+              <div>{{form.num_of_classes}}</div>
+              <div class="error">{{ form.num_of_classes.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.activity_kit_not_needed.name}}" class="form-label"> {{form.activity_kit_not_needed.label}}</label>
+              <div>{{form.activity_kit_not_needed}}</div>
+              <div class="error">{{ form.activity_kit_not_needed.errors }}</div>
+            </div>
+
+
+            <div class="form-group mb-3">
+              <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}</label>
+              <div>{{form.num_of_students}}</div>
+              <div class="error">{{ form.num_of_students.errors }}</div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}</label>
+              <div>{{form.equipment_not_needed}}</div>
+              <div class="error">{{ form.equipment_not_needed.errors }}</div>
+            </div>
+
+            <div class="form-group mb-3 row">
+              <div class="col">
+                <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label}}</label>
+                <div class="input-group">
+                  {{form.delivery_date}}
+                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                </div>
+                <div class="error">{{ form.delivery_date.errors }}</div>
+              </div>
+              <div class="col">
+                <label for="id_{{form.return_date.name}}" class="form-label"> {{form.return_date.label|title}}</label>
+                <div class="input-group">
+                  {{form.return_date}}
+                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                </div>
+                <div class="error">{{ form.return_date.errors }}</div>
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}</label>
+              <div>{{form.equipment_types}}</div>
+              <div class="error">{{ form.equipment_types.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label}}</label>
+              <div>{{form.notes}}</div>
+              <div class="error">{{ form.notes.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}</label>
+              <div>{{form.additional_help_needed}}</div>
+              <div class="error">{{ form.additional_help_needed.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
+              <div>{{form.status}}</div>
+              <div class="error">{{ form.status.errors }}</div>
+            </div>
+
+            <input type="hidden" id="checking_availability" name="checking_availability" value="0"/>
+            <button class="btn btn-warning" type="submit" id="check_availability">Check Availibility</button>
+            <button class="btn btn-success" type="submit" id="submit">
+              {% if form.instance.id %}
+                Save Reservation
+              {% else %}
+                Make Reservation
+              {% endif %}
+            </button>
+            {% if form.instance.id %}
+              <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' form.instance.id %}" data-title="this reservation">Delete</button>
+            {% endif %}
+          </form>
+        </div>
+        <div class="other_info">
+          <div class="activity">
+            {% if form.instance.id and form.instance.activity %}
+              <h3 class="left"> You have selected {{form.instance.activity}}</h3>
+              <div class="activity_info">
+                <div class="activity_image">
+                  {% if form.instance.activity.image %}
+                    <img src="{{form.instance.activity.image.url}}"/>
+                  {% endif %}
+                </div>
+                <div class="activity_details">
+                  <div>{{form.instance.activity.description|safe}}</div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+          <div class="availability_calendar">
+            {% if availability_calendar %}
+              {% for calendar in availability_calendar %}
+                {{calendar|safe}}
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
   </div>

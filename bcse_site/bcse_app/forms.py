@@ -319,7 +319,7 @@ class ReservationForm(ModelForm):
     super(ReservationForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['other_activity', 'need_equipment', 'additional_help', 'need_activity_kit']:
+      if field_name not in ['other_activity', 'equipment_not_needed', 'additional_help_needed', 'activity_kit_not_needed']:
         if field_name in ['delivery_date', 'return_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
         else:

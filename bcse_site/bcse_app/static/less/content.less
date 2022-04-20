@@ -156,24 +156,50 @@ body {
       justify-content: space-between;
 
       div.reservation_form {
-        flex: 0 0 45%;
+        flex: 0 0 47%;
       }
-      div.availability_calendar {
-        flex: 0 0 45%;
+      div.other_info {
+        flex: 0 0 47%;
 
-        table.calendar {
+        div.activity {
+          height: 45em;
 
-          td {
+          div.activity_info {
+            display: flex;
+            justify-content: space-between;
 
-            &.selected_date {
-              background-color: orange;
+            div.activity_image {
+              flex: 0 0 30%;
+              img {
+                width: 100%;
+                border-radius: 50%;
+              }
             }
-
-            div.available {
-              background-color:  lightgreen;
+            div.activity_details {
+              flex: 0 0 70%;
             }
-            div.unavailable {
-              background-color:  red;
+          }
+
+        }
+
+        div.availability_calendar {
+          height: 30em;
+          overflow-y: scroll;
+
+          table.calendar {
+
+            td {
+
+              &.selected_date {
+                background-color: orange;
+              }
+
+              div.available {
+                background-color:  lightgreen;
+              }
+              div.unavailable {
+                background-color:  red;
+              }
             }
           }
         }
