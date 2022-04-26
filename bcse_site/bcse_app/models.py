@@ -336,22 +336,25 @@ class Team(models.Model):
 # and then send an email to the registrant
 @receiver(pre_save, sender=Registration)
 def check_registration_status_change(sender, instance, **kwargs):
-  confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
-  userProfile = instance.user
-  workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
-  registration_setting = workshop.registration_setting
+  try:
+    confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
+    userProfile = instance.user
+    workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
+    registration_setting = workshop.registration_setting
 
-  subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop)
-  body = replace_workshop_tokens(confirmation_message_object.email_message, workshop)
-  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
+    subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop)
+    body = replace_workshop_tokens(confirmation_message_object.email_message, workshop)
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
 
-  #check if calendar invite needs to be attached
-  if confirmation_message_object.include_calendar_invite:
-    filename = create_calendar_invite(workshop, userProfile)
-    email.attach_file(filename, 'text/calendar')
+    #check if calendar invite needs to be attached
+    if confirmation_message_object.include_calendar_invite:
+      filename = create_calendar_invite(workshop, userProfile)
+      email.attach_file(filename, 'text/calendar')
 
-  email.content_subtype = "html"
-  email.send()
+    email.content_subtype = "html"
+    email.send()
+  except RegistrationEmailMessage.DoesNotExist as e:
+    pass
 
 #
 # Replace workshop registration message tokens before sending out an email

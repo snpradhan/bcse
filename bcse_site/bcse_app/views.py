@@ -1184,15 +1184,16 @@ def workshopRegistration(request, workshop_id):
         form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
         admin_message = "Workshop registration for user %s saved" % saved_registration.user
         registration['admin_message'] = admin_message
+        registration['form'] = form
+        registration['instance'] = workshop_registration
       else:
         registration_message = workshopRegistrationMessage(saved_registration)
-        message = registration_message['message']
+        user_message = registration_message['message']
         message_class = registration_message['message_class']
         registration['user_message'] = user_message
         registration['message_class'] = message_class
+        registration['instance'] = saved_registration
 
-      registration['form'] = form
-      registration['instance'] = workshop_registration
       success = True
     else:
       print(form.errors)
