@@ -143,6 +143,7 @@ class UserProfile(models.Model):
 
 class EquipmentType(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of Equipment Type')
+  short_name = models.CharField(null=True, blank=True, max_length=256, help_text='Short name for displaying on the calendar')
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment type')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)

@@ -335,6 +335,8 @@ class ReservationForm(ModelForm):
         initial.append(equipment.equipment_type.id)
       self.fields['equipment_types'].initial = initial
 
+    self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
+
 
 class WorkshopForm(ModelForm):
 

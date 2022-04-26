@@ -30,9 +30,9 @@ class Calendar(HTMLCalendar):
         equipment = availability['most_available_equip']
         is_available = availability['availability_dates'][equipment][index_date]
         if is_available:
-          d += f'<div class="available"> {equipment_type}</div>'
+          d += f'<div class="available"> {equipment_type.short_name}</div>'
         else:
-          d += f'<div class="unavailable"> {equipment_type} </div>'
+          d += f'<div class="unavailable"> {equipment_type.short_name} </div>'
 
       if is_in_range:
         return f"<td class='selected_date'> \

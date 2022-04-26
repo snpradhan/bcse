@@ -531,47 +531,27 @@ def reservationEdit(request, id=''):
 
   elif request.method == 'POST':
     data = request.POST.copy()
-    only_checking_availability = int(data['checking_availability'])
     form = forms.ReservationForm(data, instance=reservation)
     if form.is_valid():
-      equipment_types = form.cleaned_data['equipment_types']
-      delivery_date = form.cleaned_data['delivery_date']
-      start_date = delivery_date.replace(day=1)
-      return_date = form.cleaned_data['return_date']
-      end_date = return_date.replace(day=calendar.monthrange(return_date.year, return_date.month)[1])
-      equipment_availability_matrix = checkAvailability(id, equipment_types, start_date, end_date, delivery_date, return_date)
-      is_available = all([equipment_type['is_available'] for equipment_type in equipment_availability_matrix.values()])
-      availability_calendar = []
-      index_date = start_date
-      while index_date <= end_date:
-        cal = Calendar(index_date.year, index_date.month)
-        cal.setfirstweekday(6)
-        availability_calendar.append(cal.formatmonth(withyear=True, availability_matrix=equipment_availability_matrix, delivery_date=delivery_date, return_date=return_date))
-        index_date += relativedelta(months=1)
+      availability_data = getAvailabilityData(request, id)
+      is_available = availability_data['is_available']
+      equipment_availability_matrix = availability_data['equipment_availability_matrix']
+      availability_calendar = availability_data['availability_calendar']
 
-      if only_checking_availability:
-        messages.info(request, "Selected equipment is %s for the selected dates" % ('available' if is_available else 'unavailable'))
-        context = {'form': form, 'is_available': is_available, 'equipment_availability_matrix': equipment_availability_matrix,
-                   'delivery_date': delivery_date, 'return_date': return_date, 'availability_calendar': availability_calendar,
-                   'start_date': start_date, 'end_date': end_date}
-        return render(request, 'bcse_app/ReservationEdit.html', context)
+      if is_available:
+        savedReservation = form.save()
+        savedReservation.equipment.clear()
+
+        for equipment_type, availability in equipment_availability_matrix.items():
+          savedReservation.equipment.add(availability['most_available_equip'])
+
+        savedReservation.save()
+        messages.success(request, "Reservation made")
+        return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
       else:
-        if is_available:
-          savedReservation = form.save()
-          savedReservation.equipment.clear()
-
-          for equipment_type, availability in equipment_availability_matrix.items():
-            savedReservation.equipment.add(availability['most_available_equip'])
-
-          savedReservation.save()
-          messages.success(request, "Reservation made")
-          return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
-        else:
-          messages.info(request, "Selected equipment is %s for the selected dates" % ('available' if is_available else 'unavailable'))
-          context = {'form': form, 'is_available': is_available, 'equipment_availability_matrix': equipment_availability_matrix,
-                   'delivery_date': delivery_date, 'return_date': return_date, 'availability_calendar': availability_calendar,
-                   'start_date': start_date, 'end_date': end_date}
-          return render(request, 'bcse_app/ReservationEdit.html', context)
+        messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
+        context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar }
+        return render(request, 'bcse_app/ReservationEdit.html', context)
     else:
       print(form.errors)
       messages.error(request, "Please correct the errors below and click Save again")
@@ -743,6 +723,39 @@ def reservationsSearch(request):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def getAvailabilityData(request, id=''):
+  data = request.POST.copy()
+  equipment_types = models.EquipmentType.objects.all().filter(id__in=request.POST.getlist('equipment_types', ''))
+  delivery_date = datetime.datetime.strptime(request.POST.get('delivery_date'), '%B %d, %Y').date()
+  return_date = datetime.datetime.strptime(request.POST.get('return_date'), '%B %d, %Y').date()
+
+  start_date = delivery_date.replace(day=1)
+  end_date = return_date.replace(day=calendar.monthrange(return_date.year, return_date.month)[1])
+  equipment_availability_matrix = checkAvailability(id, equipment_types, start_date, end_date, delivery_date, return_date)
+  is_available = all([equipment_type['is_available'] for equipment_type in equipment_availability_matrix.values()])
+  availability_calendar = []
+  index_date = start_date
+  while index_date <= end_date:
+    cal = Calendar(index_date.year, index_date.month)
+    cal.setfirstweekday(6)
+    availability_calendar.append(cal.formatmonth(withyear=True, availability_matrix=equipment_availability_matrix, delivery_date=delivery_date, return_date=return_date))
+    index_date += relativedelta(months=1)
+
+  if request.is_ajax():
+    response_data = {}
+    response_data['success'] = True
+    context = {'availability_calendar': availability_calendar}
+    if is_available:
+      response_data['message'] = "Selected equipment is available for the selected dates"
+    else:
+      response_data['message'] = "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again."
+    response_data['html'] = render_to_string('bcse_app/AvailabilityCalendar.html', context, request)
+    return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+  else:
+    availability_data = {'is_available': is_available, 'equipment_availability_matrix': equipment_availability_matrix,
+                       'availability_calendar': availability_calendar}
+    return availability_data
 
 ####################################
 # CHECK EQUIPMENT AVAILABILITY

@@ -35,7 +35,12 @@
           <td>
             <ul>
               {% for equipment in reservation.equipment.all %}
-                <li>{{equipment.equipment_type}}</li>
+                <li>
+                  {{equipment.equipment_type}}
+                  {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                    ({{equipment.name}})
+                  {% endif %}
+                </li>
               {% endfor %}
             </ul>
           </td>

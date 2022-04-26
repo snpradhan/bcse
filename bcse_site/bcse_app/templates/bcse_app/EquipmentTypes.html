@@ -13,6 +13,7 @@
         <tr>
           <th> Equipment Type ID</th>
           <th> Name </th>
+          <th> Short Name </th>
           <th> Status </th>
           <th> Available </th>
           <th> Unavailable </th>
@@ -27,6 +28,7 @@
           <tr>
             <td> {{equipment_type.id}}</td>
             <td> {{equipment_type.name}} </td>
+            <td> {{equipment_type.short_name}} </td>
             <td> {{equipment_type.get_status_display}} </td>
             <td> {{equipment_type|get_available_equipment_count}}</td>
             <td> {{equipment_type|get_unavailable_equipment_count}}</td>

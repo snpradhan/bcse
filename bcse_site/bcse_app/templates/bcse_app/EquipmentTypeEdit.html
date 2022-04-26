@@ -18,6 +18,11 @@
         <div>{{form.name}}</div>
         <div class="error">{{ form.name.errors }}</div>
       </div>
+       <div class="form-group mb-3">
+        <label for="id_{{form.short_name.name}}" class="form-label"> {{form.short_name.label|title}}</label>
+        <div>{{form.short_name}}</div>
+        <div class="error">{{ form.short_name.errors }}</div>
+      </div>
       <div class="form-group mb-3">
         <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
         {% if form.instance.id and form.instance.image.url %}

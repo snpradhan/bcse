@@ -159,46 +159,84 @@ body {
         flex: 0 0 47%;
       }
       div.other_info {
-        flex: 0 0 47%;
+        flex: 0 0 50%;
 
-        div.activity {
-          height: 45em;
+        div.activity, div.availability_calendar {
+          overflow-y: scroll;
+          border: 1px solid black;
+          border-radius: 1em;
+          padding: 1em;
 
-          div.activity_info {
-            display: flex;
-            justify-content: space-between;
+        }
+        div.activity_container {
+          div.activity {
+            min-height: 40em;
+            margin-bottom: 1em;
 
-            div.activity_image {
-              flex: 0 0 30%;
-              img {
-                width: 100%;
-                border-radius: 50%;
+            div.activity_info {
+              display: flex;
+              justify-content: space-between;
+
+              div.activity_image {
+                flex: 0 0 30%;
+                img {
+                  width: 100%;
+                  border-radius: 50%;
+                }
+              }
+              div.activity_details {
+                flex: 0 0 70%;
               }
             }
-            div.activity_details {
-              flex: 0 0 70%;
-            }
           }
-
         }
 
         div.availability_calendar {
-          height: 30em;
-          overflow-y: scroll;
+          div.legends {
+            display: flex;
+            justify-content: center;
+            gap: 2em;
+            margin-bottom: 1em;
 
-          table.calendar {
+            div.legend {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 0.5em;
 
-            td {
+              div.color {
+                width: 1.5em;
+                height: 1.5em;
+                border: 1px solid black;
+              }
 
-              &.selected_date {
+              &.selected div.color {
                 background-color: orange;
               }
-
-              div.available {
-                background-color:  lightgreen;
+              &.available div.color {
+                background-color: lightgreen;
               }
-              div.unavailable {
-                background-color:  red;
+              &.unavailable div.color {
+                background-color: red;
+              }
+            }
+          }
+          div.calendar {
+            height: 30em;
+            overflow-y: scroll;
+
+            table.calendar {
+              td {
+                &.selected_date {
+                  background-color: orange;
+                }
+
+                div.available {
+                  background-color:  lightgreen;
+                }
+                div.unavailable {
+                  background-color:  red;
+                }
               }
             }
           }

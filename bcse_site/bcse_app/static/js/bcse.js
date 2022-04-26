@@ -2,109 +2,6 @@ $(function (){
 
   var timeout = null;
 
-  function bindRegistrationSubmit(){
-    $('.registration_submit').unbind('click');
-    $('.registration_submit').on('click', function(e){
-      e.preventDefault();
-      var workshop_registration_container = $(this).closest('.workshop_registration');
-      var form = $(this).closest('form');
-      $.ajax({
-        type: $(form).attr('method'),
-        url: $(form).attr('action'),
-        data: $(form).serialize(),
-        success: function(data){
-          console.log(data);
-          if (data['success'] = true) {
-            if (data['html']) {
-              $(workshop_registration_container).html(data['html']);
-              if (data['admin_message']) {
-                bootbox.alert({
-                  title: 'Registration Confirmation',
-                  message: data['admin_message'],
-                  closeButton: false
-                });
-              }
-              bindRegistrationSubmit();
-              bindDeleteAction()
-            }
-            else {
-              displayErrorDialog();
-            }
-          }
-          else {
-            displayErrorDialog();
-          }
-          return false;
-        },
-        error: function(xhr, ajaxOptions, thrownError){
-          displayErrorDialog();
-        },
-      });
-    });
-  }
-
-  function bindDeleteAction() {
-    $('.delete.action').unbind('click');
-    $('.delete.action').on('click', function(e){
-      e.preventDefault();
-      var link = $(this).data('href');
-      var title = $(this).data('title');
-
-      bootbox.confirm({ title: 'Confirm',
-                        message: "<p>Do you want to delete "+title+"</p>",
-                        buttons: {
-                          confirm: {
-                              label: 'Delete',
-                              className: 'btn btn-small btn-danger'
-                          },
-                          cancel: {
-                              label: 'Cancel',
-                              className: 'btn btn-small'
-                          }
-                        },
-                        closeButton: false,
-                        callback: function(result){
-                          if (result == true) {
-                            window.location = link;
-                          }
-                        },
-                      });
-    });
-  }
-
-  function displayErrorDialog() {
-    bootbox.alert({title: "Error",
-                  message: "Something went wrong.  Try again later!",
-                  closeButton: false
-                });
-  }
-
-  function bindWarningAction() {
-    $('.warn.action').on('click', function(e) {
-      e.preventDefault();
-      var title = $(this).data('title');
-      bootbox.alert({title: "Warning",
-                    message: title,
-                    closeButton: false
-                  });
-    });
-  }
-
-  function bindPagination(){
-    $('div.paginate a.page').on('click', function(e){
-      var page = $(this).data('page');
-      $('form.filter_form input#page').val(page);
-      $('form.filter_form').submit();
-    });
-  }
-
-  function auto_submit_search(form) {
-    clearTimeout(timeout);
-    timeout = setTimeout(function(){
-      $(form).submit();
-    }, 800);
-  }
-
   $(".datepicker").datepicker({
     dateFormat: "MM dd, yy"
   });
@@ -198,5 +95,105 @@ $(function (){
 
 });
 
+function bindRegistrationSubmit(){
+  $('.registration_submit').unbind('click');
+  $('.registration_submit').on('click', function(e){
+    e.preventDefault();
+    var workshop_registration_container = $(this).closest('.workshop_registration');
+    var form = $(this).closest('form');
+    $.ajax({
+      type: $(form).attr('method'),
+      url: $(form).attr('action'),
+      data: $(form).serialize(),
+      success: function(data){
+        if (data['success'] = true) {
+          if (data['html']) {
+            $(workshop_registration_container).html(data['html']);
+            if (data['admin_message']) {
+              bootbox.alert({
+                title: 'Registration Confirmation',
+                message: data['admin_message'],
+                closeButton: false
+              });
+            }
+            bindRegistrationSubmit();
+            bindDeleteAction()
+          }
+          else {
+            displayErrorDialog();
+          }
+        }
+        else {
+          displayErrorDialog();
+        }
+        return false;
+      },
+      error: function(xhr, ajaxOptions, thrownError){
+        displayErrorDialog();
+      },
+    });
+  });
+}
 
+function bindDeleteAction() {
+  $('.delete.action').unbind('click');
+  $('.delete.action').on('click', function(e){
+    e.preventDefault();
+    var link = $(this).data('href');
+    var title = $(this).data('title');
+
+    bootbox.confirm({ title: 'Confirm',
+                      message: "<p>Do you want to delete "+title+"</p>",
+                      buttons: {
+                        confirm: {
+                            label: 'Delete',
+                            className: 'btn btn-small btn-danger'
+                        },
+                        cancel: {
+                            label: 'Cancel',
+                            className: 'btn btn-small'
+                        }
+                      },
+                      closeButton: false,
+                      callback: function(result){
+                        if (result == true) {
+                          window.location = link;
+                        }
+                      },
+                    });
+  });
+}
+
+function displayErrorDialog() {
+  bootbox.alert({title: "Error",
+                message: "Something went wrong.  Try again later!",
+                closeButton: false
+              });
+}
+
+function bindWarningAction() {
+  $('.warn.action').on('click', function(e) {
+    e.preventDefault();
+    var title = $(this).data('title');
+    bootbox.alert({title: "Warning",
+                  message: title,
+                  closeButton: false
+                });
+  });
+}
+
+function bindPagination(){
+  $('div.paginate a.page').on('click', function(e){
+    var page = $(this).data('page');
+    $('form.filter_form input#page').val(page);
+    $('form.filter_form').submit();
+  });
+}
+
+function auto_submit_search(form) {
+  clearTimeout(timeout);
+  timeout = setTimeout(function(){
+    $(form).submit();
+  }, 800);
+}
 
