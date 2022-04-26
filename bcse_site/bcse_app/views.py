@@ -1063,12 +1063,14 @@ def workshopDelete(request, id=''):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete this workshop')
 
-    workshop_registration_setting = None
-
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
-      workshop.delete()
-      messages.success(request, "Workshop deleted")
+      if hasattr(workshop, 'registration_setting') and workshop.registration_setting.registrants.all().count() > 0:
+        messages.error(request, "This workshop cannot be deleted as it has existing registrants.")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+      else:
+        workshop.delete()
+        messages.success(request, "Workshop deleted")
 
     return shortcuts.redirect('bcse:workshops', flag='table')
 

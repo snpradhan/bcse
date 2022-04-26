@@ -72,11 +72,22 @@ $(function (){
     });
   }
 
-  function displayErrorDialog(){
+  function displayErrorDialog() {
     bootbox.alert({title: "Error",
                   message: "Something went wrong.  Try again later!",
                   closeButton: false
                 });
+  }
+
+  function bindWarningAction() {
+    $('.warn.action').on('click', function(e) {
+      e.preventDefault();
+      var title = $(this).data('title');
+      bootbox.alert({title: "Warning",
+                    message: title,
+                    closeButton: false
+                  });
+    });
   }
 
   function bindPagination(){
@@ -183,6 +194,7 @@ $(function (){
   bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();
+  bindWarningAction()
 
 });
 

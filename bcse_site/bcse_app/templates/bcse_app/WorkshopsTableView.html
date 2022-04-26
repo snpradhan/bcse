@@ -5,7 +5,7 @@
     <thead>
       <tr>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-          <th> Workshop ID</th>
+          <th> ID</th>
         {% endif %}
         <th> Workshop Type </th>
         <th> Title </th>
@@ -15,13 +15,14 @@
         {% if user.is_authenticated %}
           {% if user.userProfile.user_role in 'AS' %}
             <th> Registration Enabled? </th>
+            <th> Registration Type </th>
             <th> Capacity </th>
             <th> Waitlist Enabled?</th>
             <th> Waitlist Capacity</th>
             <th> Number of Registrants</th>
             <th> Created Date</th>
             <th> Modified Date </th>
-            <th> Workshop Status </th>
+            <th> Status </th>
           {% else %}
             <th> Registration Status </th>
           {% endif %}
@@ -58,6 +59,7 @@
           {% if user.is_authenticated %}
             {% if user.userProfile.user_role in 'AS' %}
               <td> {{workshop.enable_registration|yesno|title}} </td>
+              <td> {{workshop.registration_setting.get_registration_type_display|default_if_none:""}}</td>
               <td>
                 {% if workshop.enable_registration %}
                   {{workshop.capacity}}
@@ -90,7 +92,13 @@
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="{% url 'bcse:workshopCopy' workshop.id %}">Clone</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="the workshop <strong>{{workshop.name}}</strong>">Delete</a></li>
+                    <li>
+                      {% if workshop.registration_setting.registrants.all|length > 0 %}
+                        <a class="dropdown-item warn action" data-title="This workshop cannot be deleted as it has existing registrants.">Delete</a>
+                      {% else %}
+                        <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="the workshop <strong>{{workshop.name}}</strong>">Delete</a>
+                      {% endif %}
+                    </li>
                   </ul>
               </td>
             {% else %}

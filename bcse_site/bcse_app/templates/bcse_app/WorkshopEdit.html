@@ -115,7 +115,11 @@
 
           <div class="form-group mb-3 right">
             {% if form.instance.id %}
-              <button class="btn btn-danger delete action" data-href="{% url 'bcse:workshopDelete' form.instance.id %}" data-title="the workshop <strong>{{form.instance.name}}</strong>">Delete</button>
+              {% if form.instance.registration_setting.registrants.all|length > 0 %}
+                <button class="btn btn-danger warn action" data-title="This workshop cannot be deleted as it has existing registrants.">Delete</button>
+              {% else %}
+                <button class="btn btn-danger delete action" data-href="{% url 'bcse:workshopDelete' form.instance.id %}" data-title="the workshop <strong>{{form.instance.name}}</strong>">Delete</button>
+              {% endif %}
             {% endif %}
             <button class="btn" type="submit" id="submit_bottom">
               Save
