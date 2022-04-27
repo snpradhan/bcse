@@ -170,22 +170,23 @@ body {
         }
         div.activity_container {
           div.activity {
-            min-height: 40em;
+            height: 40em;
             margin-bottom: 1em;
 
+            img {
+              max-width: 25em;
+            }
             div.activity_info {
-              display: flex;
-              justify-content: space-between;
-
               div.activity_image {
-                flex: 0 0 30%;
+                float: left;
+                margin-right: 1em;
+                margin-bottom: 1em;
                 img {
-                  width: 100%;
-                  border-radius: 50%;
+                  max-width: 10em;
                 }
               }
               div.activity_details {
-                flex: 0 0 70%;
+
               }
             }
           }
@@ -211,13 +212,13 @@ body {
               }
 
               &.selected div.color {
-                background-color: orange;
+                background-color: #FFD452;
               }
               &.available div.color {
-                background-color: lightgreen;
+                background-color: #8BC53F;
               }
               &.unavailable div.color {
-                background-color: red;
+                background-color: #d8411d;
               }
             }
           }
@@ -228,14 +229,14 @@ body {
             table.calendar {
               td {
                 &.selected_date {
-                  background-color: orange;
+                  background-color: #FFD452;
                 }
 
                 div.available {
-                  background-color:  lightgreen;
+                  background-color:  #8BC53F;
                 }
                 div.unavailable {
-                  background-color:  red;
+                  background-color:  #d8411d;
                 }
               }
             }

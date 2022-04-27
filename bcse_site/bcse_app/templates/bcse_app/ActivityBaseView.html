@@ -1,0 +1,11 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="activity_container container">
+      {% include "bcse_app/ActivityView.html" %}
+    </div>
+  </div>
+{% endblock %}

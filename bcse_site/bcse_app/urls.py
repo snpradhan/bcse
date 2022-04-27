@@ -45,6 +45,7 @@ urlpatterns = [
     path('adminConfiguration/activity/<int:id>/delete', views.activityDelete, name='activityDelete'),
     path('adminConfiguration/activity/new', views.activityEdit, name='activityNew'),
     path('adminConfiguration/activities/', views.activities, name='activities'),
+    path('activity/<int:id>/view', views.activityView, name='activityView'),
 
     path('adminConfiguration/equipmentType/<int:id>/edit', views.equipmentTypeEdit, name='equipmentTypeEdit'),
     path('adminConfiguration/equipmentType/<int:id>/delete', views.equipmentTypeDelete, name='equipmentTypeDelete'),

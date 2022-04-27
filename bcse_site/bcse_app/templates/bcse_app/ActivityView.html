@@ -1,0 +1,15 @@
+{% if activity %}
+  <div class="activity specific">
+    <h3 class="center"> You have selected {{activity}}</h3>
+    <div class="activity_info">
+      <div class="activity_image">
+        {% if activity.image %}
+          <img src="{{activity.image.url}}"/>
+        {% endif %}
+      </div>
+      <div class="activity_details">
+        <div>{{activity.description|safe}}</div>
+      </div>
+    </div>
+  </div>
+{% endif %}

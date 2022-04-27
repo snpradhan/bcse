@@ -11,8 +11,13 @@ table {
   }
 
   &.calendar {
-    th.month {
+    th.month, th.sun, th.mon, th.tue, th.wed, th.thu, th.fri, th.sat {
       text-align: center;
+      background-color: @bcse-gray;
+      color: white;
+    }
+    td {
+      background-color: @bcse-light-gray;
     }
   }
 }

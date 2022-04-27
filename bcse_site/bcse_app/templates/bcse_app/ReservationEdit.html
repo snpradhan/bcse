@@ -1,5 +1,6 @@
 {% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
+{% load base_extras %}
 
 {% block content %}
   {{block.super}}
@@ -116,21 +117,10 @@
         </div>
         <div class="other_info">
           <div class="activity_container">
-            {% if form.instance.id and form.instance.activity %}
-              <div class="activity">
-                <h3 class="left"> You have selected {{form.instance.activity}}</h3>
-                <div class="activity_info">
-                  <div class="activity_image">
-                    {% if form.instance.activity.image %}
-                      <img src="{{form.instance.activity.image.url}}"/>
-                    {% endif %}
-                  </div>
-                  <div class="activity_details">
-                    <div>{{form.instance.activity.description|safe}}</div>
-                  </div>
-                </div>
-              </div>
-            {% endif %}
+            <div class="activity center general">
+              <h3 class="center"> Select and activity</h3>
+              <img src="{% staticfile 'img/Baxter_box_infographic.svg' %}"/>
+            </div>
           </div>
           <div class="availability_calendar_container">
             {% include "bcse_app/AvailabilityCalendar.html" %}
@@ -201,9 +191,46 @@
             },
           });
         }
-
       });
 
+      $('select#id_activity').on('change', function(e){
+        if($(this).val()) {
+          var url = '/activity/'+$(this).val()+'/view';
+          $.ajax({
+            type: 'GET',
+            url: url,
+            beforeSend: function(){
+              $('div.activity_container div.activity.general').hide();
+              $('div.activity_container div.activity.specific').remove();
+            },
+            complete: function(){
+
+            },
+            success: function(data){
+              console.log(data);
+              if (data['success'] = true) {
+                if (data['html']) {
+                  $('div.activity_container div.activity.general').after(data['html']);
+                }
+                else {
+                  displayErrorDialog();
+                }
+              }
+              else {
+                displayErrorDialog();
+              }
+              return false;
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+              displayErrorDialog();
+            },
+          });
+        }
+        else {
+          $('div.activity_container div.activity.general').show();
+          $('div.activity_container div.activity.specific').remove();
+        }
+      });
 
       function toggleCheckAvailability() {
         if($('select#id_equipment_types').val() && $('input#id_delivery_date').val() && $('input#id_return_date').val()) {
@@ -218,6 +245,7 @@
         toggleCheckAvailability();
       });
 
+      $('select#id_activity').trigger('change');
 
     });
   </script>

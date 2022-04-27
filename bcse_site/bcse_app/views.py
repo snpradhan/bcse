@@ -288,6 +288,33 @@ def activityEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
+# VIEW ACTIVITY
+####################################
+def activityView(request, id=''):
+
+  try:
+    if '' != id:
+      activity = models.Activity.objects.get(id=id)
+    else:
+      raise CustomException('Activity does not exist')
+
+    if request.method == 'GET':
+      context = {'activity': activity}
+      if request.is_ajax():
+        response_data = {}
+        response_data['success'] = True
+        response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
+        return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+      else:
+        return render(request, 'bcse_app/ActivityBaseView.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
 # DELETE ACTIVITY
 ####################################
 @login_required
