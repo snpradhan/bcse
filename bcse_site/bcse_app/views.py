@@ -303,6 +303,7 @@ def activityView(request, id=''):
       if request.is_ajax():
         response_data = {}
         response_data['success'] = True
+        response_data['kit_name'] = activity.kit_name
         response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
         return http.HttpResponse(json.dumps(response_data), content_type="application/json")
       else:
@@ -544,47 +545,72 @@ def reservations(request):
 # EDIT RESERVATION
 ####################################
 def reservationEdit(request, id=''):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to create/edit a reservation')
 
-  if '' != id:
-    reservation = models.Reservation.objects.get(id=id)
-  else:
-    reservation = models.Reservation()
-
-  if request.method == 'GET':
-    form = forms.ReservationForm(instance=reservation)
-    context = {'form': form}
-
-    return render(request, 'bcse_app/ReservationEdit.html', context)
-
-  elif request.method == 'POST':
-    data = request.POST.copy()
-    form = forms.ReservationForm(data, instance=reservation)
-    if form.is_valid():
-      availability_data = getAvailabilityData(request, id)
-      is_available = availability_data['is_available']
-      equipment_availability_matrix = availability_data['equipment_availability_matrix']
-      availability_calendar = availability_data['availability_calendar']
-
-      if is_available:
-        savedReservation = form.save()
-        savedReservation.equipment.clear()
-
-        for equipment_type, availability in equipment_availability_matrix.items():
-          savedReservation.equipment.add(availability['most_available_equip'])
-
-        savedReservation.save()
-        messages.success(request, "Reservation made")
-        return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
-      else:
-        messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
-        context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar }
-        return render(request, 'bcse_app/ReservationEdit.html', context)
+    if '' != id:
+      reservation = models.Reservation.objects.get(id=id)
     else:
-      print(form.errors)
-      messages.error(request, "Please correct the errors below and click Save again")
+      reservation = models.Reservation(created_by=request.user.userProfile)
+
+
+    if request.method == 'GET':
+      if request.user.userProfile.user_role in ['T', 'P']:
+        form = forms.ReservationForm(instance=reservation, user=request.user.userProfile, initial={'user': request.user.userProfile})
+      else:
+        form = forms.ReservationForm(instance=reservation, user=request.user.userProfile)
+
       context = {'form': form}
+
       return render(request, 'bcse_app/ReservationEdit.html', context)
-  return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+    elif request.method == 'POST':
+      if request.user.userProfile.user_role in ['T', 'P'] and reservation.status in ['O', 'I']:
+        raise CustomException('This reservation is %s and cannot be modified' % reservation.get_status_display())
+
+      data = request.POST.copy()
+      form = forms.ReservationForm(data, instance=reservation, user=request.user.userProfile)
+      if form.is_valid():
+        equipment_types = form.cleaned_data['equipment_types']
+        print(equipment_types)
+
+        if equipment_types:
+          availability_data = getAvailabilityData(request, id)
+          is_available = availability_data['is_available']
+          equipment_availability_matrix = availability_data['equipment_availability_matrix']
+          availability_calendar = availability_data['availability_calendar']
+
+          if is_available:
+            savedReservation = form.save()
+            savedReservation.equipment.clear()
+
+            for equipment_type, availability in equipment_availability_matrix.items():
+              savedReservation.equipment.add(availability['most_available_equip'])
+
+            savedReservation.save()
+            messages.success(request, "Reservation made")
+            return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
+          else:
+            messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
+            context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar }
+            return render(request, 'bcse_app/ReservationEdit.html', context)
+        else:
+          savedReservation = form.save()
+          savedReservation.equipment.clear()
+          savedReservation.save()
+          messages.success(request, "Reservation made")
+          return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
+      else:
+        print(form.errors)
+        messages.error(request, "Please correct the errors below and click Save again")
+        context = {'form': form}
+        return render(request, 'bcse_app/ReservationEdit.html', context)
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # VIEW RESERVATION
@@ -610,7 +636,6 @@ def reservationView(request, id=''):
 def reservationDelete(request, id=''):
 
   try:
-
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to delete reservation')
 
@@ -620,10 +645,9 @@ def reservationDelete(request, id=''):
       #non admin/staff users cannot delete reservations that they do not own
       if request.user.userProfile.user_role not in ['A', 'S'] and reservation.user.user != request.user:
         raise CustomException('You do not have the permission to delete this reservation')
-
       #reservations that are checked out or checked in cannot be deleted
       elif reservation.status in ['O', 'I']:
-        raise CustomException('This reservation is %s and cannot be deleted' % reservation.get_status_display)
+        raise CustomException('This reservation is %s and cannot be deleted' % reservation.get_status_display())
 
       reservation.delete()
       messages.success(request, "Reservation deleted")

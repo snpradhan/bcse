@@ -7,7 +7,7 @@
   <div class="content">
     <div class="reservation_container container">
       {% if form.instance.id %}
-        <h1> {{form.instance}} </h1>
+        <h1> Edit Reservation </h1>
       {% else %}
         <h1> Create Reservation </h1>
       {% endif %}
@@ -17,57 +17,65 @@
           <form method="post" enctype="multipart/form-data" id="reservationForm">
             {% csrf_token %}
 
-            {% if form.user %}
-              <div class="form-group mb-3">
+            {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+              <div class="form-group mb-4">
                 <label for="id_{{form.user.name}}" class="form-label"> {{form.user.label}}</label>
                 <div>{{form.user}}</div>
                 <div class="error">{{ form.user.errors }}</div>
               </div>
+              {% if form.instance.id %}
+                <div>{{form.user.as_hidden}}</div>
+              {% endif %}
+            {% else %}
+              <div>{{form.user.as_hidden}}</div>
             {% endif %}
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
               <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}</label>
               <div>{{form.activity}}</div>
               <div class="error">{{ form.activity.errors }}</div>
             </div>
-            <div class="form-group mb-3">
-              <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}</label>
+            <div class="form-group form-check mb-4">
               <div>{{form.other_activity}}</div>
+              <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}</label>
               <div class="error">{{ form.other_activity.errors }}</div>
             </div>
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
               <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}}</label>
               <div>{{form.other_activity_name}}</div>
               <div class="error">{{ form.other_activity_name.errors }}</div>
             </div>
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
               <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}}</label>
               <div>{{form.num_of_classes}}</div>
               <div class="error">{{ form.num_of_classes.errors }}</div>
             </div>
-            <div class="form-group mb-3">
-              <label for="id_{{form.activity_kit_not_needed.name}}" class="form-label"> {{form.activity_kit_not_needed.label}}</label>
+            <div class="form-group mb-4 kit_info">
+              <label class="form-label"> You will receive <span class="kit_name"></span> x <span class="num_of_classes"></span></label>
+            </div>
+
+            <div class="form-group form-check mb-4">
               <div>{{form.activity_kit_not_needed}}</div>
+              <label for="id_{{form.activity_kit_not_needed.name}}" class="form-label"> {{form.activity_kit_not_needed.label}}</label>
               <div class="error">{{ form.activity_kit_not_needed.errors }}</div>
             </div>
 
-
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
               <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}</label>
               <div>{{form.num_of_students}}</div>
               <div class="error">{{ form.num_of_students.errors }}</div>
             </div>
 
-            <div class="form-group mb-3">
-              <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}</label>
+            <div class="form-group form-check mb-4">
               <div>{{form.equipment_not_needed}}</div>
+              <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}</label>
               <div class="error">{{ form.equipment_not_needed.errors }}</div>
             </div>
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
               <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}</label>
               <div>{{form.equipment_types}}</div>
               <div class="error">{{ form.equipment_types.errors }}</div>
             </div>
-            <div class="form-group mb-3 row">
+            <div class="form-group mb-4 row">
               <div class="col">
                 <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label}}</label>
                 <div class="input-group">
@@ -85,25 +93,30 @@
                 <div class="error">{{ form.return_date.errors }}</div>
               </div>
             </div>
+            <div class="form-group mb-4">
             <button class="btn btn-warning" type="button" id="check_availability">Check Availibility</button>
-
-            <div class="form-group mb-3">
+          </div>
+            <div class="form-group mb-4">
               <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label}}</label>
               <div>{{form.notes}}</div>
               <div class="error">{{ form.notes.errors }}</div>
             </div>
-            <div class="form-group mb-3">
-              <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}</label>
+            <div class="form-group form-check mb-4">
               <div>{{form.additional_help_needed}}</div>
+              <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}</label>
               <div class="error">{{ form.additional_help_needed.errors }}</div>
             </div>
-            <div class="form-group mb-3">
-              <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
-              <div>{{form.status}}</div>
-              <div class="error">{{ form.status.errors }}</div>
-            </div>
+            {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+              <div class="form-group mb-4">
+                <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
+                <div>{{form.status}}</div>
+                <div class="error">{{ form.status.errors }}</div>
+              </div>
+            {% else %}
+              <div>{{form.status.as_hidden}}</div>
+            {% endif %}
 
-            <button class="btn btn-success" type="submit" id="submit">
+            <button class="btn btn-success" type="button" id="reservationSubmit">
               {% if form.instance.id %}
                 Save Reservation
               {% else %}
@@ -118,7 +131,7 @@
         <div class="other_info">
           <div class="activity_container">
             <div class="activity center general">
-              <h3 class="center"> Select and activity</h3>
+              <h3 class="center underline"> Select an activity</h3>
               <img src="{% staticfile 'img/Baxter_box_infographic.svg' %}"/>
             </div>
           </div>
@@ -133,19 +146,24 @@
   <script type="text/javascript">
     $(function (){
       toggleCheckAvailability();
+      //hide other activity name field
+      $('input#id_other_activity_name').closest('form-group').hide();
 
+      $('.form-group.kit_info').hide();
+
+      $('button#reservationSubmit').click(function(e){
+        var dates_valid = validateDates();
+        if (dates_valid) {
+          $('form#reservationForm').submit();
+        }
+      });
+
+      //"Check Availibility" button is clicked
       $('button#check_availability').click(function(e){
         e.preventDefault();
-        var equipment_types = $('select#id_equipment_types').val();
-        var delivery_date = $('input#id_delivery_date').datepicker('getDate');
-        var return_date = $('input#id_return_date').datepicker('getDate');
-        if (delivery_date > return_date) {
-          bootbox.alert({title: "Warning",
-                    message: 'Please pick a return date that is later than the delivery date',
-                    closeButton: false
-                  });
-        }
-        else {
+        var dates_valid = validateDates();
+        //get availability calendar only if dates are valid
+        if (dates_valid) {
           data = $('form#reservationForm').serialize();
           var url ='';
           if('{{form.instance.id}}' != 'None') {
@@ -193,7 +211,9 @@
         }
       });
 
+      //Activity changed
       $('select#id_activity').on('change', function(e){
+        //Activity is selected from dropdown
         if($(this).val()) {
           var url = '/activity/'+$(this).val()+'/view';
           $.ajax({
@@ -211,6 +231,7 @@
               if (data['success'] = true) {
                 if (data['html']) {
                   $('div.activity_container div.activity.general').after(data['html']);
+                  $('div.form-group.kit_info span.kit_name').html(data['kit_name']);
                 }
                 else {
                   displayErrorDialog();
@@ -225,19 +246,65 @@
               displayErrorDialog();
             },
           });
+          //display number of class and kit not need fields
+          $('select#id_num_of_classes').prop('required', true);
+          $('select#id_num_of_classes').closest('.form-group').show();
+          $('select#id_num_of_classes').trigger('change');
+          $('input#id_activity_kit_not_needed').closest('.form-group').show();
         }
+        //Activity is unselected
         else {
-          $('div.activity_container div.activity.general').show();
+          if($('input#id_other_activity').is(':checked')) {
+            $('div.activity_container div.activity.general').hide();
+          }
+          else {
+            $('div.activity_container div.activity.general').show();
+          }
           $('div.activity_container div.activity.specific').remove();
+          //hide number of class and kit not need fields
+          $('select#id_num_of_classes').prop('required', false);
+          $('select#id_num_of_classes').val('').closest('.form-group').hide();
+          $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
+          $('div.form-group.kit_info span.kit_name').html('');
+          $('div.form-group.kit_info span.num_of_classes').html('');
+          $('div.form-group.kit_info').hide();
         }
       });
 
+      //enable "Check Availability" button only if equipment is selected and delivery and return dates are provided
       function toggleCheckAvailability() {
         if($('select#id_equipment_types').val() && $('input#id_delivery_date').val() && $('input#id_return_date').val()) {
-          $('button#check_availability').attr('disabled', false);
+          $('button#check_availability').prop('disabled', false);
         }
         else{
-          $('button#check_availability').attr('disabled', 'disabled');
+          $('button#check_availability').prop('disabled', true);
+        }
+      }
+
+      //validate delivery and return dates
+      function validateDates() {
+        var equipment_types = $('select#id_equipment_types').val();
+        var delivery_date = $('input#id_delivery_date').datepicker('getDate');
+        var return_date = $('input#id_return_date').datepicker('getDate');
+        //if equipment is selected, delivery and return dates are both required
+        if(equipment_types && (delivery_date == null || return_date == null)) {
+          bootbox.alert({title: "Warning",
+                    message: 'Please select both delivery and return dates.',
+                    closeButton: false
+                  });
+          return false;
+        }
+        //if delivery and return dates are selected, return date has to be later than
+        //delivery date
+        else if (delivery_date && return_date && delivery_date > return_date) {
+          bootbox.alert({title: "Warning",
+                    message: 'Please select a return date that is later than the delivery date.',
+                    closeButton: false
+                  });
+          return false;
+        }
+        else {
+          return true;
         }
       }
 
@@ -245,7 +312,104 @@
         toggleCheckAvailability();
       });
 
+      //when other_activity checkbox is checked/unchecked
+      $('input#id_other_activity').on('change', function(e) {
+        //other activity checkbox checked
+        if($(this).is(':checked')){
+          $('select#id_activity').val('').trigger('change');
+          $('select#id_activity').prop('disabled', true);
+          $('select#id_activity').prop('required', false);
+          $('input#id_other_activity_name').prop('required', true);
+          $('input#id_other_activity_name').closest('.form-group').show();
+          console.log('checked')
+          $('div.activity_container div.activity.general').hide();
+          $('div.activity_container div.activity.specific').remove();
+        }
+        //other activity checkbox unchecked
+        else{
+          $('select#id_activity').prop('disabled', false);
+          $('select#id_activity').prop('required', true);
+          $('input#id_other_activity_name').prop('required', false);
+          $('input#id_other_activity_name').closest('.form-group').hide();
+          $('div.activity_container div.activity.general').show();
+          $('div.activity_container div.activity.specific').remove();
+        }
+      })
+
+      //when "I already have all the equipment" checkbox is checked/unchecked
+      $('input#id_equipment_not_needed').on('change', function(e) {
+        //checkbox checked
+        if($(this).is(':checked')){
+          //reset equipment selection
+          $('select#id_equipment_types').prop('required', false);
+          $('select#id_equipment_types').val([]);
+          $('select#id_equipment_types').closest('.form-group').hide();
+          //reset and disable return date
+          $('input#id_return_date').val('');
+          $('input#id_return_date').prop('disabled', true);
+        }
+        //checkbox unchecked
+        else{
+          $('select#id_equipment_types').prop('required', true);
+          $('select#id_equipment_types').closest('.form-group').show();
+          $('input#id_return_date').prop('disabled', false);
+        }
+      });
+
+      //equipment selection changed
+      $('select#id_equipment_types').on('change', function(e){
+        //equipment selected
+        if($(this).val()){
+          $('input#id_return_date').prop('required', true);
+        }
+        //equipment unselected
+        else{
+          $('input#id_return_date').prop('required', false);
+        }
+      });
+
+      //number of classes changed
+      $('select#id_num_of_classes').on('change', function(e){
+        //if num of classes is more than 4, reset to 4
+        if($(this).val() == '5'){
+          bootbox.alert({title: "Warning",
+                    message: 'Maximum of 4 kits allowed. Many kits can be stretched over multiple classes. Email us with your questions bcse@northwestern.edu!',
+                    closeButton: false
+                  });
+          $(this).val('4');
+        }
+        //if num of classes is selected, display kit info
+        if($(this).val()) {
+          $('div.form-group.kit_info span.num_of_classes').html($(this).val());
+          $('div.form-group.kit_info').show();
+        }
+        else {
+          $('div.form-group.kit_info').hide();
+        }
+      });
+
+      //"I already have all the kits" checkbox checked/unchecked
+      $('input#id_activity_kit_not_needed').on('change', function(e){
+        //checkbox checked
+        if($(this).is(':checked')){
+          $('select#id_num_of_classes').val('');
+          $('select#id_num_of_classes').closest('.form-group').hide();
+          $('div.form-group.kit_info span.kit_name').html('');
+          $('div.form-group.kit_info span.num_of_classes').html('');
+          $('div.form-group.kit_info').hide();
+        }
+        //checkbox unchecked
+        else{
+          $('select#id_num_of_classes').closest('.form-group').show();
+          $('input#id_return_date').prop('required', false);
+        }
+      });
+
+
+      $('input#id_other_activity').trigger('change');
       $('select#id_activity').trigger('change');
+      $('input#id_equipment_not_needed').trigger('change');
+      $('select#id_num_of_classes').trigger('change');
 
     });
   </script>

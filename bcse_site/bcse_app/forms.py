@@ -311,11 +311,12 @@ class ReservationForm(ModelForm):
     model = models.Reservation
     exclude = ('equipment', 'created_by', 'created_date', 'modified_date')
     widgets = {
-      'equipment_type': forms.SelectMultiple(attrs={'size':5}),
+      'equipment_types': forms.SelectMultiple(attrs={'size':5}),
       #'other_activity': forms.CheckboxInput(),
     }
 
   def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
     super(ReservationForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
@@ -334,8 +335,35 @@ class ReservationForm(ModelForm):
       for equipment in self.instance.equipment.all():
         initial.append(equipment.equipment_type.id)
       self.fields['equipment_types'].initial = initial
+      self.fields['user'].widget.attrs['disabled'] = True
 
     self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
+    self.fields['other_activity'].label = 'I am doing something not listed here.'
+    self.fields['other_activity_name'].label = 'What activity are you planning to do?'
+    self.fields['activity_kit_not_needed'].label = 'I already have all the kits I need.'
+    self.fields['num_of_students'].label = 'How many students will be doing this activity?'
+    self.fields['num_of_classes'].label = 'Number of classes'
+    self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
+
+  def is_valid(self):
+    valid = super(ReservationForm, self).is_valid()
+    if not valid:
+      return valid
+
+    cleaned_data = super(ReservationForm, self).clean()
+    activity = cleaned_data.get('activity')
+    other_activity = cleaned_data.get('other_activity')
+    other_activity_name = cleaned_data.get('other_activity_name')
+
+    if activity is None and not other_activity:
+      self.add_error('activity', 'Please select an activity from the dropdown or select "I am doing something not listed here"')
+      valid = False
+    elif other_activity and other_activity_name is None:
+      self.add_error('other_activity_name', 'Please provide the name of your custom activity')
+      valid = False
+
+    return valid
+
 
 
 class WorkshopForm(ModelForm):

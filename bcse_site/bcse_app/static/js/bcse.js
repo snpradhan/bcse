@@ -1,7 +1,5 @@
 $(function (){
 
-  var timeout = null;
-
   $(".datepicker").datepicker({
     dateFormat: "MM dd, yy"
   });
@@ -94,6 +92,8 @@ $(function (){
   bindWarningAction()
 
 });
+
+var timeout = null;
 
 function bindRegistrationSubmit(){
   $('.registration_submit').unbind('click');

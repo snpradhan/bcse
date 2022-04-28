@@ -72,6 +72,9 @@ body {
       border-width: 2px;
     }
   }
+  .underline {
+    text-decoration: underline;
+  }
 
   ul.nav-tabs {
     li.nav-item.right {
@@ -154,12 +157,13 @@ body {
     div#reservation_container {
       display: flex;
       justify-content: space-between;
+      gap: 1em;
 
       div.reservation_form {
-        flex: 0 0 47%;
+        flex: 1 1 47%;
       }
       div.other_info {
-        flex: 0 0 50%;
+        flex: 1 1 50%;
 
         div.activity, div.availability_calendar {
           overflow-y: scroll;
@@ -169,6 +173,8 @@ body {
 
         }
         div.activity_container {
+          height: 40em;
+          margin-bottom: 1em;
           div.activity {
             height: 40em;
             margin-bottom: 1em;

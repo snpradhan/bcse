@@ -4,7 +4,7 @@
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th> Reservation ID</th>
+        <th> ID</th>
         <th> Reservation Made On</th>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
           <th> User </th>
@@ -14,9 +14,9 @@
         <th> Equipment </th>
         <th> Delivery Date </th>
         <th> Return Date </th>
-        <th> # of Classes </th>
         <th> # of Students </th>
         <th> Notes </th>
+        <th> Help? </th>
         <th> Location </th>
         <th> Status </th>
         <th> Actions </th>
@@ -30,8 +30,18 @@
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
             <td> {{reservation.user}} </td>
           {% endif %}
-          <td> {{reservation.activity}} </td>
-          <td> {{reservation.activity.kit_name}} </td>
+          <td>
+            {% if reservation.activity %}
+              {{reservation.activity}}
+            {% else %}
+              {{reservation.other_activity_name}}
+            {% endif %}
+          </td>
+          <td>
+            {% if reservation.activity and not reservation.activity_kit_not_needed %}
+              {{reservation.activity.kit_name}} x {{reservation.num_of_classes}}
+            {% endif %}
+          </td>
           <td>
             <ul>
               {% for equipment in reservation.equipment.all %}
@@ -46,9 +56,9 @@
           </td>
           <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
           <td>{{reservation.return_date|date:"F j, Y"}}</td>
-          <td> {{reservationnum_of_classes}} </td>
           <td> {{reservation.num_of_students}} </td>
-          <td> {{reservation.notes}} </td>
+          <td> {{reservation.notes|default_if_none:""}} </td>
+          <td> {{reservation.additional_help_needed|yesno:"Yes,No"}} </td>
           <td>
             {{reservation.user.work_place.name}}<br>
             {{reservation.user.work_place.street_address_1}}<br>

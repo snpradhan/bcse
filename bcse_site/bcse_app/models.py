@@ -76,6 +76,14 @@ GRADES_CHOICES = (
   ('O', 'Other'),
 )
 
+NUM_OF_CLASS_CHOICES = (
+  ('1', '1'),
+  ('2', '2'),
+  ('3', '3'),
+  ('4', '4'),
+  ('5', 'More than 4'),
+)
+
 def upload_file_to(instance, filename):
   import os
   now = datetime.datetime.now()
@@ -290,8 +298,8 @@ class Activity(models.Model):
 
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)
-  activity = models.ForeignKey(Activity, null=True, on_delete=models.CASCADE)
-  num_of_classes = models.IntegerField(null=False, blank=False)
+  activity = models.ForeignKey(Activity, null=True, blank=True, on_delete=models.CASCADE)
+  num_of_classes = models.CharField(null=True, blank=True, max_length=1, choices=NUM_OF_CLASS_CHOICES)
   activity_kit_not_needed = models.BooleanField(default=False)
   other_activity = models.BooleanField(default=False)
   other_activity_name = models.CharField(null=True, blank=True, max_length=256, help_text='Name of the other activity')
@@ -302,7 +310,7 @@ class Reservation(models.Model):
   return_date = models.DateField(null=True, blank=True, help_text="The date the equipment will be returned")
   notes = models.CharField(null=True, blank=True, max_length=256, help_text='Any additional information')
   additional_help_needed = models.BooleanField(default=False)
-  status = models.CharField(default='C', max_length=1, choices=RESERVATION_STATUS_CHOICES)
+  status = models.CharField(default='R', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
@@ -312,7 +320,10 @@ class Reservation(models.Model):
       ordering = ['delivery_date']
 
   def __str__(self):
+    if self.activity:
       return '%s - %s' % (self.activity.name, self.user)
+    else:
+      return '%s - %s' % (self.other_activity_name, self.user)
 
 
 
