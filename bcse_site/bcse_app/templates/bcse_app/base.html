@@ -58,13 +58,22 @@
                       <a class="dropdown-item" href="{% url 'bcse:workshops' 'table' %}">My Workshops</a>
                     </li>
                     {% endif %}
-                    <li class="{% navactive request 'bcse:reservations' %}"><a class="dropdown-item" href="{% url 'bcse:reservations' %}">All Reservations</a></li>
                   </ul>
                 </li>
                 <li class="nav-item dropdown {% navactive request 'bcse:reservations' %}">
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Baxter Box Program</a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li class="{% navactive request 'bcse:reservations' %}"><a class="dropdown-item" href="{% url 'bcse:reservations' %}">All Reservations</a></li>
+                    {% if user.is_authenticated %}
+                      <li class="{% navactive request 'bcse:reservations' %}">
+                        <a class="dropdown-item" href="{% url 'bcse:reservations' %}">
+                          {% if user.userProfile.user_role not in 'AS' %}
+                            My Reservations
+                          {% else %}
+                            User Reservations
+                          {% endif %}
+                        </a>
+                      </li>
+                    {% endif %}
                   </ul>
                 </li>
                 <li class="nav-item">

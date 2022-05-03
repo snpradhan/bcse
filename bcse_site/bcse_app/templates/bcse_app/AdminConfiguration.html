@@ -30,6 +30,9 @@
                   {% leftnavactive request 'teacherLeaders' %}
                   {% leftnavactive request 'teacherLeader' %}" id="workshop_config">
 
+                <li>
+                  <a href="{% url 'bcse:workshops' 'table' %}">Workshops</a>
+                </li>
                 <li class="{% if 'workshopCategories' in request.path or  'workshopCategory' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:workshopCategories' %}">Workshop Categories</a>
                 </li>
@@ -66,6 +69,12 @@
                 </li>
                 <li class="{% if 'equipments' in request.path or 'equipment/' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:equipments' %}">Equipment</a>
+                </li>
+                <li class="{% if 'equipments' in request.path or 'equipment/' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:equipments' %}">Equipment</a>
+                </li>
+                <li>
+                  <a href="{% url 'bcse:reservations' %}">User Reservations</a>
                 </li>
               </ul>
             </li>
