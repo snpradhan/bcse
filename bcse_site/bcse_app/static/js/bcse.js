@@ -81,9 +81,9 @@ $(function (){
     }
   });
 
-  $('ul.messages').delay(30000).fadeOut('slow');
+  $('ul.messages').children().delay(30000).fadeOut('slow');
   $('ul.messages i').click(function(){
-    $('ul.messages').hide();
+    $('ul.messages').children().hide();
   });
 
   bindPagination();

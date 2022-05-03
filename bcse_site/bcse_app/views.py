@@ -1513,7 +1513,7 @@ def workshopsBaseQuery(request, flag='list'):
       else:
         workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user=request.user.userProfile)
   else:
-    workshops = models.Workshop.objects.all().filter(status='A')
+    workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
 
   return workshops
 
