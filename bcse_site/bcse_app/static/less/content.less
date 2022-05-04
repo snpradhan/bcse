@@ -249,6 +249,90 @@ body {
           }
         }
       }
+
+      /* reservation confirmation page */
+      div.reservation_contact_details {
+        flex: 0 0 60%;
+        border-right: 2px solid #cccccc;
+
+        table th {
+          width: 30%;
+        }
+
+        div.contact_details {
+          div.header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1em;
+          }
+        }
+      }
+      div.reservation_messages {
+        flex: 0 0 39%;
+        display: flex;
+        flex-direction: column;
+
+        div.message_dialog {
+          border: 1px solid #ccc;
+          border-radius: 2px;
+          padding: 1em;
+          height: 30em;
+          overflow-y: scroll;
+          margin-bottom: 1em;
+
+          .ck-editor__editable {
+            max-height: 50px;
+          }
+
+          div.message_container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 1em;
+
+            div.author_image {
+              flex: 1 1 5%;
+              text-align: center;
+              img.icon {
+                width: 2em;
+              }
+              i.profile {
+                font-size: 1.5em;
+              }
+            }
+            div.message_content {
+              flex: 0 0 90%;
+              div.author_name_date {
+                display: flex;
+                justify-content: flex-start;
+                gap: 1em;
+                margin-bottom: 0.5em;
+
+                div.author_name {
+                  font-weight: bold;
+                  line-height: 1em;
+                }
+                div.message_date {
+                  color: #ccc;
+                  line-height: 1em;
+                }
+              }
+            }
+          }
+        }
+        div.message_form {
+          div.django-ckeditor-widget {
+            div#cke_id_message {
+              div.cke_inner {
+                div#cke_1_contents {
+                  height: 100px !important;
+                }
+              }
+            }
+          }
+        }
+
+      }
     }
 
     div#user_profile_container {

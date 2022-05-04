@@ -1,0 +1,22 @@
+{% load bcse_extras %}
+
+{% if reservationMessage %}
+<div class="message_container">
+  <div class="author_image">
+    {% if reservationMessage.created_by.image and reservationMessage.created_by.image.url %}
+      <img src="{{reservationMessage.created_by.image.url}}" class="icon curve">
+    {% else %}
+      <i class="fa fa-user profile"></i>
+    {% endif %}
+  </div>
+  <div class="message_content">
+    <div class="author_name_date">
+      <div class="author_name">{{reservationMessage.created_by.user.get_full_name}}</div>
+      <div class="message_date">{{reservationMessage.created_date|date:"F j, Y g:i A"}}</div>
+    </div>
+    <div class="reservation_message">
+      {{reservationMessage.message|safe}}
+    </div>
+  </div>
+</div>
+{% endif %}

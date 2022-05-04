@@ -326,6 +326,16 @@ class Reservation(models.Model):
       return '%s - %s' % (self.other_activity_name, self.user)
 
 
+class ReservationMessage(models.Model):
+  reservation = models.ForeignKey(Reservation, related_name='reservation_messages', on_delete=models.CASCADE)
+  message = RichTextField(null=False, blank=False, config_name='message_ckeditor', help_text="Type your message here")
+  viewed_by = models.ManyToManyField(UserProfile, null=True, blank=True)
+  created_by = models.ForeignKey(UserProfile, related_name='reservation_messages', on_delete=models.CASCADE)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['created_date']
 
 class Team(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Team Member')

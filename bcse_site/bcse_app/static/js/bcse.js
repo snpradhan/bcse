@@ -46,6 +46,7 @@ $(function (){
           bindPagination();
           bindDeleteAction();
           bindModalOpen();
+          bindWarningAction();
         }
         else{
           displayErrorDialog();
@@ -89,7 +90,7 @@ $(function (){
   bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();
-  bindWarningAction()
+  bindWarningAction();
 
 });
 

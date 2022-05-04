@@ -5,17 +5,205 @@
   {{block.super}}
   <div class="content">
     <div class="reservation_container container">
-      <h1> {{reservation|title}} </h1>
+      <h1> Reservation Confirmation </h1>
       {% include "bcse_app/ReservationTabs.html" with tab='view' %}
-      <div class="reservation_content">
-        {{reservation}}
+      <div id="reservation_container">
+        <div class="reservation_contact_details">
+          <div class="reservation_details">
+            <h3 class="underline">Reservation Details</h3>
+            <table class="table table-striped">
+              <tbody>
+                <tr>
+                  <th>Activity Name:</th>
+                  <td>
+                      {% if reservation.activity %}
+                        {{reservation.activity}}
+                      {% else %}
+                        {{reservation.other_activity_name}}
+                      {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th>Number of Classes:</th>
+                  <td>{{reservation.num_of_classes}}</td>
+                </tr>
+                <tr>
+                  <th>Number of Students:</th>
+                  <td>{{reservation.num_of_students}}</td>
+                </tr>
+                <tr>
+                  <th>Requested Lab Kits:</th>
+                  <td>
+                    {% if reservation.activity %}
+                      {{reservation.activity.kit_name}} x {{reservation.num_of_classes}}
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th>Reserved Lab Equipment:</th>
+                  <td>
+                    {% if reservation.equipment %}
+                      {% for equipment in reservation.equipment.all %}
+                        {{equipment}}
+                      {% endfor %}
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th>Help Requested:</th>
+                  <td>{{reservation.additional_help_needed|yesno:"Yes,No"}}</td>
+                </tr>
+                <tr>
+                  <th>Reservation Dates:</th>
+                  <td>{{reservation.delivery_date|date:"F j, Y"}} to {{reservation.return_date|date:"F j, Y"}}</td>
+                </tr>
+                <tr>
+                  <th>Pickup/Return Notes:</th>
+                  <td>{{reservation.notes}}</td>
+                </tr>
+                <tr>
+                  <th>Reservation Status:</th>
+                  <td>{{reservation.get_status_display}}</td>
+                </tr>
+                <tr>
+                  <th>Reservation Made On:</th>
+                  <td>{{reservation.created_date|date:"F j, Y"}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <hr>
+          <div class="contact_details">
+            <div class="header">
+              <h3 class="underline">Contact Information</h3>
+              <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' reservation.user.id %}" href="#">Update Profile</a>
+            </div>
+            <table class="table table-striped">
+              <tbody>
+                <tr>
+                  <th>User Full Name:</th>
+                  <td>{{reservation.user.user.get_full_name}}</td>
+                </tr>
+                <tr>
+                  <th>Email:</th>
+                  <td>{{reservation.user.user.email}}</td>
+                </tr>
+                <tr>
+                  <th>Phone:</th>
+                  <td>{{reservation.user.phone_number}}</td>
+                </tr>
+                <tr>
+                  <th>Workplace:</th>
+                  <td>{{reservation.user.work_place.name}}</td>
+                </tr>
+                {% if reservation.user.work_place.district_number %}
+                <tr>
+                  <th>District #:</th>
+                  <td>{{reservation.user.work_place.district_number}}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <th>Street Address:</th>
+                  <td>
+                    {{reservation.user.work_place.street_address_1}}
+                    {% if reservation.user.work_place.street_address_2 %}
+                      <br>
+                      {{reservation.user.work_place.street_address_2}}
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th>City:</th>
+                  <td>{{reservation.user.work_place.city}}</td>
+                </tr>
+                <tr>
+                  <th>State:</th>
+                  <td>{{reservation.user.work_place.state}}</td>
+                </tr>
+                <tr>
+                  <th>Zip Code:</th>
+                  <td>{{reservation.user.work_place.zip_code}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="reservation_messages">
+          <h3 class="underline">
+            {% if reservation.status == 'O' or  reservation.status == 'R' or reservation.status == 'U' %}
+              Questions? Changes? Message us here
+            {% else %}
+              Message Transcript
+            {% endif %}
+          </h3>
+          <div class="message_dialog">
+            {% for reservation_message_html in reservation_messages_html %}
+              {{reservation_message_html}}
+            {% endfor %}
+          </div>
+          <div class="message_form">
+            {% if reservation.status == 'O' or  reservation.status == 'R' or reservation.status == 'U' %}
+              <form method="post" id="messageForm" action="{% url 'bcse:reservationMessage' reservation.id %}">
+                {{form.media}}
+                {% csrf_token %}
+                {{form.reservation.as_hidden}}
+                {{form.created_by.as_hidden}}
+                <div class="form-group mb-3">{{form.message}}</div>
+                <div class="form-group mb-3 right">
+                  <button class="btn btn-success" type="submit" id="messageSubmit">
+                    <i class="fa fa-paper-plane"></i> Post
+                  </button>
+                </div>
+              </form>
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script type="text/javascript">
     $(function (){
-      
+
+      $('form#messageForm').on('submit', function(e){
+        e.preventDefault();
+        var message = CKEDITOR.instances.id_message.getData();
+        var formData = new FormData(this);
+        formData.append('message', message);
+        formData.append('reservation', $("#id_reservation").val());
+        formData.append('created_by', $("#id_created_by").val());
+        $.ajax({
+          type: $(this).attr('method'),
+          url: this.action,
+          data: formData,
+          context: this,
+          cache:false,
+          contentType: false,
+          processData: false,
+          success: function(data){
+            console.log(data);
+            if (data['success'] = true) {
+              CKEDITOR.instances.id_message.setData('');
+              $('div.message_dialog').append(data['html']);
+              scrollToRecentMessage();
+            }
+            else {
+              displayErrorDialog();
+            }
+            return false;
+          },
+          error: function(xhr, ajaxOptions, thrownError){
+            displayErrorDialog();
+          },
+        });
+      });
+
+      scrollToRecentMessage();
+
+      function scrollToRecentMessage() {
+        $('.message_dialog').scrollTop($('.message_dialog')[0].scrollHeight);
+      }
+
     });
   </script>
 {% endblock %}

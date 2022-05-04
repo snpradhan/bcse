@@ -6,9 +6,12 @@
     <li class="nav-item">
       <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:reservationView' reservation.id %}">View</a></label>
     </li>
+    <!-- only allow Admin and Staff to edit Cancelled, Checked In and Checked Out reservations -->
+    {% if user.userProfile.user_role in 'AS' or reservation.status in 'RU' %}
     <li class="nav-item">
       <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></label>
     </li>
+    {% endif %}
   </ul>
 {% endif %}
 

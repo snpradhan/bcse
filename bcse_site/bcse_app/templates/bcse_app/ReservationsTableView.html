@@ -79,14 +79,22 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                  <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
+                  {% if user.userProfile.user_role in 'TP' and reservation.status in 'DIO' %}
+                    <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be modified">Edit</a>
+                  {% else %}
+                    <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
+                  {% endif %}
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}"
-                  data-title="the reservation with id <strong>{{reservation.id}}</strong>">
-                    Delete
-                  </a>
+                  {% if reservation.status in 'IO' %}
+                    <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be deleted">Delete</a>
+                  {% else %}
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}"
+                    data-title="the reservation with id <strong>{{reservation.id}}</strong>">
+                      Delete
+                    </a>
+                  {% endif %}
                 </li>
               </ul>
             </div>

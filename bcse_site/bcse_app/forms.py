@@ -327,6 +327,7 @@ class ReservationForm(ModelForm):
           field.widget.attrs['class'] = 'form-control'
       else:
         field.widget.attrs['class'] = 'form-check-input'
+
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -364,6 +365,19 @@ class ReservationForm(ModelForm):
 
     return valid
 
+class ReservationMessageForm(ModelForm):
+  class Meta:
+    model = models.ReservationMessage
+    fields = ['reservation', 'message', 'created_by']
+
+  def __init__(self, *args, **kwargs):
+
+    super(ReservationMessageForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
 
 
 class WorkshopForm(ModelForm):

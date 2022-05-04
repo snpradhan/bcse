@@ -116,6 +116,26 @@ CKEDITOR_CONFIGS = {
         'scayt_sLang': 'en_US',
         'disableNativeSpellChecker': False,
     },
+    'message_ckeditor': {
+        'removePlugins': 'stylesheetparser',
+        'toolbar': [
+             ['Bold', 'Italic', 'Underline','-', 'Subscript', 'Superscript', '-', 'NumberedList',
+            'BulletedList', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter',
+            'JustifyRight', 'JustifyBlock', 'Table', 'SpecialChar', 'Mathjax', '-', 'Link', 'Unlink'] ,
+             "/"
+        ],
+        'height': '100%',
+        'width': '100%',
+        'allowedContent': True,
+        'extraPlugins': ','.join(
+            ['scayt', 'autogrow']
+        ),
+        'autoGrow_onStartup': True,
+        'scayt_autoStartup': True,
+        'scayt_sLang': 'en_US',
+        'disableNativeSpellChecker': False,
+        'editorplaceholder': 'Type your message here'
+    },
 
 }
 

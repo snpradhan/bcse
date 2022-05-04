@@ -566,14 +566,13 @@ def reservationEdit(request, id=''):
       return render(request, 'bcse_app/ReservationEdit.html', context)
 
     elif request.method == 'POST':
-      if request.user.userProfile.user_role in ['T', 'P'] and reservation.status in ['O', 'I']:
+      if request.user.userProfile.user_role in ['T', 'P'] and reservation.status in ['D', 'O', 'I']:
         raise CustomException('This reservation is %s and cannot be modified' % reservation.get_status_display())
 
       data = request.POST.copy()
       form = forms.ReservationForm(data, instance=reservation, user=request.user.userProfile)
       if form.is_valid():
         equipment_types = form.cleaned_data['equipment_types']
-        print(equipment_types)
 
         if equipment_types:
           availability_data = getAvailabilityData(request, id)
@@ -589,8 +588,12 @@ def reservationEdit(request, id=''):
               savedReservation.equipment.add(availability['most_available_equip'])
 
             savedReservation.save()
-            messages.success(request, "Reservation made")
-            return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
+            if '' != id:
+              messages.success(request, "Reservation saved")
+            else:
+              messages.success(request, "Reservation made")
+
+            return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
           else:
             messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
             context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar }
@@ -599,8 +602,11 @@ def reservationEdit(request, id=''):
           savedReservation = form.save()
           savedReservation.equipment.clear()
           savedReservation.save()
-          messages.success(request, "Reservation made")
-          return shortcuts.redirect('bcse:reservationEdit', id=savedReservation.id)
+          if '' != id:
+            messages.success(request, "Reservation saved")
+          else:
+            messages.success(request, "Reservation made")
+          return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
       else:
         print(form.errors)
         messages.error(request, "Please correct the errors below and click Save again")
@@ -617,9 +623,22 @@ def reservationEdit(request, id=''):
 ####################################
 def reservationView(request, id=''):
   try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to view this reservation')
+
     if '' != id:
       reservation = models.Reservation.objects.get(id=id)
-      context = {'reservation': reservation}
+
+      if request.user.userProfile.user_role in ['T', 'P'] and reservation.user != request.user.userProfile:
+        raise CustomException('You do not have the permission to view this reservation')
+
+      form = reservationMessage(request, id)
+      reservation_messages = models.ReservationMessage.objects.all().filter(reservation=reservation).order_by('created_date')
+      reservation_messages_html = []
+      for reservation_message in reservation_messages:
+        context= {'reservationMessage': reservation_message}
+        reservation_messages_html.append(render_to_string('bcse_app/ReservationMessage.html', context, request))
+      context = {'reservation': reservation, 'form': form, 'reservation_messages_html': reservation_messages_html}
       return render(request, 'bcse_app/ReservationView.html', context)
     else:
       raise models.Reservation.DoesNotExist
@@ -627,6 +646,57 @@ def reservationView(request, id=''):
   except models.Reservation.DoesNotExist:
     messages.error(request, 'Reservation not found')
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def reservationMessage(request, id=''):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to view this reservation')
+
+    if '' != id:
+      reservation = models.Reservation.objects.get(id=id)
+      if request.user.userProfile.user_role in ['T', 'P'] and reservation.user != request.user.userProfile:
+        raise CustomException('You do not have the permission to view this reservation')
+    else:
+      raise models.Reservation.DoesNotExist
+
+    if request.method == 'GET':
+      form = forms.ReservationMessageForm(initial={'reservation': reservation, 'created_by':request.user.userProfile})
+      return form
+
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ReservationMessageForm(data)
+      if form.is_valid():
+        savedMessage = form.save()
+        if request.is_ajax():
+          response_data = {}
+          response_data['success'] = True
+          context= {'reservationMessage': savedMessage}
+          response_data['html'] = render_to_string('bcse_app/ReservationMessage.html', context, request)
+          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        else:
+          newForm = forms.ReservationMessageForm(initial={'reservation': reservation, 'created_by':request.user.userProfile})
+          return newForm
+      else:
+        print(form.errors)
+        if request.is_ajax():
+          response_data = {}
+          response_data['success'] = False
+          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        else:
+          messages.error(request, "Please correct the errors below and click Post again")
+          return form
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Reservation.DoesNotExist:
+    messages.error(request, 'Reservation not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 
 ####################################
