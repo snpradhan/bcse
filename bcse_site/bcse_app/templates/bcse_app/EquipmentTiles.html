@@ -1,0 +1,19 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% if equipment_types %}
+  <div class="tiles equipment_tiles">
+    {% for equipment in equipment_types %}
+      <div class="tile equipment_tile">
+        <div class="image">
+          {% if equipment.image and equipment.image.url %}
+            <img class="preview" src="{{equipment.image.url}}">
+          {% endif %}
+        </div>
+        <div class="title">
+          <h5 class="center">{{equipment.name}}</h5>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

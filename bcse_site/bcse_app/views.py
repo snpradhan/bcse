@@ -46,6 +46,20 @@ def adminConfiguration(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+####################################
+# BAXTER BOX INFO
+####################################
+def baxterBoxInfo(request):
+  try:
+    activities = models.Activity.objects.all().filter(status='A')
+    equipment_types = models.EquipmentType.objects.all().filter(status='A')
+    context = {'activities': activities, 'equipment_types': equipment_types}
+    return render(request, 'bcse_app/BaxterBoxInfo.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 ####################################
 # USER LOGIN
 ####################################

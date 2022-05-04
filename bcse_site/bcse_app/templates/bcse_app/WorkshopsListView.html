@@ -4,7 +4,7 @@
   {% for workshop_obj in workshop_list %}
     {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
       <div class="workshop_container">
-        <div class="tile">
+        <div class="tile workshop_tile">
           <div class="image">
             {% if workshop.image %}
             <img src="{{workshop.image.url}}"/>

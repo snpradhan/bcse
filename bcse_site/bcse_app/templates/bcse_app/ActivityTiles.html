@@ -1,0 +1,19 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% if activities %}
+  <div class="tiles activity_tiles">
+    {% for activity in activities %}
+      <div class="tile activity_tile">
+        <div class="image">
+          {% if activity.image and activity.image.url %}
+            <img class="preview" src="{{activity.image.url}}">
+          {% endif %}
+        </div>
+        <div class="title">
+          <h5 class="center">{{activity.name}}</h5>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

@@ -1,0 +1,46 @@
+{% extends "bcse_app/base.html" %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="baxter_box_info container">
+      <h1> The Baxter Box Program </h1>
+      <h2>Borrow equipment and get up to 4 lab kits per reservation FREE for attending our workshops!</h2>
+      <p>We want to make sure teachers who attend our workshops are able to do the labs they learn with us in their classroom without worrying about the cost! That’s why we developed the Baxter Box Program. As soon as you know when you want to do a lab, simply request the kits and reserve the equipment below.</p>
+
+      <p>If you’re interested in more online resources to support lab implementation, check out these asynchronous learning opportunities!</p>
+      <h3 class="center">Questions? Contact <a href="mailto:bcse@northwestern.edu">bcse@northwestern.edu</a>
+      </h3>
+
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <label><a class="nav-link" aria-current="page" id="activities_tab">Activities</a></label>
+        </li>
+        <li class="nav-item">
+          <label><a class="nav-link" aria-current="page" id="equipment_tab">Lab Equipment</a></label>
+        </li>
+      </ul>
+      {% include "bcse_app/ActivityTiles.html" %}
+      {% include "bcse_app/EquipmentTiles.html" %}
+    </div>
+
+    <script type="text/javascript">
+      $(function(){
+        $('a#activities_tab').on('click', function(e){
+          $('a.nav-link').removeClass('active');
+          $('.tiles').hide();
+          $(this).addClass('active');
+          $('.tiles.activity_tiles').show();
+        });
+        $('a#equipment_tab').on('click', function(e){
+          $('a.nav-link').removeClass('active');
+          $('.tiles').hide();
+          $(this).addClass('active');
+          $('.tiles.equipment_tiles').show();
+        });
+        $('a#activities_tab').trigger('click');
+      });
+    </script>
+  </div>
+
+{% endblock %}

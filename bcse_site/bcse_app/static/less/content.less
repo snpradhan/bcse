@@ -2,6 +2,9 @@
 
 body {
   font-family : din-2014, sans-serif !important;
+  /*****************************
+  * HEADER TEXT
+  ******************************/
   h1 {
     font-style: normal;
     font-weight: 700;
@@ -45,10 +48,15 @@ body {
     font-weight: bold;
   }
 
+  /*****************************
+  * LINKS AND BUTTON
+  ******************************/
+
   a {
     color: inherit;
     text-decoration: unset;
   }
+
   .btn {
     font-family: din-2014, sans-serif !important;
     font-weight: bold !important;
@@ -75,12 +83,18 @@ body {
   .underline {
     text-decoration: underline;
   }
-
+  /*****************************
+  * TABS
+  ******************************/
   ul.nav-tabs {
     li.nav-item.right {
       margin-left: auto;
     }
   }
+
+  /*****************************
+  * DATE TIME PICKER
+  ******************************/
   div.ui-datepicker.ui-widget {
     font-size: 1em !important;
   }
@@ -88,6 +102,9 @@ body {
     font-size: 0.85em !important;
   }
 
+  /*****************************
+  * IMAGE
+  ******************************/
   img.icon {
     width: 6em;
     height: auto;
@@ -101,6 +118,62 @@ body {
   div.image_preview {
     margin-bottom: 0.5em;
   }
+  div#spinner {
+    display: none;
+    text-align: center;
+    img {
+      width: 2em;
+      height: 2em;
+    }
+  }
+
+  /*****************************
+  * ALIGNMENT
+  ******************************/
+  /* header alignment */
+  .center {
+    text-align: center;
+  }
+  .left {
+    text-align: left;
+  }
+  .right {
+    text-align: right;
+  }
+
+  /*****************************
+  * FORM
+  ******************************/
+  form {
+    .form-group {
+      label {
+        font-weight: bold;
+        .required {
+          color: red;
+        }
+      }
+      .django-ckeditor-widget {
+        width: 100%;
+      }
+    }
+  }
+
+  /*****************************
+  * TILE
+  ******************************/
+  .tile {
+    background-color: white;
+    border: 1px solid gray;
+    border-radius: 20px;
+
+    & > * {
+      padding: 1em;
+    }
+  }
+
+ /*****************************
+  * CONTENT
+  ******************************/
 
   div.content {
 
@@ -121,12 +194,18 @@ body {
       }
     }
 
+    /*****************************
+    * BUTTON ROW
+    ******************************/
     div.button-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 1em;
     }
 
+    /*****************************
+    * FILTERS
+    ******************************/
     div#filter_toggle label {
       cursor: pointer;
     }
@@ -142,6 +221,10 @@ body {
       }
     }
 
+    /*****************************
+    * PAGINATION
+    ******************************/
+
     div.paginate {
       width: 100%;
       font-weight: 700;
@@ -154,11 +237,17 @@ body {
       }
     }
 
+    /*****************************
+    * RESERVATION
+    ******************************/
     div#reservation_container {
       display: flex;
       justify-content: space-between;
       gap: 1em;
 
+      /*****************************
+      * RESERVATION FORM START
+      ******************************/
       div.reservation_form {
         flex: 1 1 47%;
       }
@@ -197,7 +286,9 @@ body {
             }
           }
         }
-
+        /*****************************
+        * AVAILABILITY CALENDAR
+        ******************************/
         div.availability_calendar {
           div.legends {
             display: flex;
@@ -249,8 +340,13 @@ body {
           }
         }
       }
+      /*****************************
+      * RESERVATION FORM END
+      ******************************/
 
-      /* reservation confirmation page */
+     /*****************************
+      * RESERVATION CONFIRMATION START
+      ******************************/
       div.reservation_contact_details {
         flex: 0 0 60%;
         border-right: 2px solid #cccccc;
@@ -331,10 +427,18 @@ body {
             }
           }
         }
-
       }
+      /*****************************
+      * RESERVATION CONFIRMATION END
+      ******************************/
     }
+    /*****************************
+    * RESERVATION END
+    ******************************/
 
+    /*****************************
+    * USER PROFILE START
+    ******************************/
     div#user_profile_container {
       display: flex;
       justify-content: space-between;
@@ -376,16 +480,71 @@ body {
         }
       }
     }
+    /*****************************
+    * USER PROFILE END
+    ******************************/
+
+    /*****************************
+    * WORKSHOP START
+    ******************************/
+
+    /* WORKSHOP LIST */
     div.workshops_container {
       div.workshop_container {
         margin-bottom: 2em;
       }
     }
+
+    /* SINGLE WORKSHOP */
     div.workshop_container {
 
-      .tile.workshop_header {
-        margin-bottom: 1em;
+      .tile.workshop_tile {
+        display: flex;
+        flex-wrap: wrap;
+        position: relative;
+
+        &.workshop_header {
+          margin-bottom: 1em;
+        }
+
+        .image {
+          flex: 0 0 25%;
+          position: relative;
+
+          img {
+            width: 100%;
+            height: auto;
+          }
+        }
+
+        .details {
+          flex: 0 0 50%;
+        }
+        .date_location {
+          flex: 0 0 25%;
+          border-left: 1px dashed @nu-light-purple;
+          .fab, .far, .fas {
+            font-size: 1.5em;
+            color: @nu-purple;
+            margin-right: 0.5em;
+          }
+
+          div.start, div.end, div.location, div.message {
+            margin-bottom: 1em;
+            font-weight: 600;
+            font-size: 1.1em;
+          }
+          div.workshop_registration {
+            margin-top: 2em;
+
+            div.message {
+              text-align: center;
+            }
+          }
+
+        }
       }
+
       .workshop_content {
         margin-bottom: 1em;
       }
@@ -406,11 +565,21 @@ body {
         }
       }
     }
+    /*****************************
+    * WORKSHOP END
+    ******************************/
+
+    /*****************************
+    * ADMIN CONFIG START
+    ******************************/
     div.admin_config_container {
       max-width: 100%;
       display: flex;
       justify-content: space-between;
 
+      /*****************************
+      * ADMIN LEFT NAV
+      ******************************/
       div.left-navigation {
         font-weight: 700;
         flex: 0 0 15%;
@@ -434,12 +603,54 @@ body {
           }
         }
       }
+      /*****************************
+      * ADMIN RIGHT CONTENT
+      ******************************/
       div.right-content {
         flex: 0 0 85%;
         padding-left: 1em;
         width: 80%;
       }
     }
+    /*****************************
+    * ADMIN CONFIG EMD
+    ******************************/
+
+    /*****************************
+    * BAXTER BOX START
+    ******************************/
+    div.baxter_box_info {
+
+      div.tiles {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1em;
+
+        div.tile {
+          width: 15em;
+          height: 15em;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+
+          div.image {
+            text-align: center;
+            img.preview {
+              width: 10em;
+              height: auto;
+            }
+            overflow-y: hidden;
+          }
+        }
+      }
+    }
+
+    /*****************************
+    * BAXTER BOX END
+    ******************************/
+
+
 
     ul.dropdown-menu {
       li {
@@ -470,91 +681,8 @@ body {
       transform: rotate(-90deg);
     }
 
-
-  }
-  div#spinner {
-    display: none;
-  }
-  /* header alignment */
-  .center {
-    text-align: center;
-  }
-  .left {
-    text-align: left;
-  }
-  .right {
-    text-align: right;
   }
 
-  form {
-    .form-group {
-      label {
-        font-weight: bold;
-        .required {
-          color: red;
-        }
-      }
-      .django-ckeditor-widget {
-        width: 100%;
-      }
-    }
-  }
-  .tile {
-    background-color: white;
-    border: 1px solid gray;
-    border-radius: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    position: relative;
-
-    .image {
-      flex: 0 0 25%;
-      position: relative;
-      padding: 1em;
-
-      img {
-        width: 100%;
-        height: auto;
-      }
-    }
-
-    .details {
-      flex: 0 0 50%;
-      padding: 1em;
-    }
-    .date_location {
-      flex: 0 0 25%;
-      padding: 1em;
-      border-left: 1px dashed @nu-light-purple;
-      .fab, .far, .fas {
-        font-size: 1.5em;
-        color: @nu-purple;
-        margin-right: 0.5em;
-      }
-
-      div.start, div.end, div.location, div.message {
-        margin-bottom: 1em;
-        font-weight: 600;
-        font-size: 1.1em;
-      }
-      div.workshop_registration {
-        margin-top: 2em;
-
-        div.message {
-          text-align: center;
-        }
-      }
-
-    }
-  }
-
-  div#spinner {
-    text-align: center;
-    img {
-      width: 2em;
-      height: 2em;
-    }
-  }
   @media only screen and (max-width: 767px) {
     .tile {
       display: block;
