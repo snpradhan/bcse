@@ -4,7 +4,7 @@
 {% if equipment_types %}
   <div class="tiles equipment_tiles">
     {% for equipment in equipment_types %}
-      <div class="tile equipment_tile">
+      <div class="tile equipment_tile modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment.id %}">
         <div class="image">
           {% if equipment.image and equipment.image.url %}
             <img class="preview" src="{{equipment.image.url}}">

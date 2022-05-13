@@ -86,11 +86,15 @@ body {
   /*****************************
   * TABS
   ******************************/
+  ul {
+    list-style-position: inside;
+  }
   ul.nav-tabs {
     li.nav-item.right {
       margin-left: auto;
     }
   }
+
 
   /*****************************
   * DATE TIME PICKER
@@ -623,11 +627,12 @@ body {
 
       div.tiles {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         flex-wrap: wrap;
-        gap: 1em;
+        gap: 3em;
 
         div.tile {
+          flex: 0 0 20%;
           width: 15em;
           height: 15em;
           display: flex;

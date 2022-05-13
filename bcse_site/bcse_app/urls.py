@@ -52,6 +52,8 @@ urlpatterns = [
     path('adminConfiguration/equipmentType/<int:id>/delete', views.equipmentTypeDelete, name='equipmentTypeDelete'),
     path('adminConfiguration/equipmentType/new', views.equipmentTypeEdit, name='equipmentTypeNew'),
     path('adminConfiguration/equipmentTypes/', views.equipmentTypes, name='equipmentTypes'),
+    path('equipmentType/<int:id>/view', views.equipmentTypeView, name='equipmentTypeView'),
+
 
     path('adminConfiguration/equipment/<int:id>/edit', views.equipmentEdit, name='equipmentEdit'),
     path('adminConfiguration/equipment/<int:id>/delete', views.equipmentDelete, name='equipmentDelete'),

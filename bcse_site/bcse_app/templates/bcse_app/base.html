@@ -63,7 +63,7 @@
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Baxter Box Program</a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:baxterBoxInfo' %}">
-                      <a class="dropdown-item" href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box Program Info</a>
+                      <a class="dropdown-item" href="{% url 'bcse:baxterBoxInfo' %}">Make a Reservation</a>
                     </li>
                     {% if user.is_authenticated %}
                       <li class="{% navactive request 'bcse:reservations' %}">
@@ -179,7 +179,7 @@
       <div class="modal" id="signup" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
       <div class="modal" id="workshop_registration" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
       <div class="modal" id="password" role="dialog"></div>
-      <div class="modal" id="curriculumModal" role="dialog"></div>
+      <div class="modal" id="kit" role="dialog"></div>
       <div class="modal" id="profile" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
       <div class="modal" id="validate" role="dialog"></div>
     {% endblock %}

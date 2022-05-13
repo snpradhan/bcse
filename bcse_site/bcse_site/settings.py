@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-5rzd8xmwjp_&3txyul)evn(v*p@g&2aa%ax9t=5n$%cas&l=s#
 ALLOWED_HOSTS = ['*']
 SITE_ID = 1
 
+LOGIN_URL = '/signin'
+
 # Application definition
 
 INSTALLED_APPS = [

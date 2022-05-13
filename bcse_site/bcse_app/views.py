@@ -66,7 +66,7 @@ def baxterBoxInfo(request):
 def userSignin(request, user_email=''):
   email = password = ''
   print(request.method)
-  redirect_url = request.GET.get('next', '')
+  redirect_url = request.GET.get('next', '/')
   if request.method == 'POST':
     data = request.POST.copy()
     form = forms.SignInForm(data)
@@ -80,7 +80,7 @@ def userSignin(request, user_email=''):
         login(request, user)
         messages.success(request, "You have signed in")
         response_data['success'] = True
-        response_data['redirect_url'] = '/'
+        response_data['redirect_url'] = redirect_url
       else:
         messages.error(request, 'Your account has not been activated')
         context = {'form': form, 'redirect_url': redirect_url}
@@ -184,7 +184,7 @@ def userSignup(request):
             else:
               print(work_place_form.errors)
               user.delete()
-              context = {'form': form, 'work_place_form': work_place_form}
+              context = {'form': form, 'work_place_form': work_place_form, 'redirect_url': redirect_url}
               response_data['success'] = False
               response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
               return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -209,13 +209,9 @@ def userSignup(request):
           response_data['success'] = True
           messages.success(request, 'Your account has been successfully created. You may now login with your email and password.')
           #messages.success(request, 'An email has been sent to %s to validate your account.  Please validate your account with in 24 hours.' % newUser.user.email);
-
         else:
           response_data['success'] = False
           messages.error(request, 'Sorry you cannot create this user account')
-
-        response_data['redirect_url'] = '/'
-
       else:
         messages.success(request, '%s account has been created.' % newUser.get_user_role_display())
         #send_account_by_admin_confirmation_email(newUser, form.cleaned_data['password1'])
@@ -224,7 +220,7 @@ def userSignup(request):
     else:
       print(form.errors)
       work_place_form.is_valid()
-      context = {'form': form, 'work_place_form': work_place_form }
+      context = {'form': form, 'work_place_form': work_place_form}
       response_data['success'] = False
       response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
 
@@ -313,14 +309,20 @@ def activityView(request, id=''):
       raise CustomException('Activity does not exist')
 
     if request.method == 'GET':
-      context = {'activity': activity}
+
       if request.is_ajax():
-        response_data = {}
-        response_data['success'] = True
-        response_data['kit_name'] = activity.kit_name
-        response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
-        return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        context = {'activity': activity}
+        if 'reservation' in request.META.get('HTTP_REFERER'):
+          response_data = {}
+          response_data['success'] = True
+          response_data['kit_name'] = activity.kit_name
+          response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
+          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        else:
+          context = {'title': activity.kit_name, 'kit': activity}
+          return render(request, 'bcse_app/BaxterBoxKitModal.html', context)
       else:
+        context = {'activity': activity}
         return render(request, 'bcse_app/ActivityBaseView.html', context)
 
     return http.HttpResponseNotAllowed(['GET'])
@@ -430,6 +432,27 @@ def equipmentTypeDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# VIEW EQUIPMENT TYPE
+####################################
+def equipmentTypeView(request, id=''):
+
+  try:
+    if '' != id:
+      equipment_type = models.EquipmentType.objects.get(id=id)
+    else:
+      raise CustomException('Equipment does not exist')
+
+    if request.method == 'GET':
+      if request.is_ajax():
+        context = {'title': equipment_type.name, 'kit': equipment_type}
+        return render(request, 'bcse_app/BaxterBoxKitModal.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # EQUIPMENT LIST
@@ -558,6 +581,7 @@ def reservations(request):
 ####################################
 # EDIT RESERVATION
 ####################################
+@login_required
 def reservationEdit(request, id=''):
   try:
     if request.user.is_anonymous:

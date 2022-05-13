@@ -106,6 +106,7 @@
               <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}</label>
               <div class="error">{{ form.additional_help_needed.errors }}</div>
             </div>
+
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">
                 <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
