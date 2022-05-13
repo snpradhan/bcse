@@ -42,6 +42,10 @@
                 </button>
                 <ul class="dropdown-menu">
                   <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment_type.id %}">View</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
                     <a class="dropdown-item" href="{% url 'bcse:equipmentTypeEdit' equipment_type.id %}">Edit</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
