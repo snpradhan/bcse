@@ -338,6 +338,7 @@ class ReservationForm(ModelForm):
       self.fields['equipment_types'].initial = initial
       self.fields['user'].widget.attrs['disabled'] = True
 
+    self.fields['equipment_types'].label = 'Select one or more equipment'
     self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
     self.fields['other_activity'].label = 'I am doing something not listed here.'
     self.fields['other_activity_name'].label = 'What activity are you planning to do?'
@@ -345,6 +346,7 @@ class ReservationForm(ModelForm):
     self.fields['num_of_students'].label = 'How many students will be doing this activity?'
     self.fields['num_of_classes'].label = 'Number of classes'
     self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
+    self.fields['notes'].label = 'Please provide any additional information that would be useful, such as your preferred pick-up and return times, and any directions for parking and entering your school.'
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()

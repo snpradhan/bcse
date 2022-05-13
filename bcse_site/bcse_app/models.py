@@ -309,7 +309,7 @@ class Reservation(models.Model):
   equipment = models.ManyToManyField(Equipment, null=True, blank=True)
   delivery_date = models.DateField(null=False, help_text="The date the equipment/kit will be delivered/picked up")
   return_date = models.DateField(null=True, blank=True, help_text="The date the equipment will be returned")
-  notes = models.CharField(null=True, blank=True, max_length=256, help_text='Any additional information')
+  notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   additional_help_needed = models.BooleanField(default=False)
   status = models.CharField(default='R', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)

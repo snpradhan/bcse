@@ -43,9 +43,11 @@
                   <th>Reserved Lab Equipment:</th>
                   <td>
                     {% if reservation.equipment %}
+                    <ul>
                       {% for equipment in reservation.equipment.all %}
-                        {{equipment}}
+                        <li>{{equipment}}</li>
                       {% endfor %}
+                    </ul>
                     {% endif %}
                   </td>
                 </tr>
@@ -55,11 +57,16 @@
                 </tr>
                 <tr>
                   <th>Reservation Dates:</th>
-                  <td>{{reservation.delivery_date|date:"F j, Y"}} to {{reservation.return_date|date:"F j, Y"}}</td>
+                  <td>
+                    {{reservation.delivery_date|date:"F j, Y"}}
+                    {% if reservation.return_date %}
+                      to {{reservation.return_date|date:"F j, Y"}}
+                    {% endif %}
+                  </td>
                 </tr>
                 <tr>
                   <th>Pickup/Return Notes:</th>
-                  <td>{{reservation.notes}}</td>
+                  <td>{{reservation.notes|default_if_none:""}}</td>
                 </tr>
                 <tr>
                   <th>Reservation Status:</th>
