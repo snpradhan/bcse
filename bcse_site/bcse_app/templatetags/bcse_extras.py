@@ -70,3 +70,24 @@ def get_checked_out_equipment_count(equipment_type):
     return checked_out_equipment
   else:
     return 0
+
+@register.filter
+def get_reservation_all_message_count(reservation, userProfile):
+  reservation_messages = models.ReservationMessage.objects.all().filter(reservation=reservation)
+  total_message_count = reservation_messages.count()
+  return total_message_count
+
+@register.filter
+def get_reservation_new_message_count(reservation, userProfile):
+  reservation_messages = models.ReservationMessage.objects.all().filter(reservation=reservation)
+  new_message_count = reservation_messages.exclude(created_by=userProfile).exclude(viewed_by=userProfile).count()
+  return new_message_count
+
+@register.filter
+def get_all_reservations_new_message_count(userProfile):
+  reservation_messages = models.ReservationMessage.objects.all()
+  if userProfile.user_role in ['T', 'P']:
+    reservation_messages = reservation_messages.filter(reservation__user=userProfile)
+    print(reservation_messages)
+  new_message_count = reservation_messages.exclude(created_by=userProfile).exclude(viewed_by=userProfile).count()
+  return new_message_count

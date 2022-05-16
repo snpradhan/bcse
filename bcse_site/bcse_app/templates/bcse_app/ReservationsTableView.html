@@ -12,6 +12,7 @@
         <th> Activity </th>
         <th> Kit </th>
         <th> Equipment </th>
+        <th> Comments<br>(New/Total)</th>
         <th> Delivery Date </th>
         <th> Return Date </th>
         <th> # of Students </th>
@@ -53,6 +54,17 @@
                 </li>
               {% endfor %}
             </ul>
+          </td>
+          <td>
+            {% with all_message_count=reservation|get_reservation_all_message_count:user.userProfile new_message_count=reservation|get_reservation_new_message_count:user.userProfile %}
+              {% if all_message_count %}
+                {% if new_message_count %}
+                  <a href="{% url 'bcse:reservationView' reservation.id %}"><strong>{{new_message_count}}</strong></a>/{{all_message_count}}
+                {% else %}
+                  {{all_message_count}}
+                {% endif %}
+              {% endif %}
+            {% endwith %}
           </td>
           <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
           <td>{{reservation.return_date|date:"F j, Y"}}</td>

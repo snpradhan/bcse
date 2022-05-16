@@ -13,6 +13,9 @@
     <div class="author_name_date">
       <div class="author_name">{{reservationMessage.created_by.user.get_full_name}}</div>
       <div class="message_date">{{reservationMessage.created_date|date:"F j, Y g:i A"}}</div>
+      {% if new_message %}
+        <div class="new_message"><i class="fa fa-envelope"></i></div>
+      {% endif %}
     </div>
     <div class="reservation_message">
       {{reservationMessage.message|safe}}

@@ -675,6 +675,12 @@ def reservationView(request, id=''):
       reservation_messages_html = []
       for reservation_message in reservation_messages:
         context= {'reservationMessage': reservation_message}
+        if request.user.userProfile not in reservation_message.viewed_by.all() and request.user.userProfile != reservation_message.created_by:
+          context['new_message'] = True
+          reservation_message.viewed_by.add(request.user.userProfile)
+        else:
+          context['new_message'] = False
+
         reservation_messages_html.append(render_to_string('bcse_app/ReservationMessage.html', context, request))
       context = {'reservation': reservation, 'form': form, 'reservation_messages_html': reservation_messages_html}
       return render(request, 'bcse_app/ReservationView.html', context)

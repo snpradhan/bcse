@@ -60,7 +60,13 @@
                   </ul>
                 </li>
                 <li class="nav-item dropdown {% navactive request 'bcse:reservations' %}">
-                  <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Baxter Box Program</a>
+                  {% with new_message_count=user.userProfile|get_all_reservations_new_message_count %}
+                  <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                    Baxter Box Program
+                    {% if new_message_count %}
+                      <span class="badge rounded-pill bg-danger">{{new_message_count}}</span>
+                    {% endif %}
+                  </a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:baxterBoxInfo' %}">
                       <a class="dropdown-item" href="{% url 'bcse:baxterBoxInfo' %}">Make a Reservation</a>
@@ -73,10 +79,14 @@
                           {% else %}
                             User Reservations
                           {% endif %}
+                          {% if new_message_count %}
+                            <span class="badge rounded-pill bg-danger">{{new_message_count}}</span>
+                          {% endif %}
                         </a>
                       </li>
                     {% endif %}
                   </ul>
+                  {% endwith %}
                 </li>
                 <li class="nav-item">
                   <a class="nav-link">Student Programs</a>
