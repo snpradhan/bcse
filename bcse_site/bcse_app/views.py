@@ -24,6 +24,9 @@ import os
 from mailchimp_marketing import Client
 from mailchimp_marketing.api_client import ApiClientError
 import hashlib
+from django.db.models import Q, F
+from django.core.mail import EmailMessage
+from django.contrib.sites.models import Site
 
 
 # Create your views here.
@@ -630,6 +633,7 @@ def reservationEdit(request, id=''):
               messages.success(request, "Reservation saved")
             else:
               messages.success(request, "Reservation made")
+              send_reservation_confirmation_email(request, savedReservation)
 
             return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
           else:
@@ -644,6 +648,8 @@ def reservationEdit(request, id=''):
             messages.success(request, "Reservation saved")
           else:
             messages.success(request, "Reservation made")
+            send_reservation_confirmation_email(request, savedReservation)
+
           return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
       else:
         print(form.errors)
@@ -713,6 +719,7 @@ def reservationMessage(request, id=''):
       form = forms.ReservationMessageForm(data)
       if form.is_valid():
         savedMessage = form.save()
+        send_reservation_message_email(request, savedMessage)
         if request.is_ajax():
           response_data = {}
           response_data['success'] = True
@@ -2252,3 +2259,36 @@ def subscription(userProfile, status, subscriber_hash=None):
 
   except ApiClientError as error:
     print("An exception occurred: {}".format(error.text))
+
+#####################################################
+# SEND A CONFIRMATION EMAIL TO ADMINS AND THE USER
+# WHEN A NEW RESERVATIONIS MADE
+#####################################################
+def send_reservation_confirmation_email(request, reservation):
+  current_site = Site.objects.get_current()
+  domain = current_site.domain
+  subject = 'Baxter Box Reservation Confirmed'
+
+  context = {'reservation': reservation, 'domain': domain}
+  body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
+  receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A', 'S']) | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+  email.content_subtype = "html"
+  email.send(fail_silently=True)
+
+
+#####################################################
+# SEND A NOTIFICATION EMAIL TO ADMINS AND THE USER
+# WHEN A NEW MESSAGE IS POSTED FOR A RESERVATION
+#####################################################
+def send_reservation_message_email(request, reservation_message):
+  current_site = Site.objects.get_current()
+  domain = current_site.domain
+  subject = 'You have a new message about your Baxter Box Reservation'
+
+  context = {'reservation_message': reservation_message, 'domain': domain}
+  body = get_template('bcse_app/EmailNewMessage.html').render(context)
+  receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A', 'S']) | Q(id=reservation_message.reservation.user.id)).exclude(id=reservation_message.created_by.id).values_list('user__email', flat=True)
+  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+  email.content_subtype = "html"
+  email.send(fail_silently=True)

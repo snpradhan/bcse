@@ -8,7 +8,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from ckeditor.fields import RichTextField
 from django.utils.crypto import get_random_string
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models import signals
+from django.db.models import signals, Q, F
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, m2m_changed, pre_delete
 from django.db.models.functions import Upper
@@ -20,6 +20,8 @@ import os
 from localflavor.us.models import USStateField
 from django.utils.timezone import make_aware
 from icalendar import Calendar, Event, vCalAddress, vText
+from django.template.loader import render_to_string, get_template
+from django.contrib.sites.models import Site
 
 # Create your models here.
 
@@ -374,7 +376,7 @@ def check_registration_status_change(sender, instance, **kwargs):
       email.attach_file(filename, 'text/calendar')
 
     email.content_subtype = "html"
-    email.send()
+    email.send(fail_silently=True)
   except RegistrationEmailMessage.DoesNotExist as e:
     pass
 

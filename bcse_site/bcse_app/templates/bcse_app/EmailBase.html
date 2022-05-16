@@ -1,0 +1,242 @@
+{% load base_extras %}
+{% load bcse_extras %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title> BCSE</title>
+      <style type="text/css">    
+        :root {
+           --nu-purple: #4e2a84;
+           --nu-light-purple: #E4E0EE;
+           --nu-mid-purple: #9380B6;
+           --bcse-gray: #767676;
+           --bcse-mid-gray: #cccccc;
+           --bcse-light-gray: #f9f9f9;
+           --bcse-error-red: #d8411d;
+           --bcse-success-green: #3d7610;
+           --bcse-black: #000000;
+           --bcse-white: #ffffff;
+           --bcse-light-yellow: #FFFFE0;
+           --bcse-email-gray: #97999B;
+           --baxter-kelly-green: #58AA18;
+         }
+         body {
+          font-family: din-2014, sans-serif;
+         }
+         div#header, div#message, div#footer {
+           width: 800px !important;
+           margin-left: auto;
+           margin-right: auto;
+         }
+         div#header {
+          margin-top: 0.5em;
+         }
+         div#footer {
+          padding: 2em 0 !important;
+         }
+         div#message {
+           background-color: #97999B;
+           margin-left: auto;
+           margin-right: auto;
+         }
+         div#text {
+           background-color: #97999B;
+           color: white;
+           font-size: 1.2em;
+           line-height: 1.5em;
+           padding: 2em;
+           margin-left: auto;
+           margin-right: auto;
+         }
+         div#info, div#dates, div#equipment, div#question, div#footer, div#feedback  {
+           background-color: #4e2a84;
+           color: white;
+           font-size: 1.2em;
+           line-height: 1.5em;
+           padding: 2em;
+           margin-bottom: 0.5em;
+           margin-left: auto;
+           margin-right: auto;
+           text-align: center;
+         }
+         div#feedback {
+          background-color: #97999B;
+         }
+         div#image_banner {
+           width: 800px;
+           height: 9em;
+           background-position: center;
+           background-repeat: no-repeat;
+           background-size: 100% auto;
+           background-image: url(https://bcoe.s3.amazonaws.com/banner_logos/BCSEEvergreen2019.png);
+           background-color: white;
+           padding: 1em 0;
+         }
+         div.anniversary_banner {
+           background-color: #4e2a84;
+           color: white;
+           text-align: center;
+           vertical-align: middle;
+           font-size: 1.5em;
+           font-weight: 500;
+           padding: 0.5em 0;
+           font-family: Raleway, sans-serif
+         }
+         div#question {
+          background-color: #58AA18;
+         }
+         div#info div#edit, div#question div#mail {
+           margin-top: 1em;
+           font-style: bold;
+         }
+         div#placeholder_logo {
+           border: 3px solid white;
+           border-radius: 10%;
+           font-weight: 700;
+           font-size: 3em;
+           line-height: 1.5em;
+           width: 1.5em;
+           height: 1.5em;
+           margin-left: auto;
+           margin-right: auto;
+           color: white;
+         }
+         div#dates {
+          background-color: #97999B;
+         }
+         div#dates table, div#equipment table {
+           width: 85%;
+           margin-left: auto;
+           margin-right: auto;
+         }
+         table.address {
+           width: 100% !important;
+         }
+         table.address tr.fromto {
+           font-size: 0.9em;
+         }
+         table.address tr.fromto td {
+           vertical-align: top;
+         }
+         div#dates table tr.row td.col, div#equipment table tr.row td.col {
+           border-top: 1px solid white;
+           padding: 1em 0;
+         }
+         table tr.row td.col.left {
+           border-right: 1px solid white;
+           margin-right: 1em;
+         }
+         table tr.row td.col.right {
+           border-left: 1px solid white;
+           margin-left: 1em;
+         }
+         div#dates table tr.row.address {
+           height: auto;
+         }
+         tr.row td.col.title {
+           width: 30%;
+           font-weight: bold;
+         }
+         tr.row td.col.details {
+           width: 60%;
+           height: auto;
+         }
+         tr.row td.col.details div.title {
+           font-weight: 600;
+         }
+         div#footer div#logo {
+           margin-top: 2em;
+         }
+         div#footer div#logo a {
+           margin-left: 10%;
+           margin-right: 10%;
+           text-decoration: none;
+         }
+         div#footer div#logo a img {
+           width: 4em;
+           height: auto;
+         }
+         a {
+           color: white;
+           font-weight: 600;
+         }
+         h3 {
+           font-weight: 500;
+           font-size: 2em;
+           color: white;
+         }
+         div.tile {
+           border-radius: 0.5em;
+           margin: 0.5em;
+           padding: 0.5em;
+           display: inline-block;
+           width: 10em;
+           max-width: 100%;
+           background-color: white;
+         }
+         div.tile div.image {
+           margin: 0.5em;
+           text-align: center;
+         }
+         div.tile div.image img.preview {
+           width: 8em;
+         }
+         div.tile div.title {
+           text-align: center;
+           color: #4e2a84;
+           font-weight: 600;
+           font-size: 0.9em;
+         }
+         div {
+           color: white;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="header">
+         <table cellspacing="0">
+            <tbody>
+               <tr>
+               <td>
+                  <div class="anniversary_banner">FOSTERING TOMORROW'S INNOVATORS SINCE 2009 
+                  </div>
+               </td>
+               </tr>
+               <tr>
+                  <td>
+                     <div id="image_banner"></div>
+                  </td>
+               </tr>
+            </tbody>            
+         </table>
+      </div>
+      <div id="message">
+         {% block emailbody %}
+         {% endblock %}
+      </div>
+      <div id="footer">
+         <div id="signature">
+            <div>BCSE Team</div>
+            <div>The Baxter Center for Science Education 
+            </div>
+            <div>Northwestern University </div>
+            <div><a href="http://bcse.northwestern.edu" style="color:white;">bcse.northwestern.edu</a></div>
+            <div>Questions? Email: <a href="mailto:bcse@northwestern.edu" target="_top" style="color: white;">bcse@northwestern.edu </a>
+            </div>
+         </div>
+         <div id="logo">
+          <a href="https://twitter.com/BCSE_NU">
+            <img alt="" src="https://s3.amazonaws.com/bcoe/social/twitter.png"> 
+          </a>
+          <a href="https://www.facebook.com/bcse.nu/">
+            <img alt="" src="https://s3.amazonaws.com/bcoe/social/facebook.png"> 
+          </a>
+          <a href="https://www.instagram.com/bcse_n">
+            <img alt="" src="https://s3.amazonaws.com/bcoe/social/instagram.png"> 
+          </a>
+         </div>
+      </div>
+   </body>
+</html>

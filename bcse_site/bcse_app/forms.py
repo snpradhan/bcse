@@ -305,7 +305,7 @@ class EquipmentForm(ModelForm):
 
 class ReservationForm(ModelForm):
   equipment_types = forms.ModelMultipleChoiceField(required=False,
-                                  queryset=models.EquipmentType.objects.all().filter(status='A').order_by('name'))
+                                  queryset=models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('name'))
  
   class Meta:
     model = models.Reservation
