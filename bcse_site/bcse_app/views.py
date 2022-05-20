@@ -595,6 +595,14 @@ def reservationEdit(request, id=''):
     else:
       reservation = models.Reservation(created_by=request.user.userProfile)
 
+    reservation_settings = {}
+    reservation_settings['reservation_delivery_days'] = settings.BAXTER_BOX_DELIVERY_DAYS
+    reservation_settings['reservation_return_days'] = settings.BAXTER_BOX_RETURN_DAYS
+    reservation_settings['reservation_min_days'] = settings.BAXTER_BOX_MIN_RESERVATION_DAYS
+    reservation_settings['reservation_max_days'] = settings.BAXTER_BOX_MAX_RESERVATION_DAYS
+    reservation_settings['reservation_min_advance_days'] = settings.BAXTER_BOX_MIN_ADVANCE_RESERVATION_DAYS
+    reservation_settings['reservation_max_advance_days'] = settings.BAXTER_BOX_MAX_ADVANCE_RESERVATION_DAYS
+    reservation_settings['reservation_reminder_days'] = settings.BAXTER_BOX_RESERVATION_REMINDER_DAYS
 
     if request.method == 'GET':
       if request.user.userProfile.user_role in ['T', 'P']:
@@ -602,7 +610,7 @@ def reservationEdit(request, id=''):
       else:
         form = forms.ReservationForm(instance=reservation, user=request.user.userProfile)
 
-      context = {'form': form}
+      context = {'form': form, 'reservation_settings': reservation_settings}
 
       return render(request, 'bcse_app/ReservationEdit.html', context)
 
@@ -638,7 +646,7 @@ def reservationEdit(request, id=''):
             return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
           else:
             messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
-            context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar }
+            context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar, 'reservation_settings': reservation_settings }
             return render(request, 'bcse_app/ReservationEdit.html', context)
         else:
           savedReservation = form.save()
@@ -654,7 +662,7 @@ def reservationEdit(request, id=''):
       else:
         print(form.errors)
         messages.error(request, "Please correct the errors below and click Save again")
-        context = {'form': form}
+        context = {'form': form, 'reservation_settings': reservation_settings}
         return render(request, 'bcse_app/ReservationEdit.html', context)
     return http.HttpResponseNotAllowed(['GET', 'POST'])
 

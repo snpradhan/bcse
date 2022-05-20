@@ -103,3 +103,25 @@ def get_all_reservations_new_message_count(userProfile):
 
   return new_message_count
 
+@register.filter
+def get_days_of_week(daysofweek):
+  days_of_week = []
+  week_days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+  for day in daysofweek:
+    days_of_week.append(week_days[day])
+
+  return "{} and {}".format(", ".join(days_of_week[:-1]),  days_of_week[-1])
+
+@register.filter
+def is_future(dt):
+  if dt > datetime.datetime.now().date():
+    return True
+  else:
+    return False
+
+@register.filter
+def is_past(dt):
+  if dt < datetime.datetime.now().date():
+    return True
+  else:
+    return False

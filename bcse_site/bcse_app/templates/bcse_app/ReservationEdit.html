@@ -40,12 +40,12 @@
               <div class="error">{{ form.other_activity.errors }}</div>
             </div>
             <div class="form-group mb-4">
-              <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}}</label>
+              <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}} <span class="required">*</span></label>
               <div>{{form.other_activity_name}}</div>
               <div class="error">{{ form.other_activity_name.errors }}</div>
             </div>
             <div class="form-group mb-4">
-              <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}}</label>
+              <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}} <span class="required">*</span></label>
               <div>{{form.num_of_classes}}</div>
               <div class="error">{{ form.num_of_classes.errors }}</div>
             </div>
@@ -65,7 +65,7 @@
               <div class="error">{{ form.num_of_students.errors }}</div>
             </div>
 
-            <div class="form-group form-check mb-4">
+            <div class="form-group form-check mb-2">
               <div>{{form.equipment_not_needed}}</div>
               <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}</label>
               <div class="error">{{ form.equipment_not_needed.errors }}</div>
@@ -75,9 +75,9 @@
               <div>{{form.equipment_types}}</div>
               <div class="error">{{ form.equipment_types.errors }}</div>
             </div>
-            <div class="form-group mb-4 row">
+            <div class="form-group mb-2 row">
               <div class="col">
-                <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label|title}}</label>
+                <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label|title}} <span class="required">*</span></label>
                 <div class="input-group">
                   {{form.delivery_date}}
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
@@ -85,7 +85,7 @@
                 <div class="error">{{ form.delivery_date.errors }}</div>
               </div>
               <div class="col">
-                <label for="id_{{form.return_date.name}}" class="form-label"> {{form.return_date.label|title}}</label>
+                <label for="id_{{form.return_date.name}}" class="form-label"> {{form.return_date.label|title}} <span class="required">*</span></label>
                 <div class="input-group">
                   {{form.return_date}}
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
@@ -93,9 +93,25 @@
                 <div class="error">{{ form.return_date.errors }}</div>
               </div>
             </div>
+            <div class="form-group mb-2 warning">
+               {% if user.userProfile.user_role in 'AS' %}
+                <label>The restrictions below apply only to non-admins.</label>
+               {% endif %}
+               <ul>
+                  {% if reservation_settings.reservation_delivery_days %}
+                    <li>Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.</li>
+                  {% endif %}
+                  {% if reservation_settings.reservation_return_days %}
+                    <li>Baxter Boxes are picked up on {{reservation_settings.reservation_return_days|get_days_of_week}} only.</li>
+                  {% endif %}
+                  <li>Reservations dates need to be between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.</li>
+                  <li>Reservations need to be for a minimum of {{reservation_settings.reservation_min_days}} days and can be for a maximum of  {{reservation_settings.reservation_max_days}} days at a time.</li>
+               </ul>
+            </div>
             <div class="form-group mb-4">
-            <button class="btn btn-warning" type="button" id="check_availability">Check Availibility</button>
-          </div>
+              <button class="btn" type="button" id="check_availability">Check Availibility</button>
+              <button class="btn" type="button" id="clear_dates">Clear Dates</button>
+            </div>
             <div class="form-group mb-4">
               <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label}}</label>
               <div>{{form.notes}}</div>
@@ -146,6 +162,37 @@
 
   <script type="text/javascript">
     $(function (){
+      var reservation_delivery_days = {{reservation_settings.reservation_delivery_days}};
+      var reservation_return_days = {{reservation_settings.reservation_return_days}};
+      var reservation_min_advance_days = {{reservation_settings.reservation_min_advance_days}};
+      var reservation_max_advance_days = {{reservation_settings.reservation_max_advance_days}};
+      var user_role = "{{user.userProfile.user_role}}";
+
+      //date restrictions for non admins
+      if(!["A", "S"].includes(user_role)) {
+        $('.datepicker.reservation_delivery_date').datepicker({
+          dateFormat: "MM dd, yy",
+          beforeShowDay: function(d) {
+            //convert javascript day to python day
+            var day = d.getDay() - 1;
+            return [reservation_delivery_days.includes(day)];
+          }
+        });
+        $('.datepicker.reservation_return_date').datepicker({
+          dateFormat: "MM dd, yy",
+          beforeShowDay: function(d) {
+            //convert javascript day to python day
+            var day = d.getDay() - 1;
+            return [reservation_return_days.includes(day)];
+          }
+        });
+      }
+      else {
+        $('.datepicker.reservation_date').datepicker({
+          dateFormat: "MM dd, yy",
+        });
+      }
+
       toggleCheckAvailability();
       //hide other activity name field
       $('input#id_other_activity_name').closest('form-group').hide();
@@ -159,6 +206,10 @@
         }
       });
 
+      $('button#clear_dates').click(function(e){
+        e.preventDefault();
+        $('.reservation_date').datepicker('setDate', null);
+      });
       //"Check Availibility" button is clicked
       $('button#check_availability').click(function(e){
         e.preventDefault();
@@ -274,7 +325,7 @@
 
       //enable "Check Availability" button only if equipment is selected and delivery and return dates are provided
       function toggleCheckAvailability() {
-        if($('select#id_equipment_types').val() && $('input#id_delivery_date').val() && $('input#id_return_date').val()) {
+        if($('select#id_equipment_types').val() && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
           $('button#check_availability').prop('disabled', false);
         }
         else{
@@ -287,26 +338,63 @@
         var equipment_types = $('select#id_equipment_types').val();
         var delivery_date = $('input#id_delivery_date').datepicker('getDate');
         var return_date = $('input#id_return_date').datepicker('getDate');
-        //if equipment is selected, delivery and return dates are both required
-        if(equipment_types && (delivery_date == null || return_date == null)) {
-          bootbox.alert({title: "Warning",
-                    message: 'Please select both delivery and return dates.',
-                    closeButton: false
-                  });
-          return false;
-        }
-        //if delivery and return dates are selected, return date has to be later than
-        //delivery date
-        else if (delivery_date && return_date && delivery_date > return_date) {
-          bootbox.alert({title: "Warning",
-                    message: 'Please select a return date that is later than the delivery date.',
-                    closeButton: false
-                  });
-          return false;
+
+        var current_date = new Date();
+        var min_reservation_date = new Date();
+        var max_reservation_date = new Date()
+        min_reservation_date.setDate(min_reservation_date.getDate() + reservation_min_advance_days);
+        min_reservation_date.setHours(0, 0, 0, 0);
+        max_reservation_date.setDate(max_reservation_date.getDate() + reservation_max_advance_days);
+        max_reservation_date.setHours(0, 0, 0, 0);
+
+        //if equipment is selected,
+        if (equipment_types) {
+          //delivery and return dates are both required
+          if (delivery_date == null || return_date == null) {
+            displayWarningDialog('Please select both delivery and return dates.');
+            return false;
+          }
+          //if delivery and return dates are selected, return date has to be later than
+          //delivery date
+          else if (delivery_date && return_date) {
+            var reservation_length = Math.ceil((return_date.getTime() - delivery_date.getTime())/ (1000*3600*24));
+            if (delivery_date > return_date) {
+              displayWarningDialog('Please select a return date that is later than the delivery date.');
+              return false;
+            }
+            //non admin date validation
+            else if (!["A", "S"].includes(user_role)) {
+              if (!reservation_delivery_days.includes(delivery_date.getDay()-1) || !reservation_return_days.includes(return_date.getDay()-1)) {
+                displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only and picked up on {{reservation_settings.reservation_return_days|get_days_of_week}} only.');
+                return false;
+              }
+              //delivery/return dates have to be between 1 week and 6 months from today
+              else if (delivery_date < min_reservation_date || delivery_date > max_reservation_date || return_date < min_reservation_date || return_date > max_reservation_date) {
+                displayWarningDialog('Please select delivery and return dates between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.');
+                return false;
+              }
+              else if (reservation_length < {{reservation_settings.reservation_min_days}}) {
+                displayWarningDialog('Reservation has to be for a minimum of {{reservation_settings.reservation_min_days}} days.');
+                return false;
+              }
+              else if (reservation_length > {{reservation_settings.reservation_max_days}}) {
+                displayWarningDialog('Reservation can only be for a maximum of {{reservation_settings.reservation_max_days}} days.');
+                return false;
+              }
+            }
+          }
         }
         else {
-          return true;
+          if (delivery_date == null) {
+            displayWarningDialog('Please select a delivery date.');
+            return false;
+          }
+          else if (!["A", "S"].includes(user_role) && !reservation_delivery_days.includes(delivery_date.getDay()-1)) {
+            displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.');
+            return false;
+          }
         }
+        return true;
       }
 
       $('select#id_equipment_types, input#id_delivery_date, input#id_return_date').on('change', function(){
@@ -322,7 +410,6 @@
           $('select#id_activity').prop('required', false);
           $('input#id_other_activity_name').prop('required', true);
           $('input#id_other_activity_name').closest('.form-group').show();
-          console.log('checked')
           $('div.activity_container div.activity.general').hide();
           $('div.activity_container div.activity.specific').remove();
         }
@@ -348,6 +435,7 @@
           //reset and disable return date
           $('input#id_return_date').val('');
           $('input#id_return_date').prop('disabled', true);
+          $('input#id_return_date').closest('.col').find('span.required').hide();
         }
         //checkbox unchecked
         else{
@@ -362,10 +450,12 @@
         //equipment selected
         if($(this).val()){
           $('input#id_return_date').prop('required', true);
+          $('input#id_return_date').closest('.col').find('span.required').show();
         }
         //equipment unselected
         else{
           $('input#id_return_date').prop('required', false);
+          $('input#id_return_date').closest('.col').find('span.required').hide();
         }
       });
 
@@ -406,11 +496,11 @@
         }
       });
 
-
       $('input#id_other_activity').trigger('change');
       $('select#id_activity').trigger('change');
       $('input#id_equipment_not_needed').trigger('change');
       $('select#id_num_of_classes').trigger('change');
+      $('select#id_equipment_types').trigger('change');
 
     });
   </script>

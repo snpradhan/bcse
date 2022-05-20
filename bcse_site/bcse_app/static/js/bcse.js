@@ -1,6 +1,6 @@
 $(function (){
 
-  $(".datepicker").datepicker({
+  $(".datepicker:not(.reservation_date)").datepicker({
     dateFormat: "MM dd, yy"
   });
 
@@ -172,14 +172,18 @@ function displayErrorDialog() {
               });
 }
 
+function displayWarningDialog(message) {
+   bootbox.alert({title: "Warning",
+                message: message,
+                closeButton: false
+              });
+}
+
 function bindWarningAction() {
   $('.warn.action').on('click', function(e) {
     e.preventDefault();
-    var title = $(this).data('title');
-    bootbox.alert({title: "Warning",
-                  message: title,
-                  closeButton: false
-                });
+    var message = $(this).data('title');
+    displayWarningDialog(message);
   });
 }
 

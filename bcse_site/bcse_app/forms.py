@@ -312,6 +312,7 @@ class ReservationForm(ModelForm):
     exclude = ('equipment', 'created_by', 'created_date', 'modified_date')
     widgets = {
       'equipment_types': forms.SelectMultiple(attrs={'size':5}),
+      'notes': forms.Textarea(attrs={'rows':3}),
       #'other_activity': forms.CheckboxInput(),
     }
 
@@ -322,7 +323,13 @@ class ReservationForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       if field_name not in ['other_activity', 'equipment_not_needed', 'additional_help_needed', 'activity_kit_not_needed']:
         if field_name in ['delivery_date', 'return_date']:
-          field.widget.attrs['class'] = 'form-control datepicker'
+          if field_name == 'delivery_date':
+            field.widget.attrs['class'] = 'form-control datepicker reservation_delivery_date reservation_date'
+            field.widget.attrs['title'] = 'Click here to open a calender popup to select delivery date'
+          else:
+            field.widget.attrs['class'] = 'form-control datepicker reservation_return_date reservation_date'
+            field.widget.attrs['title'] = 'Click here to open a calender popup to select return date'
+          field.widget.attrs['readonly'] = True
         else:
           field.widget.attrs['class'] = 'form-control'
       else:
@@ -350,13 +357,12 @@ class ReservationForm(ModelForm):
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()
-    if not valid:
-      return valid
 
     cleaned_data = super(ReservationForm, self).clean()
     activity = cleaned_data.get('activity')
     other_activity = cleaned_data.get('other_activity')
     other_activity_name = cleaned_data.get('other_activity_name')
+    num_of_classes = cleaned_data.get('num_of_classes')
 
     if activity is None and not other_activity:
       self.add_error('activity', 'Please select an activity from the dropdown or select "I am doing something not listed here"')
@@ -364,6 +370,14 @@ class ReservationForm(ModelForm):
     elif other_activity and other_activity_name is None:
       self.add_error('other_activity_name', 'Please provide the name of your custom activity')
       valid = False
+
+    if activity and num_of_classes is None:
+      self.add_error('num_of_classes', 'Please provide the number of classes doing this activity')
+      valid = False
+
+    for x in self.errors:
+      attrs = self.fields[x].widget.attrs
+      attrs.update({'class': attrs.get('class', '') + ' is-invalid'})
 
     return valid
 
