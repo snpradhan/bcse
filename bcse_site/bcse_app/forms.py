@@ -69,6 +69,7 @@ class SignUpForm (forms.Form):
   instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
   new_work_place_flag = forms.BooleanField(required=False, label='My Work Place Is Not Listed')
   subscribe = forms.BooleanField(required=False, label='Subscribe To Our Mailing List')
+  image = forms.ImageField(required=False)
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')

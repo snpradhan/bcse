@@ -16,7 +16,7 @@
       </ul>
     </div>
 
-    <form class="form" id="formSignUp" method="post" action="{% url 'bcse:signup'%}">
+    <form class="form" id="formSignUp" method="post" enctype="multipart/form-data" action="{% url 'bcse:signup'%}">
       {% csrf_token %}
       {{form.management_form}}
 
@@ -168,6 +168,13 @@
             </label>
             <div>{{form.subscribe}}</div>
             <div class="error">{{ form.subscribe.errors }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="form-group col-md-12">
+            <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label}}</label>
+            <div>{{form.image}}</div>
+            <div class="error">{{ form.image.errors }}</div>
           </div>
         </div>
 
@@ -356,11 +363,16 @@
 
     $("#formSignUp").submit(function(e){
       e.preventDefault();
+      var formData = new FormData(this);
       $.ajax({
         type: $(this).attr('method'),
         url: this.action,
-        data: $(this).serialize(),
+        data: formData,
+        dataType: 'json',
         context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
         beforeSend: function(){
           $('#formSignUp #spinner').show();
         },

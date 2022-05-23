@@ -136,7 +136,7 @@ def userSignup(request):
     new_work_place = None
     response_data = {}
 
-    form = forms.SignUpForm(user=request.user, data=request.POST)
+    form = forms.SignUpForm(user=request.user, files=request.FILES, data=request.POST)
     work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, prefix="work_place")
 
     if form.is_valid():
@@ -167,6 +167,7 @@ def userSignup(request):
       newUser.phone_number = form.cleaned_data['phone_number']
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
+      newUser.image = request.FILES['image']
       if form.cleaned_data['subscribe']:
         newUser.subscribe = True
 
