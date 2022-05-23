@@ -1,0 +1,37 @@
+<div class="filter_container">
+  <form method="get" action="{% url 'bcse:baxterBoxUsageReport' %}" id="baxter_box_usage_filter_form" class="filter_form">
+    {% csrf_token %}
+    {{searchForm.media}}
+    <div class="form-group right" id="filter_toggle">
+      <label style="display:none;">Show Filters <span class="fa fa-plus-circle"></span></label>
+      <label>Hide Filters <span class="fa fa-minus-circle"></span></label>
+    </div>
+
+    <div id="filter_content">
+      <div id="filter_fields">
+        <div class="form-group">
+          <label for="id_{{searchForm.from_date.name}}" class="form-label"> {{searchForm.from_date.label|title}}</label>
+          <div class="input-group">
+            {{searchForm.from_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ searchForm.from_date.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.to_date.name}}" class="form-label"> {{searchForm.to_date.label|title}}</label>
+          <div class="input-group">
+            {{searchForm.to_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ searchForm.to_date.errors }}</div>
+        </div>
+        <div class="form-group" id="filter_buttons">
+          <button class="btn" type="button" id="clear">Clear Filter</button>
+          <button class="btn" type="button" id="export">Export Table</button>
+        </div>
+      </div>
+
+    </div>
+
+  </form>
+</div>

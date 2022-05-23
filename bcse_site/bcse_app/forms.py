@@ -641,3 +641,23 @@ class UsersSearchForm(forms.Form):
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# Baxter Box Usage Search Form
+####################################
+class BaxterBoxUsageSearchForm(forms.Form):
+  from_date = forms.DateField(required=False, label=u'From')
+  to_date = forms.DateField(required=False, label=u'To')
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(BaxterBoxUsageSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      if field_name in ['from_date', 'to_date']:
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+      if field.help_text:
+        field.widget.attrs['placeholder'] = field.help_text

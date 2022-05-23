@@ -1,7 +1,9 @@
 $(function (){
 
   $(".datepicker:not(.reservation_date)").datepicker({
-    dateFormat: "MM dd, yy"
+    dateFormat: "MM dd, yy",
+    changeMonth: true,
+    changeYear: true
   });
 
   $(".timepicker").timepicker({

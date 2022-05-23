@@ -78,6 +78,7 @@ urlpatterns = [
     path('adminConfiguration/users/', views.users, name='users'),
     path('adminConfiguration/users/search', views.usersSearch, name='usersSearch'),
 
-    path('baxter_box_info/', views.baxterBoxInfo, name='baxterBoxInfo'),
+    path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
+    path('baxter_box/usage/report/', views.baxterBoxUsageReport, name='baxterBoxUsageReport'),
 
 ]

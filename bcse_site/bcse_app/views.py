@@ -991,6 +991,76 @@ def checkAvailability(current_reservation_id, equipment_types, start_date, end_d
 
   return equipment_availability_matrix
 
+
+@login_required
+def baxterBoxUsageReport(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view Baxter Box Report')
+
+    reservations = models.Reservation.objects.all().exclude(status='D')
+    equipment_types = models.EquipmentType.objects.all().order_by('name')
+    activities = models.Activity.objects.all().order_by('name')
+    searchForm = forms.BaxterBoxUsageSearchForm(user=request.user, prefix="usage")
+    equipment_usage = {}
+    kit_usage = {}
+    total_usage = {'reservations': 0, 'kits': 0, 'teachers': [], 'schools': []}
+    for equipment_type in equipment_types:
+      equipment_usage[equipment_type.id] = {'name': equipment_type.name, 'reservations': [], 'teachers': [], 'schools': []}
+    for activity in activities:
+      kit_usage[activity.id] = {'name': activity.kit_name, 'count': 0, 'teachers': [], 'schools': []}
+
+    from_date = request.GET.get('usage-from_date', '')
+    to_date = request.GET.get('usage-to_date', '')
+
+    if from_date:
+      from_date = datetime.datetime.strptime(from_date, '%B %d, %Y')
+      reservations = reservations.filter(delivery_date__gte=from_date)
+
+    if to_date:
+      to_date = datetime.datetime.strptime(to_date, '%B %d, %Y')
+      reservations = reservations.filter(return_date__lte=to_date)
+
+    for reservation in reservations:
+      if reservation.equipment:
+        for equipment in reservation.equipment.all():
+          equipment_usage[equipment.equipment_type.id]['reservations'].append(reservation)
+          if reservation.user not in equipment_usage[equipment.equipment_type.id]['teachers']:
+            equipment_usage[equipment.equipment_type.id]['teachers'].append(reservation.user)
+          if reservation.user.work_place not in equipment_usage[equipment.equipment_type.id]['schools']:
+            equipment_usage[equipment.equipment_type.id]['schools'].append(reservation.user.work_place)
+
+      if reservation.activity:
+        if not reservation.activity_kit_not_needed and reservation.num_of_classes:
+          kit_usage[reservation.activity.id]['count'] += int(reservation.num_of_classes)
+          total_usage['kits'] += int(reservation.num_of_classes)
+        if reservation.user not in kit_usage[reservation.activity.id]['teachers']:
+          kit_usage[reservation.activity.id]['teachers'].append(reservation.user)
+        if reservation.user.work_place not in kit_usage[reservation.activity.id]['schools']:
+          kit_usage[reservation.activity.id]['schools'].append(reservation.user.work_place)
+
+      total_usage['reservations'] += 1
+      if reservation.user not in total_usage['teachers']:
+        total_usage['teachers'].append(reservation.user)
+      if reservation.user.work_place not in total_usage['schools']:
+        total_usage['schools'].append(reservation.user.work_place)
+
+
+
+    if request.is_ajax():
+      response_data = {}
+      response_data['success'] = True
+      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date}
+      response_data['html'] = render_to_string('bcse_app/BaxterBoxUsageTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+    else:
+      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'total_usage': total_usage, 'searchForm': searchForm, 'from_date': from_date, 'to_date': to_date}
+      return render(request, 'bcse_app/BaxterBoxUsageReport.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ####################################################
 # WORKSHOP REGISTRATION CONFIRMATION MESSAGES
 ####################################################

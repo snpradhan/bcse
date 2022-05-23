@@ -1,0 +1,40 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block jquery %}
+  {{block.super}}
+  <script type="text/javascript" src="{% staticfile 'js/jquery.table2excel.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div id="reservations" class="container">
+      <h1 class="center"> Baxter Box Usage Report </h1>
+      <div class="button-row">
+        <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
+      </div>
+      {% include "bcse_app/BaxterBoxUsageSearch.html" %}
+      <div class="form-group" id="spinner">
+        <img src="/static/img/page-loader.gif" class="icon"/>
+      </div>
+       <div class="reservations search_results">
+        {% include "bcse_app/BaxterBoxUsageTableView.html" %}
+       </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    $(function (){
+      $('button#export').on('click', function(e) {
+        $("#baxter_box_usage_report").table2excel({
+          exclude: ".noExl",
+          name: "Baxter Box Usage",
+          filename: "Baxter_Box_Usage", //do not include extension
+          fileext:".xls", // file extension
+          preserveColors: true, // set to true if you want background colors and font colors preserved
+        });
+      });
+    });
+  </script>
+{% endblock %}

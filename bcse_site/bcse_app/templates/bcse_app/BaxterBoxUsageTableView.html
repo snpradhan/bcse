@@ -1,0 +1,110 @@
+{% load bcse_extras %}
+<table class="table table-bordered table-striped" id="baxter_box_usage_report">
+  <thead>
+    <tr class="noExl">
+      <th colspan="2">From</th>
+      <th colspan="2">To</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="display:none;">
+      <td colspan="2" style="background-color: #767676; color: white;">From</td>
+      <td colspan="2" style="background-color: #767676; color: white;">To</td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        {% if from_date %}
+          {{from_date|date:"F j, Y"}}
+        {% else %}
+          Any
+        {% endif %}
+      </td>
+      <td colspan="2">
+        {% if to_date %}
+          {{to_date|date:"F j, Y"}}
+        {% else %}
+          Any
+        {% endif %}
+      </td>
+      <tr>
+        <td colspan="4"></td>
+      </tr>
+    </tr>
+  </tbody>
+  <thead>
+    <tr class="noExl">
+      <th> Equipment</th>
+      <th> # of Reservation </th>
+      <th> # of Unique Teachers </th>
+      <th> # of Unique Schools </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="display:none;">
+      <td style="background-color: #767676; color: white;"> Equipment Usage</td>
+      <td style="background-color: #767676; color: white;"> # of Reservation </td>
+      <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
+      <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
+    </tr>
+    {% for id, equipment in equipment_usage.items %}
+      <tr>
+        <td>{{equipment.name}}</td>
+        <td>{{equipment.reservations|length}}</td>
+        <td>{{equipment.teachers|length}}</td>
+        <td>{{equipment.schools|length}}</td>
+      </tr>
+    {% endfor %}
+    <tr>
+      <td colspan="4"></td>
+    </tr>
+  </tbody>
+  <thead>
+    <tr class="noExl">
+      <th> Consumable Kit</th>
+      <th> Usage Count </th>
+      <th> # of Unique Teachers </th>
+      <th> # of Unique Schools </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="display:none;">
+      <td style="background-color: #767676; color: white;"> Consumable Kit</td>
+      <td style="background-color: #767676; color: white;"> Usage Count </td>
+      <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
+      <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
+    </tr>
+    {% for id, kit in kit_usage.items %}
+      <tr>
+        <td>{{kit.name}}</td>
+        <td>{{kit.count}}</td>
+        <td>{{kit.teachers|length}}</td>
+        <td>{{kit.schools|length}}</td>
+      </tr>
+    {% endfor %}
+    <tr>
+      <td colspan="4"></td>
+    </tr>
+  </tbody>
+  <thead>
+    <tr class="noExl">
+      <th> Total # of Reservations </th>
+      <th> Total # of Kits Used </th>
+      <th> Total # of Unique Teachers </th>
+      <th> Total #of Unique Schools </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="display:none;">
+      <td style="background-color: #767676; color: white;"> Total # of Reservations</td>
+      <td style="background-color: #767676; color: white;"> Total # of Kits Used</td>
+      <td style="background-color: #767676; color: white;"> Total # of Unique Teachers </td>
+      <td style="background-color: #767676; color: white;"> Total #of Unique Schools </td>
+    </tr>
+    <tr>
+      <td>{{total_usage.reservations}}</td>
+      <td>{{total_usage.kits}}</td>
+      <td>{{total_usage.teachers|length}}</td>
+      <td>{{total_usage.schools|length}}</td>
+    </tr>
+  </tbody>
+</table>

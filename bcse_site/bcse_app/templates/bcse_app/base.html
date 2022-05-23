@@ -84,6 +84,13 @@
                           {% endif %}
                         </a>
                       </li>
+                      {% if user.userProfile.user_role in 'AS' %}
+                        <li class="{% navactive request 'bcse:baxterBoxUsageReport' %}">
+                          <a class="dropdown-item" href="{% url 'bcse:baxterBoxUsageReport' %}">
+                            Baxter Box Usage Report
+                          </a>
+                        </li>
+                      {% endif %}
                     {% endif %}
                   </ul>
                   {% endwith %}

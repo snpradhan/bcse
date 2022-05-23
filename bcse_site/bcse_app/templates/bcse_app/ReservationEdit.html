@@ -172,6 +172,8 @@
       if(!["A", "S"].includes(user_role)) {
         $('.datepicker.reservation_delivery_date').datepicker({
           dateFormat: "MM dd, yy",
+          changeMonth: true,
+          changeYear: true,
           beforeShowDay: function(d) {
             //convert javascript day to python day
             var day = d.getDay() - 1;
@@ -180,6 +182,8 @@
         });
         $('.datepicker.reservation_return_date').datepicker({
           dateFormat: "MM dd, yy",
+          changeMonth: true,
+          changeYear: true,
           beforeShowDay: function(d) {
             //convert javascript day to python day
             var day = d.getDay() - 1;
@@ -190,6 +194,8 @@
       else {
         $('.datepicker.reservation_date').datepicker({
           dateFormat: "MM dd, yy",
+          changeMonth: true,
+          changeYear: true
         });
       }
 
