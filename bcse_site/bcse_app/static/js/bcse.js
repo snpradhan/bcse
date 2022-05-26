@@ -180,6 +180,17 @@ function displayWarningDialog(message) {
                 closeButton: false
               });
 }
+function displayInfoDialog(title, message, reload) {
+   bootbox.alert({title: title,
+                message: message,
+                closeButton: false,
+                callback: function() {
+                  if (reload) {
+                    location.reload();
+                   }
+                }
+              });
+}
 
 function bindWarningAction() {
   $('.warn.action').on('click', function(e) {

@@ -4,8 +4,10 @@
 
 {% block configuration %}
   <h1> Users </h1>
-  <div class="button-row">
+  <div>
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-href="{% url 'bcse:signup' %}" href="#" role="button">Create User</a>
+    <a class="btn" href="{% staticfile 'xls/UserTemplate.xlsx' %}" target="_blank" download>Download User Template</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:usersUpload' %}" href="#">Upload Users</a>
   </div>
   {% include "bcse_app/UsersSearch.html" %}
   <div class="form-group" id="spinner">

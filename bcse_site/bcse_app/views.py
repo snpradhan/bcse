@@ -6,7 +6,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.models import User
 from django.db.models import Q, F
 from django.db.models.functions import Lower
-import datetime
+import datetime, time
 from .utils import Calendar
 import calendar
 from dateutil.relativedelta import relativedelta
@@ -27,7 +27,9 @@ import hashlib
 from django.db.models import Q, F
 from django.core.mail import EmailMessage
 from django.contrib.sites.models import Site
-
+import pyexcel
+import boto3
+from botocore.exceptions import ClientError
 
 # Create your views here.
 
@@ -2253,6 +2255,116 @@ def usersSearch(request):
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# UPLOAD USERS VIA AN EXCEL TEMPLATE
+##########################################################
+@login_required
+def usersUpload(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view users')
+
+    if request.method == 'GET':
+      form = forms.UsersUploadForm(user=request.user)
+      context = {'form': form}
+      return render(request, 'bcse_app/UsersUploadModal.html', context)
+    elif request.method == 'POST':
+      form = forms.UsersUploadForm(user=request.user, files=request.FILES, data=request.POST)
+      response_data = {}
+
+      if form.is_valid():
+        if request.FILES:
+          f = request.FILES['file']
+          filename = f.name
+          name = filename.split(".")[0]
+          extension = filename.split(".")[-1]
+          decoded_file = f.read() #.decode("ISO-8859-1")
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.name_columns_by_row(0)
+          user_roles = dict(map(reversed, models.USER_ROLE_CHOICES))
+          upload_status = ["Status"]
+          total_rows = 0
+          new_users = 0
+          for row in sheet:
+            total_rows += 1
+            email = row[0]
+            first_name = row[1]
+            last_name = row[2]
+            user_role = row[3]
+            phone_number = row[4]
+            twitter_handle = row[5]
+            instagram_handle = row[6]
+            if email:
+              if User.objects.all().filter(email=email).count() == 0:
+                if first_name:
+                  if last_name:
+                    if user_role:
+                      #all required fields available to create user
+                      user = User.objects.create_user(email.lower(),
+                                        email.lower(),
+                                        User.objects.make_random_password())
+                      user.first_name = first_name
+                      user.last_name = last_name
+                      user.is_active = True
+                      user.save()
+                      newUser = models.UserProfile()
+                      newUser.user_role = user_roles[user_role]
+                      if phone_number:
+                        newUser.phone_number = phone_number
+                      if twitter_handle:
+                        newUser.twitter_handle = twitter_handle
+                      if instagram_handle:
+                        newUser.instagram_handle = instagram_handle
+                      newUser.user = user
+                      newUser.save()
+                      new_users += 1
+                      upload_status.append("User created")
+                    else:
+                      upload_status.append("User Role is missing")
+                  else:
+                    upload_status.append("Last Name is missing")
+                else:
+                  upload_status.append("First Name is missing")
+              else:
+                upload_status.append("Email is already used")
+            else:
+              upload_status.append("Email is missing")
+
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.column += upload_status
+          status_filename = '%s-%s.%s' % (name, int(time.time()), extension)
+          sheet.save_as('/tmp/%s' % status_filename)
+          s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+          file_url = ''
+          try:
+            s3_client.upload_file('/tmp/%s' % status_filename, settings.AWS_STORAGE_BUCKET_NAME, 'usersUpload/{}'.format(status_filename))
+            file_url = '%s/%s/%s' % ('https://s3.amazonaws.com', settings.AWS_STORAGE_BUCKET_NAME, 'usersUpload/{}'.format(status_filename))
+          except ClientError as e:
+            logging.error(e)
+
+          response_data['success'] = True
+          response_data['message'] = "%s out of %s users were successfully uploaded. \
+          You may review you uploaded file <u><strong><a href='%s' download>here</a></strong></u>. \
+          This link will not be available after you close this dialog." % (new_users, total_rows, file_url)
+        else:
+          response_data['success'] = False
+      else:
+        print(form.errors)
+        response_data['success'] = False
+
+      context = {'form': form}
+      response_data['html'] = render_to_string('bcse_app/UsersUploadModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
 
   except CustomException as ce:
     messages.error(request, ce)
