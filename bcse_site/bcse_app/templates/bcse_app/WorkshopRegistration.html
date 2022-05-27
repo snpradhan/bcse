@@ -38,6 +38,7 @@
             Apply
           {% endif %}
         </button>
+        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
       </div>
     </form>
   {% endif %}

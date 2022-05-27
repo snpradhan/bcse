@@ -2268,7 +2268,7 @@ def usersSearch(request):
 def usersUpload(request):
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view users')
+      raise CustomException('You do not have the permission to upload users')
 
     if request.method == 'GET':
       form = forms.UsersUploadForm(user=request.user)
@@ -2306,23 +2306,7 @@ def usersUpload(request):
                   if last_name:
                     if user_role:
                       #all required fields available to create user
-                      user = User.objects.create_user(email.lower(),
-                                        email.lower(),
-                                        User.objects.make_random_password())
-                      user.first_name = first_name
-                      user.last_name = last_name
-                      user.is_active = True
-                      user.save()
-                      newUser = models.UserProfile()
-                      newUser.user_role = user_roles[user_role]
-                      if phone_number:
-                        newUser.phone_number = phone_number
-                      if twitter_handle:
-                        newUser.twitter_handle = twitter_handle
-                      if instagram_handle:
-                        newUser.instagram_handle = instagram_handle
-                      newUser.user = user
-                      newUser.save()
+                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle)
                       new_users += 1
                       upload_status.append("User created")
                     else:
@@ -2370,6 +2354,114 @@ def usersUpload(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+##########################################################
+# UPLOAD WORKSHOP REGISTRATIONS VIA AN EXCEL TEMPLATE
+##########################################################
+@login_required
+def workshopRegistrantsUpload(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to upload registrants')
+
+    workshop = models.Workshop.objects.get(id=id)
+
+    if request.method == 'GET':
+      form = forms.UsersUploadForm(user=request.user)
+      context = {'form': form, 'workshop': workshop}
+      return render(request, 'bcse_app/RegistrantsUploadModal.html', context)
+    elif request.method == 'POST':
+      form = forms.UsersUploadForm(user=request.user, files=request.FILES, data=request.POST)
+      response_data = {}
+
+      if form.is_valid():
+        if request.FILES:
+          f = request.FILES['file']
+          filename = f.name
+          name = filename.split(".")[0]
+          extension = filename.split(".")[-1]
+          decoded_file = f.read() #.decode("ISO-8859-1")
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.name_columns_by_row(0)
+          user_roles = dict(map(reversed, models.USER_ROLE_CHOICES))
+          upload_status = ["Status"]
+          total_rows = 0
+          new_registrants = 0
+          for row in sheet:
+            total_rows += 1
+            email = row[0]
+            first_name = row[1]
+            last_name = row[2]
+            user_role = row[3]
+            phone_number = row[4]
+            twitter_handle = row[5]
+            instagram_handle = row[6]
+            if email:
+              if User.objects.all().filter(email=email).count() == 0:
+                if first_name:
+                  if last_name:
+                    if user_role:
+                      #all required fields available to create user
+                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle)
+                      created = create_registration(request, email, workshop.id)
+                      if created:
+                        new_registrants += 1
+                        upload_status.append("User account created and user added to workshop.")
+                      else:
+                        upload_status.append("User already added to workshop")
+                    else:
+                      upload_status.append("User account does not exist and user role is missing. User not added to workshop.")
+                  else:
+                    upload_status.append("User account does not exist and last name is missing. User not added to workshop.")
+                else:
+                  upload_status.append("User account does not exist and first name is missing. User not added to workshop.")
+              else:
+                #register user using existing email
+                created = create_registration(request, email, workshop.id)
+                if created:
+                  new_registrants += 1
+                  upload_status.append("User added to workshop.")
+                else:
+                  upload_status.append("User already added to workshop")
+            else:
+              upload_status.append("Email is missing. User not added to workshop.")
+
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.column += upload_status
+          status_filename = '%s-%s.%s' % (name, int(time.time()), extension)
+          sheet.save_as('/tmp/%s' % status_filename)
+          s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+          file_url = ''
+          try:
+            s3_client.upload_file('/tmp/%s' % status_filename, settings.AWS_STORAGE_BUCKET_NAME, 'registrantsUpload/{}'.format(status_filename))
+            file_url = '%s/%s/%s' % ('https://s3.amazonaws.com', settings.AWS_STORAGE_BUCKET_NAME, 'registrantsUpload/{}'.format(status_filename))
+          except ClientError as e:
+            logging.error(e)
+
+          response_data['success'] = True
+          response_data['message'] = "%s out of %s users were successfully added to this workshop. \
+          You may review you uploaded file <u><strong><a href='%s' download>here</a></strong></u>. \
+          This link will not be available after you close this dialog." % (new_registrants, total_rows, file_url)
+        else:
+          response_data['success'] = False
+      else:
+        print(form.errors)
+        response_data['success'] = False
+
+      context = {'form': form, 'workshop': workshop}
+      response_data['html'] = render_to_string('bcse_app/RegistrantsUploadModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Workshop.DoesNotExist as e:
+    messages.error(request, 'Workshop not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ########################################################################
 # PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER
@@ -2483,3 +2575,61 @@ def send_reservation_message_email(request, reservation_message):
   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
   email.content_subtype = "html"
   email.send(fail_silently=True)
+
+
+#####################################################
+# CREATE A NEW USER WITH RANDOM PASSWORD
+#####################################################
+def create_user(request, email, first_name, last_name, user_role, phone_number, twitter_handle, instagram_handle):
+  #all required fields available to create user
+  user = User.objects.create_user(email.lower(),
+                    email.lower(),
+                    User.objects.make_random_password())
+  user.first_name = first_name
+  user.last_name = last_name
+  user.is_active = True
+  user.save()
+  newUser = models.UserProfile()
+  newUser.user_role = user_role
+  if phone_number:
+    newUser.phone_number = phone_number
+  if twitter_handle:
+    newUser.twitter_handle = twitter_handle
+  if instagram_handle:
+    newUser.instagram_handle = instagram_handle
+  newUser.user = user
+  newUser.save()
+
+  return newUser
+
+
+#####################################################
+# CREATE A WORKSHOP REGISTRATION RECORD FOR A USER
+#####################################################
+def create_registration(request, email, workshop_id):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to create registration')
+
+    workshop = models.Workshop.objects.get(id=workshop_id)
+    if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
+      if workshop.registration_setting.registration_type == 'R':
+        default_registration_status = 'R'
+      else:
+        default_registration_status = 'A'
+    else:
+      raise CustomException('Please enable registration and select a Registration Type for this workshop before creating registration.')
+
+    user = models.UserProfile.objects.get(user__email=email)
+    workshop_registration, created = models.Registration.objects.get_or_create(workshop_registration_setting=workshop.registration_setting, status=default_registration_status, user=user)
+    if created:
+      return True
+    else:
+      return False
+
+  except models.Workshop.DoesNotExist as e:
+    messages.error(request, 'Workshop not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))

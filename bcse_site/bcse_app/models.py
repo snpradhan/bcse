@@ -203,9 +203,9 @@ class Workshop (models.Model):
   summary = RichTextField(null=True, blank=True)
   description = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Workshop')
-  start_date = models.DateField(null=True, blank=True, help_text='Workshop start date')
+  start_date = models.DateField(null=False, blank=False, help_text='Workshop start date')
   start_time = models.TimeField(null=True, blank=True, help_text='Workshop start time')
-  end_date = models.DateField(null=True, blank=True, help_text='Workshop end date')
+  end_date = models.DateField(null=False, blank=False, help_text='Workshop end date')
   end_time = models.TimeField(null=True, blank=True, help_text='Workshop end time')
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
   enable_registration =  models.BooleanField(default=False)
@@ -361,22 +361,26 @@ class Team(models.Model):
 @receiver(post_save, sender=Registration)
 def check_registration_status_change(sender, instance, **kwargs):
   try:
-    confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
-    userProfile = instance.user
     workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
-    registration_setting = workshop.registration_setting
+    current_datetime = datetime.datetime.now()
+    current_date = current_datetime.date()
+    #only send email notification if the workshop hasn't ended
+    if current_date < workshop.end_date:
+      confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
+      userProfile = instance.user
+      registration_setting = workshop.registration_setting
 
-    subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop, instance)
-    body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
-    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
+      subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop, instance)
+      body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
+      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
 
-    #check if calendar invite needs to be attached
-    if confirmation_message_object.include_calendar_invite:
-      filename = create_calendar_invite(workshop, userProfile)
-      email.attach_file(filename, 'text/calendar')
+      #check if calendar invite needs to be attached
+      if confirmation_message_object.include_calendar_invite:
+        filename = create_calendar_invite(workshop, userProfile)
+        email.attach_file(filename, 'text/calendar')
 
-    email.content_subtype = "html"
-    email.send(fail_silently=True)
+      email.content_subtype = "html"
+      email.send(fail_silently=True)
   except RegistrationEmailMessage.DoesNotExist as e:
     pass
 

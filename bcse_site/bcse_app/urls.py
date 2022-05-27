@@ -23,6 +23,8 @@ urlpatterns = [
     path('workshop/<int:id>/delete', views.workshopDelete, name='workshopDelete'),
     path('workshop/<int:id>/registration_setting/edit', views.workshopRegistrationSetting, name='workshopRegistrationSetting'),
     path('workshop/<int:id>/registrants/', views.workshopRegistrants, name='workshopRegistrants'),
+    path('workshop/<int:id>/registrants/upload', views.workshopRegistrantsUpload, name='workshopRegistrantsUpload'),
+
     path('workshop/<int:workshop_id>/registration/', views.workshopRegistration, name='workshopRegistration'),
     path('workshop/<int:workshop_id>/registration/<int:id>/edit', views.workshopRegistrationEdit, name='workshopRegistrationEdit'),
     path('workshop/<int:workshop_id>/registration/<int:id>/delete', views.workshopRegistrationDelete, name='workshopRegistrationDelete'),
