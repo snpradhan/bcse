@@ -358,7 +358,7 @@ class Team(models.Model):
 
 # signal to check if registration status has changed
 # and then send an email to the registrant
-@receiver(pre_save, sender=Registration)
+@receiver(post_save, sender=Registration)
 def check_registration_status_change(sender, instance, **kwargs):
   try:
     confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
@@ -366,8 +366,8 @@ def check_registration_status_change(sender, instance, **kwargs):
     workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
     registration_setting = workshop.registration_setting
 
-    subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop)
-    body = replace_workshop_tokens(confirmation_message_object.email_message, workshop)
+    subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop, instance)
+    body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
 
     #check if calendar invite needs to be attached
@@ -383,7 +383,7 @@ def check_registration_status_change(sender, instance, **kwargs):
 #
 # Replace workshop registration message tokens before sending out an email
 #
-def replace_workshop_tokens(text, workshop):
+def replace_workshop_tokens(text, workshop, registration):
   replaced_text = text
   replaced_text = replaced_text.replace('[workshop_category]', workshop.workshop_category.name or '')
   replaced_text = replaced_text.replace('[workshop_title]', workshop.name or '')
@@ -394,7 +394,10 @@ def replace_workshop_tokens(text, workshop):
   replaced_text = replaced_text.replace('[workshop_end_time]', workshop.end_time.strftime('%-I:%M %p'))
   replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
-  replaced_text = replaced_text.replace('[workshop_survey_url]', workshop.registration_setting.survey_url or '')
+  survey_url = ''
+  if registration.workshop_registration_setting and registration.workshop_registration_setting.survey_url:
+    survey_url = registration.workshop_registration_setting.survey_url + '?registration_id=%s&user_id=%s' %(registration.id, registration.user.id)
+  replaced_text = replaced_text.replace('[workshop_survey_url]', survey_url)
   return replaced_text
 
 #
