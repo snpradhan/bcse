@@ -83,5 +83,6 @@ urlpatterns = [
 
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
     path('baxter_box/usage/report/', views.baxterBoxUsageReport, name='baxterBoxUsageReport'),
+    path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),
 
 ]

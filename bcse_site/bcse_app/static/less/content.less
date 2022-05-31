@@ -95,6 +95,16 @@ body {
     }
   }
 
+  .callout {
+    font-size: 1.4em !important;
+    line-height: 1.25 !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    text-align: left;
+    margin-top: 5px;
+    color: #000000 !important;
+  }
+
 
   /*****************************
   * DATE TIME PICKER
@@ -114,14 +124,29 @@ body {
   * IMAGE
   ******************************/
   img.icon {
-    width: 6em;
-    height: auto;
+    width: 6em !important;
+    height: auto !important;
+    min-width: unset !important;
   }
   i.profile {
     font-size: 5em;
   }
   img.curve {
     border-radius: 50%;
+    width: 15em;
+    height: 15em;
+    min-width: 12em;
+    -webkit-shape-outside: circle();
+    shape-outside: circle();
+    vertical-align: middle;
+  }
+  img.left {
+    float: left;
+    margin-right: 4em;
+  }
+  img.right {
+    float: right;
+    margin-left: 4em;
   }
   div.image_preview {
     margin-bottom: 0.5em;
@@ -246,6 +271,31 @@ body {
       }
       .page-links {
         float: right;
+      }
+    }
+
+   /*****************************
+    * TESTIMONIAL
+    ******************************/
+    div.testimonials {
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 40%;
+      justify-content: space-between;
+      background-color: @nu-light-purple;
+      border: 2px solid @bcse-gray;
+      border-radius: 2em;
+      padding: 1em 3em;
+
+      div.testimonial {
+        margin-bottom: 1em;
+        font-size: 1.2em;
+        line-height: 1.5em;
+        font-style: italic;
+        display: inline-block;
+        position: relative;
+        height: auto;
+        text-align: left;
       }
     }
 

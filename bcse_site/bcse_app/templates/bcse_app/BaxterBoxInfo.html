@@ -6,9 +6,9 @@
     <div class="baxter_box_info container">
       <h1> The Baxter Box Program </h1>
       <h2>Borrow equipment and get up to 4 lab kits per reservation FREE for attending our workshops!</h2>
-      <p>We want to make sure teachers who attend our workshops are able to do the labs they learn with us in their classroom without worrying about the cost! That’s why we developed the Baxter Box Program. As soon as you know when you want to do a lab, simply request the kits and reserve the equipment below.</p>
+      <p class="callout">We want to make sure teachers who attend our workshops are able to do the labs they learn with us in their classroom without worrying about the cost! That’s why we developed the Baxter Box Program. As soon as you know when you want to do a lab, simply request the kits and reserve the equipment below.</p>
 
-      <p>If you’re interested in more online resources to support lab implementation, check out these asynchronous learning opportunities!</p>
+      <p class="callout">If you’re interested in more online resources to support lab implementation, check out these asynchronous learning opportunities!</p>
       <h3 class="center">Questions? Contact <a href="mailto:bcse@northwestern.edu">bcse@northwestern.edu</a>
       </h3>
       <div class="mb-3 center">
@@ -30,7 +30,7 @@
       {% include "bcse_app/EquipmentTiles.html" %}
       <div class="mt-3 center">
         {% if user.is_authenticated %}
-          <label><a class="btn btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
+          <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
         {% else %}
           <label><a class="btn signin modal-open" data-bs-toggle="modal" data-bs-target="#signin" data-href="{% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a></label>
         {% endif %}

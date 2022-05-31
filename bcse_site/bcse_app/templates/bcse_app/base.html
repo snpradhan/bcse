@@ -71,6 +71,9 @@
                     <li class="{% navactive request 'bcse:baxterBoxInfo' %}">
                       <a class="dropdown-item" href="{% url 'bcse:baxterBoxInfo' %}">Make a Reservation</a>
                     </li>
+                    <li class="{% navactive request 'bcse:classroomSupport' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:classroomSupport' %}">Get Support</a>
+                    </li>
                     {% if user.is_authenticated %}
                       <li class="{% navactive request 'bcse:reservations' %}">
                         <a class="dropdown-item" href="{% url 'bcse:reservations' %}">
