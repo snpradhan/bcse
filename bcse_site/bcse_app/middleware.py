@@ -57,3 +57,20 @@ class OnlineNowMiddleware(MiddlewareMixin):
     # Set the new cache
     cache.set('online-%s' % (request.user.pk,), True, ONLINE_THRESHOLD)
     cache.set('online-now', online_now_ids, ONLINE_THRESHOLD)
+
+class NextParameterMiddleware(MiddlewareMixin):
+
+  def process_request(self, request):
+    redirect_url = request.GET.get('next', '')
+    target = None
+    if 'password_reset' in redirect_url:
+      target = '#password'
+    elif 'signin' in redirect_url:
+      target = '#signin'
+    elif 'signup' in redirect_url:
+      target = '#signup'
+
+    if target and redirect_url:
+      request.target = target
+      request.redirect_url = redirect_url
+

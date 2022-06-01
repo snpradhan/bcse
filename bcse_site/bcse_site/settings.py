@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'compressor',
+    'password_reset',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'bcse_app.middleware.UpdateSession',
     'bcse_app.middleware.OnlineNowMiddleware',
+    'bcse_app.middleware.NextParameterMiddleware',
 ]
 
 ROOT_URLCONF = 'bcse_site.urls'

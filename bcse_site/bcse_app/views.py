@@ -36,6 +36,13 @@ from botocore.exceptions import ClientError
 from django.http import HttpResponse
 
 ####################################
+# HOMEPAGE
+####################################
+def home(request):
+  context = {}
+  return render(request, 'bcse_app/Home.html', context)
+
+####################################
 # ADMIN CONFIGURATION
 ####################################
 @login_required
@@ -181,7 +188,8 @@ def userSignup(request):
       newUser.phone_number = form.cleaned_data['phone_number']
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
-      newUser.image = request.FILES['image']
+      if request.FILES:
+        newUser.image = request.FILES['image']
       if form.cleaned_data['subscribe']:
         newUser.subscribe = True
 
@@ -253,13 +261,6 @@ def userSignup(request):
 def signinRedirect(request):
   messages.success(request, "You have signed in")
   return shortcuts.redirect('bcse:home')
-
-####################################
-# HOMEPAGE
-####################################
-def home(request):
-  context = {}
-  return render(request, 'bcse_app/Home.html', context)
 
 ####################################
 # ACTIVITIES

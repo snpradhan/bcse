@@ -22,6 +22,7 @@ from django.views.decorators.cache import never_cache
 urlpatterns = [
     path('', include('bcse_app.urls', namespace="bcse")),
     path('admin/', admin.site.urls),
+    path('password_reset/', include('password_reset.urls')),
     re_path(r"^ckeditor/upload/", login_required(ckeditor_views.upload), name="ckeditor_upload"),
     re_path(r"^ckeditor/browse/", never_cache(login_required(ckeditor_views.browse)), name="ckeditor_browse"),
     

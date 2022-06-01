@@ -30,7 +30,7 @@
         {% if user.is_authenticated %}
           <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
         {% else %}
-          <label><a class="btn signin modal-open" data-bs-toggle="modal" data-bs-target="#signin" data-href="{% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a></label>
+          <label><a class="btn signin" href="?next={% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a></label>
         {% endif %}
       </div>
       <hr>

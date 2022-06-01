@@ -28,6 +28,21 @@
           <link type="text/less" rel="stylesheet" href="{% staticfile 'less/style.less' %}" media="screen" charset="utf-8"/>
         {% endcompress %}
       {% endblock %}
+      <!--script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script-->
+
+      <!-- Plugin JavaScript -->
+      {% block inlinejs %}
+        <script type="text/javascript">
+          $(function (){
+            {% if request.redirect_url and request.target %}
+              $("{{request.target}}").load("{{request.redirect_url}}", function() {
+                $(this).modal('show');
+              });
+            {% endif %}
+          });
+        </script>
+      {% endblock %}
+
     {% endblock %}
   </head>
 
@@ -113,7 +128,9 @@
                 {% endif %}
                 {% if user.is_anonymous %}
                   <li class="nav-item">
-                    <a class="nav-link signin modal-open" data-bs-toggle="modal" data-bs-target="#signin" data-href="{% url 'bcse:signin' %}" href="#">Sign In/Sign Up</a>
+                    <a class="nav-link" role="button" href="?next={% url 'bcse:signin' %}" aria-expanded="false" href="#">
+                      Sign In/Sign Up
+                    </a>
                   </li>
                 {% else %}
                   <li class="nav-item dropdown {% navactive request 'bcse:userProfileView' user.userProfile.id %}">
@@ -156,12 +173,12 @@
     {% endblock %}
 
     {% block modals %}
-      <div class="modal" id="notification" role="dialog">
+      <div class="modal" id="notification" tabindex="-1" aria-hidden="true" aria-labelledby="notificationLabel" >
         <div class="modal-dialog modal-md">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
               <h3 class="left">Notification</h3>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <p></p>
@@ -169,12 +186,12 @@
           </div>
         </div>
       </div>
-      <div class="modal" id="warning" role="dialog">
+      <div class="modal" id="warning" tabindex="-1" aria-hidden="true" aria-labelledby="warningLabel" >
         <div class="modal-dialog modal-md">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
               <h3 class="left">Warning</h3>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <p class="warning"></p>
@@ -182,12 +199,12 @@
           </div>
         </div>
       </div>
-      <div class="modal" id="confirmation" role="dialog">
+      <div class="modal" id="confirmation" tabindex="-1" aria-hidden="true" aria-labelledby="confirmationLabel" >
         <div class="modal-dialog modal-md">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h3 class="left">Warning</h3>
+              <h3 class="left">Confirmation</h3>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               <p class="confirmation"></p>
@@ -195,14 +212,14 @@
           </div>
         </div>
       </div>
-      <div class="modal" id="signin" role="dialog"  data-bs-keyboard="false"></div>
-      <div class="modal" id="signup" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
-      <div class="modal" id="workshop_registration" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
-      <div class="modal" id="password" role="dialog"></div>
-      <div class="modal" id="kit" role="dialog"></div>
-      <div class="modal" id="profile" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"></div>
-      <div class="modal" id="validate" role="dialog"></div>
-      <div class="modal" id="users_upload" role="dialog"></div>
+      <div class="modal fade" id="signin" data-bs-keyboard="false" data-bs-backdrop="static" tabindex="-1" aria-hidden="true" aria-labelledby="signinLabel" ></div>
+      <div class="modal fade" id="signup" data-bs-keyboard="false" data-bs-backdrop="static" tabindex="-1" aria-hidden="true" aria-labelledby="signupLabel" ></div>
+      <div class="modal" id="workshop_registration" data-bs-keyboard="false" data-bs-backdrop="static" tabindex="-1" aria-hidden="true" aria-labelledby="workshop_registrationLabel" ></div>
+      <div class="modal fade" id="password" data-bs-backdrop="static" tabindex="-1" aria-hidden="true" aria-labelledby="passwordLabel"></div>
+      <div class="modal" id="kit" tabindex="-1" aria-hidden="true" aria-labelledby="kitLabel" ></div>
+      <div class="modal" id="profile" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" aria-labelledby="profileLabel" ></div>
+      <div class="modal" id="validate" tabindex="-1" aria-hidden="true" aria-labelledby="validatenLabel" ></div>
+      <div class="modal" id="users_upload" tabindex="-1" aria-hidden="true" aria-labelledby="users_uploadLabel" ></div>
     {% endblock %}
 
     <footer>

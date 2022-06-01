@@ -34,7 +34,10 @@
           </button>
           <br><br>
           <div>
-            Don't have an account? <a class="signup modal-open" data-bs-toggle="modal" data-bs-target="#signup" data-bs-dimiss="modal" data-href="{% url 'bcse:signup' %}"><strong>Sign Up</strong></a>
+            Don't have an account? <a href="?next={% url 'bcse:signup' %}"><strong><u>Sign Up</u></strong></a>
+          </div>
+          <div>
+            <a href="?next={% url 'password_reset_recover' %}"><u>Forgot Password?</u></a>
           </div>
         </div>
       </div>
@@ -69,15 +72,6 @@
         error: function(){
           displayErrorDialog();
         }
-      });
-    });
-    $("a.signup.modal-open").click(function(e){
-      //e.preventDefault();
-      var url = $(this).data('href');
-      var target = $(this).data('bs-target');
-      $(target).load(url, function() {
-        $(this).show();
-        $('#signin').modal('hide');
       });
     });
   });

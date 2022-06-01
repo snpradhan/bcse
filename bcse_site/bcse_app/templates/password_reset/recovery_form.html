@@ -1,0 +1,84 @@
+{% load i18n %}
+<div class="modal-dialog modal-sm">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Password Recovery</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="passwordMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+          <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" id="password_reset" action="{{ url }}">
+      {% csrf_token %}
+      {{form.management_form}}
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="id_{{form.username_or_email.name}}">Email</label>
+          {{form.username_or_email}}
+          <div class="error">{{ form.username_or_email.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+         <button class="btn" type="submit">Recover my password</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function (){
+    $('input[type="text"]').addClass('form-control');
+    $('div.error').each(function(){
+      if($(this).html().length > 0){
+        $(this).prev().addClass('error');
+      }
+    });
+
+    $('form#password_reset').submit(function(e){
+      e.preventDefault();
+      var username_email = $('input#id_username_or_email').val();
+      //check if username was entered
+      if(username_email.indexOf('@') == -1){
+        //convert only usernames to lowercase
+        $('input#id_username_or_email').val(username_email.toLowerCase())
+      }
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        context: this,
+        success: function(data, status) {
+          if(data.trim().endsWith('password.')) {
+            var html = $.parseHTML(data.trim());
+            $('#password').modal('toggle');
+            $('#notification .modal-body p').html(html[0]['data']);
+            $('#notification').modal('toggle');
+          }
+          else{
+            $('#password').html(data);
+          }
+        },
+        error: function(){
+          $('#password').modal('toggle');
+          $('#notification .modal-body p').html('Your password has been reset successfully. You may now login with your new password.');
+          $('#notification').modal('toggle');
+        }
+      });
+    });
+    $("a.modal-open").click(function(e){
+      //e.preventDefault();
+      var url = $(this).data('href');
+      var target = $(this).data('bs-target');
+      $(target).load(url, function() {
+        $(this).show();
+        $('#signin').modal("hide");
+      });
+    });
+  });
+  </script>
