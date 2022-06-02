@@ -63,7 +63,12 @@
         },
         success: function(data, status) {
           if(data['success'] == true){
-            window.parent.location.href = data['redirect_url'];
+            if(data['redirect_url']) {
+              window.parent.location.href = data['redirect_url'];
+            }
+            else {
+              window.parent.location.href = window.location.href.split('?')[0]
+            }
           }
           else{
             $('#signin').html(data['html']);

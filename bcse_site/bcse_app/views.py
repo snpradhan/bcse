@@ -90,7 +90,7 @@ def classroomSupport(request):
 def userSignin(request, user_email=''):
   email = password = ''
   print(request.method)
-  redirect_url = request.GET.get('next', '/')
+  redirect_url = request.GET.get('next', '')
   if request.method == 'POST':
     data = request.POST.copy()
     form = forms.SignInForm(data)
@@ -1406,10 +1406,14 @@ def workshopRegistration(request, workshop_id):
       default_registration_status = 'A'
 
     if request.user.is_anonymous:
-      if default_registration_status == 'R':
-        user_message = 'Please login to register for this workshop'
-      else:
-        user_message = 'Please login to apply to this workshop'
+      if registration_setting_status['registration_open']:
+        if default_registration_status == 'R':
+          user_message = 'Please <u><a href="?next=/signin">login</a></u> to register for this workshop'
+        else:
+          user_message = 'Please <u><a href="?next=/signin">login</a></u> to apply to this workshop'
+      elif registration_setting_status['message']:
+        user_message = registration_setting_status['message']
+
       message_class = 'info'
     else:
       if request.user.userProfile.user_role in ['A', 'S']:

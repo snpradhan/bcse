@@ -1,7 +1,7 @@
 {% if registration %}
   {% if registration.user_message %}
     <div class="message {{registration.message_class}}">
-      <div>{{registration.user_message}}</div>
+      <div>{{registration.user_message|safe}}</div>
       <br>
       {% now 'Y-m-d' as current_date %}
       {% if registration.instance.id  and current_date < workshop.start_date|date:'Y-m-d' %}
@@ -38,7 +38,9 @@
             Apply
           {% endif %}
         </button>
-        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+        {% if user.userProfile.user_role in 'AS' %}
+          <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+        {% endif %}
       </div>
     </form>
   {% endif %}
