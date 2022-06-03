@@ -62,20 +62,24 @@
               <td> {{workshop.registration_setting.get_registration_type_display|default_if_none:""}}</td>
               <td>
                 {% if workshop.enable_registration %}
-                  {{workshop.capacity}}
+                  {{workshop.registration_setting.capacity|default_if_none:""}}
                 {% endif %}
               </td>
               <td>
                 {% if workshop.enable_registration %}
-                  {{workshop.waitlist_enabled}}
+                  {{workshop.registration_setting.enable_waitlist|yesno|title}}
                 {% endif %}
               </td>
               <td>
-                {% if workshop.enable_waitlist %}
-                  {{workshop.waitlist_capacity}}
+                {% if workshop.enable_registration %}
+                  {{workshop.registration_setting.waitlist_capacity|default_if_none:""}}
                 {% endif %}
               </td>
-              <td> {{workshop.registration_setting.registrants.all|length}}</td>
+              <td>
+                {% if workshop.enable_registration %}
+                  {{workshop.registration_setting.registrants.all|length}}
+                {% endif %}
+              </td>
               <td> {{workshop.created_date|date:"F j, Y g:i A"}} </td>
               <td> {{workshop.modified_date|date:"F j, Y g:i A"}} </td>
               <td> {{workshop.get_status_display}} </td>
