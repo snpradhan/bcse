@@ -1,0 +1,66 @@
+{% load bcse_extras %}
+<table class="table table-bordered table-striped" id="workshop_registrants">
+  <thead>
+    <tr class='noExl'>
+      <th> Workshop ID </th>
+      <th> Workshop Title </th>
+      <th> Start Date </th>
+      <th> End Date </th>
+      <th> Registration ID</th>
+      <th> User ID </th>
+      <th> Email </th>
+      <th> Full Name </th>
+      <th> Created Date </th>
+      <th> Status </th>
+      <th > Action </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="display:none;">
+      <td style="background-color: #767676; color: white;"> Workshop ID</td>
+      <td style="background-color: #767676; color: white;"> Workshop Title </td>
+      <td style="background-color: #767676; color: white;"> Start Date </td>
+      <td style="background-color: #767676; color: white;"> End Date </td>
+      <td style="background-color: #767676; color: white;"> Registration ID</td>
+      <td style="background-color: #767676; color: white;"> User ID </td>
+      <td style="background-color: #767676; color: white;"> Email </td>
+      <td style="background-color: #767676; color: white;"> Full Name </td>
+      <td style="background-color: #767676; color: white;"> Created Date </td>
+      <td style="background-color: #767676; color: white;"> Status </td>
+    </tr>
+    {% for registrant in registrations %}
+      <tr>
+        <td> {{registrant.workshop_registration_setting.workshop.id}}</td>
+        <td> {{registrant.workshop_registration_setting.workshop.name}}</td>
+        <td> {{registrant.workshop_registration_setting.workshop.start_date|date:"F j, Y"}}</td>
+        <td> {{registrant.workshop_registration_setting.workshop.end_date|date:"F j, Y"}}</td>
+        <td> {{registrant.id}}</td>
+        <td> {{registrant.user.id}}</td>
+        <td> {{registrant.user.user.email}} </td>
+        <td> {{registrant.user.user.get_full_name}}</td>
+        <td> {{registrant.created_date|date}}</td>
+        <td> {{registrant.get_status_display}} </td>
+        <td class="noExl">
+          <div class="btn-group">
+            <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              Action
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' registrant.workshop_registration_setting.workshop.id registrant.id %}" href="#">Edit</a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' registrant.workshop_registration_setting.workshop.id registrant.id %}"
+                data-title="the registration for <strong>{{registrant.user.user.get_full_name}}</strong>">
+                  Delete
+                </a>
+              </li>
+            </ul>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% include "bcse_app/Pagination.html" with model=registrations %}

@@ -3,6 +3,7 @@ from django.forms import ModelForm
 from bcse_app import models, widgets, utils
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.db.models.functions import Lower
 
 
 ####################################
@@ -625,6 +626,28 @@ class WorkshopsSearchForm(forms.Form):
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# Registrants Search Form
+####################################
+class RegistrantsSearchForm(forms.Form):
+
+  workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().order_by(Lower('name')))
+  workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().order_by(Lower('name')))
+  year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
+  status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES)
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('year', 'Year'), ('status', 'Status')))
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(RegistrantsSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+    self.fields['workshop'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.start_date.year)
+
 
 ####################################
 # User Search Form

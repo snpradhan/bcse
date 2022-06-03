@@ -61,12 +61,14 @@ urlpatterns = [
     path('adminConfiguration/equipment/<int:id>/delete', views.equipmentDelete, name='equipmentDelete'),
     path('adminConfiguration/equipment/new', views.equipmentEdit, name='equipmentNew'),
     path('adminConfiguration/equipments/', views.equipments, name='equipments'),
+    path('adminConfiguration/baxter_box_usage_report/', views.baxterBoxUsageReport, name='baxterBoxUsageReport'),
 
 
     path('adminConfiguration/workshopCategory/<int:id>/edit', views.workshopCategoryEdit, name='workshopCategoryEdit'),
     path('adminConfiguration/workshopCategory/<int:id>/delete', views.workshopCategoryDelete, name='workshopCategoryDelete'),
     path('adminConfiguration/workshopCategory/new', views.workshopCategoryEdit, name='workshopCategoryNew'),
     path('adminConfiguration/workshopCategories/', views.workshopCategories, name='workshopCategories'),
+    path('adminConfiguration/workshopsRegistrants/', views.workshopsRegistrants, name='workshopsRegistrants'),
     path('adminConfiguration/registrationEmailMessage/<int:id>/edit', views.registrationEmailMessageEdit, name='registrationEmailMessageEdit'),
     path('adminConfiguration/registrationEmailMessage/<int:id>/delete', views.registrationEmailMessageDelete, name='registrationEmailMessageDelete'),
     path('adminConfiguration/registrationEmailMessage/new', views.registrationEmailMessageEdit, name='registrationEmailMessageNew'),
@@ -82,7 +84,7 @@ urlpatterns = [
     path('adminConfiguration/users/upload', views.usersUpload, name='usersUpload'),
 
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
-    path('baxter_box/usage/report/', views.baxterBoxUsageReport, name='baxterBoxUsageReport'),
+
     path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),
 
 ]

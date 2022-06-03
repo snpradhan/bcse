@@ -86,6 +86,10 @@ NUM_OF_CLASS_CHOICES = (
   ('5', 'More than 4'),
 )
 
+YEAR_CHOICES = [('', '---------')]
+for x in range(2008, datetime.datetime.now().year + 5):
+  YEAR_CHOICES.append((x, x))
+
 def upload_file_to(instance, filename):
   import os
   now = datetime.datetime.now()

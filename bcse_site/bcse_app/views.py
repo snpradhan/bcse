@@ -1720,17 +1720,19 @@ def workshopRegistrationMessage(workshop_registration):
 ################################################
 # WORKSHOPS BASE QUERY BEFORE APPLYING FILTERS
 ################################################
-def workshopsBaseQuery(request, flag='list'):
+def workshopsBaseQuery(request, flag='list', user_id=''):
 
   workshops = None
   if request.user.is_authenticated:
-    if request.user.userProfile.user_role in ['A', 'S']:
-      workshops = models.Workshop.objects.all()
-    else:
+    if user_id:
+      workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user__id=user_id)
+    elif request.user.userProfile.user_role not in ['A', 'S']:
       if flag =='list':
         workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
       else:
         workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user=request.user.userProfile)
+    else:
+      workshops = models.Workshop.objects.all()
   else:
     workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
 
@@ -1741,9 +1743,17 @@ def workshopsBaseQuery(request, flag='list'):
 ################################################
 def workshops(request, flag='list'):
 
-  workshops = workshopsBaseQuery(request, flag)
   searchForm = forms.WorkshopsSearchForm(user=request.user, prefix="workshop_search")
+  workshop_list = workshopsList(request, flag)
+  context = {'workshop_list': workshop_list, 'searchForm': searchForm, 'flag': flag}
 
+  return render(request, 'bcse_app/WorkshopsBaseView.html', context)
+
+################################################
+# UTILITY FUNCITON TO GET A LIST OF WORKSHOPS
+################################################
+def workshopsList(request, flag, id=''):
+  workshops = workshopsBaseQuery(request, flag, id)
   workshop_list = []
   for workshop in workshops:
     registration = None
@@ -1751,9 +1761,7 @@ def workshops(request, flag='list'):
       registration = workshopRegistration(request, workshop.id)
     workshop_list.append({'workshop': workshop, 'registration': registration})
 
-  context = {'workshop_list': workshop_list, 'searchForm': searchForm, 'flag': flag}
-
-  return render(request, 'bcse_app/WorkshopsBaseView.html', context)
+  return workshop_list
 
 ##########################################################
 # FILTER WORKSHOP BASE QUERY BASED ON FILTER CRITERIA
@@ -1903,8 +1911,8 @@ def workshopRegistrationSetting(request, id=''):
 def workshopRegistrants(request, id=''):
   try:
 
-    if request.user.userProfile.user_role != 'A':
-      raise CustomException('You do not have the permission to view this user profile')
+    if request.user.is_anonymous or request.user.userProfile.user_role not in  ['A', 'S'] :
+      raise CustomException('You do not have the permission to view workshop registrants')
 
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
@@ -1921,6 +1929,77 @@ def workshopRegistrants(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+##########################################################
+# LIST OF ALL REGISTRANTS ACROSS ALL WORKSHOPS
+##########################################################
+def workshopsRegistrants(request):
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in  ['A', 'S'] :
+      raise CustomException('You do not have the permission to view workshop registrants')
+
+    searchForm = forms.RegistrantsSearchForm(user=request.user, prefix="registrants_search")
+    if request.method == 'GET':
+
+      query_filter = Q()
+      workshop_category_filter = None
+      workshop_filter = None
+      year_filter = None
+      status_filter = None
+
+      workshop_category = [int(i) for i in request.GET.getlist('registrants_search-workshop_category', '')]
+      workshop = [int(i) for i in request.GET.getlist('registrants_search-workshop', '')]
+      year = request.GET.get('registrants_search-year', '')
+      status = request.GET.getlist('registrants_search-status', '')
+      sort_by = request.GET.get('registrants_search-sort_by', '')
+
+      if workshop_category:
+        print(workshop_category)
+        workshop_category_filter = Q(workshop_registration_setting__workshop__workshop_category__id__in=workshop_category)
+        query_filter = query_filter & workshop_category_filter
+      if workshop:
+        workshop_filter = Q(workshop_registration_setting__workshop__id__in=workshop)
+        query_filter = query_filter & workshop_filter
+      if year:
+        year_filter = Q(workshop_registration_setting__workshop__start_date__year=int(year))
+        query_filter = query_filter & year_filter
+      if status:
+        status_filter  = Q(status__in=status)
+        query_filter = query_filter & status_filter
+
+      print(query_filter)
+      registrations = models.Registration.objects.all().filter(query_filter).distinct()
+      print(registrations.count())
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      sort_order = []
+      if sort_by:
+        if sort_by == 'title':
+          sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'year':
+          sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date__year', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'status':
+          sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
+
+      sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+
+      registrations = paginate(request, registrations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+
+    if request.is_ajax():
+      context = {'registrations': registrations}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/WorkshopsRegistrantsTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+    else:
+      context = {'registrations': registrations, 'searchForm': searchForm}
+      return render(request, 'bcse_app/WorkshopsRegistrants.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # VIEW USER PROFILE
@@ -1937,7 +2016,8 @@ def userProfileView(request, id=''):
       raise CustomException('You do not have the permission to view this user profile')
 
     if request.method == 'GET':
-      context = {'userProfile': userProfile}
+      workshop_list = workshopsList(request, 'table', id)
+      context = {'userProfile': userProfile, 'workshop_list': workshop_list}
 
       if request.user.userProfile.user_role in  ['A', 'S']:
         return render(request, 'bcse_app/UserProfileView.html', context)

@@ -28,7 +28,8 @@
                   {% leftnavactive request 'registrationEmailMessages' %}
                   {% leftnavactive request 'registrationEmailMessage' %}
                   {% leftnavactive request 'teacherLeaders' %}
-                  {% leftnavactive request 'teacherLeader' %}" id="workshop_config">
+                  {% leftnavactive request 'teacherLeader' %}
+                  {% leftnavactive request 'workshopsRegistrants' %}" id="workshop_config">
 
                 <li>
                   <a href="{% url 'bcse:workshops' 'table' %}">Workshops</a>
@@ -41,6 +42,9 @@
                 </li>
                 <li class="{% if 'teacherLeaders' in request.path or  'teacherLeader' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:teacherLeaders' %}">Teacher Leaders</a>
+                </li>
+                <li class="{% if 'workshopsRegistrants' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:workshopsRegistrants' %}">Workshops Registrants</a>
                 </li>
               </ul>
             </li>
@@ -58,7 +62,8 @@
                                              {% leftnavactive request 'equipmentTypes' %}
                                              {% leftnavactive request 'equipmentType' %}
                                              {% leftnavactive request 'equipments' %}
-                                             {% leftnavactive request 'equipment' %}"
+                                             {% leftnavactive request 'equipment' %
+                                             {% leftnavactive request 'baxter_box_usage_report' %}"
 
                                              id="baxter_box_config">
                 <li class="{% if 'activities' in request.path or 'activity' in request.path %} active {% endif %}">
@@ -73,6 +78,9 @@
 
                 <li>
                   <a href="{% url 'bcse:reservations' %}">User Reservations</a>
+                </li>
+                <li class="{% if 'baxter_box_usage_report' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:baxterBoxUsageReport' %}">Baxter Box Usage Report</a>
                 </li>
               </ul>
             </li>

@@ -1,0 +1,24 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1 class="center"> Registrants </h1>
+  {% include "bcse_app/WorkshopsRegistrantsSearch.html" %}
+  <div class="workshops_registrants search_results">
+    {% include "bcse_app/WorkshopsRegistrantsTableView.html" %}
+  </div>
+  <script type="text/javascript">
+    $(function (){
+      $('.download').on('click', function(e) {
+        $("#workshop_registrants").table2excel({
+          exclude: ".noExl",
+          name: "Workshop Registrants",
+          filename: "Workshop_Registrants", //do not include extension
+          fileext:".xls", // file extension
+          preserveColors: true, // set to true if you want background colors and font colors preserved
+        });
+      });
+    });
+  </script>
+{% endblock %}

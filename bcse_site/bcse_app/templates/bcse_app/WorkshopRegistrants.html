@@ -1,5 +1,6 @@
 {% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
+{% load base_extras %}
 
 {% block content %}
   {{block.super}}
@@ -7,19 +8,40 @@
     <div class="workshop_container container">
       <h1 class="center"> {{workshop.name}}</h1>
       {% include "bcse_app/WorkshopTabs.html" with tab='registrants' %}
-      <table class="table table-bordered table-striped">
-        <thead>
+      <table class="table table-bordered table-striped" id="workshop_registrants">
+        <tbody style="display:none;">
           <tr>
+            <td style="background-color: #767676; color: white;"> Worshop ID</td>
+            <td style="background-color: #767676; color: white;"> Workshop Title </td>
+          </tr>
+          <tr>
+            <td>{{workshop.id}}</td>
+            <td>{{workshop.name}}</td>
+          </tr>
+          <tr>
+            <td colspan="2"></td>
+          </tr>
+        </tbody>
+        <thead>
+          <tr class='noExl'>
             <th> Registration ID</th>
             <th> User ID </th>
             <th> Email </th>
             <th> Full Name </th>
             <th> Created Date </th>
             <th> Status </th>
-            <th> Action </th>
+            <th > Action </th>
           </tr>
         </thead>
         <tbody>
+          <tr style="display:none;">
+            <td style="background-color: #767676; color: white;"> Registration ID</td>
+            <td style="background-color: #767676; color: white;"> User ID </td>
+            <td style="background-color: #767676; color: white;"> Email </td>
+            <td style="background-color: #767676; color: white;"> Full Name </td>
+            <td style="background-color: #767676; color: white;"> Created Date </td>
+            <td style="background-color: #767676; color: white;"> Status </td>
+          </tr>
           {% for registrant in workshop.registration_setting.workshop_registrants.all %}
             <tr>
               <td> {{registrant.id}}</td>
@@ -28,7 +50,7 @@
               <td> {{registrant.user.user.get_full_name}}</td>
               <td> {{registrant.created_date|date}}</td>
               <td> {{registrant.get_status_display}} </td>
-              <td>
+              <td class="noExl">
                 <div class="btn-group">
                   <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                     Action
@@ -53,7 +75,22 @@
       </table>
       <div class="form-group right">
         <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+        <button class="btn download" type="button">Download Registrants</button>
       </div>
     </div>
   </div>
+
+  <script type="text/javascript">
+    $(function (){
+      $('.download').on('click', function(e) {
+        $("#workshop_registrants").table2excel({
+          exclude: ".noExl",
+          name: "Workshop Registrants",
+          filename: "Workshop_Registrants", //do not include extension
+          fileext:".xls", // file extension
+          preserveColors: true, // set to true if you want background colors and font colors preserved
+        });
+      });
+    });
+  </script>
 {% endblock %}
