@@ -3,5 +3,13 @@
 {% load base_extras %}
 
 {% block configuration %}
-  {% include "bcse_app/ProfileView.html" %}
+  {% include "bcse_app/ProfileView.html" with tag='User Profile' %}
+  <br>
+  <hr>
+  <br>
+  {% include "bcse_app/WorkshopsTableView.html" with tag='profile' %}
+  <br>
+  <hr>
+  <br>
+  {% include "bcse_app/ReservationsTableView.html" with tag='profile'%}
 {% endblock %}

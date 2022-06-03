@@ -1,10 +1,14 @@
 {% load bcse_extras %}
 
+{% if tag == 'profile' %}
+  <h2 class="center">My Workshops</h2>
+{% endif %}
+
 {% if workshop_list %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
           <th> ID</th>
         {% endif %}
         <th> Workshop Type </th>
@@ -13,7 +17,7 @@
         <th> End Date/Time </th>
         <th> Location </th>
         {% if user.is_authenticated %}
-          {% if user.userProfile.user_role in 'AS' %}
+          {% if user.userProfile.user_role in 'AS' and tag == 'workshops' %}
             <th> Registration Enabled? </th>
             <th> Registration Type </th>
             <th> Capacity </th>
@@ -34,7 +38,7 @@
       {% for workshop_obj in workshop_list %}
         {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
         <tr>
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
             <td> {{workshop.id}}</td>
           {% endif %}
           <td> {{workshop.workshop_category}} </td>
@@ -57,7 +61,7 @@
             {% endif %}</td>
           <td> {{workshop.location}} </td>
           {% if user.is_authenticated %}
-            {% if user.userProfile.user_role in 'AS' %}
+            {% if user.userProfile.user_role in 'AS' and tag == 'workshops' %}
               <td> {{workshop.enable_registration|yesno|title}} </td>
               <td> {{workshop.registration_setting.get_registration_type_display|default_if_none:""}}</td>
               <td>

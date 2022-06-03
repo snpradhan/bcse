@@ -581,10 +581,8 @@ def reservations(request):
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to view reservations')
-    elif request.user.is_authenticated and request.user.userProfile.user_role not in ['A', 'S']:
-      reservations = models.Reservation.objects.all().filter(user__user=request.user)
-    else:
-      reservations = models.Reservation.objects.all()
+
+    reservations = reservationsList(request)
 
     sort_order = [{'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'}]
     reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
@@ -596,6 +594,19 @@ def reservations(request):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def reservationsList(request, user_id=''):
+  reservations = None
+  if request.user.is_authenticated:
+    if request.user.userProfile.user_role not in ['A', 'S']:
+      reservations = models.Reservation.objects.all().filter(user__user=request.user)
+    elif user_id:
+      reservations = models.Reservation.objects.all().filter(user__id=user_id)
+    else:
+      reservations = models.Reservation.objects.all()
+
+  return reservations
 
 ####################################
 # EDIT RESERVATION
@@ -2017,7 +2028,8 @@ def userProfileView(request, id=''):
 
     if request.method == 'GET':
       workshop_list = workshopsList(request, 'table', id)
-      context = {'userProfile': userProfile, 'workshop_list': workshop_list}
+      reservations = reservationsList(request, id)
+      context = {'userProfile': userProfile, 'workshop_list': workshop_list, 'reservations': reservations}
 
       if request.user.userProfile.user_role in  ['A', 'S']:
         return render(request, 'bcse_app/UserProfileView.html', context)

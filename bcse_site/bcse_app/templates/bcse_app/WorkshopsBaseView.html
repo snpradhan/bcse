@@ -21,7 +21,7 @@
         {% now 'Y-m-d' as current_date %}
 
         {% if flag == 'table' %}
-          {% include "bcse_app/WorkshopsTableView.html" %}
+          {% include "bcse_app/WorkshopsTableView.html" with tag='workshops' %}
         {% else %}
           {% include "bcse_app/WorkshopsListView.html" %}
         {% endif %}

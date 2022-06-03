@@ -5,7 +5,15 @@
   {{block.super}}
   <div class="content">
     <div class="user_profile_container container">
-      {% include "bcse_app/ProfileView.html" %}
+      {% include "bcse_app/ProfileView.html" with tag='My Profile' %}
+      <br>
+      <hr>
+      <br>
+      {% include "bcse_app/WorkshopsTableView.html" with tag='profile'%}
+      <br>
+      <hr>
+      <br>
+      {% include "bcse_app/ReservationsTableView.html" with tag='profile'%}
     </div>
   </div>
 {% endblock %}

@@ -1,12 +1,15 @@
 {% load bcse_extras %}
 
+{% if tag == 'profile' %}
+  <h2 class="center">My Baxter Box Reservations</h2>
+{% endif %}
 {% if reservations %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
         <th> ID</th>
         <th> Reservation Made On</th>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
           <th> User </th>
         {% endif %}
         <th> Activity </th>
@@ -28,7 +31,7 @@
         <tr>
           <td> {{reservation.id}}</td>
           <td>{{reservation.created_date|date:"F j, Y"}}</td>
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
             <td> {{reservation.user}} </td>
           {% endif %}
           <td>
@@ -48,7 +51,7 @@
               {% for equipment in reservation.equipment.all %}
                 <li>
                   {{equipment.equipment_type}}
-                  {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                  {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
                     ({{equipment.name}})
                   {% endif %}
                 </li>
@@ -115,7 +118,11 @@
       {% endfor %}
     </tbody>
   </table>
-  {% include "bcse_app/Pagination.html" with model=reservations %}
+  {% if tag == 'reservations' %}
+    {% include "bcse_app/Pagination.html" with model=reservations %}
+  {% endif %}
 {% else %}
-  <div class="warning center">No reservations matching your search criteria found</div>
+  {% if tag == 'reservations' %}
+    <div class="warning center">No reservations matching your search criteria found</div>
+  {% endif %}
 {% endif %}
