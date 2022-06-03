@@ -2081,6 +2081,7 @@ def userProfileEdit(request, id=''):
       old_email = userProfile.user.email
       old_first_name = userProfile.user.first_name
       old_last_name = userProfile.user.last_name
+      old_phone_number = userProfile.phone_number
 
       userForm = forms.UserForm(data, instance=userProfile.user, user=request.user, prefix='user')
       userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile")
@@ -2098,7 +2099,7 @@ def userProfileEdit(request, id=''):
         elif not subscribed and savedUserProfile.subscribe:
           subscription(savedUserProfile, 'add')
         #user email, first name or last name changed
-        elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name:
+        elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
           subscription(savedUserProfile, 'update', subscriber_hash)
 
         messages.success(request, "User profile saved successfully")
@@ -2631,7 +2632,7 @@ def subscription(userProfile, status, subscriber_hash=None):
     if status == 'add':
       member_info = {
         "email_address": userProfile.user.email,
-        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name},
+        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name, "PHONE": userProfile.phone_number},
         "status": "subscribed",
       }
       response = mailchimp.lists.add_list_member(list_id, member_info)
@@ -2642,7 +2643,7 @@ def subscription(userProfile, status, subscriber_hash=None):
     else:
       member_info = {
         "email_address": userProfile.user.email,
-        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name},
+        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name, "PHONE": userProfile.phone_number},
         "status": "subscribed",
       }
       response = mailchimp.lists.update_list_member(list_id, subscriber_hash, member_info)
