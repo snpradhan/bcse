@@ -7,7 +7,9 @@
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th> ID</th>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          <th> ID</th>
+        {% endif %}
         <th> Reservation Made On</th>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
           <th> User </th>
@@ -29,7 +31,9 @@
     <tbody>
       {% for reservation in reservations %}
         <tr>
-          <td> {{reservation.id}}</td>
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+            <td> {{reservation.id}}</td>
+          {% endif %}
           <td>{{reservation.created_date|date:"F j, Y"}}</td>
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
             <td> {{reservation.user}} </td>

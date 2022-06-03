@@ -918,7 +918,7 @@ def reservationsSearch(request):
 
       reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
 
-      context = {'reservations': reservations}
+      context = {'reservations': reservations, 'tag': 'reservations'}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/ReservationsTableView.html', context, request)

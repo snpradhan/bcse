@@ -18,8 +18,6 @@
         <img src="/static/img/page-loader.gif" class="icon"/>
       </div>
       <div class="workshops search_results">
-        {% now 'Y-m-d' as current_date %}
-
         {% if flag == 'table' %}
           {% include "bcse_app/WorkshopsTableView.html" with tag='workshops' %}
         {% else %}
