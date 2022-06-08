@@ -29,7 +29,8 @@ urlpatterns = [
     path('workshop/<int:workshop_id>/registration/<int:id>/edit', views.workshopRegistrationEdit, name='workshopRegistrationEdit'),
     path('workshop/<int:workshop_id>/registration/<int:id>/delete', views.workshopRegistrationDelete, name='workshopRegistrationDelete'),
     path('workshops/<str:flag>', views.workshops, name='workshops'),
-    path('workshops/search/<str:flag>', views.workshopsSearch, name='workshopsSearch'),
+    path('workshops/search/<str:flag>/<str:audience>', views.workshopsSearch, name='workshopsSearch'),
+    path('studentPrograms/<str:flag>', views.studentPrograms, name='studentPrograms'),
 
     path('signin/', views.userSignin, name='signin'),
     path('signin_redirect/', views.signinRedirect, name='signinRedirect'),
@@ -66,6 +67,8 @@ urlpatterns = [
 
     path('adminConfiguration/workshopCategory/<int:id>/edit', views.workshopCategoryEdit, name='workshopCategoryEdit'),
     path('adminConfiguration/workshopCategory/<int:id>/delete', views.workshopCategoryDelete, name='workshopCategoryDelete'),
+    path('adminConfiguration/workshopCategory/<int:id>/audience', views.getWorkshopCategoryAudience, name='getWorkshopCategoryAudience'),
+
     path('adminConfiguration/workshopCategory/new', views.workshopCategoryEdit, name='workshopCategoryNew'),
     path('adminConfiguration/workshopCategories/', views.workshopCategories, name='workshopCategories'),
     path('adminConfiguration/workshopsRegistrants/', views.workshopsRegistrants, name='workshopsRegistrants'),
@@ -86,5 +89,7 @@ urlpatterns = [
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
 
     path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),
+
+
 
 ]

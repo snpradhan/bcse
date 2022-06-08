@@ -424,6 +424,16 @@ class WorkshopForm(ModelForm):
   def __init__(self, *args, **kwargs):
     super(WorkshopForm, self).__init__(*args, **kwargs)
 
+    workshop_category_choices = {}
+    for category in models.WorkshopCategory.objects.all().filter(status='A').order_by('audience', 'name'):
+      audience = category.get_audience_display()
+      if audience not in  workshop_category_choices:
+        workshop_category_choices[audience] = {category.id: category.name}
+      else:
+         workshop_category_choices[audience][category.id] = category.name
+
+    self.fields['workshop_category'].choices = (('', '---------'),)+tuple([(k1, tuple((k2, v2) for k2, v2 in v1.items())) for k1, v1 in workshop_category_choices.items()])
+
     for field_name, field in list(self.fields.items()):
       if field_name not in ['enable_registration']:
         if field_name in ['start_date', 'end_date']:
@@ -599,7 +609,7 @@ class ReservationsSearchForm(forms.Form):
 ####################################
 class WorkshopsSearchForm(forms.Form):
 
-  workshop_category = forms.ModelChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().filter(status='A').order_by('name'))
+  workshop_category = forms.ModelChoiceField(required=False, queryset=models.WorkshopCategory.objects.all())
   starts_after = forms.DateField(required=False, label=u'Starts on/after')
   ends_before = forms.DateField(required=False, label=u'Ends on/before')
   registration_open = forms.BooleanField(required=False)
@@ -609,11 +619,18 @@ class WorkshopsSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    audience = kwargs.pop('audience')
     super(WorkshopsSearchForm, self).__init__(*args, **kwargs)
 
 
+    if audience == 'teacher':
+      self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A', audience='T').order_by('name')
+    else:
+     self.fields['workshop_category'].label = 'Program Category'
+     self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A', audience='S').order_by('name')
+     self.fields.pop('registration_open')
+
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
-      self.fields.pop('workshop_category')
       self.fields.pop('status')
 
     for field_name, field in self.fields.items():

@@ -12,8 +12,8 @@
           Workshops
         {% endif %}
       </h1>
-      {% include "bcse_app/WorkshopsButtons.html" %}
-      {% include "bcse_app/WorkshopsSearch.html" %}
+      {% include "bcse_app/WorkshopsButtons.html" with tag='workshops' %}
+      {% include "bcse_app/WorkshopsSearch.html" with audience='teacher' %}
       <div class="form-group" id="spinner">
         <img src="/static/img/page-loader.gif" class="icon"/>
       </div>

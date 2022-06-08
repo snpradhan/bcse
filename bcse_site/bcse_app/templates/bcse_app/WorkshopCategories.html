@@ -13,8 +13,8 @@
         <tr>
           <th> Workshop Category ID</th>
           <th> Name </th>
-          <th> Description </th>
           <th> Type </th>
+          <th> Status </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -25,8 +25,8 @@
           <tr>
             <td> {{workshop_category.id}}</td>
             <td> {{workshop_category.name}} </td>
-            <td> {{workshop_category.description}} </td>
             <td> {{workshop_category.get_workshop_type_display}} </td>
+            <td> {{workshop_category.get_status_display}} </td>
             <td> {{workshop_category.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{workshop_category.modified_date|date:"F j, Y g:i A"}} </td>
             <td>

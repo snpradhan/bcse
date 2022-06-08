@@ -73,4 +73,3 @@ class NextParameterMiddleware(MiddlewareMixin):
     if target and redirect_url:
       request.target = target
       request.redirect_url = redirect_url
-

@@ -1,0 +1,80 @@
+{% load bcse_extras %}
+
+{% now 'Y-m-d' as current_date %}
+{% if workshop_list %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS'%}
+          <th> ID</th>
+        {% endif %}
+        <th> Workshop Type </th>
+        <th> Title </th>
+        <th> Start Date/Time </th>
+        <th> End Date/Time </th>
+        <th> Location </th>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Status </th>
+          <th> Actions </th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for workshop_obj in workshop_list %}
+        {% with workshop=workshop_obj.workshop %}
+        <tr>
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+            <td> {{workshop.id}}</td>
+          {% endif %}
+          <td> {{workshop.workshop_category}} </td>
+          <td>
+            {% if user.is_authenticated and user.userProfile.user_role in 'AS' or workshop.status == 'A' %}
+              <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a>
+            {% else %}
+              {{workshop.name}}
+            {% endif %}
+          </td>
+          <td>
+            {{workshop.start_date|date:"F j, Y"}}
+            {% if workshop.start_time %}
+              {{workshop.start_time|date:"g:i A"}}
+            {% endif %}
+          </td>
+          <td> {{workshop.end_date|date:"F j, Y"}}
+            {% if workshop.end_time %}
+              {{workshop.end_time|date:"g:i A"}}
+            {% endif %}</td>
+          <td> {{workshop.location}} </td>
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+            <td> {{workshop.created_date|date:"F j, Y g:i A"}} </td>
+            <td> {{workshop.modified_date|date:"F j, Y g:i A"}} </td>
+            <td> {{workshop.get_status_display}} </td>
+
+            <td width="15%">
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'bcse:workshopCopy' workshop.id %}">Clone</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDelete' workshop.id %}" data-title="the student program <strong>{{workshop.name}}</strong>">Delete</a>
+                  </li>
+                </ul>
+            </td>
+          {% endif %}
+        </tr>
+        {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="warning center">No Student Programs matching your search criteria found</div>
+{% endif %}

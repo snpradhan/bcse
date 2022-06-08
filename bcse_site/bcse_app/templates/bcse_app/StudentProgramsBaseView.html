@@ -1,0 +1,22 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="workshops_container container">
+       <h1 class="center">
+        Student Programs
+      </h1>
+      {% include "bcse_app/WorkshopsButtons.html" with tag='student_programs' %}
+      {% include "bcse_app/WorkshopsSearch.html" with audience='student' %}
+      <div class="workshops search_results">
+        {% if flag == 'table' %}
+          {% include "bcse_app/StudentProgramsTableView.html" %}
+        {% else %}
+          {% include "bcse_app/StudentProgramsListView.html" %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

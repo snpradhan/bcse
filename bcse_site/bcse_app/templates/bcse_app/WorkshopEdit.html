@@ -108,6 +108,11 @@
             <div class="error">{{ form.enable_registration.errors }}</div>
           </div>
           <div class="form-group mb-3">
+            <label for="id_{{form.meetup_link.name}}" class="form-label"> {{form.meetup_link.label|title}}</label>
+            <div>{{form.meetup_link}}</div>
+            <div class="error">{{ form.meetup_link.errors }}</div>
+          </div>
+          <div class="form-group mb-3">
             <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
             <div>{{form.status}}</div>
             <div class="error">{{ form.status.errors }}</div>
@@ -127,12 +132,48 @@
           </div>
         </form>
       </div>
-
     </div>
   </div>
 
   <script type="text/javascript">
     $(function (){
+      $('#id_workshop_category').on('change', function(e){
+        var id = $(this).val();
+        if(id) {
+          $.ajax({
+            type: 'GET',
+            url: '/adminConfiguration/workshopCategory/'+id+'/audience',
+            success: function(data){
+              if (data['success'] = true) {
+                if(data['audience'] == 'S') {
+                  $('#id_teacher_leader').val("").closest('.form-group').hide();
+                  $('#id_enable_registration').removeAttr('checked').closest('.form-group').hide();
+                  $('#id_meetup_link').closest('.form-group').show();
+                }
+                else {
+                  $('#id_teacher_leader').closest('.form-group').show();
+                  $('#id_enable_registration').closest('.form-group').show();
+                  $('#id_meetup_link').val("").closest('.form-group').hide();
+                }
+              }
+              else {
+                displayErrorDialog();
+              }
+              return false;
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+              displayErrorDialog();
+            },
+          });
+        }
+        else {
+          $('#id_teacher_leader').closest('.form-group').hide();
+          $('#id_enable_registration').closest('.form-group').hide();
+          $('#id_meetup_link').closest('.form-group').hide();
+        }
+      });
+
+      $('#id_workshop_category').trigger('change');
 
     });
   </script>

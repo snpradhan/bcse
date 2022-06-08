@@ -1235,13 +1235,31 @@ def workshopCategories(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view workshop categories')
 
-    workshop_categories = models.WorkshopCategory.objects.all()
+    workshop_categories = models.WorkshopCategory.objects.all().order_by('name')
     context = {'workshop_categories': workshop_categories}
     return render(request, 'bcse_app/WorkshopCategories.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# GET WORKSHOP CATEGORY AUDIENCE
+####################################
+@login_required
+def getWorkshopCategoryAudience(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop category')
+
+    workshop_category = models.WorkshopCategory.objects.get(id=id)
+    response_data = {'success': True, 'audience': workshop_category.audience}
+  except CustomException as ce:
+    response_data = {'success': False}
+  except models.WorkshopCategory.DoesNotExist as e:
+    response_data = {'success': False}
+
+  return http.HttpResponse(json.dumps(response_data), content_type='application/json')
 
 ####################################
 # EDIT WORKSHOP
@@ -1261,8 +1279,7 @@ def workshopEdit(request, id=''):
     else:
       workshop = models.Workshop()
 
-    workshop_categories = models.WorkshopCategory.objects.all()
-
+    workshop_categories = models.WorkshopCategory.objects.all().filter(status='A')
     if request.method == 'GET':
       form = forms.WorkshopForm(instance=workshop)
       context = {'form': form, 'workshop_registration_setting': workshop_registration_setting, 'workshop_categories': workshop_categories}
@@ -1355,6 +1372,7 @@ def workshopDelete(request, id=''):
 
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
+      audience = workshop.workshop_category.audience
       if hasattr(workshop, 'registration_setting') and workshop.registration_setting.registrants.all().count() > 0:
         messages.error(request, "This workshop cannot be deleted as it has existing registrants.")
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -1362,7 +1380,10 @@ def workshopDelete(request, id=''):
         workshop.delete()
         messages.success(request, "Workshop deleted")
 
-    return shortcuts.redirect('bcse:workshops', flag='table')
+    if audience == 'T':
+      return shortcuts.redirect('bcse:workshops', flag='table')
+    else:
+      return shortcuts.redirect('bcse:studentPrograms', flag='table')
 
   except models.Workshop.DoesNotExist:
     messages.success(request, "Workshop not found")
@@ -1747,19 +1768,41 @@ def workshopsBaseQuery(request, flag='list', user_id=''):
   else:
     workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
 
+  workshops = workshops.filter(workshop_category__audience='T')
   return workshops
 
+def studentProgramsBaseQuery(request):
+  if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+    student_programs = models.Workshop.objects.all().filter(workshop_category__audience='S')
+  else:
+    student_programs = models.Workshop.objects.all().filter(status='A', workshop_category__status='A', workshop_category__audience='S')
+
+  return student_programs
 ################################################
 # VIEW WORKSHOPS
 ################################################
 def workshops(request, flag='list'):
 
-  searchForm = forms.WorkshopsSearchForm(user=request.user, prefix="workshop_search")
+  searchForm = forms.WorkshopsSearchForm(user=request.user, audience='teacher', prefix="workshop_search")
   workshop_list = workshopsList(request, flag)
   context = {'workshop_list': workshop_list, 'searchForm': searchForm, 'flag': flag}
 
   return render(request, 'bcse_app/WorkshopsBaseView.html', context)
 
+################################################
+# VIEW STUDENT PROGRAMS
+################################################
+def studentPrograms(request, flag='list'):
+  student_programs = studentProgramsBaseQuery(request)
+  searchForm = forms.WorkshopsSearchForm(user=request.user, audience='student', prefix="workshop_search")
+
+  workshop_list = []
+  for workshop in student_programs:
+    workshop_list.append({'workshop': workshop})
+  print(workshop_list)
+  context = {'workshop_list': workshop_list, 'searchForm': searchForm, 'flag': flag}
+
+  return render(request, 'bcse_app/StudentProgramsBaseView.html', context)
 ################################################
 # UTILITY FUNCITON TO GET A LIST OF WORKSHOPS
 ################################################
@@ -1777,9 +1820,11 @@ def workshopsList(request, flag, id=''):
 ##########################################################
 # FILTER WORKSHOP BASE QUERY BASED ON FILTER CRITERIA
 ##########################################################
-def workshopsSearch(request, flag='list'):
-
-  workshops = workshopsBaseQuery(request, flag)
+def workshopsSearch(request, flag='list', audience='teacher'):
+  if audience == 'teacher':
+    workshops = workshopsBaseQuery(request, flag)
+  else:
+    workshops = studentProgramsBaseQuery(request)
 
   if request.method == 'GET':
 
@@ -1861,10 +1906,16 @@ def workshopsSearch(request, flag='list'):
     context = {'workshop_list': workshop_list}
     response_data = {}
     response_data['success'] = True
-    if flag == 'list':
-      response_data['html'] = render_to_string('bcse_app/WorkshopsListView.html', context, request)
+    if audience == 'teacher':
+      if flag == 'list':
+        response_data['html'] = render_to_string('bcse_app/WorkshopsListView.html', context, request)
+      else:
+        response_data['html'] = render_to_string('bcse_app/WorkshopsTableView.html', context, request)
     else:
-      response_data['html'] = render_to_string('bcse_app/WorkshopsTableView.html', context, request)
+      if flag == 'list':
+        response_data['html'] = render_to_string('bcse_app/StudentProgramsListView.html', context, request)
+      else:
+        response_data['html'] = render_to_string('bcse_app/StudentProgramsTableView.html', context, request)
 
     return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 

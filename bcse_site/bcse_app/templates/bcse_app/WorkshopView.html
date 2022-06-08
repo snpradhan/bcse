@@ -30,9 +30,15 @@
           <div class="location">
             <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
           </div>
-          <div class="workshop_registration">
-            {% include "bcse_app/WorkshopRegistration.html" %}
-          </div>
+          {% if workshop.meetup_link %}
+            <div class="form-group mb-3 center">
+              <a class="btn" href="{{workshop.meetup_link}}" target="_blank">Join</a>
+            </div>
+          {% else %}
+            <div class="workshop_registration">
+              {% include "bcse_app/WorkshopRegistration.html" %}
+            </div>
+          {% endif %}
         </div>
       </div>
 

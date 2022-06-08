@@ -119,8 +119,8 @@
                   </ul>
                   {% endwith %}
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link">Student Programs</a>
+                <li class="nav-item {% navactive request 'bcse:studentPrograms' 'list' %} {% navactive request 'bcse:studentPrograms' 'table' %}">
+                  <a class="nav-link" href="{% url 'bcse:studentPrograms' 'list' %}">Student Programs</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link">About Us</a>
