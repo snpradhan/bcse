@@ -408,6 +408,7 @@ def replace_workshop_tokens(text, workshop, registration):
   replaced_text = replaced_text.replace('[workshop_end_time]', workshop.end_time.strftime('%-I:%M %p'))
   replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
+  replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')
   survey_url = ''
   if registration.workshop_registration_setting and registration.workshop_registration_setting.survey_url:
     survey_url = registration.workshop_registration_setting.survey_url + '?registration_id=%s&user_id=%s' %(registration.id, registration.user.id)

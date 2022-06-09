@@ -142,17 +142,23 @@
         if(id) {
           $.ajax({
             type: 'GET',
-            url: '/adminConfiguration/workshopCategory/'+id+'/audience',
+            url: '/adminConfiguration/workshopCategory/'+id+'/details',
             success: function(data){
               if (data['success'] = true) {
+                //for student programs hide teacher leader and registration fields
                 if(data['audience'] == 'S') {
                   $('#id_teacher_leader').val("").closest('.form-group').hide();
                   $('#id_enable_registration').removeAttr('checked').closest('.form-group').hide();
-                  $('#id_meetup_link').closest('.form-group').show();
                 }
                 else {
                   $('#id_teacher_leader').closest('.form-group').show();
                   $('#id_enable_registration').closest('.form-group').show();
+                }
+                //for virtual and hybrid workshops display meet up link field
+                if(data['workshop_type'] == 'V' || data['workshop_type'] == 'H') {
+                  $('#id_meetup_link').closest('.form-group').show();
+                }
+                else{
                   $('#id_meetup_link').val("").closest('.form-group').hide();
                 }
               }

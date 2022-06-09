@@ -67,7 +67,7 @@ urlpatterns = [
 
     path('adminConfiguration/workshopCategory/<int:id>/edit', views.workshopCategoryEdit, name='workshopCategoryEdit'),
     path('adminConfiguration/workshopCategory/<int:id>/delete', views.workshopCategoryDelete, name='workshopCategoryDelete'),
-    path('adminConfiguration/workshopCategory/<int:id>/audience', views.getWorkshopCategoryAudience, name='getWorkshopCategoryAudience'),
+    path('adminConfiguration/workshopCategory/<int:id>/details', views.getWorkshopCategoryDetails, name='getWorkshopCategoryDetails'),
 
     path('adminConfiguration/workshopCategory/new', views.workshopCategoryEdit, name='workshopCategoryNew'),
     path('adminConfiguration/workshopCategories/', views.workshopCategories, name='workshopCategories'),

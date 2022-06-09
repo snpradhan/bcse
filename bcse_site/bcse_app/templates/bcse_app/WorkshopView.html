@@ -30,14 +30,17 @@
           <div class="location">
             <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
           </div>
+          <div class="workshop_registration">
+            {% include "bcse_app/WorkshopRegistration.html" %}
+          </div>
+          <!-- if meetup link is available only display the link if registration is not enabled or if enabled the user
+            is Registered or Accepted into the workshop -->
           {% if workshop.meetup_link %}
-            <div class="form-group mb-3 center">
-              <a class="btn" href="{{workshop.meetup_link}}" target="_blank">Join</a>
-            </div>
-          {% else %}
-            <div class="workshop_registration">
-              {% include "bcse_app/WorkshopRegistration.html" %}
-            </div>
+            {% if not workshop.enable_registration or registration and registration.instance and registration.instance.status in 'RC' %}
+              <div class="form-group mb-3 center">
+                <a class="btn" href="{{workshop.meetup_link}}" target="_blank">Join</a>
+              </div>
+            {% endif %}
           {% endif %}
         </div>
       </div>

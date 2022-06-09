@@ -1235,7 +1235,7 @@ def workshopCategories(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view workshop categories')
 
-    workshop_categories = models.WorkshopCategory.objects.all().order_by('name')
+    workshop_categories = models.WorkshopCategory.objects.all().order_by('audience', 'name')
     context = {'workshop_categories': workshop_categories}
     return render(request, 'bcse_app/WorkshopCategories.html', context)
 
@@ -1244,16 +1244,16 @@ def workshopCategories(request):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# GET WORKSHOP CATEGORY AUDIENCE
+# GET WORKSHOP CATEGORY DETAILS
 ####################################
 @login_required
-def getWorkshopCategoryAudience(request, id=''):
+def getWorkshopCategoryDetails(request, id=''):
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view workshop category')
 
     workshop_category = models.WorkshopCategory.objects.get(id=id)
-    response_data = {'success': True, 'audience': workshop_category.audience}
+    response_data = {'success': True, 'name': workshop_category.name, 'workshop_type': workshop_category.workshop_type, 'audience': workshop_category.audience, 'description': workshop_category.description}
   except CustomException as ce:
     response_data = {'success': False}
   except models.WorkshopCategory.DoesNotExist as e:

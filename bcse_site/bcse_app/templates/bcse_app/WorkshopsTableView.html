@@ -132,6 +132,12 @@
                           </a>
                         </li>
                       {% endif %}
+                      {% if workshop.meetup_link %}
+                        {% if not workshop.enable_registration or registration and registration.instance and registration.instance.status in 'RC' %}
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item" href="{{workshop.meetup_link}}" target="_blank">Join</a></li>
+                        {% endif %}
+                      {% endif %}
                     </ul>
                   </div>
                 {% endif %}
