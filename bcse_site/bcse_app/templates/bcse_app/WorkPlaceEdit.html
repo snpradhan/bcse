@@ -1,0 +1,172 @@
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+      <h3 class="left"> {{form.instance.name}} </h3>
+      {% else %}
+      <h3 class="left"> Create Work Place </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="workPlaceMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:workPlaceEdit' form.instance.id %} {% else %} {% url 'bcse:workPlaceNew' %}{% endif %}" id="formWorkPlace">
+      {% csrf_token %}
+      {{form.management_form}}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.work_place_type.name}}">
+            {{ form.work_place_type.label }}
+            {% if form.work_place_type.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.work_place_type}}</div>
+          <div class="error">{{ form.work_place_type.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.name.name}}">
+            {{ form.name.label }}
+            {% if form.name.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.name}}</div>
+          <div class="error">{{ form.name.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.district_number.name}}">
+            {{ form.district_number.label }}
+            {% if form.district_number.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.district_number}}</div>
+          <div class="error">{{ form.district_number.errors }}</div>
+        </div>
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{form.street_address_1.name}}">
+              {{ form.street_address_1.label }}
+              {% if form.street_address_1.field.required %}
+              (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.street_address_1}}</div>
+            <div class="error">{{ form.street_address_1.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{form.street_address_2.name}}">
+              {{ form.street_address_2.label }}
+              {% if form.street_address_2.field.required %}
+              (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.street_address_2}}</div>
+            <div class="error">{{ form.street_address_2.errors }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="form-group col-md-4">
+            <label for="id_{{form.city.name}}">
+              {{ form.city.label }}
+              {% if form.city.field.required %}
+              (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.city}}</div>
+            <div class="error">{{ form.city.errors }}</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="id_{{form.state.name}}">
+              {{ form.state.label }}
+              {% if form.state.field.required %}
+              (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.state}}</div>
+            <div class="error">{{ form.state.errors }}</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="id_{{form.zip_code.name}}">
+              {{ form.zip_code.label }}
+              {% if form.zip_code.field.required %}
+              (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.zip_code}}</div>
+            <div class="error">{{ form.zip_code.errors }}</div>
+          </div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.status.name}}">
+            {{ form.status.label }}
+            {% if form.status.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.status}}</div>
+          <div class="error">{{ form.status.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success user_profile_save">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+
+    $('select[name="work_place_type"]').on('change', function(){
+      if($(this).val() == "S"){
+        $('input[name="district_number"]').closest('.form-group').show();
+      }
+      else{
+        $('input[name="district_number"]').closest('.form-group').hide();
+      }
+    });
+
+    $('select[name="work_place_type"]').trigger('change');
+
+    $('#formWorkPlace').submit(function(e){
+      e.preventDefault();
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#work_place').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#work_place').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+

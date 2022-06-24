@@ -2517,6 +2517,197 @@ def usersUpload(request):
 
 
 ##########################################################
+# LIST OF WORKSPLACES
+##########################################################
+@login_required
+def workPlaces(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view work places')
+
+    work_places = models.WorkPlace.objects.all()
+    order_by = 'name'
+    direction = request.GET.get('direction') or 'asc'
+    ignorecase = request.GET.get('ignorecase') or 'true'
+    sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+    work_places = paginate(request, work_places, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+
+    searchForm = forms.WorkPlacesSearchForm(user=request.user, prefix="work_place_search")
+
+    context = {'work_places': work_places, 'searchForm': searchForm}
+    return render(request, 'bcse_app/WorkPlaces.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################################
+# FILTER WORK PLACES LIST BASED ON FILTER CRITERIA
+####################################################
+@login_required
+def workPlacesSearch(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to search work places')
+
+    if request.method == 'GET':
+
+      query_filter = Q()
+      name_filter = None
+      work_place_type_filter = None
+      district_number_filter = None
+      street_address_1_filter = None
+      street_address_2_filter = None
+      city_filter = None
+      state_filter = None
+      zip_code_filter = None
+      status_filter = None
+
+      name = request.GET.get('work_place_search-name', '')
+      work_place_type = request.GET.get('work_place_search-work_place_type', '')
+      district_number = request.GET.get('work_place_search-district_number', '')
+      street_address_1 = request.GET.get('work_place_search-street_address_1', '')
+      street_address_2 = request.GET.get('work_place_search-street_address_2', '')
+      city = request.GET.get('work_place_search-city', '')
+      state = request.GET.get('work_place_search-state', '')
+      zip_code = request.GET.get('work_place_search-zip_code', '')
+      status = request.GET.get('work_place_search-status', '')
+      sort_by = request.GET.get('work_place_search-sort_by', '')
+
+      if name:
+        name_filter = Q(name__icontains=name)
+      if work_place_type:
+        work_place_type_filter = Q(work_place_type=work_place_type)
+      if district_number:
+        district_number_filter = Q(district_number=district_number)
+      if street_address_1:
+        street_address_1_filter = Q(street_address_1=street_address_1)
+      if street_address_2:
+        street_address_2_filter = Q(street_address_2=street_address_2)
+      if city:
+        city_filter = Q(city=city)
+      if state:
+        state_filter = Q(state=state)
+      if zip_code:
+        zip_code_filter = Q(zip_code=zip_code)
+      if status:
+        status_filter = Q(status=status)
+
+      if name_filter:
+        query_filter = name_filter
+      if work_place_type_filter:
+        query_filter = query_filter & work_place_type_filter
+      if district_number_filter:
+        query_filter = query_filter & district_number_filter
+      if street_address_1_filter:
+        query_filter = query_filter & street_address_1_filter
+      if street_address_2_filter:
+        query_filter = query_filter & street_address_2_filter
+      if city_filter:
+        query_filter = query_filter & city_filter
+      if state_filter:
+        query_filter = query_filter & state_filter
+      if zip_code_filter:
+        query_filter = query_filter & zip_code_filter
+      if status_filter:
+        query_filter = query_filter & status_filter
+
+      work_places = models.WorkPlace.objects.all().filter(query_filter)
+      ignorecase = 'false'
+      if sort_by:
+        if sort_by == 'name':
+          order_by = 'name'
+          ignorecase = 'true'
+        elif sort_by == 'status':
+          order_by = 'status'
+        elif sort_by == 'created_date':
+          order_by = 'created_date'
+      else:
+        order_by = 'name'
+
+      direction = request.GET.get('direction') or 'asc'
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+      work_places = paginate(request, work_places, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+
+      context = {'work_places': work_places}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/WorkPlacesTableView.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# EDIT WORK PLACE
+##########################################################
+@login_required
+def workPlaceEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit work place')
+    if '' != id:
+      work_place = models.WorkPlace.objects.get(id=id)
+    else:
+      work_place = models.WorkPlace()
+
+    if request.method == 'GET':
+      form = forms.WorkPlaceForm(instance=work_place)
+      context = {'form': form}
+      return render(request, 'bcse_app/WorkPlaceEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.WorkPlaceForm(data, instance=work_place)
+      response_data = {}
+      if form.is_valid():
+        savedWorkPlace = form.save()
+        messages.success(request, "Work place saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form, 'userForm': userForm}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/WorkPlaceEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# DELETE WORK PLACE
+##########################################################
+@login_required
+def workPlaceDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete work place')
+    if '' != id:
+      work_place = models.WorkPlace.objects.get(id=id)
+      work_place.delete()
+      messages.success(request, "Work place deleted")
+
+    return shortcuts.redirect('bcse:workPlaces')
+
+  except models.WorkPlace.DoesNotExist:
+    messages.success(request, "Work place not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
 # UPLOAD WORKSHOP REGISTRATIONS VIA AN EXCEL TEMPLATE
 ##########################################################
 @login_required

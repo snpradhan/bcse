@@ -92,6 +92,10 @@
             <li class="nav-item {% if 'users' in request.path or  'userProfile' in request.path %} active {% endif %}">
               <a class="nav-link" href="{% url 'bcse:users' %}">Users</a>
             </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="nav-item {% if 'workPlace' in request.path or  'workPlaces' in request.path %} active {% endif %}">
+              <a class="nav-link" href="{% url 'bcse:workPlaces' %}">Work Places</a>
+            </li>
           </ul>
         </div>
       </div>

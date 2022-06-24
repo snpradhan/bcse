@@ -1,0 +1,17 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Work Places </h1>
+  <div>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#work_place" data-href="{% url 'bcse:workPlaceNew' %}" href="#">Create Work Place</a>
+  </div>
+  {% include "bcse_app/WorkPlacesSearch.html" %}
+  <div class="form-group" id="spinner">
+    <img src="/static/img/page-loader.gif" class="icon"/>
+  </div>
+  <div class="work_places search_results">
+    {% include "bcse_app/WorkPlacesTableView.html" %}
+  </div>
+{% endblock %}

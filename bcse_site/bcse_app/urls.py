@@ -86,6 +86,12 @@ urlpatterns = [
     path('adminConfiguration/users/search', views.usersSearch, name='usersSearch'),
     path('adminConfiguration/users/upload', views.usersUpload, name='usersUpload'),
 
+    path('adminConfiguration/workPlace/<int:id>/edit', views.workPlaceEdit, name='workPlaceEdit'),
+    path('adminConfiguration/workPlace/<int:id>/delete', views.workPlaceDelete, name='workPlaceDelete'),
+    path('adminConfiguration/workPlace/new', views.workPlaceEdit, name='workPlaceNew'),
+    path('adminConfiguration/workPlaces/search', views.workPlacesSearch, name='workPlacesSearch'),
+    path('adminConfiguration/workPlaces/', views.workPlaces, name='workPlaces'),
+
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
 
     path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),

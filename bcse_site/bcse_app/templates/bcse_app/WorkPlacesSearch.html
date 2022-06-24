@@ -1,0 +1,71 @@
+<div class="filter_container">
+  <form method="get" action="{% url 'bcse:workPlacesSearch' %}" id="work_place_filter_form" class="filter_form">
+    {% csrf_token %}
+    {{searchForm.media}}
+    <div class="form-group right" id="filter_toggle">
+      <label style="display:none;">Show Filters <span class="fa fa-plus-circle"></span></label>
+      <label>Hide Filters <span class="fa fa-minus-circle"></span></label>
+    </div>
+    <div id="filter_content">
+      <div id="filter_fields">
+        <div class="form-group">
+          <label for="id_{{searchForm.name.name}}" class="form-label"> {{searchForm.name.label|title}}</label>
+          <div>{{searchForm.name}}</div>
+          <div class="error">{{ searchForm.name.errors }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_{{searchForm.work_place_type.name}}" class="form-label"> {{searchForm.work_place_type.label|title}}</label>
+          <div>{{searchForm.work_place_type}}</div>
+          <div class="error">{{ searchForm.work_place_type.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.district_number.name}}" class="form-label"> {{searchForm.district_number.label|title}}</label>
+          <div>{{searchForm.district_number}}</div>
+          <div class="error">{{ searchForm.district_number.errors }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_{{searchForm.street_address_1.name}}" class="form-label"> {{searchForm.street_address_1.label|title}}</label>
+          <div>{{searchForm.street_address_1}}</div>
+          <div class="error">{{ searchForm.street_address_1.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.street_address_2.name}}" class="form-label"> {{searchForm.street_address_2.label|title}}</label>
+          <div>{{searchForm.street_address_2}}</div>
+          <div class="error">{{ searchForm.street_address_2.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.city.name}}" class="form-label"> {{searchForm.city.label|title}}</label>
+          <div>{{searchForm.city}}</div>
+          <div class="error">{{ searchForm.city.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.state.name}}" class="form-label"> {{searchForm.state.label|title}}</label>
+          <div>{{searchForm.state}}</div>
+          <div class="error">{{ searchForm.state.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.zip_code.name}}" class="form-label"> {{searchForm.zip_code.label|title}}</label>
+          <div>{{searchForm.zip_code}}</div>
+          <div class="error">{{ searchForm.zip_code.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
+          <div>{{searchForm.status}}</div>
+          <div class="error">{{ searchForm.status.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
+          <div>{{searchForm.sort_by}}</div>
+          <div class="error">{{ searchForm.sort_by.errors }}</div>
+        </div>
+        <input type="hidden" name="page" id="page" value="1"/>
+      </div>
+
+      <div class="form-group right" id="filter_buttons">
+        <button class="btn" type="button" id="clear">Clear Filter</button>
+      </div>
+    </div>
+  </form>
+</div>

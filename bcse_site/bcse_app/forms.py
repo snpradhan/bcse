@@ -4,6 +4,7 @@ from bcse_app import models, widgets, utils
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.db.models.functions import Lower
+from localflavor.us.models import USStateField
 
 
 ####################################
@@ -539,7 +540,7 @@ class WorkPlaceForm(ModelForm):
 
   class Meta:
     model = models.WorkPlace
-    exclude = ('id', 'status', 'created_date', 'modified_date')
+    exclude = ('id', 'created_date', 'modified_date')
 
   def __init__(self, *args, **kwargs):
     super(WorkPlaceForm, self).__init__(*args, **kwargs)
@@ -696,6 +697,27 @@ class UsersSearchForm(forms.Form):
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# Work Place Search Form
+####################################
+class WorkPlacesSearchForm(ModelForm):
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('name', 'Name'),
+                                                      ('status', 'Status'),
+                                                      ('created_date', 'Created Date')))
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
+  class Meta:
+    model = models.WorkPlace
+    exclude = ('id', 'created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(WorkPlacesSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+
 
 ####################################
 # Baxter Box Usage Search Form

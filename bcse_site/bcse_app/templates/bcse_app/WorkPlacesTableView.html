@@ -1,0 +1,62 @@
+{% load bcse_extras %}
+
+{% if work_places %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th> ID</th>
+        <th> Name </th>
+        <th> Work Place Type </th>
+        <th> District Number </th>
+        <th> Street Address 1 </th>
+        <th> Street Address 2 </th>
+        <th> City </th>
+        <th> State </th>
+        <th> Zip Code </th>
+        <th> Status </th>
+        <th> Created Date</th>
+        <th> Action </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for work_place in work_places %}
+        <tr>
+          <td> {{work_place.id}}</td>
+          <td> {{work_place.name}} </td>
+          <td> {{work_place.get_work_place_type_display}} </td>
+          <td> {{work_place.district_number|default_if_none:""}} </td>
+          <td> {{work_place.street_address_1|default_if_none:""}} </td>
+          <td> {{work_place.street_address_2|default_if_none:""}} </td>
+          <td> {{work_place.city|default_if_none:""}} </td>
+          <td> {{work_place.state|default_if_none:""}} </td>
+          <td> {{work_place.zip_code|default_if_none:""}} </td>
+          <td> {{work_place.get_status_display}} </td>
+          <td> {{work_place.created_date|date:"F j, Y g:i A"}}</td>
+          
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#work_place" data-href="{% url 'bcse:workPlaceEdit' work_place.id %}" href="#">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:workPlaceDelete' work_place.id %}"
+                  data-title="the work place <strong>{{work_place.name}}</strong>">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=work_places %}
+{% else %}
+  <div class="warning center">No work places matching your search criteria found</div>
+{% endif %}
