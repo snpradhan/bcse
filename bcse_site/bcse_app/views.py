@@ -58,6 +58,27 @@ def adminConfiguration(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+def aboutBCSE(request):
+  context = {}
+  return render(request, 'bcse_app/AboutBCSE.html', context)
+
+def aboutCaseStudy(request):
+  context = {}
+  return render(request, 'bcse_app/AboutCaseStudy.html', context)
+
+def aboutCenters(request):
+  context = {}
+  return render(request, 'bcse_app/AboutCenters.html', context)
+
+def aboutPartners(request):
+  partners = models.Partner.objects.all().filter(status='A').order_by('order')
+  context = {'partners': partners}
+  return render(request, 'bcse_app/AboutPartners.html', context)
+
+def aboutTeam(request):
+  members = models.Team.objects.all().filter(status='A').order_by('order')
+  context = {'members': members}
+  return render(request, 'bcse_app/AboutTeam.html', context)
 
 ####################################
 # BAXTER BOX INFO
@@ -2814,6 +2835,175 @@ def workshopRegistrantsUpload(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# VIEW TEAM MEMBERS
+##########################################################
+@login_required
+def teamMembers(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view team members')
+
+    members = models.Team.objects.all()
+    context = {'members': members}
+    return render(request, 'bcse_app/TeamMembers.html', context)
+
+  except models.Team.DoesNotExist as e:
+    messages.error(request, 'Team not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# EDIT TEAM MEMBER
+##########################################################
+@login_required
+def teamMemberEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit team member')
+    if '' != id:
+      member = models.Team.objects.get(id=id)
+    else:
+      member = models.Team()
+
+    if request.method == 'GET':
+      form = forms.TeamMemberForm(instance=member)
+      context = {'form': form}
+      return render(request, 'bcse_app/TeamMemberEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.TeamMemberForm(data, files=request.FILES, instance=member)
+      response_data = {}
+      if form.is_valid():
+        savedmember = form.save()
+        messages.success(request, "Team member saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/TeamMemberEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# DELETE TEAM MEMBER
+##########################################################
+@login_required
+def teamMemberDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete team member')
+    if '' != id:
+      member = models.Team.objects.get(id=id)
+      member.delete()
+      messages.success(request, "Team member deleted")
+
+    return shortcuts.redirect('bcse:teamMembers')
+
+  except models.Team.DoesNotExist:
+    messages.success(request, "Team member not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# VIEW PARTNERS
+##########################################################
+@login_required
+def partners(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view partners')
+
+    partners = models.Partner.objects.all()
+    context = {'partners': partners}
+    return render(request, 'bcse_app/Partners.html', context)
+
+  except models.Partner.DoesNotExist as e:
+    messages.error(request, 'Team not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# EDIT PARTNER
+##########################################################
+@login_required
+def partnerEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit partner')
+    if '' != id:
+      partner = models.Partner.objects.get(id=id)
+    else:
+      partner = models.Partner()
+
+    if request.method == 'GET':
+      form = forms.PartnerForm(instance=partner)
+      context = {'form': form}
+      return render(request, 'bcse_app/PartnerEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.PartnerForm(data, files=request.FILES, instance=partner)
+      response_data = {}
+      if form.is_valid():
+        savedPartner = form.save()
+        messages.success(request, "Partner saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/PartnerEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# DELETE PARTNER
+##########################################################
+@login_required
+def partnerDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete partner')
+    if '' != id:
+      partner = models.Partner.objects.get(id=id)
+      partner.delete()
+      messages.success(request, "Partner deleted")
+
+    return shortcuts.redirect('bcse:partners')
+
+  except models.Partner.DoesNotExist:
+    messages.success(request, "Partner not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 ########################################################################
 # PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER

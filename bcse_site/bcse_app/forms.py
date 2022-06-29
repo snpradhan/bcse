@@ -568,7 +568,43 @@ class TeacherLeaderForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
+####################################
+# Team Member Form
+####################################
+class TeamMemberForm(ModelForm):
 
+  class Meta:
+    model = models.Team
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(TeamMemberForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# Partner Form
+####################################
+class PartnerForm(ModelForm):
+
+  class Meta:
+    model = models.Partner
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(PartnerForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
 ####################################
 # Reservations Search Form
 ####################################

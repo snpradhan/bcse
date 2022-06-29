@@ -115,6 +115,8 @@ def upload_file_to(instance, filename):
     file_path = 'teacherLeader'
   elif isinstance(instance, Team):
     file_path = 'team'
+  elif isinstance(instance, Partner):
+    file_path = 'partner'
 
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
@@ -358,6 +360,26 @@ class Team(models.Model):
   organization = models.CharField(null=False, max_length=256, help_text='Org. of the Team Member')
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of this team member')
   order = models.IntegerField(null=False, blank=False)
+  status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['order']
+
+  def __str__(self):
+      return '%s' % (self.name)
+
+class Partner(models.Model):
+  name = models.CharField(null=False, max_length=256, help_text='Name of the Partner')
+  blurb = models.CharField(null=False, max_length=1024, help_text='Short callout blurb')
+  description = RichTextField(null=True, blank=True)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of this partner')
+  url = models.URLField(null=False, blank=False)
+  order = models.IntegerField(null=False, blank=False)
+  status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
       ordering = ['order']

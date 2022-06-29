@@ -1,0 +1,163 @@
+{% extends "bcse_app/base.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="about_us container">
+      <div class="about">
+       <h1>About The Baxter Center</h1>
+       <div class="video"><iframe id="banner_video" src="https://www.youtube.com/embed/PkvHmuVbVsY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+          <a href="https://enter.dotcommawards.com/entry/the-baxter-center-for-science-education-our-history-drives-our-future/" target="_blank">
+          <img class="site_bug" src="/sites/all/themes/parallax_zymphonies_theme/images/dotCOMM_award.png">
+          </a>
+       </div>
+       <div class="video_caption">
+          <h4 class="center bold">The Baxter Center Video <a href="https://enter.dotcommawards.com/entry/the-baxter-center-for-science-education-our-history-drives-our-future/" target="_blank">wins a 2021 dotCOMM award!</a></h4>
+          <p>Created by the incredible team at Digife, watch the Gold-winning video that tells the story of how our history drives our future.</p>
+       </div>
+       <div class="row videos">
+          <div class="video_container">
+             <div class="video"><iframe id="banner_video" src="https://www.youtube.com/embed/PkvHmuVbVsY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+             <div class="video_caption">
+                <h4 class="center bold">What is the Baxter Center? </h4>
+                <p>Need it faster? Learn the basics in three minutes.</p>
+             </div>
+          </div>
+          <div class="video_container">
+             <div class="video"><iframe id="banner_video" src="https://www.youtube.com/embed/pBTVbrIAGI4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+             <div class="video_caption">
+                <h4 class="center bold">For Teachers: How We Work</h4>
+                <p>Hear teachers explain how our workshops and Baxter Box loaner program work.</p>
+             </div>
+          </div>
+          <div class="video_container">
+             <div class="video"><iframe id="banner_video" src="https://www.youtube.com/embed/6x8mdr61skw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+             <div class="video_caption">
+                <h4 class="center bold">For Industry and Academia: Our Partnership Model</h4>
+                <p>Learn how we bring together diverse partners to support quality science education for all.</p>
+             </div>
+          </div>
+       </div>
+       <div class="video_credits">
+          <h4 class="bold">Videos created by</h4>
+          <a href="https://www.digife.com" target="_blank">
+          <img class="icon" src="{% staticfile 'img/logos/digife.png' %}">
+          </a>
+       </div>
+       <div class="para">
+          <img class="curve right" src="{% staticfile 'img/about_2.png' %}">
+          <p class="callout"><b>The Baxter Center for Science Education</b> (BCSE) is a collaborative partnership between Lindblom Math &amp; Science Academy (LMSA), Round Lake High School, the Office of Community Education Partnerships (OCEP) at Northwestern University, and Baxter International Foundation. The Baxter Center builds impactful student experiences and teacher professional development programs to promote student success in STEM education and career pathways. The Baxter Center strives to promote equity in STEM education by catalyzing partnerships and developing programs that meet the specific needs of communities in Chicago and the greater region.
+          </p>
+       </div>
+       <div class="para">
+          <h2 class="left">What we do</h2>
+          <p class="callout"><b>Our vision</b> is to foster tomorrow’s innovations by developing the next generation of scientists and engineers.</p>
+          <p class="callout"><b>Our mission</b> is to work with partners from the K-12 community, academia, and industry, led by Baxter International Inc., to develop programs that promote equity in science education and student success in STEM careers by bringing authentic and engaging science experiences to all students in diverse learning environments.</p>
+          <p class="callout"><b>To achieve our vision and mission</b> we do three things: teacher professional development, the Baxter Box materials &amp; equipment program, and in-school teacher support. </p>
+       </div>
+       <div class="para">
+          <h2>How we work</h2>
+          <img class="curve right" src="{% staticfile 'img/about_3.png' %}">
+          <p class="callout"><b>Teacher professional development workshops:</b> We provide training for teachers to implement authentic and innovative life science programs in their schools with a focus on hands-on, inquiry-based activities aligned to the Next Generation Science Standards (NGSS). Under the guidance of expert teachers and scientists, teachers learn real-world lab skills and practices.</p>
+          <p class="callout"><b>The Baxter Box program:</b> Teachers who are trained in our workshops gain access to our free lab materials and equipment lending library, ensuring that they are able to directly implement what they learn from us in their classrooms. </p>
+          <p class="callout"><b>Teacher support:</b> A great deal of work goes into executing high level science labs in the classroom, and we are there to support teachers throughout the process, from prep work to implementation to cleanup.</p>
+       </div>
+       <div class="testimonials">
+          <h3>Teacher comments </h3>
+          <div class="testimonial"> I loved how the Next Generation Science Standards were incorporated. Especially love how these were included: experimental design, crosscutting concepts, data gathering and analysis. And also where students experienced frustration and success, how to scaffold for grade bands, and levels of difficulty and sophistication.</div>
+          <div class="testimonial">I increased both my knowledge and skill base. Getting a jump-start by having supplies to take back to the classroom helps to avoid budget as a reason not to do a lab is awesome! Also, now I have such a great group of people to work with and count on for support during the school year.</div>
+          <div class="testimonial">This was truly a privilege and an honor to take part in this experience. This experience was on one hand guided - in terms of the curriculum project and debriefing of the science - and on the other hand learnercentered - such as pursuing our own research questions. This allowed for both challenge and growth - all wonderful. The facilitators were truly kind, dedicated, bright people. This experience was wonderful! Thank you!</div>
+       </div>
+       <div class="para">
+          <h2>Our reach</h2>
+          <p class="callout">Since 2009 we have hosted over <b>127</b> workshops and trained <b>2198</b> teachers from <b>340</b> schools in CPS and the greater Chicagoland area, reaching over <b>164,000</b> students. </p>
+          <div class="outreach">
+             <div class="circle" id="total_teachers">
+                <div class="figure">
+                   <div class="count">2198</div>
+                   <div class="text">Total teachers trained</div>
+                </div>
+             </div>
+             <div class="circle" id="baxter_boxes">
+                <div class="figure">
+                   <div class="count">1200</div>
+                   <div class="text">Baxter Box lab kits distributed</div>
+                </div>
+             </div>
+             <div class="circle" id="cps_teachers">
+                <div class="figure">
+                   <div class="count">1187</div>
+                   <div class="text">Chicago Public School teachers trained</div>
+                </div>
+             </div>
+             <div class="circle" id="total_students">
+                <div class="figure">
+                   <div class="since">since 2009</div>
+                   <div class="count">164,000</div>
+                   <div class="text">estimated students reached</div>
+                </div>
+             </div>
+             <div class="circle" id="total_schools">
+                <div class="figure">
+                   <div class="count">340</div>
+                   <div class="text">Total schools reached</div>
+                </div>
+             </div>
+             <div class="circle" id="total_workshops">
+                <div class="figure">
+                   <div class="count">127</div>
+                   <div class="text">Total workshops</div>
+                </div>
+             </div>
+          </div>
+       </div>
+       <div class="para">
+          <p class="callout">Our program grows every year. In 2009, we began with one biotechnology workshop for 20 teachers. In 2019, we offered <b>27</b> life science workshops for <b>406</b> teachers from <b>91</b> different schools.</p>
+          <img class="full center" src="{% staticfile 'img/baxter_history.png' %}">
+          <div class="para">
+             <h2>What sets us apart</h2>
+             <p class="callout">We provide comprehensive services to support science education in the classroom. We have learned that to affect real change, you can’t just do teacher PD, you can’t just give away equipment, and you can’t just visit the classroom. To be successful, you have to do all three as a living, responsive, flexible program built on strong relationships with teachers and schools, adjusting to their evolving needs.</p>
+             <p class="callout"> Teachers value their relationship with our program, and they come back for additional training and deeper learning. <b>37%</b> of our teachers attend two or more of our workshops, and over <b>14%</b> attend four or more.</p>
+             <p class="callout"> We consistently receive top marks from teachers who attend our workshops. In our 2019 surveys:</p>
+             <div class="callout">
+                <ul>
+                   <li><b>98%</b> say that our workshops impact their professional growth or student growth in regards to content knowledge or skills, or both.</li>
+                   <li><b>94%</b> say that our workshop facilitators were knowledgeable about the provided content in addition to being well-organized and engaging.</li>
+                   <li><b>93%</b> strongly agreed that our workshops align with their district or school improvement plans and goals.</li>
+                </ul>
+             </div>
+          </div>
+          <div class="testimonials">
+             <h3>Teacher comments </h3>
+             <div class="testimonial"> The Baxter Box program has made these lab activities economically feasible. I would never have been able to do these labs without the Baxter Center.</div>
+             <div class="testimonial">I taught for many years before discovering the Baxter Center and all it has to offer. As much as I cherish my days off in the summer, I have never regretted spending 2 or 3 summer days at one of their workshops. The activities are always very hands-on, with a chance to learn from helpful people who have worked or are working in research labs. In addition to the presenters, you will get all sorts of ideas and resources from networking with the other participants as well. The free lab materials make it so easy to take what you learn back to your students and let them experience first-hand the joys of learning by doing. The support is amazing. I would recommend any of the Baxter Center Symposiums and workshops to both new and experienced teachers who are interested in feeling like a scientist for a day or more, and then sharing that sensation with their students.</div>
+          </div>
+          <div class="row">
+             <h2 class="center">Collaborators</h2>
+             <p class="callout">The Baxter Center for Science Education collaborates with many local and national experts and thought leaders, including: </p>
+          </div>
+          <div class="row logos">
+             <div class="logo"><a href="https://www.cps.edu" target="_blank"><img src="{% staticfile 'img/logos/cps.png' %}"></a></div>
+             <div class="logo"><a href="http://www.minipcr.com" target="_blank"><img src="{% staticfile 'img/logos/miniPCR.png' %}"></a></div>
+             <div class="logo"><a href="http://www.bio-rad.com" target="_blank"><img src="{% staticfile 'img/logos/Bio-Rad.jpeg' %}"></a></div>
+             <div class="logo"><a href="https://us.vwr.com/store/" target="_blank"><img src="{% staticfile 'img/logos/VWR.png' %}"></a></div>
+             <div class="logo"><a href="http://biobuilder.org" target="_blank"><img src="{% staticfile 'img/logos/BioBuilder.png' %}"></a></div>
+             <div class="logo"><a href="https://www.digife.com" target="_blank"><img src="{% staticfile 'img/logos/digife.png' %}"></a></div>
+             <div class="logo"><a href="https://www.clcillinois.edu/student-services/additional-services/trio" target="_blank"><img src="{% staticfile 'img/logos/trio.jpg' %}"></a></div>
+             <div class="logo nologo">
+                <div>
+                   <h3><a href="https://www.cps.edu/about/departments/science-technology-engineering-and-mathematics/" target="_blank">Chicago Public Schools Department of STEM</a></h3>
+                   <br>
+                   <h3><a href="http://jewettlab.northwestern.edu" target="_blank">Michael Jewett Lab at Northwestern University</a></h3>
+                   <br>
+                   <h3><a href="https://www.mccormick.northwestern.edu/biotechnology/" target="_blank">Master of Science in Biotechnology Program at Northwestern University</a></h3>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

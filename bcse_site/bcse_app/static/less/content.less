@@ -97,7 +97,6 @@ body {
 
   .callout {
     font-size: 1.4em !important;
-    line-height: 1.25 !important;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     text-align: left;
@@ -123,6 +122,10 @@ body {
   /*****************************
   * IMAGE
   ******************************/
+  img {
+    max-width: 100%;
+    height: auto;
+  }
   img.icon {
     width: 6em !important;
     height: auto !important;
@@ -203,6 +206,111 @@ body {
       padding: 1em;
     }
   }
+
+  /**** OUTREACH BUBBLE ****/
+  /****  LANDING PAGE AND ABOUT US PAGE ****/
+  div.outreach {
+    position: relative;
+    width: 57em;
+    height: 40em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1em;
+    margin-bottom: 3em;
+
+    div.circle{
+      border-radius: 50%;
+      display: table;
+      position: absolute;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: auto;
+      margin-bottom: auto;
+
+      div.figure {
+        display: table-cell;
+        vertical-align: middle;
+        font-family : din-2014, sans-serif !important;
+        text-align: center;
+      }
+
+      div.count {
+        font-weight: 700;
+        font-size: 3.5em;
+        z-index: 5;
+      }
+      div.text {
+        margin-left: auto;
+        margin-right: auto;
+        z-index: 5;
+        max-width: 75%;
+      }
+      div.since{
+        font-weight: 700;
+        margin-right: 5em;
+        margin-bottom: 1em;
+        text-align: right;
+        z-index: 5;
+      }
+
+      &#total_teachers {
+        background-color: rgba(53, 175, 200, 0.7);
+        width: 14em;
+        height: 14em;
+        z-index: 3;
+        top: 3%;
+        left: 10%;
+      }
+
+      &#baxter_boxes {
+        background-color: rgba(115, 219, 211, 0.7);
+        width: 12em;
+        height: 12em;
+        top: 9%;
+        right: 13%;
+        z-index: 1;
+      }
+
+      &#cps_teachers {
+        background-color: rgba(172, 213, 140, 0.7);
+        width: 12em;
+        height: 12em;
+        bottom: 16%;
+        left: 14%;
+        z-index: 3;
+      }
+
+      &#total_students {
+        background-color: rgba(225, 235, 127, 0.7);
+        width: 25em;
+        height: 25em;
+        top: 15%;
+        left: 0;
+        right: 0;
+        z-index: 2;
+      }
+
+      &#total_schools {
+        background-color: rgba(94, 171, 172, 0.7);
+        width: 10em;
+        height: 10em;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 3;
+      }
+
+      &#total_workshops {
+        background-color: rgba(124, 194, 102, 0.7);
+        width: 10em;
+        height: 10em;
+        top: 57%;
+        right: 17%;
+        z-index: 1;
+      }
+    }
+  }
+  /**** OUTREACH BUBBLE END ****/
 
  /*****************************
   * CONTENT
@@ -739,7 +847,207 @@ body {
       transform: rotate(-90deg);
     }
 
+
+    /************************
+     * ABOUT US START
+     * ***********************/
+    div.about_us {
+      .picture {
+        text-align: center;
+        img.circle {
+          border-radius: 50%;
+          margin-top: 0;
+          -webkit-shape-outside: unset;
+          shape-outside: unset;
+          width: 15em;
+          max-width: 100%;
+        }
+        @media (max-width: 991px) {
+          img.circle {
+            margin-bottom: 2em;
+          }
+        }
+      }
+
+      div.about {
+        margin-bottom: 6em;
+
+        h2 {
+          margin-top: 1em;
+        }
+        img.full {
+          width:57em;
+        }
+        img.center {
+          margin-left: auto;
+          margin-right: auto;
+          display: block;
+        }
+
+        div.comment {
+          background-color: @bcse-mid-gray;
+          padding: 1em;
+          border-radius: 2em;
+
+          p.comment {
+            quotes: "\201C""\201D""\2018""\2019";
+            font-style: italic;
+            margin: 1em 0;
+            font-size: 1.4em !important;
+
+            &:before{
+              content: open-quote;
+            }
+            &:after{
+              content: close-quote;
+            }
+          }
+        }
+        div.videos {
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          align-items: stretch;
+
+          div.video_container {
+            flex: 0 0 30%;
+          }
+        }
+        div.video {
+          background-color: @bcse-black;
+          padding-bottom: 45%;
+          height: 0;
+          position: relative;
+          margin-bottom: 1em;
+
+          iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+        }
+        div.video_caption {
+          max-width: 50em;
+          text-align: center;
+          margin-left: auto;
+          margin-right: auto;
+          margin-bottom: 2em;
+        }
+        div.video_credits {
+          font-weight: bold;
+          text-align: right;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          margin-bottom: 2em;
+          img {
+            width: 7em;
+          }
+
+        }
+
+        .row.logos {
+          display: flex;
+          justify-content: space-between;
+          flex-flow: wrap;
+          align-items: center;
+
+          .logo {
+            text-align: center;
+            display: inline-block;
+            vertical-align: middle;
+            float: none;
+            flex: 1 1 30%;
+
+            &.nologo {
+              flex: 0 0 70%;
+              text-align: right;
+              & > div {
+                padding-right: 2em;
+              }
+            }
+
+            img {
+              width: 100%;
+              max-width: 20em;
+              height: auto;
+              padding-left: 2em;
+              padding-right: 2em;
+            }
+          }
+        }
+      }
+      div.team {
+        margin: 3em 0;
+        div.member {
+          margin: 4em 0;
+          div.intro {
+            margin-bottom: 1em;
+            div.title {
+              font-size: 1.3em;
+              font-weight: bold;
+              font-family : din-2014, sans-serif !important;
+              color: @nu-purple;
+            }
+            div.subtitle {
+              font-size: 1em;
+              font-weight: bold;
+              font-family : din-2014, sans-serif !important;
+              color: @nu-purple;
+            }
+          }
+          @media (max-width: 991px) {
+            div.intro {
+              text-align: center;
+            }
+          }
+        }
+      }
+      div.partners {
+        margin: 3em 0;
+        div.partner {
+          margin-top: 1em;
+          margin-bottom: 2.5em;
+          display: flex;
+          align-items: center;
+          text-align: center;
+          img {
+            max-height: 15em;
+          }
+        }
+        @media (max-width: 991px) {
+          div.partner {
+            display: block;
+            img {
+              max-width: 30em;
+              margin-bottom: 3em;
+            }
+          }
+        }
+      }
+      div.baxter_centers {
+        div.baxter_center {
+          margin-top: 1em;
+          margin-bottom: 2.5em;
+        }
+      }
+      /***** CASE STUDY START ***********/
+      div.case_study {
+        img.case_study_preview {
+          width: 10em !important;
+          height: auto;
+        }
+      }
+      /***** CASE STUDY END ***********/
+
+    }
+    /****** ABOUT US END ******/
   }
+  /*******************************
+   * CONTENT END
+   ********************************/
 
   @media only screen and (max-width: 767px) {
     .tile {

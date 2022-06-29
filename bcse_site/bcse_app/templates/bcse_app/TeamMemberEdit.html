@@ -1,0 +1,152 @@
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+      <h3 class="left"> {{form.instance.name}} </h3>
+      {% else %}
+      <h3 class="left"> Create Team Member </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="teamMemberMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" enctype="multipart/form-data" action="{% if form.instance.id %}{% url 'bcse:teamMemberEdit' form.instance.id %} {% else %} {% url 'bcse:teamMemberNew' %}{% endif %}" id="formTeamMember">
+      {% csrf_token %}
+      {{form.management_form}}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.name.name}}">
+            {{ form.name.label }}
+            {% if form.name.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.name}}</div>
+          <div class="error">{{ form.name.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.email.name}}">
+            {{ form.email.label }}
+            {% if form.email.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.email}}</div>
+          <div class="error">{{ form.email.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.description.name}}">
+            {{ form.description.label }}
+            {% if form.description.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.description}}</div>
+          <div class="error">{{ form.description.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.position.name}}">
+            {{ form.position.label }}
+            {% if form.position.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.position}}</div>
+          <div class="error">{{ form.position.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.organization.name}}">
+            {{ form.organization.label }}
+            {% if form.organization.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.organization}}</div>
+          <div class="error">{{ form.organization.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.image.name}}">
+            {{ form.image.label }}
+            {% if form.image.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          {% if form.instance.id and form.instance.image.url %}
+            <div class="image_preview">
+              <img src="{{form.instance.image.url}}" class="icon curve" alt="">
+            </div>
+          {% endif %}
+          <div>{{form.image}}</div>
+          <div class="error">{{ form.image.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.order.name}}">
+            {{ form.order.label }}
+            {% if form.order.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.order}}</div>
+          <div class="error">{{ form.order.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.status.name}}">
+            {{ form.status.label }}
+            {% if form.status.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.status}}</div>
+          <div class="error">{{ form.status.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+
+    $('#formTeamMember').submit(function(e){
+      e.preventDefault();
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#team_member').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#team_member').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+

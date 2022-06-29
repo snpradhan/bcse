@@ -92,9 +92,26 @@ urlpatterns = [
     path('adminConfiguration/workPlaces/search', views.workPlacesSearch, name='workPlacesSearch'),
     path('adminConfiguration/workPlaces/', views.workPlaces, name='workPlaces'),
 
+    path('adminConfiguration/teamMembers/', views.teamMembers, name='teamMembers'),
+    path('adminConfiguration/teamMember/<int:id>/edit', views.teamMemberEdit, name='teamMemberEdit'),
+    path('adminConfiguration/teamMember/<int:id>/delete', views.teamMemberDelete, name='teamMemberDelete'),
+    path('adminConfiguration/teamMember/new', views.teamMemberEdit, name='teamMemberNew'),
+
+
+    path('adminConfiguration/partners/', views.partners, name='partners'),
+    path('adminConfiguration/partner/<int:id>/edit', views.partnerEdit, name='partnerEdit'),
+    path('adminConfiguration/partner/<int:id>/delete', views.partnerDelete, name='partnerDelete'),
+    path('adminConfiguration/partner/new', views.partnerEdit, name='partnerNew'),
+
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
 
     path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),
+    path('about/bcse', views.aboutBCSE, name='aboutBCSE'),
+    path('about/centers', views.aboutCenters, name='aboutCenters'),
+    path('about/partners', views.aboutPartners, name='aboutPartners'),
+    path('about/team', views.aboutTeam, name='aboutTeam'),
+    path('about/case_study', views.aboutCaseStudy, name='aboutCaseStudy')
+
 
 
 

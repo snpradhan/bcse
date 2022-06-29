@@ -122,8 +122,25 @@
                 <li class="nav-item {% navactive request 'bcse:studentPrograms' 'list' %} {% navactive request 'bcse:studentPrograms' 'table' %}">
                   <a class="nav-link" href="{% url 'bcse:studentPrograms' 'list' %}">Student Programs</a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link">About Us</a>
+                <li class="nav-item dropdown {% navactive request 'bcse:aboutBCSE' %} {% navactive request 'bcse:aboutCenters' %} {% navactive request 'bcse:aboutPartners' %}">
+                  <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">About Us</a>
+                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li class="{% navactive request 'bcse:aboutBCSE' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:aboutBCSE' %}">About BCSE</a>
+                    </li>
+                    <li class="{% navactive request 'bcse:aboutCenters' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:aboutCenters' %}">Our Centers</a>
+                    </li>
+                    <li class="{% navactive request 'bcse:aboutPartners' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:aboutPartners' %}">Our Partnership</a>
+                    </li>
+                     <li class="{% navactive request 'bcse:aboutCaseStudy' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:aboutCaseStudy' %}">Case Study and Partnership Toolkit</a>
+                    </li>
+                    <li class="{% navactive request 'bcse:aboutTeam' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:aboutTeam' %}">Our Team</a>
+                    </li>
+                  </ul>
                 </li>
                 {% if user.is_authenticated %}
                   {% if user.userProfile.user_role == 'A' or  user.userProfile.user_role == 'S' %}
@@ -227,6 +244,8 @@
       <div class="modal" id="work_place" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" aria-labelledby="work_placeLabel" ></div>
       <div class="modal" id="validate" tabindex="-1" aria-hidden="true" aria-labelledby="validatenLabel" ></div>
       <div class="modal" id="users_upload" tabindex="-1" aria-hidden="true" aria-labelledby="users_uploadLabel" ></div>
+      <div class="modal" id="team_member" tabindex="-1" aria-hidden="true" aria-labelledby="team_memberLabel" ></div>
+      <div class="modal" id="partner" tabindex="-1" aria-hidden="true" aria-labelledby="partnerLabel" ></div>
     {% endblock %}
 
     <footer>
@@ -239,10 +258,10 @@
             <img src="{% staticfile 'img/OCEP.png' %}">
           </div>
           <div class="partner lmsa">
-            <img src="{% staticfile 'img/LMSA_logo.png' %}">
+            <img src="{% staticfile 'img/logos/LMSA_logo.png' %}">
           </div>
           <div class="partner rlhs">
-            <img src="{% staticfile 'img/RLHS_logo.jpg' %}">
+            <img src="{% staticfile 'img/logos/RLHS_logo.jpg' %}">
           </div>
         </div>
         <div class="credits">
