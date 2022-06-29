@@ -110,9 +110,7 @@ urlpatterns = [
     path('about/centers', views.aboutCenters, name='aboutCenters'),
     path('about/partners', views.aboutPartners, name='aboutPartners'),
     path('about/team', views.aboutTeam, name='aboutTeam'),
-    path('about/case_study', views.aboutCaseStudy, name='aboutCaseStudy')
-
-
-
+    path('about/case_study', views.aboutCaseStudy, name='aboutCaseStudy'),
+    path('about/contact', views.contactUs, name='contactUs')
 
 ]

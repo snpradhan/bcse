@@ -80,6 +80,10 @@ def aboutTeam(request):
   context = {'members': members}
   return render(request, 'bcse_app/AboutTeam.html', context)
 
+def contactUs(request):
+  context = {}
+  return render(request, 'bcse_app/ContactUs.html', context)
+
 ####################################
 # BAXTER BOX INFO
 ####################################

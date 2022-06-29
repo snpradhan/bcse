@@ -140,6 +140,9 @@
                     <li class="{% navactive request 'bcse:aboutTeam' %}">
                       <a class="dropdown-item" href="{% url 'bcse:aboutTeam' %}">Our Team</a>
                     </li>
+                    <li class="{% navactive request 'bcse:contactUs' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:contactUs' %}">Contact Us</a>
+                    </li>
                   </ul>
                 </li>
                 {% if user.is_authenticated %}
