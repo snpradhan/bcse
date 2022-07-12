@@ -1,0 +1,96 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  {% if form.instance.id %}
+    <h1 class="center"> {{form.instance.name}} </h1>
+  {% else %}
+    <h1 class="center"> Create Survey </h1>
+  {% endif %}
+  <div class="admin_form">
+    <form method="post" enctype="multipart/form-data" id="formSurvey">
+      {% csrf_token %}
+      {{form.media}}
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
+        <div>{{form.name}}</div>
+        <div class="error">{{ form.name.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.survey_type.name}}" class="form-label"> {{form.survey_type.label|title}}</label>
+        <div>{{form.survey_type}}</div>
+        <div class="error">{{ form.survey_type.errors }}</div>
+      </div>
+       <div class="form-group mb-3">
+        <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
+        <div>{{form.status}}</div>
+        <div class="error">{{ form.status.errors }}</div>
+      </div>
+      
+      <div class="form-group mb-3 right">
+        {% if form.instance.id %}
+          <button class="btn btn-danger delete action" data-href="{% url 'bcse:surveyDelete' form.instance.id %}" data-title="the survey <strong>{{form.instance.name}}</strong> {% if form.instance.survey_instance %}This survey has {{form.instance.survey_instance.count }} user submission.{% endif %}">
+            Delete
+          </button>
+        {% endif %}
+        <button class="btn" type="submit" id="submit_bottom">
+          Save
+        </button>
+      </div>
+    </form>
+
+    {% if form.instance.id %}
+      <label> Survey Components </label>
+      <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#survey_component" data-href="{% url 'bcse:surveyComponentNew' form.instance.id %}" href="#">Add</a>
+      {% if surveyComponents %}
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Page</th>
+              <th>Order</th>
+              <th>Type</th>
+              <th>Content</th>
+              <th>Options</th>
+              <th>Is Required?</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for surveyComponent in surveyComponents %}
+             <tr>
+                <td>{{surveyComponent.page}}</td>
+                <td>{{surveyComponent.order}}</td>
+                <td>{{surveyComponent.get_component_type_display}}</td>
+                <td>{{surveyComponent.content|safe}}</td>
+                <td>{{surveyComponent.options}}</td>
+                <td>{{surveyComponent.is_required|yesno:"Yes,No"}}</td>
+                <td>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      Action
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#survey_component" data-href="{% url 'bcse:surveyComponentEdit' form.instance.id surveyComponent.id %}" href="#">Edit</a>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item delete action" data-href="{% url 'bcse:surveyComponentDelete' form.instance.id surveyComponent.id %}"
+                        data-title="this context">
+                          Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+             </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    {% endif %}
+
+  </div>
+{% endblock %}

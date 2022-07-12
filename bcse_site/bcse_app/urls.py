@@ -103,6 +103,20 @@ urlpatterns = [
     path('adminConfiguration/partner/<int:id>/delete', views.partnerDelete, name='partnerDelete'),
     path('adminConfiguration/partner/new', views.partnerEdit, name='partnerNew'),
 
+    path('adminConfiguration/surveys/', views.surveys, name='surveys'),
+    path('adminConfiguration/survey/<int:id>/edit', views.surveyEdit, name='surveyEdit'),
+    path('adminConfiguration/survey/<int:id>/delete', views.surveyDelete, name='surveyDelete'),
+    path('adminConfiguration/survey/new', views.surveyEdit, name='surveyNew'),
+
+    path('adminConfiguration/survey/<int:survey_id>/surveyComponent/<int:id>/edit', views.surveyComponentEdit, name='surveyComponentEdit'),
+    path('adminConfiguration/survey/<int:survey_id>/surveyComponent/<int:id>/delete', views.surveyComponentDelete, name='surveyComponentDelete'),
+    path('adminConfiguration/survey/<int:survey_id>/surveyComponent/new', views.surveyComponentEdit, name='surveyComponentNew'),
+
+    path('survey/<int:survey_id>/submission/<uuid:submission_uuid>/page/<int:page_num>', views.surveySubmission, name='surveySubmission'),
+
+    path('survey/<int:survey_id>/submission/new', views.surveySubmission, name='surveySubmissionNew'),
+
+
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
 
     path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),

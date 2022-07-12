@@ -24,12 +24,14 @@ import os
 from mailchimp_marketing import Client
 from mailchimp_marketing.api_client import ApiClientError
 import hashlib
-from django.db.models import Q, F
+from django.db.models import Q, F, Max
 from django.core.mail import EmailMessage
 from django.contrib.sites.models import Site
 import pyexcel
 import boto3
 from botocore.exceptions import ClientError
+from django.forms import modelformset_factory
+import uuid
 
 # Create your views here.
 
@@ -3008,6 +3010,228 @@ def partnerDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+####################################
+# SURVEYS
+####################################
+@login_required
+def surveys(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view surveys')
+
+    surveys = models.Survey.objects.all()
+    context = {'surveys': surveys}
+    return render(request, 'bcse_app/Surveys.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# EDIT SURVEY
+##########################################################
+@login_required
+def surveyEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit survey')
+    surveyComponents = None
+    if '' != id:
+      survey = models.Survey.objects.get(id=id)
+      surveyComponents = models.SurveyComponent.objects.all().filter(survey=survey)
+      surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
+
+    else:
+      survey = models.Survey()
+
+    if request.method == 'GET':
+      form = forms.SurveyForm(instance=survey)
+      context = {'form': form, 'surveyComponents': surveyComponents}
+      if surveySubmissions:
+        messages.warning(request, "This survey has %s user submissions. Please be carefull with the modification." % surveySubmissions.count())
+      return render(request, 'bcse_app/SurveyEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.SurveyForm(data, files=request.FILES, instance=survey)
+      if form.is_valid():
+        savedSurvey = form.save()
+        messages.success(request, "Survey saved successfully")
+        return shortcuts.redirect('bcse:surveyEdit', id=savedSurvey.id )
+      else:
+        print(form.errors)
+        context = {'form': form, 'surveyComponents': surveyComponents}
+        return render(request, 'bcse_app/SurveyEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# EDIT SURVEY COMPONENT
+##########################################################
+@login_required
+def surveyComponentEdit(request, survey_id='', id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit survey component')
+    survey = models.Survey.objects.get(id=survey_id)
+    surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
+
+    if '' != id:
+      surveyComponent = models.SurveyComponent.objects.get(id=id)
+    else:
+      surveyComponent = models.SurveyComponent(survey=survey)
+
+    if request.method == 'GET':
+      form = forms.SurveyComponentForm(instance=surveyComponent)
+      context = {'form': form, 'survey': survey}
+      return render(request, 'bcse_app/SurveyComponentEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.SurveyComponentForm(data, files=request.FILES, instance=surveyComponent)
+      response_data = {}
+      if form.is_valid():
+        savedSurveyComponent = form.save()
+        messages.success(request, "Survey Component saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form, 'survey': survey}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/SurveyComponentEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# DELETE SURVEY COMPONENT
+##########################################################
+@login_required
+def surveyComponentDelete(request, survey_id='', id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete survey component')
+    if '' != id:
+      surveyComponent = models.SurveyComponent.objects.get(id=id)
+      surveySubmissions = models.SurveySubmission.objects.all().filter(survey=surveyComponent.survey)
+      surveyComponent.delete()
+      messages.success(request, "Survey component deleted")
+
+    return shortcuts.redirect('bcse:surveyEdit', id=surveyComponent.survey.id )
+
+  except models.SurveyComponent.DoesNotExist:
+    messages.success(request, "Survey Component not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# DELETE SURVEY
+##########################################################
+@login_required
+def surveyDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete survey')
+    if '' != id:
+      survey = models.Survey.objects.get(id=id)
+      surveySubmissions = models.SurveySubmissions.objects.all().filter(survey=survey)
+      submissions = surveySubmissions.count()
+      survey.delete()
+      if submissions > 0:
+        messages.success(request, "Survey deleted along with %s submissions" % submissions)
+      else:
+        messages.success(request, "Survey deleted")
+
+    return shortcuts.redirect('bcse:surveys')
+
+  except models.Survey.DoesNotExist:
+    messages.success(request, "Survey not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# SURVEY SUBMISSION
+##########################################################
+def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
+  try:
+    survey = models.Survey.objects.get(id=survey_id)
+    total_pages = models.SurveyComponent.objects.aggregate(Max('page'))['page__max']
+    new_submission = False
+    if request.user.is_anonymous:
+      user = None
+    else:
+      user = request.user.userProfile
+
+    if '' != submission_uuid:
+      submission = models.SurveySubmission.objects.get(UUID=submission_uuid)
+    else:
+      submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, user=user)
+      submission.save()
+      new_submission = True
+      print('before return')
+      print(submission.UUID)
+      return shortcuts.redirect('bcse:surveySubmission', survey_id=survey.id, submission_uuid=submission.UUID, page_num=1)
+
+    if '' == page_num:
+      page_num = 1
+
+    if page_num <= total_pages:
+        surveyComponents = models.SurveyComponent.objects.all().filter(survey=survey, page=page_num).order_by('order')
+    else:
+      raise CustomException('Survey does not have the request page number')
+
+    for surveyComponent in surveyComponents:
+      surveyResponse, created = models.SurveyResponse.objects.get_or_create(submission=submission, survey_component=surveyComponent)
+      if surveyResponse.response is None:
+        surveyResponse.response = ''
+        surveyResponse.save()
+
+    SurveyResponseFormSet = modelformset_factory(models.SurveyResponse, form=forms.SurveyResponseForm, can_delete=False, can_order=False, extra=0)
+    if request.method == 'GET':
+      formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
+      context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+      return render(request, 'bcse_app/SurveySubmission.html', context)
+
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      print(data)
+      formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
+      if formset.is_valid():
+        formset.save()
+        if page_num < total_pages:
+          messages.success(request, 'Page %s has been saved' % page_num)
+          return shortcuts.redirect('bcse:surveySubmission', survey_id=survey.id, submission_uuid=submission.UUID, page_num=page_num+1)
+        else:
+          messages.success(request, 'The survey has been submitted')
+          return shortcuts.redirect('bcse:home')
+      else:
+        messages.error(request, 'Please correct the errors below and resubmit')
+        context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+        return render(request, 'bcse_app/SurveySubmission.html', context)
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+  except models.Survey.DoesNotExist:
+    messages.success(request, "Survey not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ########################################################################
 # PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER

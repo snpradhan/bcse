@@ -1,0 +1,130 @@
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+      <h3 class="left"> Survey Component </h3>
+      {% else %}
+      <h3 class="left"> Create Survey Component </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="surveyMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" enctype="multipart/form-data" action="{% if form.instance.id %}{% url 'bcse:surveyComponentEdit' survey.id form.instance.id %} {% else %} {% url 'bcse:surveyComponentNew' survey.id %}{% endif %}" id="formSurveyComponent">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="modal-body">
+        {{ form.survey.as_hidden}}
+        <div class="form-group mb-3">
+          <label for="id_{{form.page.name}}">
+            {{ form.page.label }}
+            {% if form.page.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.page}}</div>
+          <div class="error">{{ form.page.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.order.name}}">
+            {{ form.order.label }}
+            {% if form.order.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.order}}</div>
+          <div class="error">{{ form.order.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.context_type.name}}">
+            {{ form.component_type.label }}
+            {% if form.component_type.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.component_type}}</div>
+          <div class="error">{{ form.component_type.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.context.name}}">
+            {{ form.content.label }}
+            {% if form.content.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.content}}</div>
+          <div class="error">{{ form.content.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.options.name}}">
+            {{ form.options.label }}
+            {% if form.options.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.options}}</div>
+          <div class="error">{{ form.options.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.is_required.name}}">
+            {{ form.is_required.label }}
+            {% if form.is_required.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.is_required}}</div>
+          <div class="error">{{ form.is_required.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+
+    $('#formSurveyComponent').submit(function(e){
+      e.preventDefault();
+      var content = CKEDITOR.instances.id_content.getData();
+      var formData = new FormData(this);
+      formData.append('content', content);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#survey_component').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#survey_component').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+

@@ -1,0 +1,104 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="survey_container container">
+      <h1 class="center"> {{survey.name}} </h1>
+      
+      <div class="survey_form">
+        <form method="post" enctype="multipart/form-data" id="formSurvey">
+          {% csrf_token %}
+          {{formset.management_form}}
+          {% if formset|length > 0 %}
+            {% for form in formset %}
+              <div class="context">
+                {{form.id}}
+                {{form.instance.survey_component.content|inline_style|safe}}
+              </div>
+              {% if form.instance.survey_component.component_type != 'IN' %}
+                <div class="response">
+                  {% if form.instance.survey_component.component_type == 'TA' %}
+                    {{form.response}}
+                  {% elif form.instance.survey_component.component_type == 'TF' %}
+                    <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" />
+                  {% elif form.instance.survey_component.component_type == 'DD' %}
+                    <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}">
+                      <option value="">--------</option>
+                      {% for option in form.instance.survey_component.options|splitlines%}
+                        {% if option|slugify == form.response.value|slugify %}
+                          <option value="{{option}}" selected>{{option}}</option>
+                        {% else %}
+                          <option value="{{option}}">{{option}}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  {% elif form.instance.survey_component.component_type == 'MC' %}
+                    <div>
+                      {% for option in form.instance.survey_component.options|splitlines%}
+                        {% if option|slugify == form.response.value|slugify %}
+                          <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true"/>  {{option}}<br>
+                        {% else %}
+                          <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" />  {{option}}<br>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% elif form.instance.survey_component.component_type == 'MS' %}
+                    <div>
+                      <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                      {% with chosen=form.response.value|split:',' %}
+                      {% for option in form.instance.survey_component.options|splitlines%}
+                        {% if option|is_in:chosen %}
+                          <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}" checked/>  {{option}}<br>
+                        {% else %}
+                          <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}"/>  {{option}}<br>
+                        {% endif %}
+                      {% endfor %}
+                      {% endwith %}
+                    </div>
+                  {% elif form.instance.survey_component.component_type == 'FI' %}
+                    <div>
+                      <label>Upload files that are less than 10MB in size.</label>
+                      {{form.responseFile}}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %} 
+
+          <div class="form-group mb-3">
+            {% if page_num > 1 %}
+              {% with prev=page_num|add:"-1" %}
+              <a class="btn" href="{% url 'bcse:surveySubmission' survey.id submission.UUID prev %}">
+                Back
+              </a>
+              {% endwith %}
+            {% endif %}
+
+            <button class="btn" type="submit" id="submit_bottom">
+              {% if page_num < total_pages %}
+                Next
+              {% else %}
+                Submit
+              {% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(function (){
+      $("#formSurvey input:checkbox").change(function(){
+        var selectedValues = $("input[id="+$(this).attr('id')+"]:checked").map(function() {return this.value;}).get().join(',')
+        var hiddenVar = $(this).prevAll('input:hidden');
+        $(hiddenVar).val(selectedValues);
+      });
+
+    });
+  </script>
+{% endblock %}

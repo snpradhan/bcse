@@ -605,6 +605,60 @@ class PartnerForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
+# Survey Form
+####################################
+class SurveyForm(ModelForm):
+
+  class Meta:
+    model = models.Survey
+    exclude = ('id', 'created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(SurveyForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# SurveyComponent Form
+####################################
+class SurveyComponentForm(ModelForm):
+
+  class Meta:
+    model = models.SurveyComponent
+    exclude = ('id', 'created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(SurveyComponentForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'is_required':
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+
+        field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# SurveyResponse Form
+####################################
+class SurveyResponseForm(ModelForm):
+
+  class Meta:
+    model = models.SurveyResponse
+    exclude = ('id', 'submission', 'survey_component', 'created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(SurveyResponseForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
 ####################################
 # Reservations Search Form
 ####################################

@@ -22,6 +22,7 @@ from django.utils.timezone import make_aware
 from icalendar import Calendar, Event, vCalAddress, vText
 from django.template.loader import render_to_string, get_template
 from django.contrib.sites.models import Site
+import uuid
 
 # Create your models here.
 
@@ -88,6 +89,25 @@ NUM_OF_CLASS_CHOICES = (
   ('3', '3'),
   ('4', '4'),
   ('5', 'More than 4'),
+)
+
+SURVEY_TYPE_CHOICES = (
+  ('A', 'Async Learning'),
+  ('C', 'Case Study'),
+  ('O', 'Other'),
+)
+
+SURVEY_COMPONENT_TYPE_CHOICES = (
+  ('IN', 'Info'),
+  ('DD', 'Drop Down'),
+  ('MC', 'Multiple Choice'),
+  ('MS', 'Multi-Select'),
+  ('TF', 'Textfield'),
+  ('TA', 'Textarea'),
+  ('FI', 'File Upload'),
+  ('DT', 'Date'),
+  ('EM', 'Email'),
+  ('UL', 'URL'),
 )
 
 YEAR_CHOICES = [('', '---------')]
@@ -254,7 +274,7 @@ class WorkshopRegistrationSetting(models.Model):
   survey_url = models.URLField(null=True, blank=True)
   capacity = models.IntegerField(null=True, blank=True, help_text='Maximum capacity for this workshop. Leave blank for unlimited capacity')
   enable_waitlist = models.BooleanField(default=False)
-  waitlist_capacity = models.IntegerField(null=True, blank=True, help_text='Capacity for the waitlist. Leave blank for unlimited waitlist capacity')  
+  waitlist_capacity = models.IntegerField(null=True, blank=True, help_text='Capacity for the waitlist. Leave blank for unlimited waitlist capacity')
   open_date = models.DateField(null=True, blank=True, help_text="The date registration is open. Leave blank if registration is always open")
   open_time = models.TimeField(null=True, blank=True)
   close_date = models.DateField(null=True, blank=True, help_text="The date registration is closed. Leave blank if registration is always open")
@@ -386,6 +406,47 @@ class Partner(models.Model):
 
   def __str__(self):
       return '%s' % (self.name)
+
+class Survey(models.Model):
+  name = models.CharField(null=False, max_length=256, help_text='Name of the Survey')
+  survey_type = models.CharField(max_length=1, choices=SURVEY_TYPE_CHOICES)
+  status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['created_date']
+
+  def __str__(self):
+      return '%s' % (self.name)
+
+class SurveyComponent(models.Model):
+  survey = models.ForeignKey(Survey, related_name='survey_component', on_delete=models.CASCADE)
+  page = models.IntegerField(null=False, blank=False)
+  order = models.IntegerField(null=False, blank=False)
+  component_type = models.CharField(null=False, max_length=2, choices=SURVEY_COMPONENT_TYPE_CHOICES, default='IN')
+  content = RichTextField(null=True, blank=True)
+  options = models.TextField(null=True, blank=True)
+  is_required = models.BooleanField(default=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['page', 'order']
+      unique_together = ('survey', 'page', 'order')
+
+class SurveySubmission(models.Model):
+  UUID = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  survey = models.ForeignKey(Survey, related_name='survey_instance', on_delete=models.CASCADE)
+  user = models.ForeignKey(UserProfile, blank=True, null=True, related_name='user_survey', on_delete=models.CASCADE)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+class SurveyResponse(models.Model):
+  submission = models.ForeignKey(SurveySubmission, related_name='survey_response', on_delete=models.CASCADE)
+  survey_component = models.ForeignKey(SurveyComponent, related_name='survey_response', on_delete=models.CASCADE)
+  response = models.TextField(null=True, blank=True)
+  responseFile = models.FileField(null=True, blank=True)
 
 
 # signal to check if registration status has changed

@@ -1,0 +1,56 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Surveys </h1>
+  <div class="button-row">
+    <a class="btn" href="{% url 'bcse:surveyNew' %}">Create Survey</a>
+  </div>
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> ID</th>
+          <th> Name </th>
+          <th> Type </th>
+          <th> Status </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for survey in surveys %}
+          <tr>
+            <td> {{survey.id}}</td>
+            <td> {{survey.name}} </td>
+            <td> {{survey.get_survey_type_display}} </td>
+            <td> {{survey.get_status_display}} </td>
+            <td> {{survey.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{survey.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:surveyEdit' survey.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:surveyDelete' survey.id %}"
+                    data-title="the survey <strong>{{survey.name}}</strong> {% if survey.survey_instance %}This survey has {{survey.survey_instance.count }} user submission.{% endif %}">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -125,3 +125,19 @@ def is_past(dt):
     return True
   else:
     return False
+
+@register.filter
+def inline_style(html_string):
+  return html_string.replace('<li', '<li style="margin:0;padding:0"')
+
+@register.filter(name='split')
+def split(value, arg):
+    return value.split(arg)
+
+@register.filter(name='splitlines')
+def split(value):
+    return value.splitlines()
+
+@register.filter
+def is_in(var, obj):
+    return var in obj
