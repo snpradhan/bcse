@@ -660,6 +660,22 @@ class SurveyResponseForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
+# SurveySubmission Form
+####################################
+class SurveySubmissionForm(ModelForm):
+
+  class Meta:
+    model = models.SurveySubmission
+    fields = ['status']
+
+  def __init__(self, *args, **kwargs):
+    super(SurveySubmissionForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
 # Reservations Search Form
 ####################################
 class ReservationsSearchForm(forms.Form):

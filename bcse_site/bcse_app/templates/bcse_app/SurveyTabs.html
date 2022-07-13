@@ -1,0 +1,26 @@
+{% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+  <ul class="nav nav-tabs mb-3">
+    {% if survey.id %}
+      <li class="nav-item">
+        <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:workshopView' survey.id %}">Preview</a></label>
+      </li>
+      <li class="nav-item">
+        <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:surveyEdit' survey.id %}">Edit</a></label>
+      </li>
+      <li class="nav-item">
+        <label><a class="nav-link {% if tab == 'submissions' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:surveySubmissions' survey.id %}">Submissions</a></label>
+      </li>
+      {% if tab == 'submissionView' %}
+        <li class="nav-item">
+          <label><a class="nav-link active" aria-current="page">Submission {{submission.UUID|truncatechars:9}}</a></label>
+        </li>
+      {% endif %}
+    {% elif tab == 'edit' %}
+      <li class="nav-item">
+        <label><a class="nav-link active" aria-current="page">Edit</a></label>
+      </li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+

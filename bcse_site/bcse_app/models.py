@@ -31,6 +31,12 @@ CONTENT_STATUS_CHOICES = (
     ('I', 'Inactive'),
 )
 
+SURVEY_SUBMISSION_STATUS_CHOICES  = (
+    ('I', 'In Progress'),
+    ('S', 'Submitted'),
+    ('R', 'Reviewed'),
+)
+
 USER_ROLE_CHOICES = (
     ('A', 'BCSE Admin'),
     ('T', 'K-12 Teacher or Administrator'),
@@ -437,8 +443,10 @@ class SurveyComponent(models.Model):
 
 class SurveySubmission(models.Model):
   UUID = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  survey = models.ForeignKey(Survey, related_name='survey_instance', on_delete=models.CASCADE)
+  survey = models.ForeignKey(Survey, related_name='survey_submission', on_delete=models.CASCADE)
   user = models.ForeignKey(UserProfile, blank=True, null=True, related_name='user_survey', on_delete=models.CASCADE)
+  ip_address = models.GenericIPAddressField()
+  status = models.CharField(default='I',  max_length=1, choices=SURVEY_SUBMISSION_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -447,6 +455,8 @@ class SurveyResponse(models.Model):
   survey_component = models.ForeignKey(SurveyComponent, related_name='survey_response', on_delete=models.CASCADE)
   response = models.TextField(null=True, blank=True)
   responseFile = models.FileField(null=True, blank=True)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
 
 
 # signal to check if registration status has changed

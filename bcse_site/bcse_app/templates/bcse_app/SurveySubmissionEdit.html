@@ -1,0 +1,70 @@
+
+<div class="modal-dialog modal-sm">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Edit Submission</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="submissionMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form method="POST" action="{% url 'bcse:surveySubmissionEdit' survey.id submission.UUID %}" id="formSurveySubmission">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label class="form-label">Survey</label>
+          <div>{{survey.name}}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label">Submission</label>
+          <div>{{submission.UUID}}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
+          <div>{{form.status}}</div>
+          <div class="error">{{ form.status.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+    $('#formSurveySubmission').submit(function(e){
+      e.preventDefault();
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(data, status) {
+          if(data['success'] == true){
+            $('#survey_submission').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#survey_submission').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+
+

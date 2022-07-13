@@ -8,6 +8,7 @@
   {% else %}
     <h1 class="center"> Create Survey </h1>
   {% endif %}
+  {% include "bcse_app/SurveyTabs.html" with survey=form.instance tab='edit' %}
   <div class="admin_form">
     <form method="post" enctype="multipart/form-data" id="formSurvey">
       {% csrf_token %}
@@ -78,7 +79,7 @@
                       <li><hr class="dropdown-divider"></li>
                       <li>
                         <a class="dropdown-item delete action" data-href="{% url 'bcse:surveyComponentDelete' form.instance.id surveyComponent.id %}"
-                        data-title="this context">
+                        data-title="this component for page {{surveyComponent.page}} and order {{surveyComponent.order}}?">
                           Delete
                         </a>
                       </li>

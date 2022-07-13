@@ -1,0 +1,66 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1 class="center"> {{survey.name}} </h1>
+  {% include "bcse_app/SurveyTabs.html" with tab='submissions' %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Serial #</th>
+        <th>Submission ID</th>
+        <th>IP Address</th>
+        <th> User ID </th>
+        <th> Email </th>
+        <th> Full Name </th>
+        <th> Created Date </th>
+        <th> Status </th>
+        <th> Action </th>        
+      </tr>
+    </thead>
+    <tbody>
+      {% for submission in surveySubmissions %}
+       <tr>
+          <td> {{forloop.counter}}</td>
+          <td>{{submission.UUID}}</td>
+          <td>{{submission.ip_address}}</td>
+          <td>{{submission.user.id|default_if_none:""}}</td>
+          <td>{{submission.user.user.email|default_if_none:""}}</td>
+          <td>{{submission.user.user.get_full_name|default_if_none:""}}</td>
+          <td>{{submission.created_date|date}}</td>
+          <td>{{submission.get_status_display}}</td>
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item action" href="{% url 'bcse:surveySubmissionView' survey.id submission.UUID %}">
+                    View
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#survey_submission" data-href="{% url 'bcse:surveySubmissionEdit' survey.id submission.UUID %}" href="#">
+                    Edit
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item action delete" data-href="{% url 'bcse:surveySubmissionDelete' survey.id submission.UUID %}"
+                  data-title="the survey submission <strong>{{submission.UUID}}</strong>">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+       </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+      
+ 
+{% endblock %}
