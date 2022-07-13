@@ -2,7 +2,7 @@
   <ul class="nav nav-tabs mb-3">
     {% if survey.id %}
       <li class="nav-item">
-        <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:workshopView' survey.id %}">Preview</a></label>
+        <label><a class="nav-link {% if tab == 'preview' %}active{% endif %}" aria-current="page" href="{% url 'bcse:surveyPreview' survey.id 1 %}">Preview</a></label>
       </li>
       <li class="nav-item">
         <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:surveyEdit' survey.id %}">Edit</a></label>

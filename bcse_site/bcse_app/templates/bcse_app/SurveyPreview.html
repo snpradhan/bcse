@@ -1,0 +1,92 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1 class="center">{{survey.name}} - Preview </h1>
+
+  {% include "bcse_app/SurveyTabs.html" with tab='preview' %}
+
+  <div class="progress-wrapper form-group mb-3">
+    {% for i in total_pages|iterate %}
+      <div class="progress-{{i}} progress-point {% if i < page_num %} done {% elif i == page_num %} current {% else %} notdone {% endif %}">
+        {{i}}
+      </div>
+      {% if not forloop.last %}
+        <div class="progress-waypoint">
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% for survey_component in surveyComponents %}
+    <div class="survey_component form-group mb-3">
+      <div class="context">
+        {{survey_component.content|inline_style|safe}}
+      </div>
+      {% if survey_component.component_type != 'IN' %}
+        <div class="response">
+          {% if survey_component.component_type == 'TA' %}
+            <textarea class="form-control"></textarea>
+          {% elif survey_component.component_type == 'TF' %}
+            <input type="text" placeholder="Enter your response" class="form-control"/>
+          {% elif survey_component.component_type == 'DD' %}
+            <select class="form-control">
+              <option value="">--------</option>
+              {% for option in survey_component.options|splitlines%}
+                <option value="{{option}}">{{option}}</option>
+              {% endfor %}
+            </select>
+          {% elif survey_component.component_type == 'MC' %}
+            <div>
+              {% for option in survey_component.options|splitlines%}
+                <input type="radio" class="form-check-input" value="{{option}}" />  {{option}}<br>
+              {% endfor %}
+            </div>
+          {% elif survey_component.component_type == 'MS' %}
+            <div>
+              {% for option in survey_component.options|splitlines%}
+                <input type="checkbox" class="form-check-input" value="{{option}}"/>  {{option}}<br>
+              {% endfor %}
+            </div>
+          {% elif survey_component.component_type == 'FI' %}
+            <div>
+              <label>Upload files that are less than 10MB in size.</label>
+              <input type="file" class="form-control"/>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <div class="form-group mb-3">
+    {% if page_num > 1 %}
+      {% with prev=page_num|add:"-1" %}
+      <a class="btn" href="{% url 'bcse:surveyPreview' survey.id prev %}">
+        Back
+      </a>
+      {% endwith %}
+    {% endif %}
+    {% if page_num < total_pages %}
+      {% with next=page_num|add:"1" %}
+        <a class="btn" href="{% url 'bcse:surveyPreview' survey.id next %}">
+          Next
+        </a>
+      {% endwith %}
+    {% else %}
+      <a class="btn" href="{% url 'bcse:surveyPreview' survey.id 1 %}">
+        Submit
+      </a>
+    {% endif %}
+    </button>
+  </div>
+
+
+  <script type="text/javascript">
+    $(function (){
+
+
+    });
+  </script>
+{% endblock %}

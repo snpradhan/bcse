@@ -207,6 +207,45 @@ body {
     }
   }
 
+  /*****************************
+  * PROGRESS BAR
+  ******************************/
+  .progress-wrapper {
+    width: 100%;
+    display: flex !important;
+    justify-content: center;
+    height: 2em;
+    .progress-point {
+      background-color:#E6E6E6;
+      float:left;
+      height:2em;
+      width:2em;
+      border:2px solid #F7F7F7;
+      border-radius: 50%;
+      box-shadow:0 1px 1px #E0E0E0;
+      color: white;
+      text-align: center;
+
+      &.done {
+        background-color: @bcse-success-green;
+      }
+      &.notdone {
+        background-color: @bcse-gray;
+      }
+      &.current {
+        background-color: @baxter-yellow;
+      }
+    }
+    .progress-waypoint {
+      float:left;
+      width: 3em;
+      height: 1em;
+      background-color:#FFFFFF;
+      position:relative;
+      border-bottom:2px solid #E0E0E0;
+    }
+  }
+
   /**** OUTREACH BUBBLE ****/
   /****  LANDING PAGE AND ABOUT US PAGE ****/
   div.outreach {

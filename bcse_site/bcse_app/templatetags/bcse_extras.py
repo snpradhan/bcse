@@ -141,3 +141,7 @@ def split(value):
 @register.filter
 def is_in(var, obj):
     return var in obj
+
+@register.filter
+def iterate(value):
+  return list(range(1, value+1))

@@ -42,6 +42,10 @@
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
+                    <a class="dropdown-item" href="{% url 'bcse:surveyPreview' survey.id 1 %}">Preview</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
                     <a class="dropdown-item" href="{% url 'bcse:surveySubmissions' survey.id %}">View Submissions</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>

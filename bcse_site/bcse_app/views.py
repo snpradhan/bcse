@@ -3071,6 +3071,32 @@ def surveyEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+##########################################################
+# PREVIEW SURVEY
+##########################################################
+@login_required
+def surveyPreview(request, id='', page_num=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to preview survey')
+    survey = models.Survey.objects.get(id=id)
+    surveyComponents = models.SurveyComponent.objects.all().filter(survey=survey, page=page_num).order_by('order')
+    total_pages = models.SurveyComponent.objects.all().filter(survey=survey).aggregate(Max('page'))['page__max']
+
+    context = {'survey': survey, 'surveyComponents': surveyComponents, 'page_num': page_num, 'total_pages': total_pages}
+    messages.warning(request, "This is only a preview.  You cannot submit responses here.")
+    return render(request, 'bcse_app/SurveyPreview.html', context)
+
+  except models.Survey.DoesNotExist:
+    messages.success(request, "Survey not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.SurveySubmission.DoesNotExist:
+    messages.success(request, "Survey submission not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # VIEW SURVEY SUBMISSIONS
@@ -3199,7 +3225,7 @@ def surveyDelete(request, id=''):
 def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
   try:
     survey = models.Survey.objects.get(id=survey_id)
-    total_pages = models.SurveyComponent.objects.aggregate(Max('page'))['page__max']
+    total_pages = models.SurveyComponent.objects.all().filter(survey=survey).aggregate(Max('page'))['page__max']
     if request.user.is_anonymous:
       user = None
     else:
