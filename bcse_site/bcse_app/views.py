@@ -2735,6 +2735,91 @@ def workPlaceDelete(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
+# UPLOAD WORK PLACES VIA AN EXCEL TEMPLATE
+##########################################################
+@login_required
+def workPlacesUpload(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to upload work places')
+
+    if request.method == 'GET':
+      form = forms.WorkPlacesUploadForm(user=request.user)
+      context = {'form': form}
+      return render(request, 'bcse_app/WorkPlacesUploadModal.html', context)
+    elif request.method == 'POST':
+      form = forms.WorkPlacesUploadForm(user=request.user, files=request.FILES, data=request.POST)
+      response_data = {}
+
+      if form.is_valid():
+        if request.FILES:
+          f = request.FILES['file']
+          filename = f.name
+          name = filename.split(".")[0]
+          extension = filename.split(".")[-1]
+          decoded_file = f.read() #.decode("ISO-8859-1")
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.name_columns_by_row(0)
+          upload_status = ["Status"]
+          total_rows = 0
+          new_schools = 0
+          work_place_types = dict(reversed(t) for t in models.WORKPLACE_CHOICES)
+          for row in sheet:
+            total_rows += 1
+            name = row[0]
+            work_place_type = row[1]
+            district_number = row[2]
+            street_address_1 = row[3]
+            street_address_2 = row[4]
+            city = row[5]
+            state = row[6]
+            zip_code = row[7]
+            if name and work_place_type and street_address_1 and city and state and zip_code:
+              if models.WorkPlace.objects.all().filter(name=name, work_place_type=work_place_types[work_place_type], street_address_1=street_address_1, city=city, state=state, zip_code=zip_code).count() > 0:
+                upload_status.append("Work place already exists")
+              else:
+                work_place = models.WorkPlace(name=name, work_place_type=work_place_types[work_place_type], district_number=district_number, street_address_1=street_address_1, street_address_2=street_address_2, city=city, state=state, zip_code=zip_code, status='A')
+                work_place.save()
+                new_schools += 1
+                upload_status.append("Work place created")
+            else:
+              upload_status.append("One of the mandatory fields is missing")
+
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.column += upload_status
+          status_filename = '%s-%s.%s' % (name, int(time.time()), extension)
+          sheet.save_as('/tmp/%s' % status_filename)
+          s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+          file_url = ''
+          try:
+            s3_client.upload_file('/tmp/%s' % status_filename, settings.AWS_STORAGE_BUCKET_NAME, 'usersUpload/{}'.format(status_filename))
+            file_url = '%s/%s/%s' % ('https://s3.amazonaws.com', settings.AWS_STORAGE_BUCKET_NAME, 'usersUpload/{}'.format(status_filename))
+          except ClientError as e:
+            logging.error(e)
+
+          response_data['success'] = True
+          response_data['message'] = "%s out of %s workplaces were successfully uploaded. \
+          You may review you uploaded file <u><strong><a href='%s' download>here</a></strong></u>. \
+          This link will not be available after you close this dialog." % (new_schools, total_rows, file_url)
+        else:
+          response_data['success'] = False
+      else:
+        print(form.errors)
+        response_data['success'] = False
+
+      context = {'form': form}
+      response_data['html'] = render_to_string('bcse_app/WorkPlacesUploadModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
 # UPLOAD WORKSHOP REGISTRATIONS VIA AN EXCEL TEMPLATE
 ##########################################################
 @login_required

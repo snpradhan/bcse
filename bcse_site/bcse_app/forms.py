@@ -267,6 +267,20 @@ class UsersUploadForm(forms.Form):
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
+# Work Place Upload Form
+####################################
+class WorkPlacesUploadForm(forms.Form):
+  file = forms.FileField(required=True)
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(WorkPlacesUploadForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
 # Activity Form
 ####################################
 class ActivityForm(ModelForm):
