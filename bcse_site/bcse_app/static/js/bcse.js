@@ -89,6 +89,27 @@ $(function (){
     $('ul.messages').children().hide();
   });
 
+  $('div#slides').slick({
+    dots: false,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    infinite: true,
+    speed: 500,
+    fade: true,
+    cssEase: 'linear',
+    adaptiveHeight: true,
+  });
+
+  $('.banner_text.play').click(function() {
+    $(this).hide();
+    var video = $(this).closest('.banner').find('.banner_text.video');
+    $(video).show()
+    var iframe = $(video).find('iframe#banner_video');
+    $(iframe).attr('src', $(iframe).attr('src') + '?autoplay=1');
+    $('div#slides').slick('slickPause');
+
+  });
+
   bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();

@@ -15,6 +15,12 @@
         <script type="text/javascript" src="{% staticfile 'js/jquery.table2excel.js' %}"></script>
       {% endblock %}
 
+      {% block slick %}
+        <link rel="stylesheet" href='https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css'>
+        <link rel="stylesheet" href='https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css'>
+        <script type="text/javascript" src='https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js'></script>
+      {% endblock %}
+
       {% block js %}
         <script src="https://kit.fontawesome.com/e8f42db089.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
@@ -30,6 +36,7 @@
         {% endcompress %}
       {% endblock %}
       <!--script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script-->
+
 
       <!-- Plugin JavaScript -->
       {% block inlinejs %}
