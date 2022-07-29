@@ -2090,6 +2090,102 @@ def workshopsRegistrants(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+##########################################################
+# UPLOAD WORKSHOPS VIA AN JSON FILE
+##########################################################
+@login_required
+def workshopsUpload(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to upload workshops')
+
+    if request.method == 'GET':
+      form = forms.WorkshopsUploadForm(user=request.user)
+      context = {'form': form}
+      return render(request, 'bcse_app/WorkshopsUploadModal.html', context)
+    elif request.method == 'POST':
+      form = forms.WorkshopsUploadForm(user=request.user, files=request.FILES, data=request.POST)
+      response_data = {}
+
+      if form.is_valid():
+        if request.FILES:
+          f = request.FILES['file']
+          filename = f.name
+          name = filename.split(".")[0]
+          extension = filename.split(".")[-1]
+          decoded_file = f.read() #.decode("ISO-8859-1")
+          data = json.loads(decoded_file)
+          total_workshops = 0
+          uploaded_workshops = 0
+          for row in data:
+            total_workshops += 1
+            nid = row['nid']
+            category = row['workshop_category']
+            if category:
+              title = row['title']
+              sub_title = row['workshop_category']
+              summary = row['sub_title']
+              description = row['description']
+              location = row['location']
+              if not location:
+                location = 'TBD'
+
+              start_date = row['start_date']
+              if start_date:
+                start_date = datetime.datetime.strptime(row['start_date'], '%Y-%m-%d %H:%M:%S')
+              else:
+                start_date = datetime.datetime.now()
+
+              end_date = row['end_date']
+              if end_date:
+                end_date = datetime.datetime.strptime(row['end_date'], '%Y-%m-%d %H:%M:%S')
+              else:
+                end_date = start_date
+              registration_type = row['registration_type']
+              capacity = row['capacity']
+              status = row['status']
+
+              workshop_category = models.WorkshopCategory.objects.all().filter(name=category).first()
+              workshop, created = models.Workshop.objects.get_or_create(nid=nid, workshop_category=workshop_category, name=title, sub_title=sub_title, summary=summary, description=description, start_date=start_date.date(), start_time=start_date.time(), end_date=end_date.date(), end_time=end_date.time(), location=location)
+              if status == '1':
+                workshop.status = 'A'
+              else:
+                workshop.status = 'I'
+
+              workshop.save()
+              if registration_type:
+                if registration_type == 'register':
+                  reg_type = 'R'
+                else:
+                  reg_type = 'A'
+                workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
+                workshop_registration_setting.registration_type = reg_type
+                if capacity:
+                  workshop_registration_setting.capacity = capacity
+                workshop_registration_setting.save()
+              if created:
+                uploaded_workshops += 1
+
+          response_data['success'] = True
+          response_data['message'] = "%s out of %s workshops were successfully uploaded. " % (uploaded_workshops, total_workshops)
+        else:
+          response_data['success'] = False
+      else:
+        print(form.errors)
+        response_data['success'] = False
+
+      context = {'form': form}
+      response_data['html'] = render_to_string('bcse_app/WorkshopsUploadModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ##########################################################
 # VIEW USER PROFILE
 ##########################################################
@@ -2488,13 +2584,14 @@ def usersUpload(request):
             phone_number = row[4]
             twitter_handle = row[5]
             instagram_handle = row[6]
+            term_id = row[7]
             if email:
-              if User.objects.all().filter(email=email).count() == 0:
+              if User.objects.all().filter(username=email.lower()).count() == 0:
                 if first_name:
                   if last_name:
                     if user_role:
                       #all required fields available to create user
-                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle)
+                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle, term_id)
                       new_users += 1
                       upload_status.append("User created")
                     else:
@@ -2774,11 +2871,14 @@ def workPlacesUpload(request):
             city = row[5]
             state = row[6]
             zip_code = row[7]
-            if name and work_place_type and street_address_1 and city and state and zip_code:
-              if models.WorkPlace.objects.all().filter(name=name, work_place_type=work_place_types[work_place_type], street_address_1=street_address_1, city=city, state=state, zip_code=zip_code).count() > 0:
+            term_id = row[8]
+            if name and work_place_type: # and street_address_1 and city and state and zip_code:
+              if models.WorkPlace.objects.all().filter(name=name, work_place_type=work_place_types[work_place_type]).count() > 0:
                 upload_status.append("Work place already exists")
               else:
                 work_place = models.WorkPlace(name=name, work_place_type=work_place_types[work_place_type], district_number=district_number, street_address_1=street_address_1, street_address_2=street_address_2, city=city, state=state, zip_code=zip_code, status='A')
+                if term_id:
+                  work_place.term_id = term_id
                 work_place.save()
                 new_schools += 1
                 upload_status.append("Work place created")
@@ -2861,7 +2961,7 @@ def workshopRegistrantsUpload(request, id=''):
             twitter_handle = row[5]
             instagram_handle = row[6]
             if email:
-              if User.objects.all().filter(email=email).count() == 0:
+              if User.objects.all().filter(username=email.lower()).count() == 0:
                 if first_name:
                   if last_name:
                     if user_role:
@@ -3573,7 +3673,7 @@ def send_reservation_message_email(request, reservation_message):
 #####################################################
 # CREATE A NEW USER WITH RANDOM PASSWORD
 #####################################################
-def create_user(request, email, first_name, last_name, user_role, phone_number, twitter_handle, instagram_handle):
+def create_user(request, email, first_name, last_name, user_role, phone_number, twitter_handle, instagram_handle, term_id=None):
   #all required fields available to create user
   user = User.objects.create_user(email.lower(),
                     email.lower(),
@@ -3590,6 +3690,9 @@ def create_user(request, email, first_name, last_name, user_role, phone_number, 
     newUser.twitter_handle = twitter_handle
   if instagram_handle:
     newUser.instagram_handle = instagram_handle
+  if term_id and isinstance(term_id, int):
+    work_place = models.WorkPlace.objects.all().filter(term_id=term_id).first()
+    newUser.work_place = work_place
   newUser.user = user
   newUser.save()
 

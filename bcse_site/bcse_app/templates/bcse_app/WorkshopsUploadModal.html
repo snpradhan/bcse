@@ -2,7 +2,7 @@
 <div class="modal-dialog modal-md">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 class="left">Upload Users</h3>
+      <h3 class="left">Upload Workshops</h3>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div id="uploadMsg" class="msg">
@@ -12,7 +12,7 @@
         {% endfor %}
       </ul>
     </div>
-    <form class="form" method="post" enctype="multipart/form-data" action="{% url 'bcse:usersUpload' %}" id="formUserUpload">  
+    <form class="form" method="post" enctype="multipart/form-data" action="{% url 'bcse:workshopsUpload' %}" id="formWorkshopUpload">
       {% csrf_token %}
       <div class="modal-body">
         {% for field in form %}
@@ -40,7 +40,7 @@
 
 <script type="text/javascript">
   $(function (){
-    $("#formUserUpload").submit(function(e) {
+    $("#formWorkshopUpload").submit(function(e) {
       e.preventDefault();
       var formData = new FormData(this);
       $.ajax({
@@ -54,15 +54,15 @@
         processData: false,
 
         beforeSend: function(){
-          $('#formUserUpload #spinner').show();
+          $('#formWorkshopUpload #spinner').show();
         },
         complete: function(){
-          $('#formUserUpload #spinner').hide();
+          $('#formWorkshopUpload #spinner').hide();
         },
         success: function(data, status) {
           if(data['success'] == true){
             $('#upload').modal('toggle');
-            displayInfoDialog('User Upload Status', data['message'], true);
+            displayInfoDialog('Workshop Upload Status', data['message'], true);
             //location.reload();
           }
           else{

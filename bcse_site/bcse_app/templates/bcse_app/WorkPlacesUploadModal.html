@@ -19,6 +19,7 @@
           <div class="form-group mb-3">
             <label for="id_{{field.name}}">{{ field.label }}</label>
             <div>{{field}}</div>
+            <div class="warning">{{field.help_text}}</div>
             <div class="error">{{ field.errors }}</div>
           </div>
         {% endfor %}

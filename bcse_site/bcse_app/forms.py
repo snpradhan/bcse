@@ -256,7 +256,7 @@ class UserProfileForm (ModelForm):
 # User Upload Form
 ####################################
 class UsersUploadForm(forms.Form):
-  file = forms.FileField(required=True)
+  file = forms.FileField(required=True, help_text="Upload the user template")
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -270,11 +270,25 @@ class UsersUploadForm(forms.Form):
 # Work Place Upload Form
 ####################################
 class WorkPlacesUploadForm(forms.Form):
-  file = forms.FileField(required=True)
+  file = forms.FileField(required=True, help_text="Upload the workplace template")
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
     super(WorkPlacesUploadForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# Workshop Upload Form
+####################################
+class WorkshopsUploadForm(forms.Form):
+  file = forms.FileField(required=True, help_text="Upload a JSON file")
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(WorkshopsUploadForm, self).__init__(*args, **kwargs)
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
@@ -431,7 +445,7 @@ class WorkshopForm(ModelForm):
 
   class Meta:
     model = models.Workshop
-    exclude = ('created_date', 'modified_date')
+    exclude = ('nid', 'created_date', 'modified_date')
     widgets = {
       'image': widgets.FileInput,
     }
@@ -554,7 +568,7 @@ class WorkPlaceForm(ModelForm):
 
   class Meta:
     model = models.WorkPlace
-    exclude = ('id', 'created_date', 'modified_date')
+    exclude = ('id', 'term_id', 'created_date', 'modified_date')
 
   def __init__(self, *args, **kwargs):
     super(WorkPlaceForm, self).__init__(*args, **kwargs)

@@ -156,6 +156,7 @@ class WorkPlace(models.Model):
   city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
   state = USStateField(null=False, blank=False, help_text='State')
   zip_code = models.CharField(null=False, blank=False, max_length=256, help_text='Zip Code of Work Place')
+  term_id = models.IntegerField(null=True, blank=True)#delete this field after import
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
@@ -247,6 +248,7 @@ class Workshop (models.Model):
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
   enable_registration =  models.BooleanField(default=False)
   meetup_link = models.URLField(null=True, blank=True, max_length=500)
+  nid = models.IntegerField(null=True, blank=True)#delete this field after import
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
