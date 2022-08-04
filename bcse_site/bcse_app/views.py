@@ -1932,7 +1932,7 @@ def workshopsSearch(request, flag='list', audience='teacher'):
         registration = workshopRegistration(request, workshop.id)
       workshop_list.append({'workshop': workshop, 'registration': registration})
 
-    context = {'workshop_list': workshop_list}
+    context = {'workshop_list': workshop_list, 'tag': 'workshops'}
     response_data = {}
     response_data['success'] = True
     if audience == 'teacher':
