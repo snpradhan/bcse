@@ -20,10 +20,10 @@
           </div>
           <div class="date_location">
             <div class="start">
-              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Starts: {{workshop.start_date|date}} {{workshop.start_time}}
+              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Starts: {{workshop.start_date|date}} {{workshop.start_time|default_if_none:""}}
             </div>
             <div class="end">
-              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Ends: {{workshop.end_date|date}} {{workshop.end_time}}
+              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Ends: {{workshop.end_date|date}} {{workshop.end_time|default_if_none:""}}
             </div>
             <div class="location">
               <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}

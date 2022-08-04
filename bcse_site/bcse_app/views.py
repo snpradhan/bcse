@@ -32,6 +32,8 @@ import boto3
 from botocore.exceptions import ClientError
 from django.forms import modelformset_factory
 import uuid
+from urllib.request import urlretrieve, urlcleanup
+from django.core.files import File
 
 # Create your views here.
 
@@ -2145,15 +2147,37 @@ def workshopsUpload(request):
               registration_type = row['registration_type']
               capacity = row['capacity']
               status = row['status']
+              image_url = row['uri']
+              if image_url:
+                if 'storage-field-preview-image://' in image_url:
+                  image_url = image_url.replace('storage-field-preview-image://', 'https://bcoe.s3.amazonaws.com/').replace(' ', '%20')
+                elif 'public://' in image_url:
+                  image_url = image_url.replace('public://', 'https://bcse.northwestern.edu/sites/default/files/').replace(' ', '%20')
 
               workshop_category = models.WorkshopCategory.objects.all().filter(name=category).first()
               workshop, created = models.Workshop.objects.get_or_create(nid=nid, workshop_category=workshop_category, name=title, sub_title=sub_title, summary=summary, description=description, start_date=start_date.date(), start_time=start_date.time(), end_date=end_date.date(), end_time=end_date.time(), location=location)
-              if status == '1':
+              if status == 1:
                 workshop.status = 'A'
               else:
                 workshop.status = 'I'
 
+              if workshop.start_time.hour == 0 and workshop.start_time.minute == 0 and workshop.start_time.second == 0:
+                workshop.start_time = None
+              if workshop.end_time.hour == 0 and workshop.end_time.minute == 0 and workshop.end_time.second == 0:
+                workshop.end_time = None
+
               workshop.save()
+              if image_url:
+                try:
+                  filename_base, filename_ext = os.path.splitext(image_url)
+                  name, _ = urlretrieve(image_url)
+                  workshop.image.save('tempfile.%s'%filename_ext, File(open(name, 'rb')))
+                except Exception as e:
+                  print('exception occurred', e)
+                  pass
+                finally:
+                  urlcleanup()
+
               if registration_type:
                 if registration_type == 'register':
                   reg_type = 'R'
