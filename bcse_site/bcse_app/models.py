@@ -143,6 +143,8 @@ def upload_file_to(instance, filename):
     file_path = 'team'
   elif isinstance(instance, Partner):
     file_path = 'partner'
+  elif isinstance(instance, HomepageBlock):
+    file_path = 'homepage'
 
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
@@ -266,6 +268,7 @@ class TeacherLeader(models.Model):
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of the teacher leader')
   school = models.ForeignKey(WorkPlace, null=True, on_delete=models.SET_NULL)
   bio = RichTextField(null=True, blank=True)
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -459,6 +462,25 @@ class SurveyResponse(models.Model):
   responseFile = models.FileField(null=True, blank=True)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
+
+
+class HomepageBlock(models.Model):
+  title = models.CharField(null=False, max_length=256, help_text='Block title')
+  sub_title = models.CharField(null=True, blank=True, max_length=256)
+  description = RichTextUploadingField(null=True, blank=True)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this block')
+  button_text = models.CharField(null=True, blank=True, max_length=256)
+  button_url = models.CharField(null=True, blank=True, max_length=256)
+  order = models.IntegerField(null=False, blank=False)
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['-id']
+
+  def __str__(self):
+      return '%s - %s' % (self.workshop_category, self.name)
 
 
 # signal to check if registration status has changed

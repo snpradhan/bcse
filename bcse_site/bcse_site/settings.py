@@ -113,7 +113,7 @@ CKEDITOR_CONFIGS = {
         'mathJaxLib': '//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML',
         'codeSnippet_theme': 'monokai_sublime',
         'extraPlugins': ','.join(
-            ['mathjax', 'codesnippet', 'scayt', 'autogrow', 'uploadwidget', 'ajax', 'iframedialog']
+            ['mathjax', 'codesnippet', 'uploadwidget', 'scayt', 'autogrow', 'uploadwidget', 'ajax', 'iframedialog']
         ),
         'autoGrow_onStartup': True,
         'scayt_autoStartup': True,

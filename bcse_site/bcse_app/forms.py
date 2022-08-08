@@ -636,6 +636,25 @@ class PartnerForm(ModelForm):
 
 
 ####################################
+# HomepageBlock Form
+####################################
+class HomepageBlockForm(ModelForm):
+
+  class Meta:
+    model = models.HomepageBlock
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(HomepageBlockForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+####################################
 # Survey Form
 ####################################
 class SurveyForm(ModelForm):

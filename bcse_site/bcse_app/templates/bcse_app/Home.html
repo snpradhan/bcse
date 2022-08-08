@@ -4,6 +4,52 @@
 {% block content %}
    {{block.super}}
    <div class="content" id="home">
-      {% include "bcse_app/HomePageSlides.html" %}
+      {% include "bcse_app/HomepageSlides.html" %}
+      {% for homepage_block in homepage_blocks %}
+         {% include "bcse_app/HomepageBlockView.html" with homepage_block=homepage_block %}
+      {% endfor %}
+      <div class="homepage_block">
+         <div id="map_tweet">
+            <div id="map">
+               <iframe allowfullscreen="" frameborder="0" height="520" mozallowfullscreen="" msallowfullscreen="" oallowfullscreen="" src="https://ashdwalter.carto.com/viz/0b0faeb8-f7b2-11e6-b2cc-0ef7f98ade21/embed_map" webkitallowfullscreen="" width="100%"></iframe>
+            </div>
+            <div id="tweet">
+               <a class="twitter-timeline" data-height="600" data-width="600" href="https://twitter.com/BCSE_NU?ref_src=twsrc%5Etfw">Tweets by BCSE_NU</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+            </div>
+         </div>
+      </div>
+      <div class="homepage_block">
+         <h1>Our Work in the Chicagoland Area</h1>
+         <div id="outreach_testimonials" class="row">
+            {% include "bcse_app/Outreach.html" %}
+            <div class="testimonials">
+               <h3>What our teachers are saying</h3>
+               <div class="testimonial left">
+                  The BCSE allows teachers to stay up to date with the advancement of technology in science. By helping the teachers stay up to date and by providing activities that can be implanted into the classroom, it allows the future generation to have exposure to new developments in biotechnology at a young age. This hopefully will inspire the students to pursue careers in science.
+               </div>
+               <div class="testimonial left">
+                  The BCSE helps out teachers who teach at schools with limited resources get the resources and instructive know how they otherwise would not be able to obtain.</div>
+               <div class="testimonial left">
+                  Holy moly, this center is GREAT! I appreciate your outreach, enthusiasm, and expertise. It is really amazing to have this kind of access to a research institution and you are all so helpful in making this type of science accessible to our students.
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="homepage_block">
+         <h1>Our Team</h1>
+         <div id="team_members" onclick="location.href='/about/team'">
+            {% for member in members %}
+               <div class="team">
+                  <img src="{{member.image.url}}" class="circle staff">
+                  <br><br>
+                  <div class="details">
+                    <h3 class="center purple">{{member.name}}</h3>
+                    <h4 class="center">{{member.position}}</h4>
+                    <h4 class="center">{{member.organization}}</h4>
+                  </div>
+               </div>
+            {% endfor %}
+         </div>
+      </div>
    </div>
 {% endblock %}

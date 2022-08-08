@@ -3,6 +3,40 @@
 
 body {
   font-family : din-2014, sans-serif !important;
+
+  /* ----------- smartphone ----------- */
+    /* Portrait and Landscape */
+    @media only screen and (min-width: 320px) and (max-width: 667px) {
+      font-size: 10px !important;
+    }
+    @media only screen and (min-width: 668px) and (max-width: 767px) {
+      font-size: 11px !important;
+    }
+    /* ----------- tablet ----------- */
+    /* Portrait and Landscape */
+    @media only screen and (min-width: 768px) and (max-width: 1024px) {
+      font-size: 12px !important;
+
+    }
+
+    @media only screen and (min-width: 1025px) and (max-width: 1199px) {
+      font-size: 13px !important;
+
+    }
+    /* ----------- laptop and desktop ----------- */
+    @media screen and (min-width: 1200px) and (max-width: 1600px) {
+      font-size: 14px !important;
+
+    }
+    @media screen and (min-width: 1601px) and (max-width: 1919px) {
+      font-size: 15px !important;
+
+    }
+
+    /* ----------- larger screens ----------- */
+    @media screen and (min-width: 1920px) {
+      font-size: 16px !important;
+    }
   /*****************************
   * HEADER TEXT
   ******************************/
@@ -47,6 +81,9 @@ body {
 
   label {
     font-weight: bold;
+  }
+  .purple {
+    color : @nu-purple !important;
   }
 
   /*****************************
@@ -259,12 +296,14 @@ body {
   /****  LANDING PAGE AND ABOUT US PAGE ****/
   div.outreach {
     position: relative;
-    width: 57em;
+    width: 50em;
+    max-width: 100%;
     height: 40em;
     margin-left: auto;
     margin-right: auto;
     margin-top: 1em;
     margin-bottom: 3em;
+
 
     div.circle{
       border-radius: 50%;
@@ -303,11 +342,11 @@ body {
 
       &#total_teachers {
         background-color: rgba(53, 175, 200, 0.7);
-        width: 14em;
-        height: 14em;
+        width: 13em;
+        height: 13em;
         z-index: 3;
         top: 3%;
-        left: 10%;
+        left: 13%;
       }
 
       &#baxter_boxes {
@@ -315,7 +354,7 @@ body {
         width: 12em;
         height: 12em;
         top: 9%;
-        right: 13%;
+        right: 8%;
         z-index: 1;
       }
 
@@ -323,15 +362,15 @@ body {
         background-color: rgba(172, 213, 140, 0.7);
         width: 12em;
         height: 12em;
-        bottom: 16%;
-        left: 14%;
+        bottom: 22%;
+        left: 12%;
         z-index: 3;
       }
 
       &#total_students {
         background-color: rgba(225, 235, 127, 0.7);
-        width: 25em;
-        height: 25em;
+        width: 23em;
+        height: 23em;
         top: 15%;
         left: 0;
         right: 0;
@@ -342,7 +381,7 @@ body {
         background-color: rgba(94, 171, 172, 0.7);
         width: 10em;
         height: 10em;
-        bottom: 0;
+        bottom: 5%;
         left: 0;
         right: 0;
         z-index: 3;
@@ -352,8 +391,8 @@ body {
         background-color: rgba(124, 194, 102, 0.7);
         width: 10em;
         height: 10em;
-        top: 57%;
-        right: 17%;
+        top: 53%;
+        right: 15%;
         z-index: 1;
       }
     }
@@ -367,6 +406,10 @@ body {
   div.content {
 
     padding: 0 10% 40px;
+    @media only screen and (max-width: 1199px) {
+      padding-left: 5%;
+      padding-right: 5%;
+    }
     background: linear-gradient(@bcse-white 0%, @nu-mid-purple 100%) !important;
 
     &#home {
@@ -374,11 +417,115 @@ body {
       padding: 0 !important;
 
       & > div {
-        padding: 0 10% 40px;
+        padding: 0 15% 40px;
+
+        @media only screen and (max-width: 1199px) {
+          padding-left: 5%;
+          padding-right: 5%;
+        }
+        @media only screen and (min-width: 1200px) and (max-width: 1600px) {
+          padding-left: 10%;
+          padding-right: 10%;
+        }
       }
 
-      & > div:nth-child(2) {
+      & > div.homepage_block {
+        padding-top: 5em;
+        padding-bottom: 5em;
+
+        div#map_tweet {
+          display: flex;
+          justify-content: space-between;
+          align-items: stretch;
+
+          & > div {
+            text-align: center;
+          }
+
+          @media only screen and (max-width: 1024px) {
+            display: block;
+          }
+
+          div#map {
+            flex: 0 0 60%;
+          }
+          div#tweet {
+            flex: 0 0 36%;
+          }
+
+          iframe {
+            border: 1px solid #766A65 !important;
+            height: 35em !important;
+          }
+        }
+        div#outreach_testimonials {
+          display: flex;
+          justify-content: space-between;
+          align-items: stretch;
+          flex-wrap: wrap;
+          padding-left: unset;
+          padding-right: unset;
+          margin-left: unset;
+          margin-right: unset;
+
+          & > div {
+            text-align: center;
+          }
+
+          @media only screen and (max-width: 1024px) {
+            display: block;
+          }
+
+          div.outreach {
+            flex: 0 0 55%;
+          }
+          div#testimonials {
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 35%;
+            justify-content: space-between;
+            background-color: #E4E0EE;
+            border: 2px solid #767676;
+            border-radius: 2em;
+            padding: 1em 3em;
+          }
+        }
+
+        div#team_members {
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          cursor: pointer;
+
+          div.team {
+            width: 20em;
+            height: 20em;
+            text-align: center;
+
+            img.circle.staff {
+              border-radius: 50%;
+              width: 10em;
+              max-width: 100%;
+            }
+          }
+        }
+      }
+
+      & > div.homepage_block:nth-child(even) {
         background-color: @nu-light-purple;
+
+        img.curve {
+          float: left;
+          margin-right: 4em;
+        }
+      }
+
+      & > div.homepage_block:nth-child(odd) {
+
+        img.curve {
+          float: right;
+          margin-left: 4em;
+        }
       }
     }
 
@@ -871,6 +1018,21 @@ body {
             div.message {
               text-align: center;
             }
+          }
+
+        }
+
+        @media only screen and (max-width: 767px) {
+          display: block;
+
+          .image {
+            flex: unset;
+          }
+          .details {
+            flex: unset;
+          }
+          .date_location {
+            flex: unset;
           }
 
         }

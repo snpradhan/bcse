@@ -43,7 +43,9 @@ from django.http import HttpResponse
 # HOMEPAGE
 ####################################
 def home(request):
-  context = {}
+  homepage_blocks = models.HomepageBlock.objects.all().filter(status='A').order_by('order')
+  members = models.Team.objects.all().filter(status='A').order_by('order')
+  context = {'homepage_blocks': homepage_blocks, 'members': members}
   return render(request, 'bcse_app/Home.html', context)
 
 ####################################
@@ -2345,6 +2347,84 @@ def userProfileDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+##########################################################
+# LIST OF HOMEPAGE BLOCKS
+##########################################################
+@login_required
+def homepageBlocks(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view homepage blocks')
+
+    homepage_blocks = models.HomepageBlock.objects.all()
+    context = {'homepage_blocks': homepage_blocks}
+    return render(request, 'bcse_app/HomepageBlocks.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# EDIT HOMEPAGE BLOCK
+##########################################################
+@login_required
+def homepageBlockEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit homepage block')
+    if '' != id:
+      homepage_block = models.HomepageBlock.objects.get(id=id)
+    else:
+      homepage_block = models.HomepageBlock()
+
+    if request.method == 'GET':
+      form = forms.HomepageBlockForm(instance=homepage_block)
+      context = {'form': form}
+      return render(request, 'bcse_app/HomepageBlockEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.HomepageBlockForm(data, files=request.FILES, instance=homepage_block)
+      if form.is_valid():
+        savedHomepageBlock = form.save()
+        messages.success(request, "Homepage Block saved")
+        return shortcuts.redirect('bcse:homepageBlockEdit', id=savedHomepageBlock.id)
+      else:
+        print(form.errors)
+        message.error(request, "Homepage Block could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/HomepageBlockEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# DELETE HOMEPAGE BLOCK
+##########################################################
+@login_required
+def homepageBlockDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete homepage block')
+    if '' != id:
+      homepage_block = models.HomepageBlock.objects.get(id=id)
+      homepage_block.delete()
+      messages.success(request, "Homepage Block deleted")
+
+    return shortcuts.redirect('bcse:homepageBlocks')
+
+  except models.HomepageBlock.DoesNotExist:
+    messages.success(request, "Homepage Block not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 ##########################################################

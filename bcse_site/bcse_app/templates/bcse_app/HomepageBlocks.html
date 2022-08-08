@@ -1,0 +1,68 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Homepage Blocks </h1>
+  <div class="button-row">
+    <a class="btn" href="{% url 'bcse:homepageBlockNew' %}" role="button">Create Homepage Block</a>
+  </div>
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> ID</th>
+          <th> Title </th>
+          <th> Sub title </th>
+          <th> Image </th>
+          <th> Description </th>
+          <th> Button Text </th>
+          <th> Button URL </th>
+          <th> Order </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for homepage_block in homepage_blocks %}
+          <tr>
+            <td> {{homepage_block.id}}</td>
+            <td> {{homepage_block.title}} </td>
+            <td> {{homepage_block.sub_title}} </td>
+            <td>
+              {% if homepage_block.image %}
+                <img class="icon" src="{{homepage_block.image.url}}"/>
+              {% endif %}
+            </td>
+            <td> {{homepage_block.description|safe}} </td>
+            <td> {{homepage_block.button_text}} </td>
+            <td> {{homepage_block.button_url}} </td>
+            <td> {{homepage_block.order}} </td>
+            <td> {{homepage_block.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{homepage_block.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:homepageBlockEdit' homepage_block.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:homepageBlockDelete' homepage_block.id %}"
+                    data-title="the homepage block <strong>{{homepage_block.title}} </strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

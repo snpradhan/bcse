@@ -105,6 +105,11 @@ urlpatterns = [
     path('adminConfiguration/partner/<int:id>/delete', views.partnerDelete, name='partnerDelete'),
     path('adminConfiguration/partner/new', views.partnerEdit, name='partnerNew'),
 
+    path('adminConfiguration/homepageBlock/', views.homepageBlocks, name='homepageBlocks'),
+    path('adminConfiguration/homepageBlock/<int:id>/edit', views.homepageBlockEdit, name='homepageBlockEdit'),
+    path('adminConfiguration/homepageBlock/<int:id>/delete', views.homepageBlockDelete, name='homepageBlockDelete'),
+    path('adminConfiguration/homepageBlock/new', views.homepageBlockEdit, name='homepageBlockNew'),
+
     path('adminConfiguration/surveys/', views.surveys, name='surveys'),
     path('adminConfiguration/survey/<int:id>/edit', views.surveyEdit, name='surveyEdit'),
     path('adminConfiguration/survey/<int:id>/delete', views.surveyDelete, name='surveyDelete'),
