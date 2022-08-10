@@ -72,6 +72,7 @@ WORKSHOP_REGISTRATION_STATUS_CHOICES = (
   ('N', 'Cancelled'),
   ('W', 'Waitlisted'),
   ('P', 'Pending'),
+  ('T', 'Attended'),
 )
 
 RESERVATION_STATUS_CHOICES = (
@@ -519,10 +520,10 @@ def replace_workshop_tokens(text, workshop, registration):
   replaced_text = replaced_text.replace('[workshop_category]', workshop.workshop_category.name or '')
   replaced_text = replaced_text.replace('[workshop_title]', workshop.name or '')
   replaced_text = replaced_text.replace('[workshop_sub_title]', workshop.sub_title or '')
-  replaced_text = replaced_text.replace('[workshop_start_date]', workshop.start_date.strftime('%B %-d, %Y') or '')
-  replaced_text = replaced_text.replace('[workshop_start_time]', workshop.start_time.strftime('%-I:%M %p') or '')
-  replaced_text = replaced_text.replace('[workshop_end_date]', workshop.end_date.strftime('%B %-d, %Y') or '')
-  replaced_text = replaced_text.replace('[workshop_end_time]', workshop.end_time.strftime('%-I:%M %p'))
+  replaced_text = replaced_text.replace('[workshop_start_date]', workshop.start_date.strftime('%B %-d, %Y') if workshop.start_date else '')
+  replaced_text = replaced_text.replace('[workshop_start_time]', workshop.start_time.strftime('%-I:%M %p') if workshop.start_time else '')
+  replaced_text = replaced_text.replace('[workshop_end_date]', workshop.end_date.strftime('%B %-d, %Y') if workshop.end_date else '')
+  replaced_text = replaced_text.replace('[workshop_end_time]', workshop.end_time.strftime('%-I:%M %p') if workshop.end_time else '')
   replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
   replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')

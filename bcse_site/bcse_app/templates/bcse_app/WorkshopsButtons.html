@@ -2,6 +2,7 @@
   <div class="button-row">
     <a class="btn" href="{% url 'bcse:workshopNew' %}" role="button">Create Workshop</a>
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopsUpload' %}">Upload Workshops</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:allWorkshopsRegistrantsUpload' %}">Upload Participants</a>
     {% include "bcse_app/WorkshopViewSwitch.html" %}
   </div>
 {% endif %}

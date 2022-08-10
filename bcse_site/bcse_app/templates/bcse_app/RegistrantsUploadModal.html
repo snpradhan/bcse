@@ -2,7 +2,7 @@
 <div class="modal-dialog modal-md">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 class="left">Upload Registrants for {{workshop.name}}</h3>
+      <h3 class="left">Upload Registrants {% if workshop %}for {{workshop.name}} {% endif %}</h3>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div id="uploadMsg" class="msg">
@@ -12,8 +12,8 @@
         {% endfor %}
       </ul>
     </div>
-    {% if workshop.enable_registration and workshop.registration_setting.registration_type %}
-      <form class="form" method="post" enctype="multipart/form-data" action="{% url 'bcse:workshopRegistrantsUpload'  workshop.id %}" id="formUserUpload">
+    {% if workshop and workshop.enable_registration and workshop.registration_setting.registration_type or not workshop %}
+      <form class="form" method="post" enctype="multipart/form-data" action="{% if workshop %}{% url 'bcse:workshopRegistrantsUpload'  workshop.id %}{% else %}{% url 'bcse:allWorkshopsRegistrantsUpload' %} {% endif %}" id="formUserUpload">
         {% csrf_token %}
         <div class="modal-body">
           {% for field in form %}
@@ -35,7 +35,7 @@
           </div>
         </div>
       </form>
-    {% else %}
+    {% elif workshop %}
       <div class="modal-body">
         <label>Please enable registration and select a Registration Type for this workshop before uploading registrants.</label>
       </div>
@@ -67,7 +67,7 @@
         success: function(data, status) {
           if(data['success'] == true){
             $('#users_upload').modal('toggle');
-            displayInfoDialog('User Upload Status', data['message'], true);
+            displayInfoDialog('Upload Status', data['message'], true);
             //location.reload();
           }
           else{

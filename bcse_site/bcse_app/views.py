@@ -2147,7 +2147,7 @@ def workshopsUpload(request):
                 end_date = datetime.datetime.strptime(row['end_date'], '%Y-%m-%d %H:%M:%S')
               else:
                 end_date = start_date
-              registration_type = row['registration_type']
+              registration_type = row['registration_type'] or 'register'
               capacity = row['capacity']
               status = row['status']
               image_url = row['uri']
@@ -2158,7 +2158,7 @@ def workshopsUpload(request):
                   image_url = image_url.replace('public://', 'https://bcse.northwestern.edu/sites/default/files/').replace(' ', '%20')
 
               workshop_category = models.WorkshopCategory.objects.all().filter(name=category).first()
-              workshop, created = models.Workshop.objects.get_or_create(nid=nid, workshop_category=workshop_category, name=title, sub_title=sub_title, summary=summary, description=description, start_date=start_date.date(), start_time=start_date.time(), end_date=end_date.date(), end_time=end_date.time(), location=location)
+              workshop, created = models.Workshop.objects.get_or_create(nid=nid, workshop_category=workshop_category, name=title, sub_title=sub_title, summary=summary, description=description, start_date=start_date.date(), start_time=start_date.time(), end_date=end_date.date(), end_time=end_date.time(), location=location, enable_registration=True)
               if status == 1:
                 workshop.status = 'A'
               else:
@@ -3134,6 +3134,99 @@ def workshopRegistrantsUpload(request, id=''):
 
 
 ##########################################################
+# UPLOAD ALL WORKSHOPS REGISTRATIONS VIA CSV TEMPLATE
+##########################################################
+@login_required
+def allWorkshopsRegistrantsUpload(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to upload registrants')
+
+    if request.method == 'GET':
+      form = forms.UsersUploadForm(user=request.user)
+      context = {'form': form}
+      return render(request, 'bcse_app/RegistrantsUploadModal.html', context)
+    elif request.method == 'POST':
+      form = forms.UsersUploadForm(user=request.user, files=request.FILES, data=request.POST)
+      response_data = {}
+
+      if form.is_valid():
+        if request.FILES:
+          f = request.FILES['file']
+          filename = f.name
+          name = filename.split(".")[0]
+          extension = filename.split(".")[-1]
+          decoded_file = f.read() #.decode("ISO-8859-1")
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.name_columns_by_row(0)
+          upload_status = ["Status"]
+          registration_statuses = dict(map(reversed, models.WORKSHOP_REGISTRATION_STATUS_CHOICES))
+          total_rows = 0
+          new_registrants = 0
+          for row in sheet:
+            total_rows += 1
+            nid = row[0]
+            status = row[1]
+            email = row[2]
+
+            if nid:
+              workshop = models.Workshop.objects.all().filter(nid=nid).first()
+              if workshop:
+                if email:
+                  if User.objects.all().filter(username=email.lower()).count() == 1:
+                    created = create_registration(request, email, workshop.id, registration_statuses[status])
+                    print(created)
+                    if created:
+                      new_registrants += 1
+                      upload_status.append("User added to workshop.")
+                    else:
+                      upload_status.append("User registration for workshop already exists")
+                else:
+                  upload_status.append("User email not provided. User not added to workshop.")
+              else:
+                upload_status.append("Workshop with nid %s does not exist. User not added to workshop." % nid)
+            else:
+               upload_status.append("Workshop nid not provided. User not added to workshop.")
+
+          sheet = pyexcel.get_sheet(file_type=extension, file_content=decoded_file)
+          sheet.column += upload_status
+          status_filename = '%s-%s.%s' % (name, int(time.time()), extension)
+          sheet.save_as('/tmp/%s' % status_filename)
+          s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+          file_url = ''
+          try:
+            s3_client.upload_file('/tmp/%s' % status_filename, settings.AWS_STORAGE_BUCKET_NAME, 'registrantsUpload/{}'.format(status_filename))
+            file_url = '%s/%s/%s' % ('https://s3.amazonaws.com', settings.AWS_STORAGE_BUCKET_NAME, 'registrantsUpload/{}'.format(status_filename))
+          except ClientError as e:
+            logging.error(e)
+
+          response_data['success'] = True
+          response_data['message'] = "%s out of %s workshop registrations were successfully added. \
+          You may review you uploaded file <u><strong><a href='%s' download>here</a></strong></u>. \
+          This link will not be available after you close this dialog." % (new_registrants, total_rows, file_url)
+        else:
+          response_data['success'] = False
+      else:
+        print(form.errors)
+        response_data['success'] = False
+
+      context = {'form': form, 'workshop': workshop}
+      response_data['html'] = render_to_string('bcse_app/RegistrantsUploadModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Workshop.DoesNotExist as e:
+    messages.error(request, 'Workshop not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
 # VIEW TEAM MEMBERS
 ##########################################################
 @login_required
@@ -3808,7 +3901,7 @@ def create_user(request, email, first_name, last_name, user_role, phone_number, 
 #####################################################
 # CREATE A WORKSHOP REGISTRATION RECORD FOR A USER
 #####################################################
-def create_registration(request, email, workshop_id):
+def create_registration(request, email, workshop_id, registration_status=None):
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to create registration')
@@ -3822,8 +3915,11 @@ def create_registration(request, email, workshop_id):
     else:
       raise CustomException('Please enable registration and select a Registration Type for this workshop before creating registration.')
 
-    user = models.UserProfile.objects.get(user__email=email)
-    workshop_registration, created = models.Registration.objects.get_or_create(workshop_registration_setting=workshop.registration_setting, status=default_registration_status, user=user)
+    if registration_status is None:
+      registration_status = default_registration_status
+
+    user = models.UserProfile.objects.get(user__email=email.lower())
+    workshop_registration, created = models.Registration.objects.get_or_create(workshop_registration_setting=workshop.registration_setting, status=registration_status, user=user)
     if created:
       return True
     else:
