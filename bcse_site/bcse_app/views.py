@@ -3799,6 +3799,7 @@ def create_user(request, email, first_name, last_name, user_role, phone_number, 
     work_place = models.WorkPlace.objects.all().filter(term_id=term_id).first()
     newUser.work_place = work_place
   newUser.user = user
+  newUser.validation_code = get_random_string(length=5)
   newUser.save()
 
   return newUser
