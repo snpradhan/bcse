@@ -679,6 +679,7 @@ def reservationEdit(request, id=''):
       data = request.POST.copy()
       form = forms.ReservationForm(data, instance=reservation, user=request.user.userProfile)
       if form.is_valid():
+
         equipment_types = form.cleaned_data['equipment_types']
 
         if equipment_types:
@@ -3751,7 +3752,7 @@ def send_reservation_confirmation_email(request, reservation):
 
   context = {'reservation': reservation, 'domain': domain}
   body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
-  receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A', 'S']) | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+  receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=reservation.user.id)).values_list('user__email', flat=True)
   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
   email.content_subtype = "html"
   email.send(fail_silently=True)
@@ -3768,7 +3769,7 @@ def send_reservation_message_email(request, reservation_message):
 
   context = {'reservation_message': reservation_message, 'domain': domain}
   body = get_template('bcse_app/EmailNewMessage.html').render(context)
-  receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A', 'S']) | Q(id=reservation_message.reservation.user.id)).exclude(id=reservation_message.created_by.id).values_list('user__email', flat=True)
+  receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=reservation_message.reservation.user.id)).exclude(id=reservation_message.created_by.id).values_list('user__email', flat=True)
   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
   email.content_subtype = "html"
   email.send(fail_silently=True)

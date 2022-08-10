@@ -18,6 +18,7 @@ from django.urls import path, include, re_path
 from ckeditor_uploader import views as ckeditor_views
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
+from django.views.i18n import JavaScriptCatalog
 
 urlpatterns = [
     path('', include('bcse_app.urls', namespace="bcse")),
@@ -25,5 +26,6 @@ urlpatterns = [
     path('password_reset/', include('password_reset.urls')),
     re_path(r"^ckeditor/upload/", login_required(ckeditor_views.upload), name="ckeditor_upload"),
     re_path(r"^ckeditor/browse/", never_cache(login_required(ckeditor_views.browse)), name="ckeditor_browse"),
+    path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     
 ]

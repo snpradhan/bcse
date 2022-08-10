@@ -16,6 +16,7 @@
         <div class="reservation_form">
           <form method="post" enctype="multipart/form-data" id="reservationForm">
             {% csrf_token %}
+            {{form.media}}
 
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">
@@ -72,7 +73,9 @@
             </div>
             <div class="form-group mb-4">
               <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}</label>
-              <div>{{form.equipment_types}}</div>
+              <div>
+                {{form.equipment_types}}
+              </div>
               <div class="error">{{ form.equipment_types.errors }}</div>
             </div>
             <div class="form-group mb-2 row">
@@ -162,352 +165,364 @@
 
   <script type="text/javascript">
     $(function (){
-      var reservation_delivery_days = {{reservation_settings.reservation_delivery_days}};
-      var reservation_return_days = {{reservation_settings.reservation_return_days}};
-      var reservation_min_advance_days = {{reservation_settings.reservation_min_advance_days}};
-      var reservation_max_advance_days = {{reservation_settings.reservation_max_advance_days}};
-      var user_role = "{{user.userProfile.user_role}}";
+      window.onload = function() {
+        var reservation_delivery_days = {{reservation_settings.reservation_delivery_days}};
+        var reservation_return_days = {{reservation_settings.reservation_return_days}};
+        var reservation_min_advance_days = {{reservation_settings.reservation_min_advance_days}};
+        var reservation_max_advance_days = {{reservation_settings.reservation_max_advance_days}};
+        var user_role = "{{user.userProfile.user_role}}";
 
-      //date restrictions for non admins
-      if(!["A", "S"].includes(user_role)) {
-        $('.datepicker.reservation_delivery_date').datepicker({
-          dateFormat: "MM dd, yy",
-          changeMonth: true,
-          changeYear: true,
-          beforeShowDay: function(d) {
-            //convert javascript day to python day
-            var day = d.getDay() - 1;
-            return [reservation_delivery_days.includes(day)];
-          }
-        });
-        $('.datepicker.reservation_return_date').datepicker({
-          dateFormat: "MM dd, yy",
-          changeMonth: true,
-          changeYear: true,
-          beforeShowDay: function(d) {
-            //convert javascript day to python day
-            var day = d.getDay() - 1;
-            return [reservation_return_days.includes(day)];
-          }
-        });
-      }
-      else {
-        $('.datepicker.reservation_date').datepicker({
-          dateFormat: "MM dd, yy",
-          changeMonth: true,
-          changeYear: true
-        });
-      }
-
-      toggleCheckAvailability();
-      //hide other activity name field
-      $('input#id_other_activity_name').closest('form-group').hide();
-
-      $('.form-group.kit_info').hide();
-
-      $('button#reservationSubmit').click(function(e){
-        var dates_valid = validateDates();
-        if (dates_valid) {
-          $('form#reservationForm').submit();
+        //date restrictions for non admins
+        if(!["A", "S"].includes(user_role)) {
+          $('.datepicker.reservation_delivery_date').datepicker({
+            dateFormat: "MM dd, yy",
+            changeMonth: true,
+            changeYear: true,
+            beforeShowDay: function(d) {
+              //convert javascript day to python day
+              var day = d.getDay() - 1;
+              return [reservation_delivery_days.includes(day)];
+            }
+          });
+          $('.datepicker.reservation_return_date').datepicker({
+            dateFormat: "MM dd, yy",
+            changeMonth: true,
+            changeYear: true,
+            beforeShowDay: function(d) {
+              //convert javascript day to python day
+              var day = d.getDay() - 1;
+              return [reservation_return_days.includes(day)];
+            }
+          });
         }
-      });
+        else {
+          $('.datepicker.reservation_date').datepicker({
+            dateFormat: "MM dd, yy",
+            changeMonth: true,
+            changeYear: true
+          });
+        }
 
-      $('button#clear_dates').click(function(e){
-        e.preventDefault();
-        $('.reservation_date').datepicker('setDate', null);
-      });
-      //"Check Availibility" button is clicked
-      $('button#check_availability').click(function(e){
-        e.preventDefault();
-        var dates_valid = validateDates();
-        //get availability calendar only if dates are valid
-        if (dates_valid) {
-          data = $('form#reservationForm').serialize();
-          var url ='';
-          if('{{form.instance.id}}' != 'None') {
-            url = '/availability/{{form.instance.id}}';
+        //toggleCheckAvailability();
+        //hide other activity name field
+        $('input#id_other_activity_name').closest('form-group').hide();
+
+        $('.form-group.kit_info').hide();
+
+        $('button#reservationSubmit').click(function(e){
+          var dates_valid = validateDates();
+          if (dates_valid) {
+            $('select#id_equipment_types_to option').attr('selected', true);
+            $('form#reservationForm').submit();
           }
-          else {
-            url = '/availability/new';
-          }
+        });
 
-          $.ajax({
-            type: 'POST',
-            url: url,
-            data: data,
-            beforeSend: function(){
-              $('div.availability_calendar_container').html('');
-            },
-            complete: function(){
+        $('button#clear_dates').click(function(e){
+          e.preventDefault();
+          $('.reservation_date').datepicker('setDate', null);
+        });
+        //"Check Availibility" button is clicked
+        $('button#check_availability').click(function(e){
+          e.preventDefault();
+          var dates_valid = validateDates();
+          //get availability calendar only if dates are valid
+          if (dates_valid) {
+            $('select#id_equipment_types_to option').attr('selected', true);
 
-            },
-            success: function(data){
-              console.log(data);
-              if (data['success'] = true) {
-                if (data['html']) {
-                  $('div.availability_calendar_container').html(data['html']);
-                  if(data['message']) {
-                    bootbox.alert({title: "Availability",
-                                message: data['message'],
-                                closeButton: false
-                    });
+            data = $('form#reservationForm').serialize();
+            var url ='';
+            if('{{form.instance.id}}' != 'None') {
+              url = '/availability/{{form.instance.id}}';
+            }
+            else {
+              url = '/availability/new';
+            }
+
+            $.ajax({
+              type: 'POST',
+              url: url,
+              data: data,
+              beforeSend: function(){
+                $('div.availability_calendar_container').html('');
+              },
+              complete: function(){
+
+              },
+              success: function(data){
+                console.log(data);
+                if (data['success'] = true) {
+                  if (data['html']) {
+                    $('div.availability_calendar_container').html(data['html']);
+                    if(data['message']) {
+                      bootbox.alert({title: "Availability",
+                                  message: data['message'],
+                                  closeButton: false
+                      });
+                    }
+                  }
+                  else {
+                    displayErrorDialog();
                   }
                 }
                 else {
                   displayErrorDialog();
                 }
-              }
-              else {
+                return false;
+              },
+              error: function(xhr, ajaxOptions, thrownError){
                 displayErrorDialog();
-              }
-              return false;
-            },
-            error: function(xhr, ajaxOptions, thrownError){
-              displayErrorDialog();
-            },
-          });
-        }
-      });
+              },
+            });
+          }
+        });
 
-      //Activity changed
-      $('select#id_activity').on('change', function(e){
-        //Activity is selected from dropdown
-        if($(this).val()) {
-          var url = '/activity/'+$(this).val()+'/view';
-          $.ajax({
-            type: 'GET',
-            url: url,
-            beforeSend: function(){
-              $('div.activity_container div.activity.general').hide();
-              $('div.activity_container div.activity.specific').remove();
-            },
-            complete: function(){
+        //Activity changed
+        $('select#id_activity').on('change', function(e){
+          //Activity is selected from dropdown
+          if($(this).val()) {
+            var url = '/activity/'+$(this).val()+'/view';
+            $.ajax({
+              type: 'GET',
+              url: url,
+              beforeSend: function(){
+                $('div.activity_container div.activity.general').hide();
+                $('div.activity_container div.activity.specific').remove();
+              },
+              complete: function(){
 
-            },
-            success: function(data){
-              console.log(data);
-              if (data['success'] = true) {
-                if (data['html']) {
-                  $('div.activity_container div.activity.general').after(data['html']);
-                  $('div.form-group.kit_info span.kit_name').html(data['kit_name']);
+              },
+              success: function(data){
+                console.log(data);
+                if (data['success'] = true) {
+                  if (data['html']) {
+                    $('div.activity_container div.activity.general').after(data['html']);
+                    $('div.form-group.kit_info span.kit_name').html(data['kit_name']);
+                  }
+                  else {
+                    displayErrorDialog();
+                  }
                 }
                 else {
                   displayErrorDialog();
                 }
-              }
-              else {
+                return false;
+              },
+              error: function(xhr, ajaxOptions, thrownError){
                 displayErrorDialog();
-              }
-              return false;
-            },
-            error: function(xhr, ajaxOptions, thrownError){
-              displayErrorDialog();
-            },
-          });
-          //display number of class and kit not need fields
-          $('select#id_num_of_classes').prop('required', true);
-          $('select#id_num_of_classes').closest('.form-group').show();
-          $('select#id_num_of_classes').trigger('change');
-          $('input#id_activity_kit_not_needed').closest('.form-group').show();
+              },
+            });
+            //display number of class and kit not need fields
+            $('select#id_num_of_classes').prop('required', true);
+            $('select#id_num_of_classes').closest('.form-group').show();
+            $('select#id_num_of_classes').trigger('change');
+            $('input#id_activity_kit_not_needed').closest('.form-group').show();
+          }
+          //Activity is unselected
+          else {
+            if($('input#id_other_activity').is(':checked')) {
+              $('div.activity_container div.activity.general').hide();
+            }
+            else {
+              $('div.activity_container div.activity.general').show();
+            }
+            $('div.activity_container div.activity.specific').remove();
+            //hide number of class and kit not need fields
+            $('select#id_num_of_classes').prop('required', false);
+            $('select#id_num_of_classes').val('').closest('.form-group').hide();
+            $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
+            $('div.form-group.kit_info span.kit_name').html('');
+            $('div.form-group.kit_info span.num_of_classes').html('');
+            $('div.form-group.kit_info').hide();
+          }
+        });
+
+        //enable "Check Availability" button only if equipment is selected and delivery and return dates are provided
+        function toggleCheckAvailability() {
+          if($('input#id_equipment_not_needed').is(':checked')){
+            $('button#check_availability').prop('disabled', true);
+          }
+          else if($('select#id_equipment_types_to option').length && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
+            $('button#check_availability').prop('disabled', false);
+          }
+          else{
+            $('button#check_availability').prop('disabled', true);
+          }
         }
-        //Activity is unselected
-        else {
-          if($('input#id_other_activity').is(':checked')) {
-            $('div.activity_container div.activity.general').hide();
+
+        //validate delivery and return dates
+        function validateDates() {
+          var equipment_not_needed = $('input#id_equipment_not_needed').is(':checked');
+          var equipment_selected = $('select#id_equipment_types_to option').length;
+
+          var delivery_date = $('input#id_delivery_date').datepicker('getDate');
+          var return_date = $('input#id_return_date').datepicker('getDate');
+
+          var current_date = new Date();
+          var min_reservation_date = new Date();
+          var max_reservation_date = new Date()
+          min_reservation_date.setDate(min_reservation_date.getDate() + reservation_min_advance_days);
+          min_reservation_date.setHours(0, 0, 0, 0);
+          max_reservation_date.setDate(max_reservation_date.getDate() + reservation_max_advance_days);
+          max_reservation_date.setHours(0, 0, 0, 0);
+
+          //if equipment is selected,
+          if (!equipment_not_needed && equipment_selected) {
+            //delivery and return dates are both required
+            if (delivery_date == null || return_date == null) {
+              displayWarningDialog('Please select both delivery and return dates.');
+              return false;
+            }
+            //if delivery and return dates are selected, return date has to be later than
+            //delivery date
+            else if (delivery_date && return_date) {
+              var reservation_length = Math.ceil((return_date.getTime() - delivery_date.getTime())/ (1000*3600*24));
+              if (delivery_date > return_date) {
+                displayWarningDialog('Please select a return date that is later than the delivery date.');
+                return false;
+              }
+              //non admin date validation
+              else if (!["A", "S"].includes(user_role)) {
+                if (!reservation_delivery_days.includes(delivery_date.getDay()-1) || !reservation_return_days.includes(return_date.getDay()-1)) {
+                  displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only and picked up on {{reservation_settings.reservation_return_days|get_days_of_week}} only.');
+                  return false;
+                }
+                //delivery/return dates have to be between 1 week and 6 months from today
+                else if (delivery_date < min_reservation_date || delivery_date > max_reservation_date || return_date < min_reservation_date || return_date > max_reservation_date) {
+                  displayWarningDialog('Please select delivery and return dates between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.');
+                  return false;
+                }
+                else if (reservation_length < {{reservation_settings.reservation_min_days}}) {
+                  displayWarningDialog('Reservation has to be for a minimum of {{reservation_settings.reservation_min_days}} days.');
+                  return false;
+                }
+                else if (reservation_length > {{reservation_settings.reservation_max_days}}) {
+                  displayWarningDialog('Reservation can only be for a maximum of {{reservation_settings.reservation_max_days}} days.');
+                  return false;
+                }
+              }
+            }
           }
           else {
-            $('div.activity_container div.activity.general').show();
-          }
-          $('div.activity_container div.activity.specific').remove();
-          //hide number of class and kit not need fields
-          $('select#id_num_of_classes').prop('required', false);
-          $('select#id_num_of_classes').val('').closest('.form-group').hide();
-          $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
-          $('div.form-group.kit_info span.kit_name').html('');
-          $('div.form-group.kit_info span.num_of_classes').html('');
-          $('div.form-group.kit_info').hide();
-        }
-      });
-
-      //enable "Check Availability" button only if equipment is selected and delivery and return dates are provided
-      function toggleCheckAvailability() {
-        if($('select#id_equipment_types').val() && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
-          $('button#check_availability').prop('disabled', false);
-        }
-        else{
-          $('button#check_availability').prop('disabled', true);
-        }
-      }
-
-      //validate delivery and return dates
-      function validateDates() {
-        var equipment_types = $('select#id_equipment_types').val();
-        var delivery_date = $('input#id_delivery_date').datepicker('getDate');
-        var return_date = $('input#id_return_date').datepicker('getDate');
-
-        var current_date = new Date();
-        var min_reservation_date = new Date();
-        var max_reservation_date = new Date()
-        min_reservation_date.setDate(min_reservation_date.getDate() + reservation_min_advance_days);
-        min_reservation_date.setHours(0, 0, 0, 0);
-        max_reservation_date.setDate(max_reservation_date.getDate() + reservation_max_advance_days);
-        max_reservation_date.setHours(0, 0, 0, 0);
-
-        //if equipment is selected,
-        if (equipment_types) {
-          //delivery and return dates are both required
-          if (delivery_date == null || return_date == null) {
-            displayWarningDialog('Please select both delivery and return dates.');
-            return false;
-          }
-          //if delivery and return dates are selected, return date has to be later than
-          //delivery date
-          else if (delivery_date && return_date) {
-            var reservation_length = Math.ceil((return_date.getTime() - delivery_date.getTime())/ (1000*3600*24));
-            if (delivery_date > return_date) {
-              displayWarningDialog('Please select a return date that is later than the delivery date.');
+            if (delivery_date == null) {
+              displayWarningDialog('Please select a delivery date.');
               return false;
             }
-            //non admin date validation
-            else if (!["A", "S"].includes(user_role)) {
-              if (!reservation_delivery_days.includes(delivery_date.getDay()-1) || !reservation_return_days.includes(return_date.getDay()-1)) {
-                displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only and picked up on {{reservation_settings.reservation_return_days|get_days_of_week}} only.');
-                return false;
-              }
-              //delivery/return dates have to be between 1 week and 6 months from today
-              else if (delivery_date < min_reservation_date || delivery_date > max_reservation_date || return_date < min_reservation_date || return_date > max_reservation_date) {
-                displayWarningDialog('Please select delivery and return dates between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.');
-                return false;
-              }
-              else if (reservation_length < {{reservation_settings.reservation_min_days}}) {
-                displayWarningDialog('Reservation has to be for a minimum of {{reservation_settings.reservation_min_days}} days.');
-                return false;
-              }
-              else if (reservation_length > {{reservation_settings.reservation_max_days}}) {
-                displayWarningDialog('Reservation can only be for a maximum of {{reservation_settings.reservation_max_days}} days.');
-                return false;
-              }
+            else if (!["A", "S"].includes(user_role) && !reservation_delivery_days.includes(delivery_date.getDay()-1)) {
+              displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.');
+              return false;
             }
           }
+          return true;
         }
-        else {
-          if (delivery_date == null) {
-            displayWarningDialog('Please select a delivery date.');
-            return false;
-          }
-          else if (!["A", "S"].includes(user_role) && !reservation_delivery_days.includes(delivery_date.getDay()-1)) {
-            displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.');
-            return false;
-          }
-        }
-        return true;
-      }
 
-      $('select#id_equipment_types, input#id_delivery_date, input#id_return_date').on('change', function(){
+        $('input#id_delivery_date, input#id_return_date').on('change', function(){
+          toggleCheckAvailability();
+        });
+        $('.selector-add, .selector-remove, .selector-clearall, .selector-chooseall').on('click', function(){
+          toggleCheckAvailability();
+
+          if($('select#id_equipment_types_to option').length){
+            $('input#id_return_date').prop('required', true);
+            $('input#id_return_date').closest('.col').find('span.required').show();
+          }
+          //equipment unselected
+          else{
+            $('input#id_return_date').prop('required', false);
+            $('input#id_return_date').closest('.col').find('span.required').hide();
+          }
+        });
+
+        //when other_activity checkbox is checked/unchecked
+        $('input#id_other_activity').on('change', function(e) {
+          //other activity checkbox checked
+          if($(this).is(':checked')){
+            $('select#id_activity').val('').trigger('change');
+            $('select#id_activity').prop('disabled', true);
+            $('select#id_activity').prop('required', false);
+            $('input#id_other_activity_name').prop('required', true);
+            $('input#id_other_activity_name').closest('.form-group').show();
+            $('div.activity_container div.activity.general').hide();
+            $('div.activity_container div.activity.specific').remove();
+          }
+          //other activity checkbox unchecked
+          else{
+            $('select#id_activity').prop('disabled', false);
+            $('select#id_activity').prop('required', true);
+            $('input#id_other_activity_name').prop('required', false);
+            $('input#id_other_activity_name').closest('.form-group').hide();
+            $('div.activity_container div.activity.general').show();
+            $('div.activity_container div.activity.specific').remove();
+          }
+        })
+
+        //when "I already have all the equipment" checkbox is checked/unchecked
+        $('input#id_equipment_not_needed').on('change', function(e) {
+          //checkbox checked
+          if($(this).is(':checked')){
+            //reset equipment selection
+            $('select#id_equipment_types_to option').attr('selected', true);
+            $('a.selector-remove').trigger("click");
+            $('select#id_equipment_types_to').prop('required', false);
+            $('select#id_equipment_types_to').prop('disabled', true);
+            $('select#id_equipment_types_to').closest('.form-group').hide();
+            //reset and disable return date
+            $('input#id_return_date').val('');
+            $('input#id_return_date').prop('disabled', true);
+            $('input#id_return_date').closest('.col').hide();
+            $('input#id_return_date').closest('.col').find('span.required').hide();
+          }
+          //checkbox unchecked
+          else{
+            $('select#id_equipment_types_to').prop('required', true);
+            $('select#id_equipment_types_to').prop('disabled', false);
+            $('select#id_equipment_types_to').closest('.form-group').show();
+            $('input#id_return_date').prop('disabled', false);
+          }
+        });
+
+        //number of classes changed
+        $('select#id_num_of_classes').on('change', function(e){
+          //if num of classes is more than 4, reset to 4
+          if($(this).val() == '5'){
+            bootbox.alert({title: "Warning",
+                      message: 'Maximum of 4 kits allowed. Many kits can be stretched over multiple classes. Email us with your questions bcse@northwestern.edu!',
+                      closeButton: false
+                    });
+            $(this).val('4');
+          }
+          //if num of classes is selected, display kit info
+          if($(this).val()) {
+            $('div.form-group.kit_info span.num_of_classes').html($(this).val());
+            $('div.form-group.kit_info').show();
+          }
+          else {
+            $('div.form-group.kit_info').hide();
+          }
+        });
+
+        //"I already have all the kits" checkbox checked/unchecked
+        $('input#id_activity_kit_not_needed').on('change', function(e){
+          //checkbox checked
+          if($(this).is(':checked')){
+            $('select#id_num_of_classes').val('');
+            $('select#id_num_of_classes').closest('.form-group').hide();
+            $('div.form-group.kit_info span.kit_name').html('');
+            $('div.form-group.kit_info span.num_of_classes').html('');
+            $('div.form-group.kit_info').hide();
+          }
+          //checkbox unchecked
+          else{
+            $('select#id_num_of_classes').closest('.form-group').show();
+            $('input#id_return_date').prop('required', false);
+          }
+        });
         toggleCheckAvailability();
-      });
-
-      //when other_activity checkbox is checked/unchecked
-      $('input#id_other_activity').on('change', function(e) {
-        //other activity checkbox checked
-        if($(this).is(':checked')){
-          $('select#id_activity').val('').trigger('change');
-          $('select#id_activity').prop('disabled', true);
-          $('select#id_activity').prop('required', false);
-          $('input#id_other_activity_name').prop('required', true);
-          $('input#id_other_activity_name').closest('.form-group').show();
-          $('div.activity_container div.activity.general').hide();
-          $('div.activity_container div.activity.specific').remove();
-        }
-        //other activity checkbox unchecked
-        else{
-          $('select#id_activity').prop('disabled', false);
-          $('select#id_activity').prop('required', true);
-          $('input#id_other_activity_name').prop('required', false);
-          $('input#id_other_activity_name').closest('.form-group').hide();
-          $('div.activity_container div.activity.general').show();
-          $('div.activity_container div.activity.specific').remove();
-        }
-      })
-
-      //when "I already have all the equipment" checkbox is checked/unchecked
-      $('input#id_equipment_not_needed').on('change', function(e) {
-        //checkbox checked
-        if($(this).is(':checked')){
-          //reset equipment selection
-          $('select#id_equipment_types').prop('required', false);
-          $('select#id_equipment_types').val([]);
-          $('select#id_equipment_types').closest('.form-group').hide();
-          //reset and disable return date
-          $('input#id_return_date').val('');
-          $('input#id_return_date').prop('disabled', true);
-          $('input#id_return_date').closest('.col').find('span.required').hide();
-        }
-        //checkbox unchecked
-        else{
-          $('select#id_equipment_types').prop('required', true);
-          $('select#id_equipment_types').closest('.form-group').show();
-          $('input#id_return_date').prop('disabled', false);
-        }
-      });
-
-      //equipment selection changed
-      $('select#id_equipment_types').on('change', function(e){
-        //equipment selected
-        if($(this).val()){
-          $('input#id_return_date').prop('required', true);
-          $('input#id_return_date').closest('.col').find('span.required').show();
-        }
-        //equipment unselected
-        else{
-          $('input#id_return_date').prop('required', false);
-          $('input#id_return_date').closest('.col').find('span.required').hide();
-        }
-      });
-
-      //number of classes changed
-      $('select#id_num_of_classes').on('change', function(e){
-        //if num of classes is more than 4, reset to 4
-        if($(this).val() == '5'){
-          bootbox.alert({title: "Warning",
-                    message: 'Maximum of 4 kits allowed. Many kits can be stretched over multiple classes. Email us with your questions bcse@northwestern.edu!',
-                    closeButton: false
-                  });
-          $(this).val('4');
-        }
-        //if num of classes is selected, display kit info
-        if($(this).val()) {
-          $('div.form-group.kit_info span.num_of_classes').html($(this).val());
-          $('div.form-group.kit_info').show();
-        }
-        else {
-          $('div.form-group.kit_info').hide();
-        }
-      });
-
-      //"I already have all the kits" checkbox checked/unchecked
-      $('input#id_activity_kit_not_needed').on('change', function(e){
-        //checkbox checked
-        if($(this).is(':checked')){
-          $('select#id_num_of_classes').val('');
-          $('select#id_num_of_classes').closest('.form-group').hide();
-          $('div.form-group.kit_info span.kit_name').html('');
-          $('div.form-group.kit_info span.num_of_classes').html('');
-          $('div.form-group.kit_info').hide();
-        }
-        //checkbox unchecked
-        else{
-          $('select#id_num_of_classes').closest('.form-group').show();
-          $('input#id_return_date').prop('required', false);
-        }
-      });
-
-      $('input#id_other_activity').trigger('change');
-      $('select#id_activity').trigger('change');
-      $('input#id_equipment_not_needed').trigger('change');
-      $('select#id_num_of_classes').trigger('change');
-      $('select#id_equipment_types').trigger('change');
-
+        $('input#id_other_activity').trigger('change');
+        $('select#id_activity').trigger('change');
+        $('input#id_equipment_not_needed').trigger('change');
+        $('select#id_num_of_classes').trigger('change');
+        //$('select#id_equipment_types_to').trigger('change');
+      }
     });
   </script>
 {% endblock %}

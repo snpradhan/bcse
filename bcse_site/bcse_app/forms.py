@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.db.models.functions import Lower
 from localflavor.us.models import USStateField
-
+from django.contrib.admin.widgets import FilteredSelectMultiple
 
 ####################################
 # Login Form
@@ -350,16 +350,18 @@ class EquipmentForm(ModelForm):
 
 class ReservationForm(ModelForm):
   equipment_types = forms.ModelMultipleChoiceField(required=False,
-                                  queryset=models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('name'))
+                                  queryset=models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('name'), widget=FilteredSelectMultiple("", is_stacked=False))
  
   class Meta:
     model = models.Reservation
     exclude = ('equipment', 'created_by', 'created_date', 'modified_date')
     widgets = {
-      'equipment_types': forms.SelectMultiple(attrs={'size':5}),
       'notes': forms.Textarea(attrs={'rows':3}),
       #'other_activity': forms.CheckboxInput(),
     }
+  class Media:
+    css = {'all': ('/static/path/to/widgets.css',),}
+    js = ('/jsi18n',)
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
