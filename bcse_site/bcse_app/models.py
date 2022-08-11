@@ -422,6 +422,7 @@ class Partner(models.Model):
 class Survey(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Survey')
   survey_type = models.CharField(max_length=1, choices=SURVEY_TYPE_CHOICES)
+  resource_url = models.URLField(null=True, blank=True)
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

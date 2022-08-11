@@ -7,84 +7,97 @@
   <div class="content">
     <div class="survey_container container">
       <h1 class="center"> {{survey.name}} </h1>
-      
       <div class="survey_form">
         <form method="post" enctype="multipart/form-data" id="formSurvey">
           {% csrf_token %}
           {{formset.management_form}}
           {% if formset|length > 0 %}
             {% for form in formset %}
-              <div class="context">
-                {{form.id}}
-                {{form.instance.survey_component.content|inline_style|safe}}
-              </div>
-              {% if form.instance.survey_component.component_type != 'IN' %}
-                <div class="response">
-                  {% if form.instance.survey_component.component_type == 'TA' %}
-                    {{form.response}}
-                  {% elif form.instance.survey_component.component_type == 'TF' %}
-                    <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" />
-                  {% elif form.instance.survey_component.component_type == 'DD' %}
-                    <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}">
-                      <option value="">--------</option>
-                      {% for option in form.instance.survey_component.options|splitlines%}
-                        {% if option|slugify == form.response.value|slugify %}
-                          <option value="{{option}}" selected>{{option}}</option>
-                        {% else %}
-                          <option value="{{option}}">{{option}}</option>
-                        {% endif %}
-                      {% endfor %}
-                    </select>
-                  {% elif form.instance.survey_component.component_type == 'MC' %}
-                    <div>
-                      {% for option in form.instance.survey_component.options|splitlines%}
-                        {% if option|slugify == form.response.value|slugify %}
-                          <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true"/>  {{option}}<br>
-                        {% else %}
-                          <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" />  {{option}}<br>
-                        {% endif %}
-                      {% endfor %}
-                    </div>
-                  {% elif form.instance.survey_component.component_type == 'MS' %}
-                    <div>
-                      <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
-                      {% with chosen=form.response.value|split:',' %}
-                      {% for option in form.instance.survey_component.options|splitlines%}
-                        {% if option|is_in:chosen %}
-                          <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}" checked/>  {{option}}<br>
-                        {% else %}
-                          <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}"/>  {{option}}<br>
-                        {% endif %}
-                      {% endfor %}
-                      {% endwith %}
-                    </div>
-                  {% elif form.instance.survey_component.component_type == 'FI' %}
-                    <div>
-                      <label>Upload files that are less than 10MB in size.</label>
-                      {{form.responseFile}}
-                    </div>
+              <div class="survey_component form-group mb-3">
+                <div class="context {% if form.instance.survey_component.component_type != 'IN' %} question_label {% endif %}">
+                  {{form.id}}
+                  {% if form.instance.survey_component.component_type != 'IN' %}
+                    {{form.instance.survey_component.content|inline_style|strip_html}}
+                    {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}
+                  {% else %}
+                    {{form.instance.survey_component.content|inline_style|safe}}
                   {% endif %}
                 </div>
-              {% endif %}
+                {% if form.instance.survey_component.component_type != 'IN' %}
+                  <div class="response">
+                    {% if form.instance.survey_component.component_type == 'TA' %}
+                      {{form.response}}
+                    {% elif form.instance.survey_component.component_type == 'TF' %}
+                      <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" />
+                    {% elif form.instance.survey_component.component_type == 'DD' %}
+                      <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}">
+                        <option value="">--------</option>
+                        {% for option in form.instance.survey_component.options|splitlines%}
+                          {% if option|slugify == form.response.value|slugify %}
+                            <option value="{{option}}" selected>{{option}}</option>
+                          {% else %}
+                            <option value="{{option}}">{{option}}</option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                    {% elif form.instance.survey_component.component_type == 'MC' %}
+                      <div>
+                        {% for option in form.instance.survey_component.options|splitlines%}
+                          {% if option|slugify == form.response.value|slugify %}
+                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true"/>  {{option}}<br>
+                          {% else %}
+                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" />  {{option}}<br>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    {% elif form.instance.survey_component.component_type == 'MS' %}
+                      <div>
+                        <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                        {% with chosen=form.response.value|split:',' %}
+                        {% for option in form.instance.survey_component.options|splitlines%}
+                          {% if option|is_in:chosen %}
+                            <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}" checked/>  {{option}}<br>
+                          {% else %}
+                            <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}"/>  {{option}}<br>
+                          {% endif %}
+                        {% endfor %}
+                        {% endwith %}
+                      </div>
+                    {% elif form.instance.survey_component.component_type == 'FI' %}
+                      <div>
+                        <label>Upload files that are less than 10MB in size.</label>
+                        {{form.responseFile}}
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
             {% endfor %}
           {% endif %} 
 
           <div class="form-group mb-3">
             {% if page_num > 1 %}
               {% with prev=page_num|add:"-1" %}
-              <a class="btn" href="{% url 'bcse:surveySubmission' survey.id submission.UUID prev %}">
+              <a class="btn back" href="{% url 'bcse:surveySubmission' survey.id submission.UUID prev %}">
                 Back
               </a>
               {% endwith %}
             {% endif %}
-
-            <button class="btn" type="submit" id="submit_bottom">
-              {% if page_num < total_pages %}
+            {% if page_num < total_pages %}
+              <button class="btn next" type="submit" id="submit_bottom">
                 Next
+              </button>
+            {% else %}
+              {% if survey.resource_url %}
+                <button class="btn next" id="submit_bottom_with_download" data-name='{{survey.name|replace_space:"_"}}.pdf' data-href='{{survey.resource_url}}'>
+                  Submit
+                </button>
               {% else %}
-                Submit
+                 <button class="btn next" type="submit" id="submit_bottom">
+                  Submit
+                </button>
               {% endif %}
-            </button>
+            {% endif %}
           </div>
         </form>
       </div>
@@ -99,6 +112,32 @@
         $(hiddenVar).val(selectedValues);
       });
 
+      $('#submit_bottom_with_download').on('click', function(e){
+        var url = $(this).data('href');
+        var filename = $(this).data('name');
+        $('#formSurvey').ajaxSubmit({
+           dataType : 'json',
+           success: function(data){
+            var element = document.createElement('a');
+            element.setAttribute('href',url);
+            element.setAttribute('download', filename);
+            document.body.appendChild(element);
+
+            $(element).on('click', function(){
+              window.setTimeout(function(){
+                window.location = data['redirect_url'];
+                window.focus();
+              }, 5000);
+            });
+
+            element.click();
+            document.body.removeChild(element);
+
+            return false;
+           },
+        });
+
+      });
     });
   </script>
 {% endblock %}

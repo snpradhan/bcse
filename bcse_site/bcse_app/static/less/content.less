@@ -85,6 +85,9 @@ body {
   .purple {
     color : @nu-purple !important;
   }
+  .required {
+    color: red;
+  }
 
   /*****************************
   * LINKS AND BUTTON
@@ -230,9 +233,6 @@ body {
     .form-group {
       label {
         font-weight: bold;
-        .required {
-          color: red;
-        }
       }
       .django-ckeditor-widget {
         width: 100%;
@@ -567,7 +567,7 @@ body {
       }
     }
 
-   #slides {
+    #slides {
 
       ul.slick-dots {
         margin: unset !important;
@@ -1373,6 +1373,20 @@ body {
 
     }
     /****** ABOUT US END ******/
+
+    .survey_form {
+      .survey_component {
+        .question_label {
+          font-weight: bold;
+        }
+      }
+      .back {
+        float: left;
+      }
+      .next {
+        float: right;
+      }
+    }
   }
   /*******************************
    * CONTENT END

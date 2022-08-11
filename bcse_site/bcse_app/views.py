@@ -3654,7 +3654,13 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           submission.status = 'S'
           submission.save()
           messages.success(request, 'The survey has been submitted')
-          return shortcuts.redirect('bcse:home')
+          if request.is_ajax():
+            response_data = {}
+            response_data['success'] = True
+            response_data['redirect_url'] = '/'
+            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+          else:
+            return shortcuts.redirect('bcse:home')
       else:
         messages.error(request, 'Please correct the errors below and resubmit')
         context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}

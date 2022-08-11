@@ -18,71 +18,77 @@
       {% endif %}
     {% endfor %}
   </div>
-
-  {% for survey_component in surveyComponents %}
-    <div class="survey_component form-group mb-3">
-      <div class="context">
-        {{survey_component.content|inline_style|safe}}
-      </div>
-      {% if survey_component.component_type != 'IN' %}
-        <div class="response">
-          {% if survey_component.component_type == 'TA' %}
-            <textarea class="form-control"></textarea>
-          {% elif survey_component.component_type == 'TF' %}
-            <input type="text" placeholder="Enter your response" class="form-control"/>
-          {% elif survey_component.component_type == 'DD' %}
-            <select class="form-control">
-              <option value="">--------</option>
-              {% for option in survey_component.options|splitlines%}
-                <option value="{{option}}">{{option}}</option>
-              {% endfor %}
-            </select>
-          {% elif survey_component.component_type == 'MC' %}
-            <div>
-              {% for option in survey_component.options|splitlines%}
-                <input type="radio" class="form-check-input" value="{{option}}" />  {{option}}<br>
-              {% endfor %}
-            </div>
-          {% elif survey_component.component_type == 'MS' %}
-            <div>
-              {% for option in survey_component.options|splitlines%}
-                <input type="checkbox" class="form-check-input" value="{{option}}"/>  {{option}}<br>
-              {% endfor %}
-            </div>
-          {% elif survey_component.component_type == 'FI' %}
-            <div>
-              <label>Upload files that are less than 10MB in size.</label>
-              <input type="file" class="form-control"/>
-            </div>
+  <div class="survey_form">
+    {% for survey_component in surveyComponents %}
+      <div class="survey_component form-group mb-3">
+        <div class="context {% if survey_component.component_type != 'IN' %} question_label {% endif %}">
+          {% if survey_component.component_type != 'IN' %}
+            {{survey_component.content|inline_style|strip_html}}
+            {% if survey_component.is_required %} (<span class="required">*</span>) {% endif %}
+          {% else %}
+            {{survey_component.content|inline_style|safe}}
           {% endif %}
         </div>
-      {% endif %}
-    </div>
-  {% endfor %}
+        {% if survey_component.component_type != 'IN' %}
+          <div class="response">
+            {% if survey_component.component_type == 'TA' %}
+              <textarea class="form-control" {% if survey_component.is_required %}required{% endif %}></textarea>
+            {% elif survey_component.component_type == 'TF' %}
+              <input type="text" placeholder="Enter your response" class="form-control" {% if survey_component.is_required %}required{% endif %}/>
+            {% elif survey_component.component_type == 'DD' %}
+              <select class="form-control" {% if survey_component.is_required %}required{% endif %}>
+                <option value="">--------</option>
+                {% for option in survey_component.options|splitlines%}
+                  <option value="{{option}}">{{option}}</option>
+                {% endfor %}
+              </select>
+            {% elif survey_component.component_type == 'MC' %}
+              <div>
+                {% for option in survey_component.options|splitlines%}
+                  <input type="radio" class="form-check-input" value="{{option}}" {% if survey_component.is_required %}required{% endif %} />  {{option}}<br>
+                {% endfor %}
+              </div>
+            {% elif survey_component.component_type == 'MS' %}
+              <div>
+                {% for option in survey_component.options|splitlines%}
+                  <input type="checkbox" class="form-check-input" value="{{option}}" {% if survey_component.is_required %}required{% endif %}/>  {{option}}<br>
+                {% endfor %}
+              </div>
+            {% elif survey_component.component_type == 'FI' %}
+              <div>
+                <label>Upload files that are less than 10MB in size.</label>
+                <input type="file" class="form-control" {% if survey_component.is_required %}required{% endif %}/>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
 
-  <div class="form-group mb-3">
-    {% if page_num > 1 %}
-      {% with prev=page_num|add:"-1" %}
-      <a class="btn" href="{% url 'bcse:surveyPreview' survey.id prev %}">
-        Back
-      </a>
-      {% endwith %}
-    {% endif %}
-    {% if page_num < total_pages %}
-      {% with next=page_num|add:"1" %}
-        <a class="btn" href="{% url 'bcse:surveyPreview' survey.id next %}">
-          Next
+    <div class="form-group mb-3">
+      {% if page_num > 1 %}
+        {% with prev=page_num|add:"-1" %}
+        <a class="btn back" href="{% url 'bcse:surveyPreview' survey.id prev %}">
+          Back
         </a>
-      {% endwith %}
-    {% else %}
-      <a class="btn" href="{% url 'bcse:surveyPreview' survey.id 1 %}">
-        Submit
-      </a>
-    {% endif %}
-    </button>
+        {% endwith %}
+      {% endif %}
+
+      {% if page_num < total_pages %}
+        {% with next=page_num|add:"1" %}
+          <a class="btn next" href="{% url 'bcse:surveyPreview' survey.id next %}">
+            Next
+          </a>
+        {% endwith %}
+      {% else %}
+        <a class="btn next" href="{% url 'bcse:surveyPreview' survey.id 1 %}">
+          Submit
+        </a>
+      {% endif %}
+
+    </div>
+
   </div>
-
-
   <script type="text/javascript">
     $(function (){
 

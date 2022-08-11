@@ -5,6 +5,7 @@ import datetime
 from django.db.models import Q
 from django.utils import timezone
 from collections import OrderedDict
+import re
 
 register = template.Library()
 
@@ -130,6 +131,11 @@ def is_past(dt):
 def inline_style(html_string):
   return html_string.replace('<li', '<li style="margin:0;padding:0"')
 
+@register.filter
+def strip_html(html_string):
+  clean = re.compile('<.*?>')
+  return re.sub(clean, '', html_string)
+
 @register.filter(name='split')
 def split(value, arg):
     return value.split(arg)
@@ -145,3 +151,7 @@ def is_in(var, obj):
 @register.filter
 def iterate(value):
   return list(range(1, value+1))
+
+@register.filter
+def replace_space(text, replacement):
+  return text.replace(' ', replacement)
