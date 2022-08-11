@@ -116,6 +116,7 @@ urlpatterns = [
     path('adminConfiguration/surveys/', views.surveys, name='surveys'),
     path('adminConfiguration/survey/<int:id>/edit', views.surveyEdit, name='surveyEdit'),
     path('adminConfiguration/survey/<int:id>/delete', views.surveyDelete, name='surveyDelete'),
+    path('adminConfiguration/survey/<int:id>/copy', views.surveyCopy, name='surveyCopy'),
     path('adminConfiguration/survey/new', views.surveyEdit, name='surveyNew'),
     path('adminConfiguration/survey/<int:id>/submissions', views.surveySubmissions, name='surveySubmissions'),
     path('adminConfiguration/survey/<int:id>/page/<int:page_num>', views.surveyPreview, name='surveyPreview'),

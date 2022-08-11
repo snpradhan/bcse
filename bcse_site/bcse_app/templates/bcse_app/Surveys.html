@@ -15,6 +15,7 @@
           <th> Name </th>
           <th> Type </th>
           <th> Status </th>
+          <th> Submission URL</th>
           <th> # of Submissions</th>
           <th> Created Date</th>
           <th> Modified Date </th>
@@ -28,6 +29,7 @@
             <td> {{survey.name}} </td>
             <td> {{survey.get_survey_type_display}} </td>
             <td> {{survey.get_status_display}} </td>
+            <td> https://{{domain}}/survey/{{survey.id}}/submission/new</td>
             <td>{{survey.survey_submission.count}}</td>
             <td> {{survey.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{survey.modified_date|date:"F j, Y g:i A"}} </td>
@@ -43,6 +45,10 @@
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <a class="dropdown-item" href="{% url 'bcse:surveyPreview' survey.id 1 %}">Preview</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:surveyCopy' survey.id %}">Clone</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>

@@ -26,7 +26,6 @@ from mailchimp_marketing.api_client import ApiClientError
 import hashlib
 from django.db.models import Q, F, Max
 from django.core.mail import EmailMessage
-from django.contrib.sites.models import Site
 import pyexcel
 import boto3
 from botocore.exceptions import ClientError
@@ -3404,7 +3403,8 @@ def surveys(request):
       raise CustomException('You do not have the permission to view surveys')
 
     surveys = models.Survey.objects.all()
-    context = {'surveys': surveys}
+    current_site = Site.objects.get_current()
+    context = {'surveys': surveys, 'domain': current_site.domain}
     return render(request, 'bcse_app/Surveys.html', context)
 
   except CustomException as ce:
@@ -3476,6 +3476,49 @@ def surveyPreview(request, id='', page_num=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except models.SurveySubmission.DoesNotExist:
     messages.success(request, "Survey submission not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# CLONE SURVEY
+####################################
+def surveyCopy(request, id=''):
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to copy this survey')
+    if '' != id:
+      survey = models.Survey.objects.get(id=id)
+      surveyComponents = models.SurveyComponent.objects.all().filter(survey=survey)
+      title = survey.name
+      survey.pk = None
+      survey.id = None
+      survey.save()
+
+      original_survey = models.Survey.objects.get(id=id)
+      survey.name = 'Copy of ' + title
+      survey.created_date = datetime.datetime.now()
+      survey.modified_date = datetime.datetime.now()
+      survey.save()
+
+      for surveyComponent in surveyComponents:
+        surveyComponent.pk = None
+        surveyComponent.id = None
+        surveyComponent.survey = survey
+        surveyComponent.created_date = datetime.datetime.now()
+        surveyComponent.modified_date = datetime.datetime.now()
+        surveyComponent.save()
+
+      messages.success(request, "Survey copied")
+      return shortcuts.redirect('bcse:surveyEdit', id=survey.id)
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.Survey.DoesNotExist:
+    messages.success(request, "Survey not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
@@ -3585,7 +3628,7 @@ def surveyDelete(request, id=''):
       raise CustomException('You do not have the permission to delete survey')
     if '' != id:
       survey = models.Survey.objects.get(id=id)
-      surveySubmissions = models.SurveySubmissions.objects.all().filter(survey=survey)
+      surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
       submissions = surveySubmissions.count()
       survey.delete()
       if submissions > 0:
@@ -3643,7 +3686,6 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
     elif request.method == 'POST':
       data = request.POST.copy()
-      print(data)
       formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
       if formset.is_valid():
         formset.save()
