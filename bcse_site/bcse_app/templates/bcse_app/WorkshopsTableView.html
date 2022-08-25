@@ -4,7 +4,7 @@
   <h2 class="center">My Workshops</h2>
 {% endif %}
 {% now 'Y-m-d' as current_date %}
-{% if workshop_list %}
+{% if workshops %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
@@ -35,8 +35,8 @@
       </tr>
     </thead>
     <tbody>
-      {% for workshop_obj in workshop_list %}
-        {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
+      {% for workshop in workshops %}
+        {% get_registration workshop.id as registration %}
         <tr>
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
             <td> {{workshop.id}}</td>
@@ -129,10 +129,14 @@
             {% endif %}
           {% endif %}
         </tr>
-        {% endwith %}
       {% endfor %}
     </tbody>
   </table>
+  {% if tag == 'workshops' %}
+    {% include "bcse_app/Pagination.html" with model=workshops %}
+  {% endif %}
 {% else %}
-  <div class="warning center">No workshops matching your search criteria found</div>
+  {% if tag == 'workshops' %}
+    <div class="warning center">No workshops matching your search criteria found</div>
+  {% endif %}
 {% endif %}

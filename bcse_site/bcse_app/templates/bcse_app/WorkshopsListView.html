@@ -1,50 +1,50 @@
 {% load bcse_extras %}
 
 {% now 'Y-m-d' as current_date %}
-{% if workshop_list %}
-  {% for workshop_obj in workshop_list %}
-    {% with workshop=workshop_obj.workshop registration=workshop_obj.registration %}
-      <div class="workshop_container">
-        <div class="tile workshop_tile">
-          <div class="image">
-            {% if workshop.image %}
-            <img src="{{workshop.image.url}}"/>
+{% if workshops %}
+  {% for workshop in workshops %}
+    {% get_registration workshop.id as registration %}
+    <div class="workshop_container">
+      <div class="tile workshop_tile">
+        <div class="image">
+          {% if workshop.image %}
+          <img src="{{workshop.image.url}}"/>
+          {% endif %}
+        </div>
+        <div class="details">
+          <h2><a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name|title}}</a></h2>
+          <h3 class="subtitle">{{workshop.sub_title|title}}</h3>
+          <p>
+            {{workshop.summary|safe}}
+          </p>
+        </div>
+        <div class="date_location">
+          <div class="start">
+            <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Starts: {{workshop.start_date|date}} {{workshop.start_time|default_if_none:""}}
+          </div>
+          <div class="end">
+            <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Ends: {{workshop.end_date|date}} {{workshop.end_time|default_if_none:""}}
+          </div>
+          <div class="location">
+            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
+          </div>
+          <div class="workshop_registration">
+            {% include "bcse_app/WorkshopRegistration.html" %}
+          </div>
+          <!-- if meetup link is available only display the link if registration is not enabled or if enabled the user
+            is Registered or Accepted into the workshop -->
+          {% if workshop.meetup_link %}
+            {% if not workshop.enable_registration or registration and registration.instance and registration.instance.status in 'RC' %}
+              <div class="form-group mb-3 center">
+                <a class="btn" href="{{workshop.meetup_link}}" target="_blank">Join</a>
+              </div>
             {% endif %}
-          </div>
-          <div class="details">
-            <h2><a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name|title}}</a></h2>
-            <h3 class="subtitle">{{workshop.sub_title|title}}</h3>
-            <p>
-              {{workshop.summary|safe}}
-            </p>
-          </div>
-          <div class="date_location">
-            <div class="start">
-              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Starts: {{workshop.start_date|date}} {{workshop.start_time|default_if_none:""}}
-            </div>
-            <div class="end">
-              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>Ends: {{workshop.end_date|date}} {{workshop.end_time|default_if_none:""}}
-            </div>
-            <div class="location">
-              <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
-            </div>
-            <div class="workshop_registration">
-              {% include "bcse_app/WorkshopRegistration.html" %}
-            </div>
-            <!-- if meetup link is available only display the link if registration is not enabled or if enabled the user
-              is Registered or Accepted into the workshop -->
-            {% if workshop.meetup_link %}
-              {% if not workshop.enable_registration or registration and registration.instance and registration.instance.status in 'RC' %}
-                <div class="form-group mb-3 center">
-                  <a class="btn" href="{{workshop.meetup_link}}" target="_blank">Join</a>
-                </div>
-              {% endif %}
-            {% endif %}
-          </div>
+          {% endif %}
         </div>
       </div>
-    {% endwith %}
+    </div>
   {% endfor %}
+  {% include "bcse_app/Pagination.html" with model=workshops %}
 {% else %}
   <div class="warning center">No workshops matching your search criteria found</div>
 {% endif %}

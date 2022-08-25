@@ -116,25 +116,22 @@
         var url = $(this).data('href');
         var filename = $(this).data('name');
         $('#formSurvey').ajaxSubmit({
-           dataType : 'json',
-           success: function(data){
+          dataType : 'json',
+          success: function(data){
             var element = document.createElement('a');
             element.setAttribute('href',url);
             element.setAttribute('download', filename);
             document.body.appendChild(element);
-
-            $(element).on('click', function(){
-              window.setTimeout(function(){
-                window.location = data['redirect_url'];
-                window.focus();
-              }, 5000);
-            });
-
             element.click();
             document.body.removeChild(element);
-
             return false;
-           },
+          },
+          complete: function (data) {
+            window.setTimeout(function(){
+              window.location = data.responseJSON['redirect_url'];
+              window.focus();
+            }, 5000);
+          },
         });
 
       });

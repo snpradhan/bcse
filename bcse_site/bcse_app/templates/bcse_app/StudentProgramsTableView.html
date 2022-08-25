@@ -1,7 +1,7 @@
 {% load bcse_extras %}
 
 {% now 'Y-m-d' as current_date %}
-{% if workshop_list %}
+{% if workshops %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
@@ -22,8 +22,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for workshop_obj in workshop_list %}
-        {% with workshop=workshop_obj.workshop %}
+      {% for workshop in workshops %}
         <tr>
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
             <td> {{workshop.id}}</td>
@@ -71,10 +70,10 @@
             </td>
           {% endif %}
         </tr>
-        {% endwith %}
       {% endfor %}
     </tbody>
   </table>
+  {% include "bcse_app/Pagination.html" with model=workshops %}
 {% else %}
   <div class="warning center">No Student Programs matching your search criteria found</div>
 {% endif %}

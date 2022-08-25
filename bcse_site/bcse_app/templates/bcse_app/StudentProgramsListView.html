@@ -1,9 +1,8 @@
 {% load bcse_extras %}
 
 {% now 'Y-m-d' as current_date %}
-{% if workshop_list %}
-  {% for workshop_obj in workshop_list %}
-    {% with workshop=workshop_obj.workshop %}
+{% if workshops %}
+  {% for workshop in workshops %}
     <div class="workshop_container">
       <div class="tile workshop_tile">
         <div class="image">
@@ -36,8 +35,8 @@
         </div>
       </div>
     </div>
-    {% endwith %}
   {% endfor %}
+  {% include "bcse_app/Pagination.html" with model=workshops %}
 {% else %}
   <div class="warning center">No Student Programs matching your search criteria found</div>
 {% endif %}

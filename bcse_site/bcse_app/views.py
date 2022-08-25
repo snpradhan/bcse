@@ -1813,25 +1813,16 @@ def studentProgramsBaseQuery(request):
 # VIEW WORKSHOPS
 ################################################
 def workshops(request, flag='list'):
-
   searchForm = forms.WorkshopsSearchForm(user=request.user, audience='teacher', prefix="workshop_search")
-  workshop_list = workshopsList(request, flag)
-  context = {'workshop_list': workshop_list, 'searchForm': searchForm, 'flag': flag}
-
+  context = {'searchForm': searchForm, 'flag': flag}
   return render(request, 'bcse_app/WorkshopsBaseView.html', context)
 
 ################################################
 # VIEW STUDENT PROGRAMS
 ################################################
 def studentPrograms(request, flag='list'):
-  student_programs = studentProgramsBaseQuery(request)
   searchForm = forms.WorkshopsSearchForm(user=request.user, audience='student', prefix="workshop_search")
-
-  workshop_list = []
-  for workshop in student_programs:
-    workshop_list.append({'workshop': workshop})
-  print(workshop_list)
-  context = {'workshop_list': workshop_list, 'searchForm': searchForm, 'flag': flag}
+  context = {'searchForm': searchForm, 'flag': flag}
 
   return render(request, 'bcse_app/StudentProgramsBaseView.html', context)
 ################################################
@@ -1839,14 +1830,7 @@ def studentPrograms(request, flag='list'):
 ################################################
 def workshopsList(request, flag, id=''):
   workshops = workshopsBaseQuery(request, flag, id)
-  workshop_list = []
-  for workshop in workshops:
-    registration = None
-    if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
-      registration = workshopRegistration(request, workshop.id)
-    workshop_list.append({'workshop': workshop, 'registration': registration})
-
-  return workshop_list
+  return workshops
 
 ##########################################################
 # FILTER WORKSHOP BASE QUERY BASED ON FILTER CRITERIA
@@ -1921,20 +1905,25 @@ def workshopsSearch(request, flag='list', audience='teacher'):
 
       workshops = workshops.filter(id__in=workshops_with_open_registration)
 
+    order_by = 'name'
+    direction = request.GET.get('direction') or 'asc'
+    ignorecase = request.GET.get('ignorecase') or 'true'
     if sort_by:
       if sort_by == 'title':
-        workshops = workshops.order_by('name')
+        order_by = 'name'
       elif sort_by == 'start_date':
-        workshops = workshops.order_by('start_date')
+        order_by = 'start_date'
+        ignorecase = 'false'
 
-    workshop_list = []
-    for workshop in workshops:
-      registration = None
-      if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
-        registration = workshopRegistration(request, workshop.id)
-      workshop_list.append({'workshop': workshop, 'registration': registration})
 
-    context = {'workshop_list': workshop_list, 'tag': 'workshops'}
+    sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+    if flag == 'list':
+      item_per_page = 10
+    else:
+      item_per_page = settings.DEFAULT_ITEMS_PER_PAGE
+    workshops = paginate(request, workshops, sort_order, item_per_page)
+
+    context = {'workshops': workshops, 'tag': 'workshops'}
     response_data = {}
     response_data['success'] = True
     if audience == 'teacher':
@@ -2227,9 +2216,9 @@ def userProfileView(request, id=''):
       raise CustomException('You do not have the permission to view this user profile')
 
     if request.method == 'GET':
-      workshop_list = workshopsList(request, 'table', id)
+      workshops = workshopsList(request, 'table', id)
       reservations = reservationsList(request, id)
-      context = {'userProfile': userProfile, 'workshop_list': workshop_list, 'reservations': reservations}
+      context = {'userProfile': userProfile, 'workshops': workshops, 'reservations': reservations}
 
       if request.user.userProfile.user_role in  ['A', 'S']:
         return render(request, 'bcse_app/UserProfileView.html', context)
@@ -3805,7 +3794,6 @@ def surveySubmissionDelete(request, id='', submission_uuid=''):
 ########################################################################
 # PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER
 ########################################################################
-@login_required
 def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAGE):
 
   ordering_list = []

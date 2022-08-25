@@ -155,3 +155,9 @@ def iterate(value):
 @register.filter
 def replace_space(text, replacement):
   return text.replace(' ', replacement)
+
+
+@register.simple_tag(takes_context=True)
+def get_registration(context, workshop_id):
+  request = context.get('request')
+  return views.workshopRegistration(request, workshop_id)
