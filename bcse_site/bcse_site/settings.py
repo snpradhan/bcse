@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'compressor',
     'password_reset',
+    'django_crontab',
+    'dbbackup', #django-dbbackup
 ]
 
 MIDDLEWARE = [
@@ -69,6 +71,14 @@ AWS_S3_URL = '%s.%s/' % (AWS_STORAGE_BUCKET_NAME, AWS_S3_HOST)
 AWS_S3_SECURE_URLS = True       # use http instead of https
 AWS_QUERYSTRING_AUTH = False
 AWS_DEFAULT_ACL = 'public-read'
+
+DBBACKUP_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DBBACKUP_STORAGE_OPTIONS = {
+    'access_key': AWS_ACCESS_KEY_ID,
+    'secret_key': AWS_SECRET_ACCESS_KEY,
+    'bucket_name': AWS_DBBACKUP_BUCKET_NAME,
+    'default_acl': 'private',
+}
 
 TEMPLATES = [
     {
@@ -219,4 +229,10 @@ BAXTER_BOX_MIN_ADVANCE_RESERVATION_DAYS = 7
 BAXTER_BOX_MAX_ADVANCE_RESERVATION_DAYS = 180
 #ADVANCE RESERVATION REMINDER EMAIL 30 DAYS
 BAXTER_BOX_RESERVATION_REMINDER_DAYS = 30
+
+
+CRONJOBS = [
+    # run cron at 1 am to backup database
+    ('0 1 * * *', 'bcse_app.cron.backup_db', '>> /srv/project/logs/cron.log'),
+]
 
