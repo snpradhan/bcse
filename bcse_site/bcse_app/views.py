@@ -147,6 +147,7 @@ def userSignin(request, user_email=''):
 
     return http.HttpResponse(json.dumps(response_data), content_type="application/json")
   elif request.method == 'GET':
+    messages.warning(request, 'Please use your email to login')
     if user_email:
       form = forms.SignInForm(initial={'email': user_email})
     else:
