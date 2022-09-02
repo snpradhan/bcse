@@ -1,5 +1,7 @@
 $(function (){
 
+  $("#copyright_year").html(new Date().getFullYear());
+
   $(".datepicker:not(.reservation_date)").datepicker({
     dateFormat: "MM dd, yy",
     changeMonth: true,

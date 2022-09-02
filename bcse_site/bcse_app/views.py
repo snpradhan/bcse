@@ -3968,3 +3968,11 @@ def create_registration(request, email, workshop_id, registration_status=None):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+#####################################################
+# TERMS OF USE
+#####################################################
+def termsOfUse(request):
+  context = {}
+  return render(request, 'bcse_app/TermsOfUse.html', context)
+
