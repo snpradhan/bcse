@@ -3,6 +3,7 @@ from bcse_app import models, forms
 from bcse_app.exceptions import CustomException
 from django import http, shortcuts, template
 from django.contrib import auth, messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.db.models import Q, F
 from django.db.models.functions import Lower
@@ -2272,6 +2273,7 @@ def userProfileEdit(request, id=''):
       old_first_name = userProfile.user.first_name
       old_last_name = userProfile.user.last_name
       old_phone_number = userProfile.phone_number
+      old_password = userProfile.user.password
 
       userForm = forms.UserForm(data, instance=userProfile.user, user=request.user, prefix='user')
       userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile")
@@ -2281,6 +2283,10 @@ def userProfileEdit(request, id=''):
       if userForm.is_valid(userProfile.user.id) and userProfileForm.is_valid():
         userForm.save()
         savedUserProfile = userProfileForm.save()
+
+        new_password = savedUserProfile.user.password
+        if request.user.id == userProfile.user.id and new_password != old_password:
+          update_session_auth_hash(request, userProfile.user)
 
         #user unsubscribed
         if subscribed and not savedUserProfile.subscribe:
