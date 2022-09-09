@@ -1801,7 +1801,7 @@ def workshopsBaseQuery(request, flag='list', user_id=''):
   else:
     workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
 
-  workshops = workshops.filter(workshop_category__audience='T')
+  workshops = workshops.filter(workshop_category__audience='T').order_by('start_date', 'start_time')
   return workshops
 
 def studentProgramsBaseQuery(request):
@@ -1810,6 +1810,7 @@ def studentProgramsBaseQuery(request):
   else:
     student_programs = models.Workshop.objects.all().filter(status='A', workshop_category__status='A', workshop_category__audience='S')
 
+  student_programs = student_programs.order_by('start_date', 'start_time')
   return student_programs
 ################################################
 # VIEW WORKSHOPS
@@ -1907,9 +1908,9 @@ def workshopsSearch(request, flag='list', audience='teacher'):
 
       workshops = workshops.filter(id__in=workshops_with_open_registration)
 
-    order_by = 'name'
+    order_by = 'start_date'
     direction = request.GET.get('direction') or 'asc'
-    ignorecase = request.GET.get('ignorecase') or 'true'
+    ignorecase = request.GET.get('ignorecase') or 'false'
     if sort_by:
       if sort_by == 'title':
         order_by = 'name'
