@@ -805,10 +805,10 @@ class WorkshopsSearchForm(forms.Form):
 ####################################
 class RegistrantsSearchForm(forms.Form):
 
-  workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().filter(audience='T').order_by(Lower('name')))
-  workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().filter(workshop_category__audience='T').order_by(Lower('name')))
+  workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().filter(audience='T').order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
+  workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().filter(workshop_category__audience='T').order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
   year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
-  status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES)
+  status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('year', 'Year'), ('status', 'Status')))
 
   def __init__(self, *args, **kwargs):
