@@ -12,8 +12,8 @@
           {% endif %}
         </div>
         <div class="details">
-          <h2><a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name|title}}</a></h2>
-          <h3 class="subtitle">{{workshop.sub_title|default:""|title}}</h3>
+          <h2><a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a></h2>
+          <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
           <p>
             {{workshop.summary|safe}}
           </p>
