@@ -34,6 +34,7 @@ from django.forms import modelformset_factory
 import uuid
 from urllib.request import urlretrieve, urlcleanup
 from django.core.files import File
+from dal import autocomplete
 
 # Create your views here.
 
@@ -3983,3 +3984,13 @@ def termsOfUse(request):
   context = {}
   return render(request, 'bcse_app/TermsOfUse.html', context)
 
+#####################################################
+# USERS AUTOCOMPLETE
+#####################################################
+class UserAutocomplete(autocomplete.Select2QuerySetView):
+  def get_queryset(self):
+    qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
+    if self.q:
+      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
+
+    return qs

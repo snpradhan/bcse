@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.db.models.functions import Lower
 from localflavor.us.models import USStateField
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from dal import autocomplete
 
 ####################################
 # Login Form
@@ -356,9 +357,11 @@ class ReservationForm(ModelForm):
     model = models.Reservation
     exclude = ('equipment', 'created_by', 'created_date', 'modified_date')
     widgets = {
+      'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
       'notes': forms.Textarea(attrs={'rows':3}),
       #'other_activity': forms.CheckboxInput(),
     }
+
   class Media:
     css = {'all': ('/static/path/to/widgets.css',),}
     js = ('/jsi18n',)
@@ -509,7 +512,6 @@ class WorkshopRegistrationForm(ModelForm):
   class Meta:
     model = models.Registration
     exclude = ('created_date', 'modified_date')
-
 
   def __init__(self, *args, **kwargs):
 
