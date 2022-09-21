@@ -507,20 +507,26 @@ class WorkshopRegistrationSettingForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
+####################################
+# Workshop Registration Form
+####################################
 class WorkshopRegistrationForm(ModelForm):
 
   class Meta:
     model = models.Registration
     exclude = ('created_date', 'modified_date')
+    widgets = {
+      'user': autocomplete.ModelSelect2(url='registrant-autocomplete', forward=['workshop_registration_setting'], attrs={'data-placeholder': 'Start typing the name of the user ...',})
+    }
 
   def __init__(self, *args, **kwargs):
 
     super(WorkshopRegistrationForm, self).__init__(*args, **kwargs)
 
     #print(self.instance.workshop_registration_setting)
-    if not self.instance.id:
-      registered_users = models.Registration.objects.all().filter(workshop_registration_setting=self.instance.workshop_registration_setting).values_list('user', flat=True)
-      self.fields['user'].queryset = models.UserProfile.objects.all().exclude(id__in=registered_users)
+    #if not self.instance.id:
+    #  registered_users = models.Registration.objects.all().filter(workshop_registration_setting=self.instance.workshop_registration_setting).values_list('user', flat=True)
+    #  self.fields['user'].queryset = models.UserProfile.objects.all().exclude(id__in=registered_users)
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'

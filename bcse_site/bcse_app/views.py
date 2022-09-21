@@ -3994,3 +3994,22 @@ class UserAutocomplete(autocomplete.Select2QuerySetView):
       qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
 
     return qs
+
+#####################################################
+# REGISTRANTS AUTOCOMPLETE
+#####################################################
+class RegistrantAutocomplete(autocomplete.Select2QuerySetView):
+  def get_queryset(self):
+    workshop_registration_setting = self.forwarded.get('workshop_registration_setting', None)
+    print(workshop_registration_setting)
+    if workshop_registration_setting:
+      registered_users = models.Registration.objects.all().filter(workshop_registration_setting=workshop_registration_setting).values_list('user', flat=True)
+      qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name').exclude(id__in=registered_users)
+
+      if self.q:
+        qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
+    else:
+      qs = models.UserProfile.objects.none()
+
+    return qs
+

@@ -19,13 +19,14 @@ from ckeditor_uploader import views as ckeditor_views
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.views.i18n import JavaScriptCatalog
-from bcse_app.views import UserAutocomplete
+from bcse_app.views import UserAutocomplete, RegistrantAutocomplete
 
 urlpatterns = [
     path('', include('bcse_app.urls', namespace="bcse")),
     path('admin/', admin.site.urls),
     path('password_reset/', include('password_reset.urls')),
     path('user-autocomplete/', UserAutocomplete.as_view(), name='user-autocomplete'),
+    path('registrant-autocomplete/', RegistrantAutocomplete.as_view(), name='registrant-autocomplete'),
     re_path(r"^ckeditor/upload/", login_required(ckeditor_views.upload), name="ckeditor_upload"),
     re_path(r"^ckeditor/browse/", never_cache(login_required(ckeditor_views.browse)), name="ckeditor_browse"),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
