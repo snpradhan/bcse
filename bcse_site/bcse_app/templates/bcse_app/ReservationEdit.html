@@ -16,6 +16,7 @@
         <div class="reservation_form">
           <form method="post" enctype="multipart/form-data" id="reservationForm">
             {% csrf_token %}
+            {{form.media}}
 
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">

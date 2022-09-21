@@ -4013,3 +4013,13 @@ class RegistrantAutocomplete(autocomplete.Select2QuerySetView):
 
     return qs
 
+#####################################################
+# WORKPLACE AUTOCOMPLETE
+#####################################################
+class WorkplaceAutocomplete(autocomplete.Select2QuerySetView):
+  def get_queryset(self):
+    qs = models.WorkPlace.objects.all().filter(status='A').order_by('name')
+    if self.q:
+      qs = qs.filter(name__icontains=self.q)
+
+    return qs

@@ -186,7 +186,7 @@
                 (<span class="required">*</span>)
               {% endif %}
             </label>
-            <div>{{form.work_place}}</div>
+            <div id="signup_workplace_select">{{form.work_place}}</div>
             <div class="error">{{ form.work_place.errors }}</div>
           </div>
           <div class="form-group col-md-4">
@@ -200,8 +200,6 @@
             <div class="error">{{ form.new_work_place_flag.errors }}</div>
           </div>
         </div>
-
-
 
         <div id="work_place_form" style="display: none;">
           <div class="form-group mb-3">
@@ -310,10 +308,6 @@
     </form>
   </div>
 </div>
-{% block footer %}
-  {{ form.media }}
-{% endblock %}
-
 
 <script type="text/javascript">
   $(function (){

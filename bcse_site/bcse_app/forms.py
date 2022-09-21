@@ -61,9 +61,9 @@ class SignUpForm (forms.Form):
   password2 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Confirm Password')
   user_role = forms.ChoiceField(required=True, choices=(('', '---------'),)+models.USER_ROLE_CHOICES, label='I am a')
   work_place = forms.ModelChoiceField(required=False,
-                                  queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'), label='Work Place'
-                                  #widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                  # attrs={'data-placeholder': 'Start typing the name if your work place ...',}),
+                                  queryset=models.WorkPlace.objects.all(), label='Work Place',
+                                  widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                                                  attrs={'data-placeholder': 'Start typing the name if your work place ...', 'dropdownParent': '#signup_workplace_select'}),
                                   )
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
   iein = forms.CharField(required=False, max_length=20, label='IEIN #')
@@ -73,6 +73,7 @@ class SignUpForm (forms.Form):
   new_work_place_flag = forms.BooleanField(required=False, label='My Work Place Is Not Listed')
   subscribe = forms.BooleanField(required=False, label='Subscribe To Our Mailing List')
   image = forms.ImageField(required=False)
+
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -227,6 +228,8 @@ class UserProfileForm (ModelForm):
     fields = ['work_place', 'user_role', 'image', 'validation_code', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe']
     widgets = {
       'image': widgets.FileInput,
+      'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                              attrs={'data-placeholder': 'Start typing the name if your work place ...', 'dropdownparent': '#profile_workplace_select'}),
     }
 
   def __init__(self, *args, **kwargs):
