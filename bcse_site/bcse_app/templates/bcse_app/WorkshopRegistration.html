@@ -14,7 +14,6 @@
     <form method="POST" id="formWorkshopRegistration_{{workshop.id}}" action="{% url 'bcse:workshopRegistration' workshop.id %}" class="formWorkshopRegistration">
       {% csrf_token %}
       {% if user.userProfile.user_role == 'A' %}
-        {{registration.form.media}}
         {{registration.form.workshop_registration_setting.as_hidden}}
         <div class="form-group mb-3">
           <label for="id_{{registration.form.user.name}}" class="form-label"> {{registration.form.user.label}}</label>
