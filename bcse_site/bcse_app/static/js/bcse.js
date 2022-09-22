@@ -70,8 +70,15 @@ $(function (){
 
   $('form.filter_form #clear').on('click', function(e){
     $('form.filter_form')[0].reset();
-    var form = $(this).closest('form');
-    $(form).submit();
+    var autocomplete_elements = $('form.filter_form :input[data-autocomplete-light-function=select2]');
+    if($(autocomplete_elements).length) {
+      $(autocomplete_elements).val('');
+      $(autocomplete_elements).first().trigger('change');
+    }
+    else {
+      var form = $(this).closest('form');
+      $(form).submit();
+    }
   });
 
   $('#filter_toggle label').click(function(){
