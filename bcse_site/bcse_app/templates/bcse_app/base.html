@@ -3,6 +3,18 @@
 {% load compress %}
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="robots" content='{% settings_value "SEARCH_ENGINE_INDEXING" %}' />
+    <title> {% block title %} {%endblock %} The Baxter Center for Science Education </title>
+    <!-- favicon start -->
+    <link rel="icon" type="image/png" sizes="96x96" href="{% staticfile 'favicon/favicon-96x96.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% staticfile 'favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% staticfile 'favicon/favicon-16x16.png' %}">
+    <!-- favicon end -->
     {% block media %}
       {% block google_analytics %}
         <!-- Global site tag (gtag.js) - Google Analytics -->
