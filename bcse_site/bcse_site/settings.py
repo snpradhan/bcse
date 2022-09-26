@@ -204,6 +204,10 @@ ONLINE_THRESHOLD = 60
 
 DEFAULT_ITEMS_PER_PAGE = 25
 
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
