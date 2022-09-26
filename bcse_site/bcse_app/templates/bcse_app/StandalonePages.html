@@ -1,0 +1,84 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Standalone Pages </h1>
+  <div class="button-row">
+    <a class="btn" href="{% url 'bcse:standalonePageNew' %}" role="button">Create Standalone Page</a>
+  </div>
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> ID</th>
+          <th> Title </th>
+          <th> Sub title </th>
+          <th> Image </th>
+          <th> Button Text </th>
+          <th> Button URL </th>
+          <th> URL Alias</th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for standalone_page in standalone_pages %}
+          <tr>
+            <td> {{standalone_page.id}}</td>
+            <td> {{standalone_page.title}} </td>
+            <td> {{standalone_page.sub_title|default_if_none:""}} </td>
+            <td>
+              {% if standalone_page.image %}
+                <img class="icon" src="{{standalone_page.image.url}}"/>
+              {% endif %}
+            </td>
+            <td> {{standalone_page.button_text}} </td>
+            <td> {{standalone_page.button_url}} </td>
+            <td>
+              {% if standalone_page.url_alias %}
+               {% url 'bcse:standalonePageAliasView' standalone_page.url_alias %}
+              {% else %}
+                {% url 'bcse:standalonePageIdView' standalone_page.id %}
+              {% endif %}
+            </td>
+            <td> {{standalone_page.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{standalone_page.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:standalonePageEdit' standalone_page.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    {% if standalone_page.url_alias %}
+                      <a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' standalone_page.url_alias %}">View</a>
+                    {% else %}
+                      <a class="dropdown-item" href="{% url 'bcse:standalonePageIdView' standalone_page.id %}">View</a>
+                    {% endif %}
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:standalonePageCopy' standalone_page.id %}">Clone</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:standalonePageDelete' standalone_page.id %}"
+                    data-title="the homepage block <strong>{{standalone_page.title}} </strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

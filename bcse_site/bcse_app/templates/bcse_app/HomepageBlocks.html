@@ -29,7 +29,7 @@
           <tr>
             <td> {{homepage_block.id}}</td>
             <td> {{homepage_block.title}} </td>
-            <td> {{homepage_block.sub_title}} </td>
+            <td> {{homepage_block.sub_title|default_if_none:""}} </td>
             <td>
               {% if homepage_block.image %}
                 <img class="icon" src="{{homepage_block.image.url}}"/>

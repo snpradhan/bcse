@@ -668,6 +668,31 @@ class HomepageBlockForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
+# StandalonePage Form
+####################################
+class StandalonePageForm(ModelForm):
+
+  class Meta:
+    model = models.StandalonePage
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(StandalonePageForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+  def clean_url_alias(self):
+    if self.cleaned_data['url_alias']:
+      return self.cleaned_data['url_alias'].replace(" ", "_")
+    else:
+      return self.cleaned_data['url_alias']
+
+####################################
 # Survey Form
 ####################################
 class SurveyForm(ModelForm):

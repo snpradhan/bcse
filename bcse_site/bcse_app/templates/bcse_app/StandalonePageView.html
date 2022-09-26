@@ -1,0 +1,28 @@
+{% extends "bcse_app/base.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="standalone_page container">
+      <h1>{{standalone_page.title}}</h1>
+      <img class="curve {% if standalone_page.image_position == 'L' %} left {% else %} right {% endif %}" alt="" src="{{standalone_page.image.url}}">
+      <h2 class="left">{{standalone_page.sub_title|default:""}}</h2>
+      <div>{{standalone_page.body|safe}}</div>
+
+      <br><br>
+      <div class="center">
+        {% if standalone_page.button_url %}
+          <a class="btn" href="{{standalone_page.button_url}}">
+            {% if standalone_page.button_text %}
+              {{standalone_page.button_text}}
+            {% else %}
+              Learn More
+            {% endif %}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

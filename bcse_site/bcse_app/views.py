@@ -2426,6 +2426,157 @@ def homepageBlockDelete(request, id=''):
 
 
 ##########################################################
+# LIST OF STANDALONE PAGES
+##########################################################
+@login_required
+def standalonePages(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view standalone pages')
+
+    standalone_pages = models.StandalonePage.objects.all()
+    context = {'standalone_pages': standalone_pages}
+    return render(request, 'bcse_app/StandalonePages.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# EDIT STANDALONE PAGE
+##########################################################
+@login_required
+def standalonePageEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit standalone page')
+    if '' != id:
+      standalone_page = models.StandalonePage.objects.get(id=id)
+    else:
+      standalone_page = models.StandalonePage()
+
+    if request.method == 'GET':
+      form = forms.StandalonePageForm(instance=standalone_page)
+      context = {'form': form}
+      return render(request, 'bcse_app/StandalonePageEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.StandalonePageForm(data, files=request.FILES, instance=standalone_page)
+      if form.is_valid():
+        savedStandalonePage = form.save()
+        messages.success(request, "Standalone Page saved")
+        return shortcuts.redirect('bcse:standalonePageEdit', id=savedStandalonePage.id)
+      else:
+        print(form.errors)
+        messages.error(request, "Standalone Page could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/StandalonePageEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# DELETE STANDALONE PAGE
+##########################################################
+@login_required
+def standalonePageDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete standalone page')
+    if '' != id:
+      standalone_page = models.StandalonePage.objects.get(id=id)
+      standalone_page.delete()
+      messages.success(request, "Standalone Page deleted")
+
+    return shortcuts.redirect('bcse:standalonePages')
+
+  except models.StandalonePage.DoesNotExist:
+    messages.success(request, "Standalone Page not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# VIEW STANDALONE PAGE
+##########################################################
+@login_required
+def standalonePageView(request, id='', url_alias=''):
+  try:
+    if '' != id:
+      standalone_page = models.StandalonePage.objects.get(id=id)
+    elif '' != url_alias:
+      standalone_page = models.StandalonePage.objects.get(url_alias=url_alias)
+    if request.user.userProfile.user_role not in ['A', 'S'] and standalone_page.status == 'I':
+      raise CustomException('You do not have the permission to view this standalone page')
+
+    context = {'standalone_page': standalone_page}
+    return render(request, 'bcse_app/StandalonePageView.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# CLONE STANDALONE PAGE
+####################################
+def standalonePageCopy(request, id=''):
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to copy this standalone page')
+    if '' != id:
+      standalone_page = models.StandalonePage.objects.get(id=id)
+      title = standalone_page.title
+      standalone_page.pk = None
+      standalone_page.id = None
+      standalone_page.image = None
+      standalone_page.url_alias = None
+      standalone_page.save()
+
+      original_standalone_page = models.StandalonePage.objects.get(id=id)
+      standalone_page.title = 'Copy of ' + title
+      standalone_page.created_date = datetime.datetime.now()
+      standalone_page.modified_date = datetime.datetime.now()
+
+      if original_standalone_page.image:
+        try:
+          source = original_standalone_page.image
+          filecontent = ContentFile(source.file.read())
+          filename = os.path.split(source.file.name)[-1]
+          filename_array = filename.split('.')
+          new_filename = filename_array[0] + '-' + str(standalone_page.id) + '.' + filename_array[1]
+          standalone_page.image.save(new_filename, filecontent)
+          standalone_page.save()
+          source.file.close()
+          original_standalone_page.image.save(filename, filecontent)
+          original_standalone_page.save()
+        except IOError as e:
+          standalone_page.save()
+      else:
+        standalone_page.save()
+
+      messages.success(request, "Standalone Page copied")
+      return shortcuts.redirect('bcse:standalonePageEdit', id=standalone_page.id)
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+  except models.StandalonePage.DoesNotExist:
+    messages.success(request, "Standalone Page not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
 # LIST OF TEACHER LEADERS
 ##########################################################
 @login_required

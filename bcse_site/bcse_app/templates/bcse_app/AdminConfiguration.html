@@ -109,6 +109,10 @@
               <a class="nav-link" href="{% url 'bcse:homepageBlocks' %}">Homepage Blocks</a>
             </li>
             <li><hr class="dropdown-divider"></li>
+            <li class="nav-item {% if 'standalonePage' in request.path or  'standalonePages' in request.path %} active {% endif %}">
+              <a class="nav-link" href="{% url 'bcse:standalonePages' %}">Standalone Pages</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'survey' in request.path or  'surveys' in request.path %} active {% endif %}">
               <a class="nav-link" href="{% url 'bcse:surveys' %}">Surveys</a>
             </li>

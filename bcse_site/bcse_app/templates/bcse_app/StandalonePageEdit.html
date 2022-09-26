@@ -1,0 +1,84 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  {% if form.instance.id %}
+    <h1 class="center"> Standalone Page - {{form.instance.title}} </h1>
+  {% else %}
+    <h1 class="center"> Create Standalone Page </h1>
+  {% endif %}
+  <div class="admin_form">
+    <form method="post" enctype="multipart/form-data" id="formHomepageBlock">
+      {% csrf_token %}
+      {{form.media}}
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.title.name}}">{{ form.title.label }}</label>
+        <div>{{form.title}}</div>
+        <div class="error">{{ form.title.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.sub_title.name}}">{{ form.sub_title.label }}</label>
+        <div>{{form.sub_title}}</div>
+        <div class="error">{{ form.sub_title.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.body.name}}" class="form-label"> {{form.body.label|title}}</label>
+        <div>{{form.body}}</div>
+        <div class="error">{{ form.body.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.button_text.name}}" class="form-label"> {{form.button_text.label|title}}</label>
+        <div>{{form.button_text}}</div>
+        <div class="error">{{ form.button_text.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.button_url.name}}" class="form-label"> {{form.button_url.label|title}}</label>
+        <div>{{form.button_url}}</div>
+        <div class="error">{{ form.button_url.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
+        {% if form.instance.id and form.instance.image.url %}
+          <div class="image_preview">
+            <img src="{{form.instance.image.url}}" class="icon" alt="">
+          </div>
+        {% endif %}
+        <div>{{form.image}}</div>
+        <div class="error">{{ form.image.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.image_position.name}}" class="form-label"> {{form.image_position.label|title}}</label>
+        <div>{{form.image_position}}</div>
+        <div class="error">{{ form.image_position.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.url_alias.name}}" class="form-label"> {{form.url_alias.label|title}}</label>
+        <div>{{form.url_alias}}</div>
+        <div class="error">{{ form.url_alias.errors }}</div>
+      </div>
+
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
+        <div>{{form.status}}</div>
+        <div class="error">{{ form.status.errors }}</div>
+      </div>
+      
+      <div class="form-group mb-3 right">
+        {% if form.instance.id %}
+          <button class="btn btn-danger delete action" data-href="{% url 'bcse:standalonePageDelete' form.instance.id %}" data-title="the Standalone Page <strong>{{form.instance.title}}</strong>">
+            Delete
+          </button>
+        {% endif %}
+        <button class="btn" type="submit" id="submit_bottom">
+          Save
+        </button>
+      </div>
+
+    </form>
+  </div>
+{% endblock %}

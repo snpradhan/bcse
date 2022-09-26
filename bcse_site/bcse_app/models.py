@@ -482,7 +482,26 @@ class HomepageBlock(models.Model):
       ordering = ['-id']
 
   def __str__(self):
-      return '%s - %s' % (self.workshop_category, self.name)
+      return '%s' % (self.title)
+
+class StandalonePage(models.Model):
+  title = models.CharField(null=False, max_length=256, help_text='Page title')
+  sub_title = models.CharField(null=True, blank=True, max_length=256)
+  body = RichTextUploadingField(null=True, blank=True)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this page')
+  image_position = models.CharField(default='L', max_length=1, choices=(('L', 'Left'), ('R', 'Right'),))
+  button_text = models.CharField(null=True, blank=True, max_length=256)
+  button_url = models.CharField(null=True, blank=True, max_length=256)
+  url_alias = models.CharField(null=True, blank=True, max_length=256, unique=True)
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['-id']
+
+  def __str__(self):
+      return '%s' % (self.title)
 
 
 # signal to check if registration status has changed
