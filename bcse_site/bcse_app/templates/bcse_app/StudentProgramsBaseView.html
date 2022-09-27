@@ -9,6 +9,9 @@
         Student Programs
       </h1>
       {% include "bcse_app/WorkshopsButtons.html" with tag='student_programs' %}
+      <div>
+        <p class="callout">The Baxter Center for Science Education offers FREE experiences for local middle and high school students designed to engage them with authentic cutting-edge science activities, build STEM identities, and develop 21st-century workplace skills. See how you can get involved!</p>
+      </div>
       {% include "bcse_app/WorkshopsSearch.html" with audience='student' %}
       <div class="workshops search_results">
         {% if flag == 'table' %}

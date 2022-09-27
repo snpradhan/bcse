@@ -108,6 +108,8 @@
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Professional Learning</a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:workshops' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
+                    <li class="{% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></li>
+                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
                       <li class="{% navactive request 'bcse:workshops' 'table' %}">
                         <a class="dropdown-item" href="{% url 'bcse:workshops' 'table' %}">My Workshops</a>
@@ -134,6 +136,9 @@
                     </li>
                     <li class="{% navactive request 'bcse:classroomSupport' %}">
                       <a class="dropdown-item" href="{% url 'bcse:classroomSupport' %}">Get Support</a>
+                    </li>
+                    <li class="{% navactive request 'bcse:standalonePageAliasView' 'lab_grant' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Baxter Center Lab Grant</a>
                     </li>
                     {% if user.is_authenticated %}
                       <li class="{% navactive request 'bcse:reservations' %}">

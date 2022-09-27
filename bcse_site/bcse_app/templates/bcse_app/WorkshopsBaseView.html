@@ -13,6 +13,9 @@
         {% endif %}
       </h1>
       {% include "bcse_app/WorkshopsButtons.html" with tag='workshops' %}
+      <div>
+        <p class="callout">All of the Baxter Center for Science Education’s FREE workshops are designed and led by expert teacher leaders along with education specialists from Northwestern University. Participating in a workshop allows educators to gain access to our <a href="{% url 'bcse:baxterBoxInfo' %}"><strong><u>Baxter Box Loaner Program</u></strong></a> and <a href="{% url 'bcse:classroomSupport' %}"><strong><u>Classroom Support</u></strong></a>. We can’t wait to work with you!</p>
+      </div>
       {% include "bcse_app/WorkshopsSearch.html" with audience='teacher' %}
       <div class="form-group" id="spinner">
         <img src="/static/img/page-loader.gif" class="icon"/>
