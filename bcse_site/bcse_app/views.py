@@ -2508,7 +2508,6 @@ def standalonePageDelete(request, id=''):
 ##########################################################
 # VIEW STANDALONE PAGE
 ##########################################################
-@login_required
 def standalonePageView(request, id='', url_alias=''):
   try:
     if '' != id:
@@ -2528,6 +2527,7 @@ def standalonePageView(request, id='', url_alias=''):
 ####################################
 # CLONE STANDALONE PAGE
 ####################################
+@login_required
 def standalonePageCopy(request, id=''):
   try:
 
