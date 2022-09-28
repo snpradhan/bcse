@@ -4047,7 +4047,7 @@ def send_reservation_confirmation_email(request, reservation):
   receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=reservation.user.id)).values_list('user__email', flat=True)
   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
   email.content_subtype = "html"
-  #email.send(fail_silently=True)
+  email.send(fail_silently=True)
 
 
 #####################################################
