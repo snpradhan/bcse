@@ -2514,8 +2514,10 @@ def standalonePageView(request, id='', url_alias=''):
       standalone_page = models.StandalonePage.objects.get(id=id)
     elif '' != url_alias:
       standalone_page = models.StandalonePage.objects.get(url_alias=url_alias)
-    if request.user.userProfile.user_role not in ['A', 'S'] and standalone_page.status == 'I':
-      raise CustomException('You do not have the permission to view this standalone page')
+
+    if standalone_page.status == 'I':
+      if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+        raise CustomException('You do not have the permission to view this standalone page')
 
     context = {'standalone_page': standalone_page}
     return render(request, 'bcse_app/StandalonePageView.html', context)
