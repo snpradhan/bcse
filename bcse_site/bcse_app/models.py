@@ -23,6 +23,9 @@ from icalendar import Calendar, Event, vCalAddress, vText
 from django.template.loader import render_to_string, get_template
 from django.contrib.sites.models import Site
 import uuid
+import requests
+from requests.structures import CaseInsensitiveDict
+import urllib.parse
 
 # Create your models here.
 
@@ -159,6 +162,10 @@ class WorkPlace(models.Model):
   city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
   state = USStateField(null=False, blank=False, help_text='State')
   zip_code = models.CharField(null=False, blank=False, max_length=256, help_text='Zip Code of Work Place')
+  latitude = models.CharField(null=True, blank=True, max_length=256)
+  longitude = models.CharField(null=True, blank=True, max_length=256)
+  time_from_base = models.CharField(null=True, blank=True, max_length=256)
+  distance_from_base = models.CharField(null=True, blank=True, max_length=256)
   term_id = models.IntegerField(null=True, blank=True)#delete this field after import
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -531,6 +538,48 @@ def check_registration_status_change(sender, instance, **kwargs):
       email.send(fail_silently=True)
   except RegistrationEmailMessage.DoesNotExist as e:
     pass
+
+# signal to check if workplace address has changed
+# then update latitude and longitude
+@receiver(pre_save, sender=WorkPlace)
+def check_workplace_address_change(sender, instance, **kwargs):
+  calculate = False
+  try:
+    obj = sender.objects.get(pk=instance.pk)
+    if obj.street_address_1 != instance.street_address_1 or obj.street_address_2 != instance.street_address_2 or obj.city != instance.city or obj.state != instance.state or obj.zip_code != instance.zip_code or instance.distance_from_base is None:
+       calculate = True
+  except sender.DoesNotExist:
+    # Object is new, so field hasn't technically changed, but you may want to do something else here.
+    calculate = True
+
+  if calculate:
+    full_address = "%s %s %s %s %s" % (instance.street_address_1, instance.street_address_2, instance.city, instance.state, instance.zip_code)
+    full_address = urllib.parse.quote(full_address)
+
+    headers = CaseInsensitiveDict()
+    headers["Accept"] = "application/json"
+
+    url = "%sgeocode/search?text=%s&apiKey=%s" % (settings.GEOAPIFY_BASE_URL, full_address, settings.GEOAPIFY_KEY)
+    resp = requests.get(url, headers=headers)
+    geocode = resp.json()
+    latlong = geocode["features"][0]["geometry"]["coordinates"]
+    longitude = latlong[0]
+    latitude = latlong[1]
+
+    latlong_param = "%f,%f|%f,%f" % (settings.COLFAX_LATITUDE, settings.COLFAX_LONGITUDE, latitude, longitude)
+    latlong_param = urllib.parse.quote(latlong_param)
+
+    url = "%srouting?waypoints=%s&mode=drive&units=imperial&apiKey=%s" % (settings.GEOAPIFY_BASE_URL, latlong_param, settings.GEOAPIFY_KEY)
+    resp = requests.get(url, headers=headers)
+    drive = resp.json()
+    distance = drive["features"][0]["properties"]["distance"]
+    unit = drive["features"][0]["properties"]["distance_units"]
+    time = drive["features"][0]["properties"]["time"]
+    instance.latitude = latitude
+    instance.longitude = longitude
+    instance.time_from_base = round(time/60, 2)
+    instance.distance_from_base = distance
+
 
 #
 # Replace workshop registration message tokens before sending out an email

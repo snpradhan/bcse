@@ -13,6 +13,8 @@
         <th> City </th>
         <th> State </th>
         <th> Zip Code </th>
+        <th> Distance (miles) </th>
+        <th> Travel Time (mins) </th>
         <th> Status </th>
         <th> Created Date</th>
         <th> Action </th>
@@ -30,6 +32,8 @@
           <td> {{work_place.city|default_if_none:""}} </td>
           <td> {{work_place.state|default_if_none:""}} </td>
           <td> {{work_place.zip_code|default_if_none:""}} </td>
+          <td> {{work_place.distance_from_base|default_if_none:""}} </td>
+          <td> {{work_place.time_from_base|default_if_none:""}} </td>
           <td> {{work_place.get_status_display}} </td>
           <td> {{work_place.created_date|date:"F j, Y g:i A"}}</td>
           

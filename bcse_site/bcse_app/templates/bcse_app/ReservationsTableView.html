@@ -24,6 +24,10 @@
         <th> Notes </th>
         <th> Help? </th>
         <th> Location </th>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          <th> Distance (miles) </th>
+          <th> Travel Time (mins) </th>
+        {% endif %}
         <th> Status </th>
         <th> Actions </th>
       </tr>
@@ -86,6 +90,10 @@
             {% endif %}
             {{reservation.user.work_place.city}}, {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
           </td>
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+            <td> {{reservation.user.work_place.distance_from_base|default_if_none:""}} </td>
+            <td> {{reservation.user.work_place.time_from_base|default_if_none:""}} </td>
+          {% endif %}
           <td> {{reservation.get_status_display}} </td>
           <td>
             <div class="btn-group">
