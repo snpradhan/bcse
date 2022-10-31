@@ -128,6 +128,11 @@
 
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">
+                <label for="id_{{form.assignee.name}}" class="form-label"> {{form.assignee.label}}</label>
+                <div>{{form.assignee}}</div>
+                <div class="error">{{ form.assignee.errors }}</div>
+              </div>
+              <div class="form-group mb-4">
                 <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
                 <div>{{form.status}}</div>
                 <div class="error">{{ form.status.errors }}</div>

@@ -76,7 +76,8 @@
                           {% endif %}
                           {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
                         {% else %}
-                          Delivery will be made to the <br>workplace address listed below.
+                          Delivery will be made to the <br>workplace address listed below. <br>
+                          Please message us if the delivery <br>needs to be made to a different address.
                         {% endif %}
                       </div>
                       {% if user.is_authenticated and user.userProfile.user_role in 'AS'%}
@@ -99,6 +100,12 @@
                   <th>Reservation Made On:</th>
                   <td>{{reservation.created_date|date:"F j, Y"}}</td>
                 </tr>
+                {% if user.is_authenticated and user.userProfile.user_role in 'AS'%}
+                  <tr>
+                    <th>Assigned To:</th>
+                    <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
+                  </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>

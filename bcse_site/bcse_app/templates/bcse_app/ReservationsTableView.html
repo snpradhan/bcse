@@ -14,19 +14,16 @@
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
           <th> User </th>
         {% endif %}
-        <th> Activity </th>
         <th> Kit </th>
         <th> Equipment </th>
         <th> Comments<br>(New/Total)</th>
         <th> Delivery Date </th>
         <th> Return Date </th>
-        <th> # of Students </th>
-        <th> Notes </th>
-        <th> Help? </th>
         <th> Delivery Address </th>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
           <th> Delivery Distance (miles) </th>
           <th> Delivery Travel Time (mins) </th>
+          <th> Assigned To </th>
         {% endif %}
         <th> Status </th>
         <th> Actions </th>
@@ -42,13 +39,6 @@
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
             <td> {{reservation.user}} </td>
           {% endif %}
-          <td>
-            {% if reservation.activity %}
-              {{reservation.activity}}
-            {% else %}
-              {{reservation.other_activity_name}}
-            {% endif %}
-          </td>
           <td>
             {% if reservation.activity and not reservation.activity_kit_not_needed %}
               {{reservation.activity.kit_name}} x {{reservation.num_of_classes}}
@@ -79,9 +69,6 @@
           </td>
           <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
           <td>{{reservation.return_date|date:"F j, Y"}}</td>
-          <td> {{reservation.num_of_students}} </td>
-          <td> {{reservation.notes|default_if_none:""}} </td>
-          <td> {{reservation.additional_help_needed|yesno:"Yes,No"}} </td>
           <td>
             {% if reservation.delivery_address %}
               {{reservation.delivery_address.street_address_1}}<br>
@@ -106,6 +93,7 @@
               <td> {{reservation.user.work_place.distance_from_base|default_if_none:""}} </td>
               <td> {{reservation.user.work_place.time_from_base|default_if_none:""}} </td>
             {% endif %}
+            <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
           {% endif %}
           <td> {{reservation.get_status_display}} </td>
           <td>
@@ -125,8 +113,10 @@
                     <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
                   {% endif %}
                 </li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}" href="#">Update Delivery Address</a></li>
+                {% if user.userProfile.user_role in 'AS' %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}" href="#">Update Delivery Address</a></li>
+                {% endif %}
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   {% if reservation.status in 'IO' %}

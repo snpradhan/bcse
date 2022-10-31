@@ -49,6 +49,13 @@
           </div>
           <div class="error">{{ searchForm.return_before.errors }}</div>
         </div>
+        {% if searchForm.assignee %}
+          <div class="form-group">
+            <label for="id_{{searchForm.assignee.name}}" class="form-label"> {{searchForm.assignee.label|title}}</label>
+            <div>{{searchForm.assignee}}</div>
+            <div class="error">{{ searchForm.assignee.errors }}</div>
+          </div>
+        {% endif %}
 
         <div class="form-group">
           <label for="id_{{searchForm.keywords.name}}" class="form-label"> {{searchForm.keywords.label|title}}</label>

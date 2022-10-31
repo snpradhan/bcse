@@ -352,6 +352,7 @@ class Activity(models.Model):
 
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)
+  assignee = models.ForeignKey(UserProfile, null=True, related_name='assigned_reservations', on_delete=models.SET_NULL)
   activity = models.ForeignKey(Activity, null=True, blank=True, on_delete=models.CASCADE)
   num_of_classes = models.CharField(null=True, blank=True, max_length=1, choices=NUM_OF_CLASS_CHOICES)
   activity_kit_not_needed = models.BooleanField(default=False)

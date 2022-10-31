@@ -873,9 +873,11 @@ def reservationsSearch(request):
       delivery_after_filter = None
       return_before_filter = None
       status_filter = None
+      assignee_filter = None
 
       keywords = request.GET.get('reservation_search-keywords', '')
       user = request.GET.get('reservation_search-user', '')
+      assignee = request.GET.get('reservation_search-assignee', '')
       activity = request.GET.get('reservation_search-activity', '')
       equipment = request.GET.getlist('reservation_search-equipment', '')
       delivery_after = request.GET.get('reservation_search-delivery_after', '')
@@ -891,6 +893,10 @@ def reservationsSearch(request):
 
       if user:
         user_filter = Q(user=user)
+
+      if assignee:
+        assignee_filter = Q(assignee=assignee)
+
       if activity:
         activity_filter = Q(activity=activity)
       if status:
@@ -910,6 +916,8 @@ def reservationsSearch(request):
 
       if user_filter:
         query_filter = query_filter & user_filter
+      if assignee_filter:
+        query_filter = query_filter & assignee_filter
       if activity_filter:
         query_filter = query_filter & activity_filter
       if equipment_filter:

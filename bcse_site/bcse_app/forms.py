@@ -407,6 +407,12 @@ class ReservationForm(ModelForm):
     self.fields['num_of_classes'].label = 'Number of classes'
     self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
     self.fields['notes'].label = 'Please provide any additional information that would be useful, such as your preferred pick-up and return times, and any directions for parking and entering your school.'
+    self.fields['assignee'].label = 'Select the BCSE team member in-charge of this reservation'
+
+    if user.user_role not in ['A', 'S']:
+      self.fields.pop('assignee')
+    else:
+      self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()
@@ -782,7 +788,9 @@ class SurveySubmissionForm(ModelForm):
 ####################################
 class ReservationsSearchForm(forms.Form):
 
-  user = forms.ModelChoiceField(required=False, queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
+  user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
+  assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
+
   activity = forms.ModelChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'))
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
@@ -802,6 +810,7 @@ class ReservationsSearchForm(forms.Form):
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('user')
+      self.fields.pop('assignee')
 
     for field_name, field in self.fields.items():
       if field_name in ['delivery_after', 'return_before']:
