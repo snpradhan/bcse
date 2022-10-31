@@ -65,6 +65,29 @@
                   </td>
                 </tr>
                 <tr>
+                  <th>Delivery Address:</th>
+                  <td>
+                    <div class="delivery_address">
+                      <div>
+                        {% if reservation.delivery_address %}
+                          {{reservation.delivery_address.street_address_1}}<br>
+                          {% if reservation.delivery_address.street_address_2 %}
+                            {{reservation.delivery_address.street_address_2}}<br>
+                          {% endif %}
+                          {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+                        {% else %}
+                          Delivery will be made to the <br>workplace address listed below.
+                        {% endif %}
+                      </div>
+                      {% if user.is_authenticated and user.userProfile.user_role in 'AS'%}
+                        <div>
+                          <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}" href="#">Update Delivery Address</a>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
                   <th>Pickup/Return Notes:</th>
                   <td>{{reservation.notes|default_if_none:""}}</td>
                 </tr>

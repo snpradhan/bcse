@@ -434,6 +434,23 @@ class ReservationForm(ModelForm):
 
     return valid
 
+####################################
+# ReservationDeliveryAddress Form
+####################################
+class ReservationDeliveryAddressForm(ModelForm):
+
+  class Meta:
+    model = models.ReservationDeliveryAddress
+    exclude = ('created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base')
+
+  def __init__(self, *args, **kwargs):
+    super(ReservationDeliveryAddressForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+
 class ReservationMessageForm(ModelForm):
   class Meta:
     model = models.ReservationMessage

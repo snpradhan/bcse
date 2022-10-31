@@ -1053,6 +1053,71 @@ def checkAvailability(current_reservation_id, equipment_types, start_date, end_d
 
   return equipment_availability_matrix
 
+####################################
+# UPDATE RESERVATION DELIVERY ADDRESS
+####################################
+@login_required
+def reservationDeliveryAddressEdit(request, reservation_id):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to update delivery address')
+
+    reservation = models.Reservation.objects.get(id=reservation_id)
+    if hasattr(reservation, 'delivery_address') and reservation.delivery_address:
+      delivery_address = models.ReservationDeliveryAddress.objects.get(reservation=reservation)
+    else:
+      delivery_address = models.ReservationDeliveryAddress(reservation=reservation)
+
+    if request.method == 'GET':
+      form = forms.ReservationDeliveryAddressForm(instance=delivery_address)
+      context = {'form': form, 'reservation_id': reservation_id}
+      return render(request, 'bcse_app/ReservationDeliveryAddressModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ReservationDeliveryAddressForm(data, instance=delivery_address)
+      response_data = {}
+      if form.is_valid():
+        form.save()
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        response_data['success'] = False
+        context = {'form': form, 'reservation_id': reservation_id}
+        response_data['html'] = render_to_string('bcse_app/ReservationDeliveryAddressModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Reservation.DoesNotExist as e:
+    messages.error(request, 'Reservation does not exists')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE RESERVATION DELIVERY ADDRESS
+####################################
+@login_required
+def reservationDeliveryAddressDelete(request, reservation_id):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete delivery address')
+
+    reservation = models.Reservation.objects.get(id=reservation_id)
+    delivery_address = models.ReservationDeliveryAddress.objects.get(reservation=reservation)
+    delivery_address.delete()
+
+    messages.success(request, 'Reservation delivery address deleted')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.Reservation.DoesNotExist as e:
+    messages.error(request, 'Reservation does not exists')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required
 def baxterBoxUsageReport(request):

@@ -380,6 +380,23 @@ class Reservation(models.Model):
       return '%s - %s' % (self.other_activity_name, self.user)
 
 
+class ReservationDeliveryAddress(models.Model):
+  reservation = models.OneToOneField(Reservation, related_name='delivery_address', on_delete=models.CASCADE)
+  street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
+  street_address_2 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 2')
+  city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
+  state = USStateField(null=False, blank=False, help_text='State')
+  zip_code = models.CharField(null=False, blank=False, max_length=256, help_text='Zip Code')
+  latitude = models.CharField(null=True, blank=True, max_length=256)
+  longitude = models.CharField(null=True, blank=True, max_length=256)
+  time_from_base = models.CharField(null=True, blank=True, max_length=256)
+  distance_from_base = models.CharField(null=True, blank=True, max_length=256)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['reservation__id']
+
 class ReservationMessage(models.Model):
   reservation = models.ForeignKey(Reservation, related_name='reservation_messages', on_delete=models.CASCADE)
   message = RichTextField(null=False, blank=False, config_name='message_ckeditor', help_text="Type your message here")
@@ -542,6 +559,7 @@ def check_registration_status_change(sender, instance, **kwargs):
 # signal to check if workplace address has changed
 # then update latitude and longitude
 @receiver(pre_save, sender=WorkPlace)
+@receiver(pre_save, sender=ReservationDeliveryAddress)
 def check_workplace_address_change(sender, instance, **kwargs):
   calculate = False
   try:

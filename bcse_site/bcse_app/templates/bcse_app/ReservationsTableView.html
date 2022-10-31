@@ -23,10 +23,10 @@
         <th> # of Students </th>
         <th> Notes </th>
         <th> Help? </th>
-        <th> Location </th>
+        <th> Delivery Address </th>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
-          <th> Distance (miles) </th>
-          <th> Travel Time (mins) </th>
+          <th> Delivery Distance (miles) </th>
+          <th> Delivery Travel Time (mins) </th>
         {% endif %}
         <th> Status </th>
         <th> Actions </th>
@@ -83,16 +83,29 @@
           <td> {{reservation.notes|default_if_none:""}} </td>
           <td> {{reservation.additional_help_needed|yesno:"Yes,No"}} </td>
           <td>
-            {{reservation.user.work_place.name}}<br>
-            {{reservation.user.work_place.street_address_1}}<br>
-            {% if reservation.user.work_place.street_address_2 %}
-              {{reservation.user.work_place.street_address_2}}<br>
+            {% if reservation.delivery_address %}
+              {{reservation.delivery_address.street_address_1}}<br>
+              {% if reservation.delivery_address.street_address_2 %}
+                {{reservation.delivery_address.street_address_2}}<br>
+              {% endif %}
+              {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+            {% else %}
+              {{reservation.user.work_place.name}}<br>
+              {{reservation.user.work_place.street_address_1}}<br>
+              {% if reservation.user.work_place.street_address_2 %}
+                {{reservation.user.work_place.street_address_2}}<br>
+              {% endif %}
+              {{reservation.user.work_place.city}}, {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
             {% endif %}
-            {{reservation.user.work_place.city}}, {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
           </td>
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
-            <td> {{reservation.user.work_place.distance_from_base|default_if_none:""}} </td>
-            <td> {{reservation.user.work_place.time_from_base|default_if_none:""}} </td>
+            {% if reservation.delivery_address %}
+              <td> {{reservation.delivery_address.distance_from_base|default_if_none:""}} </td>
+              <td> {{reservation.delivery_address.time_from_base|default_if_none:""}} </td>
+            {% else %}
+              <td> {{reservation.user.work_place.distance_from_base|default_if_none:""}} </td>
+              <td> {{reservation.user.work_place.time_from_base|default_if_none:""}} </td>
+            {% endif %}
           {% endif %}
           <td> {{reservation.get_status_display}} </td>
           <td>
@@ -112,6 +125,8 @@
                     <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
                   {% endif %}
                 </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}" href="#">Update Delivery Address</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   {% if reservation.status in 'IO' %}
