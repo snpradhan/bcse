@@ -566,7 +566,8 @@ def check_workplace_address_change(sender, instance, **kwargs):
   try:
     obj = sender.objects.get(pk=instance.pk)
     if obj.street_address_1 != instance.street_address_1 or obj.street_address_2 != instance.street_address_2 or obj.city != instance.city or obj.state != instance.state or obj.zip_code != instance.zip_code or instance.distance_from_base is None:
-       calculate = True
+      if instance.street_address_1 is not None and instance.street_address_1 != '' and instance.city is not None and instance.city != '' and instance.state is not None and instance.state != '' and instance.zip_code is not None and instance.zip_code != '':
+        calculate = True
   except sender.DoesNotExist:
     # Object is new, so field hasn't technically changed, but you may want to do something else here.
     calculate = True
@@ -581,23 +582,25 @@ def check_workplace_address_change(sender, instance, **kwargs):
     url = "%sgeocode/search?text=%s&apiKey=%s" % (settings.GEOAPIFY_BASE_URL, full_address, settings.GEOAPIFY_KEY)
     resp = requests.get(url, headers=headers)
     geocode = resp.json()
-    latlong = geocode["features"][0]["geometry"]["coordinates"]
-    longitude = latlong[0]
-    latitude = latlong[1]
+    if "features" in geocode:
+      latlong = geocode["features"][0]["geometry"]["coordinates"]
+      longitude = latlong[0]
+      latitude = latlong[1]
 
-    latlong_param = "%f,%f|%f,%f" % (settings.COLFAX_LATITUDE, settings.COLFAX_LONGITUDE, latitude, longitude)
-    latlong_param = urllib.parse.quote(latlong_param)
+      latlong_param = "%f,%f|%f,%f" % (settings.COLFAX_LATITUDE, settings.COLFAX_LONGITUDE, latitude, longitude)
+      latlong_param = urllib.parse.quote(latlong_param)
 
-    url = "%srouting?waypoints=%s&mode=drive&units=imperial&apiKey=%s" % (settings.GEOAPIFY_BASE_URL, latlong_param, settings.GEOAPIFY_KEY)
-    resp = requests.get(url, headers=headers)
-    drive = resp.json()
-    distance = drive["features"][0]["properties"]["distance"]
-    unit = drive["features"][0]["properties"]["distance_units"]
-    time = drive["features"][0]["properties"]["time"]
-    instance.latitude = latitude
-    instance.longitude = longitude
-    instance.time_from_base = round(time/60, 2)
-    instance.distance_from_base = distance
+      url = "%srouting?waypoints=%s&mode=drive&units=imperial&apiKey=%s" % (settings.GEOAPIFY_BASE_URL, latlong_param, settings.GEOAPIFY_KEY)
+      resp = requests.get(url, headers=headers)
+      drive = resp.json()
+      if "features" in drive:
+        distance = drive["features"][0]["properties"]["distance"]
+        unit = drive["features"][0]["properties"]["distance_units"]
+        time = drive["features"][0]["properties"]["time"]
+        instance.latitude = latitude
+        instance.longitude = longitude
+        instance.time_from_base = round(time/60, 2)
+        instance.distance_from_base = distance
 
 
 #
