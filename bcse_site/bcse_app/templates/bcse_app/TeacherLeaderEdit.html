@@ -48,7 +48,11 @@
         <div>{{form.image}}</div>
         <div class="error">{{ form.image.errors }}</div>
       </div>
-
+      <div class="form-group mb-3">
+        <label for="id_{{form.highlight.name}}" class="form-label"> {{form.highlight.label|title}}</label>
+        <div>{{form.highlight}}</div>
+        <div class="error">{{ form.highlight.errors }}</div>
+      </div>
       <div class="form-group mb-3">
         <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
         <div>{{form.status}}</div>

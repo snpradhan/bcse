@@ -16,6 +16,7 @@
           <th> Image </th>
           <th> School </th>
           <th> Bio </th>
+          <th> Highlight </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -33,6 +34,7 @@
             </td>
             <td> {{teacher_leader.school}} </td>
             <td> {{teacher_leader.bio|safe}} </td>
+            <td> {{teacher_leader.highlight|yesno:"Yes,No"}} </td>
             <td> {{teacher_leader.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{teacher_leader.modified_date|date:"F j, Y g:i A"}} </td>
             <td>

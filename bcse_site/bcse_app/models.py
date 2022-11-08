@@ -276,6 +276,7 @@ class TeacherLeader(models.Model):
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of the teacher leader')
   school = models.ForeignKey(WorkPlace, null=True, on_delete=models.SET_NULL)
   bio = RichTextField(null=True, blank=True)
+  highlight = models.BooleanField(default=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

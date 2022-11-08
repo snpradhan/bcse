@@ -512,13 +512,13 @@ body {
           }
         }
 
-        div#team_members {
+        div#team_members, div#teacher_leaders {
           display: flex;
           justify-content: space-between;
           flex-wrap: wrap;
           cursor: pointer;
 
-          div.team {
+          div.team, div.teacher_leader {
             width: 20em;
             height: 20em;
             text-align: center;
@@ -526,6 +526,7 @@ body {
             img.circle.staff {
               border-radius: 50%;
               width: 10em;
+              height: 10em;
               max-width: 100%;
             }
           }
@@ -1232,8 +1233,9 @@ body {
           margin-top: 0;
           -webkit-shape-outside: unset;
           shape-outside: unset;
-          width: 15em;
+          width: 12em;
           max-width: 100%;
+          height: 12em;
         }
         @media (max-width: 991px) {
           img.circle {

@@ -124,6 +124,7 @@ urlpatterns = [
     path('about/team', views.aboutTeam, name='aboutTeam'),
     path('about/case_study', views.aboutCaseStudy, name='aboutCaseStudy'),
     path('about/contact', views.contactUs, name='contactUs'),
-    path('about/terms', views.termsOfUse, name='termsOfUse')
+    path('about/terms', views.termsOfUse, name='termsOfUse'),
+    path('about/teacherLeaders', views.aboutTeacherLeaders, name='aboutTeacherLeaders')
 
 ]

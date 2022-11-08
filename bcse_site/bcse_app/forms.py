@@ -628,7 +628,10 @@ class TeacherLeaderForm(ModelForm):
   def __init__(self, *args, **kwargs):
     super(TeacherLeaderForm, self).__init__(*args, **kwargs)
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name in ['highlight']:
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 

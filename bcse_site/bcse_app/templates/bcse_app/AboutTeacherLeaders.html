@@ -1,0 +1,33 @@
+{% extends "bcse_app/base.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+   <div class="about_us container">
+      <div class="team">
+        <h1>Our Teacher Leaders</h1>
+        {% for teacher in teachers %}
+        <div class="row member">
+          <div class="col-md-2 picture">
+            <img src="{{teacher.image.url}}" class="circle staff">
+          </div>
+          <div class="col-md-10">
+            <div class="intro">
+              <h2>{{teacher.first_name}} {{teacher.last_name}}</h2>
+              <h3>{{teacher.school}}</h3>             
+            </div>
+            {{teacher.bio|safe}}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function(){
+      $('.member p').addClass('callout');
+    });
+  </script>
+{% endblock %}

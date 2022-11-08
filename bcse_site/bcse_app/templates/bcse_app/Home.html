@@ -36,6 +36,21 @@
          </div>
       </div>
       <div class="homepage_block">
+         <h1>Our Teacher Leaders</h1>
+         <div id="teacher_leaders" onclick="location.href='/about/teacherLeaders'">
+            {% for teacher in teacher_leaders %}
+               <div class="teacher_leader">
+                  <img src="{{teacher.image.url}}" class="circle staff">
+                  <br><br>
+                  <div class="details">
+                    <h3 class="center purple">{{teacher.first_name}} {{teacher.last_name}}</h3>
+                    <h4 class="center">{{teacher.school}}</h4>
+                  </div>
+               </div>
+            {% endfor %}
+         </div>
+      </div>
+      <div class="homepage_block">
          <h1>Our Team</h1>
          <div id="team_members" onclick="location.href='/about/team'">
             {% for member in members %}

@@ -46,7 +46,8 @@ from django.http import HttpResponse
 def home(request):
   homepage_blocks = models.HomepageBlock.objects.all().filter(status='A').order_by('order')
   members = models.Team.objects.all().filter(status='A').order_by('order')
-  context = {'homepage_blocks': homepage_blocks, 'members': members}
+  teacher_leaders = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
+  context = {'homepage_blocks': homepage_blocks, 'members': members, 'teacher_leaders': teacher_leaders}
   return render(request, 'bcse_app/Home.html', context)
 
 ####################################
@@ -86,6 +87,11 @@ def aboutTeam(request):
   members = models.Team.objects.all().filter(status='A').order_by('order')
   context = {'members': members}
   return render(request, 'bcse_app/AboutTeam.html', context)
+
+def aboutTeacherLeaders(request):
+  teachers = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
+  context = {'teachers': teachers}
+  return render(request, 'bcse_app/AboutTeacherLeaders.html', context)
 
 def contactUs(request):
   context = {}
