@@ -26,6 +26,16 @@
   <script type="text/javascript">
     $(function (){
       $('form#reservation_filter_form').submit();
+
+      $('.download').on('click', function(e) {
+        $("#baxter_box_reservations").table2excel({
+          exclude: ".noExl",
+          name: "Baxter Box Reservations",
+          filename: "Baxter_Box_Reservations", //do not include extension
+          fileext:".xls", // file extension
+          preserveColors: true, // set to true if you want background colors and font colors preserved
+        });
+      });
     });
   </script>
 {% endblock %}

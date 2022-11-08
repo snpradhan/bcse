@@ -4,9 +4,9 @@
   <h2 class="center">My Baxter Box Reservations</h2>
 {% endif %}
 {% if reservations %}
-  <table class="table table-bordered table-striped">
+  <table class="table table-bordered table-striped" id="baxter_box_reservations">
     <thead>
-      <tr>
+      <tr class='noExl'>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
           <th> ID</th>
         {% endif %}
@@ -30,6 +30,27 @@
       </tr>
     </thead>
     <tbody>
+      <tr style="display:none;">
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          <td style="background-color: #767676; color: white;"> ID</td>
+        {% endif %}
+        <td style="background-color: #767676; color: white;"> Reservation Made On</td>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          <td style="background-color: #767676; color: white;"> User </td>
+        {% endif %}
+        <td style="background-color: #767676; color: white;"> Kit </td>
+        <td style="background-color: #767676; color: white;"> Equipment </td>
+        <td style="background-color: #767676; color: white;"> Comments<br>(New/Total)</td>
+        <td style="background-color: #767676; color: white;"> Delivery Date </td>
+        <td style="background-color: #767676; color: white;"> Return Date </td>
+        <td style="background-color: #767676; color: white;"> Delivery Address </td>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          <td style="background-color: #767676; color: white;"> Delivery Distance (miles) </td>
+          <td style="background-color: #767676; color: white;"> Delivery Travel Time (mins) </td>
+          <td style="background-color: #767676; color: white;"> Assigned To </td>
+        {% endif %}
+        <td style="background-color: #767676; color: white;"> Status </td>
+      </tr>
       {% for reservation in reservations %}
         <tr>
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
@@ -96,7 +117,7 @@
             <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
           {% endif %}
           <td> {{reservation.get_status_display}} </td>
-          <td>
+          <td class='noExl'>
             <div class="btn-group">
               <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 Action
