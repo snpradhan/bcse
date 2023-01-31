@@ -20,7 +20,12 @@
 
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">
-                <label for="id_{{form.user.name}}" class="form-label"> {{form.user.label}}</label>
+                <label for="id_{{form.user.name}}" class="form-label">
+                  {{form.user.label}}
+                  {% if form.user.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
                 <div>{{form.user}}</div>
                 <div class="error">{{ form.user.errors }}</div>
               </div>
@@ -31,22 +36,32 @@
               <div>{{form.user.as_hidden}}</div>
             {% endif %}
             <div class="form-group mb-4">
-              <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}</label>
+              <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}
+                {% if form.activity.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{form.activity}}</div>
               <div class="error">{{ form.activity.errors }}</div>
             </div>
             <div class="form-group form-check mb-4">
               <div>{{form.other_activity}}</div>
-              <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}</label>
+              <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}
+                {% if form.other_activity.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div class="error">{{ form.other_activity.errors }}</div>
             </div>
             <div class="form-group mb-4">
-              <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}} <span class="required">*</span></label>
+              <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}}
+                (<span class="required">*</span>)
+              </label>
               <div>{{form.other_activity_name}}</div>
               <div class="error">{{ form.other_activity_name.errors }}</div>
             </div>
             <div class="form-group mb-4">
-              <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}} <span class="required">*</span></label>
+              <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}} (<span class="required">*</span>)</label>
               <div>{{form.num_of_classes}}</div>
               <div class="error">{{ form.num_of_classes.errors }}</div>
             </div>
@@ -56,23 +71,39 @@
 
             <div class="form-group form-check mb-4">
               <div>{{form.activity_kit_not_needed}}</div>
-              <label for="id_{{form.activity_kit_not_needed.name}}" class="form-label"> {{form.activity_kit_not_needed.label}}</label>
+              <label for="id_{{form.activity_kit_not_needed.name}}" class="form-label"> {{form.activity_kit_not_needed.label}}
+                {% if form.activity_kit_not_needed.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div class="error">{{ form.activity_kit_not_needed.errors }}</div>
             </div>
 
             <div class="form-group mb-4">
-              <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}</label>
+              <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}
+                {% if form.num_of_students.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{form.num_of_students}}</div>
               <div class="error">{{ form.num_of_students.errors }}</div>
             </div>
 
             <div class="form-group form-check mb-2">
               <div>{{form.equipment_not_needed}}</div>
-              <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}</label>
+              <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}
+                {% if form.equipment_not_needed.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div class="error">{{ form.equipment_not_needed.errors }}</div>
             </div>
             <div class="form-group mb-4">
-              <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}</label>
+              <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}
+                {% if form.equipment_types.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>
                 {{form.equipment_types}}
               </div>
@@ -80,7 +111,7 @@
             </div>
             <div class="form-group mb-2 row">
               <div class="col">
-                <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label|title}} <span class="required">*</span></label>
+                <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label|title}} (<span class="required">*</span>)</label>
                 <div class="input-group">
                   {{form.delivery_date}}
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
@@ -88,7 +119,7 @@
                 <div class="error">{{ form.delivery_date.errors }}</div>
               </div>
               <div class="col">
-                <label for="id_{{form.return_date.name}}" class="form-label"> {{form.return_date.label|title}} <span class="required">*</span></label>
+                <label for="id_{{form.return_date.name}}" class="form-label"> {{form.return_date.label|title}} (<span class="required">*</span>)</label>
                 <div class="input-group">
                   {{form.return_date}}
                   <span class="input-group-text"><i class="fa fa-calendar"></i></span>
@@ -125,24 +156,40 @@
               <button class="btn" type="button" id="clear_dates">Clear Dates</button>
             </div>
             <div class="form-group mb-4">
-              <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label}}</label>
+              <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label}}
+                {% if form.notes.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div>{{form.notes}}</div>
               <div class="error">{{ form.notes.errors }}</div>
             </div>
             <div class="form-group form-check mb-4">
               <div>{{form.additional_help_needed}}</div>
-              <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}</label>
+              <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}
+                {% if form.additional_help_needed.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
               <div class="error">{{ form.additional_help_needed.errors }}</div>
             </div>
 
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">
-                <label for="id_{{form.assignee.name}}" class="form-label"> {{form.assignee.label}}</label>
+                <label for="id_{{form.assignee.name}}" class="form-label"> {{form.assignee.label}}
+                  {% if form.assignee.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
                 <div>{{form.assignee}}</div>
                 <div class="error">{{ form.assignee.errors }}</div>
               </div>
               <div class="form-group mb-4">
-                <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
+                <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}
+                  {% if form.status.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
                 <div>{{form.status}}</div>
                 <div class="error">{{ form.status.errors }}</div>
               </div>
