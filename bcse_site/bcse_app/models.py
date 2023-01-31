@@ -554,6 +554,12 @@ def check_registration_status_change(sender, instance, **kwargs):
       registration_setting = workshop.registration_setting
 
       subject = replace_workshop_tokens(confirmation_message_object.email_subject, workshop, instance)
+
+      current_site = Site.objects.get_current()
+      domain = current_site.domain
+      if domain != 'bcse.northwestern.edu':
+        subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
       body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
       email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
 

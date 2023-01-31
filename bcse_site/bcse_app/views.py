@@ -4228,6 +4228,8 @@ def send_reservation_confirmation_email(request, reservation):
   current_site = Site.objects.get_current()
   domain = current_site.domain
   subject = 'Baxter Box Reservation Confirmed'
+  if domain != 'bcse.northwestern.edu':
+    subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
   context = {'reservation': reservation, 'domain': domain}
   body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
@@ -4245,6 +4247,8 @@ def send_reservation_message_email(request, reservation_message):
   current_site = Site.objects.get_current()
   domain = current_site.domain
   subject = 'You have a new message about your Baxter Box Reservation'
+  if domain != 'bcse.northwestern.edu':
+    subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
   context = {'reservation_message': reservation_message, 'domain': domain}
   body = get_template('bcse_app/EmailNewMessage.html').render(context)
