@@ -65,7 +65,8 @@
                                              {% leftnavactive request 'equipmentTypes' %}
                                              {% leftnavactive request 'equipmentType' %}
                                              {% leftnavactive request 'equipments' %}
-                                             {% leftnavactive request 'equipment' %
+                                             {% leftnavactive request 'equipment' %}
+                                             {% leftnavactive request 'blackout_dates' %}
                                              {% leftnavactive request 'baxter_box_usage_report' %}"
 
                                              id="baxter_box_config">
@@ -81,6 +82,9 @@
 
                 <li>
                   <a href="{% url 'bcse:reservations' %}">User Reservations</a>
+                </li>
+                <li class="{% if 'blackout_dates' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:blackoutDates' %}">Blackout Dates</a>
                 </li>
                 <li class="{% if 'baxter_box_usage_report' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:baxterBoxUsageReport' %}">Baxter Box Usage Report</a>

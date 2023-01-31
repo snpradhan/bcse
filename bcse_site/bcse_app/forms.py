@@ -472,6 +472,37 @@ class ReservationMessageForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 
+class BaxterBoxBlackoutDateForm(ModelForm):
+  class Meta:
+    model = models.BaxterBoxBlackoutDate
+    fields = ['start_date', 'end_date']
+
+  def __init__(self, *args, **kwargs):
+
+    super(BaxterBoxBlackoutDateForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control datepicker'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+  def is_valid(self):
+    valid = super(BaxterBoxBlackoutDateForm, self).is_valid()
+
+    if not valid:
+      return valid
+
+    cleaned_data = super(BaxterBoxBlackoutDateForm, self).clean()
+    start_date = cleaned_data.get('start_date')
+    end_date = cleaned_data.get('end_date')
+
+    if end_date < start_date:
+      self.add_error('end_date', 'Please select an end date greater than or equal to the start date')
+      valid = False
+
+    return valid
+
+
 class WorkshopForm(ModelForm):
 
   class Meta:

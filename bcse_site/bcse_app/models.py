@@ -410,6 +410,15 @@ class ReservationMessage(models.Model):
   class Meta:
       ordering = ['created_date']
 
+class BaxterBoxBlackoutDate(models.Model):
+  start_date = models.DateField(null=False, blank=False, help_text='Blackout start date')
+  end_date = models.DateField(null=False, blank=False, help_text='Blackout end date')
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['start_date', 'end_date']
+
 class Team(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Team Member')
   description = RichTextField(null=True, blank=True)

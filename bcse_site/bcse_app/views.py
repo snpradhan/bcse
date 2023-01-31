@@ -104,12 +104,99 @@ def baxterBoxInfo(request):
   try:
     activities = models.Activity.objects.all().filter(status='A')
     equipment_types = models.EquipmentType.objects.all().filter(status='A')
-    context = {'activities': activities, 'equipment_types': equipment_types}
+    current_date = datetime.datetime.now().date()
+    blackout_dates = models.BaxterBoxBlackoutDate.objects.all().filter(Q(start_date__gte=current_date) | Q(end_date__gte=current_date))
+
+    context = {'activities': activities, 'equipment_types': equipment_types, 'blackout_dates': blackout_dates}
     return render(request, 'bcse_app/BaxterBoxInfo.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# LIST OF BLACKOUT DATES
+##########################################################
+@login_required
+def blackoutDates(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view blackout dates')
+
+    blackout_dates = models.BaxterBoxBlackoutDate.objects.all()
+    context = {'blackout_dates': blackout_dates}
+    return render(request, 'bcse_app/BaxterBoxBlackoutDates.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# EDIT BLACKOUT DATES
+##########################################################
+@login_required
+def blackoutDateEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit blackout dates')
+    if '' != id:
+      blackout_date = models.BaxterBoxBlackoutDate.objects.get(id=id)
+    else:
+      blackout_date = models.BaxterBoxBlackoutDate()
+
+    if request.method == 'GET':
+      form = forms.BaxterBoxBlackoutDateForm(instance=blackout_date)
+      context = {'form': form}
+      return render(request, 'bcse_app/BaxterBoxBlackoutDateEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.BaxterBoxBlackoutDateForm(data, instance=blackout_date)
+      response_data = {}
+      if form.is_valid():
+        savedBaxterBoxBlackoutDate = form.save()
+        messages.success(request, "Blackout date saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Blackout date could not be saved. Check the errors below.")
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/BaxterBoxBlackoutDateEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# DELETE BLACKOUT DATES
+##########################################################
+@login_required
+def blackoutDateDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete blackout date')
+    if '' != id:
+      blackout_date = models.BaxterBoxBlackoutDate.objects.get(id=id)
+      blackout_date.delete()
+      messages.success(request, "Blackout Date deleted")
+
+    return shortcuts.redirect('bcse:blackoutDates')
+
+  except models.BaxterBoxBlackoutDate.DoesNotExist:
+    messages.success(request, "Blackout Date not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 ####################################
 # CLASSROOM SUPPORT
@@ -671,6 +758,16 @@ def reservationEdit(request, id=''):
     reservation_settings['reservation_max_advance_days'] = settings.BAXTER_BOX_MAX_ADVANCE_RESERVATION_DAYS
     reservation_settings['reservation_reminder_days'] = settings.BAXTER_BOX_RESERVATION_REMINDER_DAYS
 
+    current_date = datetime.datetime.now().date()
+    blackout_dates = models.BaxterBoxBlackoutDate.objects.all().filter(Q(start_date__gte=current_date) | Q(end_date__gte=current_date))
+    if blackout_dates.count() > 0:
+      reservation_settings['reservation_blackout_dates'] = blackout_dates
+      reservation_settings['reservation_blackout_timestamps'] = []
+      for blackout_date in blackout_dates:
+        reservation_settings['reservation_blackout_timestamps'].append([time.mktime(blackout_date.start_date.timetuple()), time.mktime(blackout_date.end_date.timetuple())])
+
+
+
     if request.method == 'GET':
       if request.user.userProfile.user_role in ['T', 'P']:
         form = forms.ReservationForm(instance=reservation, user=request.user.userProfile, initial={'user': request.user.userProfile})
@@ -774,6 +871,9 @@ def reservationView(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+####################################
+# CREATE RESERVATION MESSAGE
+####################################
 def reservationMessage(request, id=''):
   try:
     if request.user.is_anonymous:
@@ -980,6 +1080,9 @@ def reservationsSearch(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# GET EQUIPMENT AVAILABILITY
+####################################
 def getAvailabilityData(request, id=''):
   data = request.POST.copy()
   equipment_types = models.EquipmentType.objects.all().filter(id__in=request.POST.getlist('equipment_types', ''))
@@ -988,7 +1091,7 @@ def getAvailabilityData(request, id=''):
 
   start_date = delivery_date.replace(day=1)
   end_date = return_date.replace(day=calendar.monthrange(return_date.year, return_date.month)[1])
-  equipment_availability_matrix = checkAvailability(id, equipment_types, start_date, end_date, delivery_date, return_date)
+  equipment_availability_matrix = checkAvailability(request, id, equipment_types, start_date, end_date, delivery_date, return_date)
   is_available = all([equipment_type['is_available'] for equipment_type in equipment_availability_matrix.values()])
   availability_calendar = []
   index_date = start_date
@@ -1016,7 +1119,7 @@ def getAvailabilityData(request, id=''):
 ####################################
 # CHECK EQUIPMENT AVAILABILITY
 ####################################
-def checkAvailability(current_reservation_id, equipment_types, start_date, end_date, delivery_date, return_date):
+def checkAvailability(request, current_reservation_id, equipment_types, start_date, end_date, delivery_date, return_date):
   equipment_availability_matrix = {}
   delta = return_date - delivery_date
   reservation_days = delta.days + 1
@@ -1133,6 +1236,9 @@ def reservationDeliveryAddressDelete(request, reservation_id):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+####################################
+# GENERATE BAXTER BOX USAGE REPORT
+####################################
 @login_required
 def baxterBoxUsageReport(request):
   try:

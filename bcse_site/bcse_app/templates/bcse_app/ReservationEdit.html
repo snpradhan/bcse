@@ -109,6 +109,15 @@
                   {% endif %}
                   <li>Reservations dates need to be between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.</li>
                   <li>Reservations need to be for a minimum of {{reservation_settings.reservation_min_days}} days and can be for a maximum of  {{reservation_settings.reservation_max_days}} days at a time.</li>
+                  {% if reservation_settings.reservation_blackout_dates %}
+                    <li>Delivery and Pickup are not available on the following dates:
+                      <ul>
+                        {% for blackout_date in reservation_settings.reservation_blackout_dates %}
+                          <li>{{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} </li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  {% endif %}
                </ul>
             </div>
             <div class="form-group mb-4">
@@ -175,6 +184,10 @@
         var reservation_return_days = {{reservation_settings.reservation_return_days}};
         var reservation_min_advance_days = {{reservation_settings.reservation_min_advance_days}};
         var reservation_max_advance_days = {{reservation_settings.reservation_max_advance_days}};
+        var reservation_blackout_timestamps = '{{reservation_settings.reservation_blackout_timestamps}}';
+        if (reservation_blackout_timestamps != '') {
+          reservation_blackout_timestamps = JSON.parse(reservation_blackout_timestamps);
+        }
         var user_role = "{{user.userProfile.user_role}}";
 
         //date restrictions for non admins
@@ -186,6 +199,17 @@
             beforeShowDay: function(d) {
               //convert javascript day to python day
               var day = d.getDay() - 1;
+              var unixtime = Math.floor(d.getTime() / 1000);
+              var is_blackout_date = false;
+              for (index in reservation_blackout_timestamps) {
+                if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
+                  is_blackout_date = true;
+                  break;
+                }
+              }
+              if (is_blackout_date) {
+                return [false]
+              }
               return [reservation_delivery_days.includes(day)];
             }
           });
@@ -196,6 +220,17 @@
             beforeShowDay: function(d) {
               //convert javascript day to python day
               var day = d.getDay() - 1;
+              var unixtime = Math.floor(d.getTime() / 1000);
+              var is_blackout_date = false;
+              for (index in reservation_blackout_timestamps) {
+                if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
+                  is_blackout_date = true;
+                  break;
+                }
+              }
+              if (is_blackout_date) {
+                return [false]
+              }
               return [reservation_return_days.includes(day)];
             }
           });

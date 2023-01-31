@@ -17,6 +17,17 @@
         {% else %}
           <label><a class="btn signin" href="?next={% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a></label>
         {% endif %}
+
+        {% if blackout_dates %}
+          <br><br>
+          <div class="warning">
+            <p>Baxter Box delivery and pickup will not be available on the following dates: <br>
+              {% for blackout_date in blackout_dates %}
+                {{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} <br>
+              {% endfor %}
+            </p>
+          </div>
+        {% endif %}
       </div>
       <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
