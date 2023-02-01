@@ -564,6 +564,8 @@
             $('select#id_equipment_types_to').prop('disabled', false);
             $('select#id_equipment_types_to').closest('.form-group').show();
             $('input#id_return_date').prop('disabled', false);
+            $('input#id_return_date').closest('.col').show();
+            $('input#id_return_date').closest('.col').find('span.required').show();
           }
         });
 
