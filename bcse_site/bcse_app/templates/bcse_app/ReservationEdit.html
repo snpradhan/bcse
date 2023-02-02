@@ -330,7 +330,7 @@
               url: url,
               data: data,
               beforeSend: function(){
-                $('div.availability_calendar_container').html('');
+                $('div.availability_calendar_container').html('<div class="availability_calendar center"><h3>Checking Availability</h3><img src="/static/img/page-loader.gif" class="icon"/></div>');
               },
               complete: function(){
 

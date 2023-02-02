@@ -26,23 +26,24 @@ class Calendar(HTMLCalendar):
       if index_date >= delivery_date and index_date <= return_date:
         is_in_range = True
 
-      for equipment_type, availability in availability_matrix.items():
-        equipment = availability['most_available_equip']
-        is_available = availability['availability_dates'][equipment][index_date]
-        if is_available:
-          d += f'<div class="available"> {equipment_type.short_name}</div>'
-        else:
-          d += f'<div class="unavailable"> {equipment_type.short_name} </div>'
-
       if is_in_range:
+        for equipment_type, availability in availability_matrix.items():
+          equipment = availability['most_available_equip']
+          is_available = availability['availability_dates'][equipment][index_date]
+          if is_available:
+            d += f'<div class="available"> {equipment_type.short_name}</div>'
+          else:
+            d += f'<div class="unavailable"> {equipment_type.short_name} </div>'
+
+
         return f"<td class='selected_date'> \
                   <div class='date'>{day}</div> \
                   <div> {d} </div> \
                 </td>"
       else:
-        return f"<td> \
+        return f"<td class='out_of_range'> \
                   <div class='date'>{day}</div> \
-                  <div> {d} </div> \
+                  <div> </div> \
                 </td>"
 
     return "<td></td>"
