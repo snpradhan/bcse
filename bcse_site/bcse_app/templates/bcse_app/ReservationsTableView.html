@@ -62,7 +62,12 @@
           {% endif %}
           <td>
             {% if reservation.activity and not reservation.activity_kit_not_needed %}
-              {{reservation.activity.kit_name}} x {{reservation.num_of_classes}}
+              {{reservation.activity.kit_name}} x
+              {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
+                {{reservation.num_of_classes}}
+              {% elif reservation.more_num_of_classes %}
+                 {{reservation.more_num_of_classes}}
+              {% endif %}
             {% endif %}
           </td>
           <td>
@@ -103,7 +108,10 @@
               {% if reservation.user.work_place.street_address_2 %}
                 {{reservation.user.work_place.street_address_2}}<br>
               {% endif %}
-              {{reservation.user.work_place.city}}, {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
+              {% if reservation.user.work_place.city %}
+                {{reservation.user.work_place.city}},
+              {% endif %}
+              {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
             {% endif %}
           </td>
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}

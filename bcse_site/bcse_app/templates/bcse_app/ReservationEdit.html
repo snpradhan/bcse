@@ -60,10 +60,19 @@
               <div>{{form.other_activity_name}}</div>
               <div class="error">{{ form.other_activity_name.errors }}</div>
             </div>
-            <div class="form-group mb-4">
-              <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}} (<span class="required">*</span>)</label>
-              <div>{{form.num_of_classes}}</div>
-              <div class="error">{{ form.num_of_classes.errors }}</div>
+            <div class="form-group mb-4 row">
+              <div class="col">
+                <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}} (<span class="required">*</span>)</label>
+                <div>{{form.num_of_classes}}</div>
+                <div class="error">{{ form.num_of_classes.errors }}</div>
+              </div>
+              <div class="col more_classes">
+                {% if form.more_num_of_classes %}
+                  <label for="id_{{form.more_num_of_classes.name}}" class="form-label"> {{form.more_num_of_classes.label}} (<span class="required">*</span>)</label>
+                  <div>{{form.more_num_of_classes}}</div>
+                  <div class="error">{{ form.more_num_of_classes.errors }}</div>
+                {% endif %}
+              </div>
             </div>
             <div class="form-group mb-4 kit_info">
               <label class="form-label"> You will receive <span class="kit_name"></span> x <span class="num_of_classes"></span></label>
@@ -530,6 +539,8 @@
             $('input#id_other_activity_name').closest('.form-group').show();
             $('div.activity_container div.activity.general').hide();
             $('div.activity_container div.activity.specific').remove();
+            $('input#id_more_num_of_classes').prop('required', false);
+            $('input#id_more_num_of_classes').val('');
           }
           //other activity checkbox unchecked
           else{
@@ -573,19 +584,36 @@
         $('select#id_num_of_classes').on('change', function(e){
           //if num of classes is more than 4, reset to 4
           if($(this).val() == '5'){
-            bootbox.alert({title: "Warning",
-                      message: 'Maximum of 4 kits allowed. Many kits can be stretched over multiple classes. Email us with your questions bcse@northwestern.edu!',
-                      closeButton: false
-                    });
-            $(this).val('4');
+            if(!["A", "S"].includes(user_role)) {
+              bootbox.alert({title: "Warning",
+                        message: 'Maximum of 4 kits allowed. Many kits can be stretched over multiple classes. Email us with your questions bcse@northwestern.edu!',
+                        closeButton: false
+                      });
+              $(this).val('4');
+            }
+            else {
+              $('input#id_more_num_of_classes').prop('required', true);
+              $('input#id_more_num_of_classes').closest('.col').show();
+            }
+          }
+          else {
+            $('input#id_more_num_of_classes').prop('required', false);
+            $('input#id_more_num_of_classes').val('');
+            $('input#id_more_num_of_classes').closest('.col').hide();
           }
           //if num of classes is selected, display kit info
-          if($(this).val()) {
+          if($(this).val() && $(this).val() != '5') {
             $('div.form-group.kit_info span.num_of_classes').html($(this).val());
             $('div.form-group.kit_info').show();
           }
           else {
             $('div.form-group.kit_info').hide();
+          }
+        });
+        $('input#id_more_num_of_classes').on('change', function(e){
+          if($(this).val()) {
+            $('div.form-group.kit_info span.num_of_classes').html($(this).val());
+            $('div.form-group.kit_info').show();
           }
         });
 

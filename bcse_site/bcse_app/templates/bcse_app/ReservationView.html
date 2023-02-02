@@ -25,7 +25,13 @@
                 </tr>
                 <tr>
                   <th>Number of Classes:</th>
-                  <td>{{reservation.num_of_classes}}</td>
+                  <td>
+                    {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
+                      {{reservation.num_of_classes}}
+                    {% elif reservation.more_num_of_classes %}
+                      {{reservation.more_num_of_classes}}
+                    {% endif %}
+                  </td>
                 </tr>
                 <tr>
                   <th>Number of Students:</th>

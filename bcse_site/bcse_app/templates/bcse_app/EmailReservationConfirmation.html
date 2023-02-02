@@ -75,7 +75,13 @@
               {% if reservation.activity and not reservation.activity_kit_not_needed %}
                 <tr class="kit row">
                    <td class="col details" align="left">
-                      <div class="title"> {{reservation.activity.kit_name}} x {{reservation.num_of_classes}}</div>
+                      <div class="title"> {{reservation.activity.kit_name}} x
+                        {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
+                          {{reservation.num_of_classes}}
+                        {% elif reservation.more_num_of_classes %}
+                           {{reservation.more_num_of_classes}}
+                        {% endif %}
+                     </div>
                    </td>
                    <td class="col" align="center">
                       <div class="tile">
