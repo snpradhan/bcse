@@ -35,6 +35,7 @@ import uuid
 from urllib.request import urlretrieve, urlcleanup
 from django.core.files import File
 from dal import autocomplete
+from django.db.models import Count
 
 # Create your views here.
 
@@ -711,7 +712,7 @@ def reservations(request):
 
     reservations = reservationsList(request)
 
-    sort_order = [{'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'}]
+    sort_order = [{'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'}]
     reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
     searchForm = forms.ReservationsSearchForm(user=request.user, prefix="reservation_search")
 
@@ -728,10 +729,16 @@ def reservationsList(request, user_id=''):
   if request.user.is_authenticated:
     if request.user.userProfile.user_role not in ['A', 'S']:
       reservations = models.Reservation.objects.all().filter(user__user=request.user)
+      reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile)))
+      reservations = reservations.annotate(total_messages=Count('reservation_messages'))
     elif user_id:
       reservations = models.Reservation.objects.all().filter(user__id=user_id)
+      #reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=~Q(reservation_messages__created_by__id=user_id) & ~Q(reservation_messages__viewed_by__id=user_id)))
+      reservations = reservations.annotate(total_messages=Count('reservation_messages'))
     else:
       reservations = models.Reservation.objects.all()
+
+    reservations = reservations.order_by('-created_date')
 
   return reservations
 
@@ -1045,6 +1052,8 @@ def reservationsSearch(request):
           reservations = reservations.filter(equipment__equipment_type__id=e)
 
       reservations = reservations.distinct()
+      reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile)))
+      reservations = reservations.annotate(total_messages=Count('reservation_messages'))
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
@@ -1065,7 +1074,8 @@ def reservationsSearch(request):
         elif sort_by == 'status':
           sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
 
-      sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+      sort_order.append({'order_by': 'new_messages', 'direction': 'desc', 'ignorecase': 'false'})
+      sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
 
       reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
 

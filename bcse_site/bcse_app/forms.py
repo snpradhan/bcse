@@ -834,6 +834,7 @@ class ReservationsSearchForm(forms.Form):
   status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, initial=['O', 'R', 'U'], widget=forms.SelectMultiple(attrs={'size':6}))
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('new_messages', 'New Messages'),
                                                        ('user', 'User'),
                                                        ('activity', 'Activity'),
                                                        ('delivery_date', 'Delivery Date'),
