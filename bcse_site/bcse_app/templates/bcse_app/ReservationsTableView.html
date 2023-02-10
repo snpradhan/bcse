@@ -52,7 +52,8 @@
         <td style="background-color: #767676; color: white;"> Status </td>
       </tr>
       {% for reservation in reservations %}
-        <tr class="{% if reservation.new_messages %} has_new_message {% endif %}">
+        {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
+        <tr class="{% if new_messages %} has_new_message {% endif %}">
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
             <td> {{reservation.id}}</td>
           {% endif %}
@@ -83,11 +84,11 @@
             </ul>
           </td>
           <td>
-            {% if reservation.total_messages %}
-              {% if reservation.new_messages %}
-                <a href="{% url 'bcse:reservationView' reservation.id %}"><strong>{{reservation.new_messages}}</strong></a>/{{reservation.total_messages}}
+            {% if total_messages %}
+              {% if new_messages %}
+                <a href="{% url 'bcse:reservationView' reservation.id %}"><strong>{{new_messages}}</strong></a>/{{total_messages}}
               {% else %}
-                {{reservation.total_messages}}
+                {{total_messages}}
               {% endif %}
             {% endif %}
           </td>
@@ -161,6 +162,7 @@
             </div>
           </td>
         </tr>
+        {% endwith %}
       {% endfor %}
     </tbody>
   </table>

@@ -729,16 +729,10 @@ def reservationsList(request, user_id=''):
   if request.user.is_authenticated:
     if request.user.userProfile.user_role not in ['A', 'S']:
       reservations = models.Reservation.objects.all().filter(user__user=request.user)
-      reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=Q(~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile))))
-      reservations = reservations.annotate(total_messages=Count('reservation_messages'))
     elif user_id:
       reservations = models.Reservation.objects.all().filter(user__id=user_id)
-      #reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=~Q(reservation_messages__created_by__id=user_id) & ~Q(reservation_messages__viewed_by__id=user_id)))
-      reservations = reservations.annotate(total_messages=Count('reservation_messages'))
     else:
       reservations = models.Reservation.objects.all()
-      reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=Q(~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile))))
-      reservations = reservations.annotate(total_messages=Count('reservation_messages'))
 
     reservations = reservations.order_by('-created_date')
 
@@ -1054,8 +1048,8 @@ def reservationsSearch(request):
           reservations = reservations.filter(equipment__equipment_type__id=e)
 
       reservations = reservations.distinct()
+
       reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=Q(~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile))))
-      reservations = reservations.annotate(total_messages=Count('reservation_messages'))
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
