@@ -245,6 +245,7 @@
           reservation_blackout_timestamps = JSON.parse(reservation_blackout_timestamps);
         }
         var user_role = "{{user.userProfile.user_role}}";
+        var current_timestamp = Math.floor(Date.now() / 1000);
 
         //date restrictions for non admins
         if(!["A", "S"].includes(user_role)) {
@@ -256,17 +257,22 @@
               //convert javascript day to python day
               var day = d.getDay() - 1;
               var unixtime = Math.floor(d.getTime() / 1000);
-              var is_blackout_date = false;
-              for (index in reservation_blackout_timestamps) {
-                if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
-                  is_blackout_date = true;
-                  break;
-                }
-              }
-              if (is_blackout_date) {
+              if (unixtime < current_timestamp) {
                 return [false]
               }
-              return [reservation_delivery_days.includes(day)];
+              else {
+                var is_blackout_date = false;
+                for (index in reservation_blackout_timestamps) {
+                  if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
+                    is_blackout_date = true;
+                    break;
+                  }
+                }
+                if (is_blackout_date) {
+                  return [false]
+                }
+                return [reservation_delivery_days.includes(day)];
+              }
             }
           });
           $('.datepicker.reservation_return_date').datepicker({
@@ -277,17 +283,22 @@
               //convert javascript day to python day
               var day = d.getDay() - 1;
               var unixtime = Math.floor(d.getTime() / 1000);
-              var is_blackout_date = false;
-              for (index in reservation_blackout_timestamps) {
-                if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
-                  is_blackout_date = true;
-                  break;
-                }
-              }
-              if (is_blackout_date) {
+              if (unixtime < current_timestamp) {
                 return [false]
               }
-              return [reservation_return_days.includes(day)];
+              else {
+                var is_blackout_date = false;
+                for (index in reservation_blackout_timestamps) {
+                  if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
+                    is_blackout_date = true;
+                    break;
+                  }
+                }
+                if (is_blackout_date) {
+                  return [false]
+                }
+                return [reservation_return_days.includes(day)];
+              }
             }
           });
         }
@@ -478,7 +489,11 @@
               }
               //non admin date validation
               else if (!["A", "S"].includes(user_role)) {
-                if (!reservation_delivery_days.includes(delivery_date.getDay()-1) || !reservation_return_days.includes(return_date.getDay()-1)) {
+                if(delivery_date < current_date || return_date < current_date) {
+                  displayWarningDialog('Delivery and/or Return dates cannot be in the past.');
+                  return false;
+                }
+                else if (!reservation_delivery_days.includes(delivery_date.getDay()-1) || !reservation_return_days.includes(return_date.getDay()-1)) {
                   displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only and picked up on {{reservation_settings.reservation_return_days|get_days_of_week}} only.');
                   return false;
                 }
@@ -503,9 +518,20 @@
               displayWarningDialog('Please select a delivery date.');
               return false;
             }
-            else if (!["A", "S"].includes(user_role) && !reservation_delivery_days.includes(delivery_date.getDay()-1)) {
-              displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.');
-              return false;
+            else if (!["A", "S"].includes(user_role)) {
+              if(delivery_date < current_date) {
+                displayWarningDialog('Delivery date cannot be in the past.');
+                return false;
+              }
+              else if (!reservation_delivery_days.includes(delivery_date.getDay()-1)) {
+                displayWarningDialog('Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.');
+                return false;
+              }
+              //delivery date has to be between 1 week and 6 months from today
+              else if (delivery_date < min_reservation_date || delivery_date > max_reservation_date) {
+                displayWarningDialog('Please select delivery date between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.');
+                return false;
+              }
             }
           }
           return true;

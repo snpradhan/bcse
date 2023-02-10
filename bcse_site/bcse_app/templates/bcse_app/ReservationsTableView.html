@@ -136,6 +136,8 @@
                 <li>
                   {% if user.userProfile.user_role in 'TP' and reservation.status in 'DIO' %}
                     <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be modified">Edit</a>
+                  {% elif user.userProfile.user_role in 'TP' and reservation.delivery_date|is_past or reservation.return_date|is_past %}
+                    <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be modified">Edit</a>
                   {% else %}
                     <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
                   {% endif %}
