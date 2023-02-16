@@ -1976,7 +1976,24 @@ def workshopRegistrationMessage(workshop_registration):
 
   return {'message': message, 'message_class': message_class}
 
+def userRegistration(request, workshop_id, user_id):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission check registration')
+    else:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      registration = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop.id, user__id=user_id).first()
+      return registration
 
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.Registration.DoesNotExist:
+    messages.success(request, "Registration not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 ################################################
 # WORKSHOPS BASE QUERY BEFORE APPLYING FILTERS
 ################################################

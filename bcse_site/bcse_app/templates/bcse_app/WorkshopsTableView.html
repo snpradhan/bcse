@@ -36,7 +36,6 @@
     </thead>
     <tbody>
       {% for workshop in workshops %}
-        {% get_registration workshop.id as registration %}
         <tr>
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
             <td> {{workshop.id}}</td>
@@ -98,7 +97,14 @@
                   </ul>
               </td>
             {% else %}
-              <td>{{registration.instance.get_status_display}}</td>
+              {% if user.userProfile.user_role not in 'AS' and tag == 'workshops' %}
+                <!-- for My Workshops page -->
+                {% get_user_registration workshop.id user.userProfile.id as registration %}
+              {% elif userProfile and tag == 'profile' %}
+                <!-- For User Profile page -->
+                {% get_user_registration workshop.id userProfile.id as registration %}
+              {% endif %}
+              <td>{{registration.get_status_display}}</td>
               <td width="15%">
                 {% if workshop.status == 'A'%}
                   <div class="btn-group">
@@ -110,14 +116,14 @@
                       {% if current_date < workshop.start_date|date:'Y-m-d' %}
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                          <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}"
+                          <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.id %}"
                           data-title="your registration for <strong>{{workshop.name}}</strong>">
                             Delete Registration
                           </a>
                         </li>
                       {% endif %}
                       {% if workshop.meetup_link %}
-                        {% if not workshop.enable_registration or registration and registration.instance and registration.instance.status in 'RC' %}
+                        {% if not workshop.enable_registration or registration and registration.status in 'RC' %}
                           <li><hr class="dropdown-divider"></li>
                           <li><a class="dropdown-item" href="{{workshop.meetup_link}}" target="_blank">Join</a></li>
                         {% endif %}

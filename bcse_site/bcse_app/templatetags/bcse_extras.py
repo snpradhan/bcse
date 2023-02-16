@@ -161,3 +161,9 @@ def replace_space(text, replacement):
 def get_registration(context, workshop_id):
   request = context.get('request')
   return views.workshopRegistration(request, workshop_id)
+
+@register.simple_tag(takes_context=True)
+def get_user_registration(context, workshop_id, user_id):
+  request = context.get('request')
+  return views.userRegistration(request, workshop_id, user_id)
+
