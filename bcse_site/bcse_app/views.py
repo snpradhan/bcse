@@ -752,6 +752,15 @@ def reservationEdit(request, id=''):
     else:
       reservation = models.Reservation(created_by=request.user.userProfile)
 
+    current_date = datetime.datetime.now().date()
+    if request.user.userProfile.user_role in ['T', 'P']:
+      if reservation.user != request.user.userProfile:
+        raise CustomException('You do not have the permission to edit this reservation')
+      elif reservation.status in ['D', 'O', 'I']:
+        raise CustomException('This reservation is %s and cannot be modified' % reservation.get_status_display())
+      elif reservation.delivery_date and reservation.delivery_date < current_date:
+        raise CustomException('This reservation is in the past and cannot be modified')
+
     reservation_settings = {}
     reservation_settings['reservation_delivery_days'] = settings.BAXTER_BOX_DELIVERY_DAYS
     reservation_settings['reservation_return_days'] = settings.BAXTER_BOX_RETURN_DAYS
@@ -761,15 +770,13 @@ def reservationEdit(request, id=''):
     reservation_settings['reservation_max_advance_days'] = settings.BAXTER_BOX_MAX_ADVANCE_RESERVATION_DAYS
     reservation_settings['reservation_reminder_days'] = settings.BAXTER_BOX_RESERVATION_REMINDER_DAYS
 
-    current_date = datetime.datetime.now().date()
+
     blackout_dates = models.BaxterBoxBlackoutDate.objects.all().filter(Q(start_date__gte=current_date) | Q(end_date__gte=current_date))
     if blackout_dates.count() > 0:
       reservation_settings['reservation_blackout_dates'] = blackout_dates
       reservation_settings['reservation_blackout_timestamps'] = []
       for blackout_date in blackout_dates:
         reservation_settings['reservation_blackout_timestamps'].append([time.mktime(blackout_date.start_date.timetuple()), time.mktime(blackout_date.end_date.timetuple())])
-
-
 
     if request.method == 'GET':
       if request.user.userProfile.user_role in ['T', 'P']:
@@ -782,8 +789,6 @@ def reservationEdit(request, id=''):
       return render(request, 'bcse_app/ReservationEdit.html', context)
 
     elif request.method == 'POST':
-      if request.user.userProfile.user_role in ['T', 'P'] and reservation.status in ['D', 'O', 'I']:
-        raise CustomException('This reservation is %s and cannot be modified' % reservation.get_status_display())
 
       data = request.POST.copy()
       form = forms.ReservationForm(data, instance=reservation, user=request.user.userProfile)
@@ -836,9 +841,18 @@ def reservationEdit(request, id=''):
         return render(request, 'bcse_app/ReservationEdit.html', context)
     return http.HttpResponseNotAllowed(['GET', 'POST'])
 
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
   except CustomException as ce:
-    messages.error(request, ce)
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
 ####################################
 # VIEW RESERVATION
