@@ -825,13 +825,15 @@ class SurveySubmissionForm(ModelForm):
 class ReservationsSearchForm(forms.Form):
 
   user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
+  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Work Place", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the work place ...'}),
+                                  )
   assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
   activity = forms.ModelChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'))
-  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
   return_before = forms.DateField(required=False, label=u'Return on/before')
-  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, initial=['O', 'R', 'U'], widget=forms.SelectMultiple(attrs={'size':6}))
+  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, initial=['O', 'R', 'U'], widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('new_messages', 'New Messages'),
@@ -840,6 +842,8 @@ class ReservationsSearchForm(forms.Form):
                                                        ('delivery_date', 'Delivery Date'),
                                                        ('return_date', 'Return Date'),
                                                        ('status', 'Status')), initial='delivery_date')
+  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DD', 'RD', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -847,7 +851,10 @@ class ReservationsSearchForm(forms.Form):
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('user')
+      self.fields.pop('work_place')
       self.fields.pop('assignee')
+    else:
+      self.fields['rows_per_page'].initial = 75
 
     for field_name, field in self.fields.items():
       if field_name in ['delivery_after', 'return_before']:

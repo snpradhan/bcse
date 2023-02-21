@@ -7,123 +7,193 @@
   <table class="table table-bordered table-striped" id="baxter_box_reservations">
     <thead>
       <tr class='noExl'>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
           <th> ID</th>
         {% endif %}
-        <th> Reservation Made On</th>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+        {% if 'CR' in columns or tag == 'profile' %}
+          <th> Reservation Made On</th>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
           <th> User </th>
         {% endif %}
-        <th> Kit </th>
-        <th> Equipment </th>
-        <th> Comments<br>(New/Total)</th>
-        <th> Delivery Date </th>
-        <th> Return Date </th>
-        <th> Delivery Address </th>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
-          <th> Delivery Distance (miles) </th>
-          <th> Delivery Travel Time (mins) </th>
-          <th> Assigned To </th>
+        {% if 'KT' in columns or tag == 'profile' %}
+          <th> Kit </th>
         {% endif %}
-        <th> Status </th>
+        {% if 'EQ' in columns or tag == 'profile' %}
+          <th> Equipment </th>
+        {% endif %}
+        {% if 'CC' in columns %}
+          <th> Comments<br>(New/Total)</th>
+        {% endif %}
+        {% if 'DD' in columns or tag == 'profile' %}
+          <th> Delivery Date </th>
+        {% endif %}
+        {% if 'RD' in columns or tag == 'profile'%}
+          <th> Return Date </th>
+        {% endif %}
+        {% if 'DA' in columns %}
+          <th> Delivery Address </th>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          {% if 'DI' in columns %}
+            <th> Delivery Distance (miles) </th>
+          {% endif %}
+          {% if 'DT' in columns %}
+            <th> Delivery Travel Time (mins) </th>
+          {% endif %}
+          {% if 'AT' in columns %}
+            <th> Assigned To </th>
+          {% endif %}
+        {% endif %}
+        {% if 'ST' in columns or tag == 'profile' %}
+          <th> Status </th>
+        {% endif %}
         <th> Actions </th>
       </tr>
     </thead>
     <tbody>
       <tr style="display:none;">
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
           <td style="background-color: #767676; color: white;"> ID</td>
         {% endif %}
-        <td style="background-color: #767676; color: white;"> Reservation Made On</td>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+        {% if 'CR' in columns or tag == 'profile' %}
+          <td style="background-color: #767676; color: white;"> Reservation Made On</td>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
           <td style="background-color: #767676; color: white;"> User </td>
         {% endif %}
-        <td style="background-color: #767676; color: white;"> Kit </td>
-        <td style="background-color: #767676; color: white;"> Equipment </td>
-        <td style="background-color: #767676; color: white;"> Comments<br>(New/Total)</td>
-        <td style="background-color: #767676; color: white;"> Delivery Date </td>
-        <td style="background-color: #767676; color: white;"> Return Date </td>
-        <td style="background-color: #767676; color: white;"> Delivery Address </td>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
-          <td style="background-color: #767676; color: white;"> Delivery Distance (miles) </td>
-          <td style="background-color: #767676; color: white;"> Delivery Travel Time (mins) </td>
-          <td style="background-color: #767676; color: white;"> Assigned To </td>
+        {% if 'KT' in columns or tag == 'profile' %}
+          <td style="background-color: #767676; color: white;"> Kit </td>
         {% endif %}
-        <td style="background-color: #767676; color: white;"> Status </td>
+        {% if 'EQ' in columns or tag == 'profile' %}
+          <td style="background-color: #767676; color: white;"> Equipment </td>
+        {% endif %}
+        {% if 'CC' in columns %}
+          <td style="background-color: #767676; color: white;"> Comments<br>(New/Total)</td>
+        {% endif %}
+        {% if 'DD' in columns or tag == 'profile' %}
+          <td style="background-color: #767676; color: white;"> Delivery Date </td>
+        {% endif %}
+        {% if 'RD' in columns or tag == 'profile' %}
+          <td style="background-color: #767676; color: white;"> Return Date </td>
+        {% endif %}
+        {% if 'DA' in columns %}
+          <td style="background-color: #767676; color: white;"> Delivery Address </td>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          {% if 'DI' in columns %}
+            <td style="background-color: #767676; color: white;"> Delivery Distance (miles) </td>
+          {% endif %}
+          {% if 'DT' in columns %}
+            <td style="background-color: #767676; color: white;"> Delivery Travel Time (mins) </td>
+          {% endif %}
+          {% if 'AT' in columns %}
+            <td style="background-color: #767676; color: white;"> Assigned To </td>
+          {% endif %}
+        {% endif %}
+        {% if 'ST' in columns or tag == 'profile' %}
+          <td style="background-color: #767676; color: white;"> Status </td>
+        {% endif %}
       </tr>
       {% for reservation in reservations %}
         {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
         <tr class="{% if new_messages %} has_new_message {% endif %}">
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
             <td> {{reservation.id}}</td>
           {% endif %}
-          <td>{{reservation.created_date|date:"F j, Y"}}</td>
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          {% if 'CR' in columns or tag == 'profile' %}
+            <td>{{reservation.created_date|date:"F j, Y"}}</td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
             <td> {{reservation.user}} </td>
           {% endif %}
-          <td>
-            {% if reservation.activity and not reservation.activity_kit_not_needed %}
-              {{reservation.activity.kit_name}} x
-              {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
-                {{reservation.num_of_classes}}
-              {% elif reservation.more_num_of_classes %}
-                 {{reservation.more_num_of_classes}}
+          {% if 'KT' in columns or tag == 'profile' %}
+            <td>
+              {% if reservation.activity and not reservation.activity_kit_not_needed %}
+                {{reservation.activity.kit_name}} x
+                {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
+                  {{reservation.num_of_classes}}
+                {% elif reservation.more_num_of_classes %}
+                   {{reservation.more_num_of_classes}}
+                {% endif %}
               {% endif %}
-            {% endif %}
-          </td>
-          <td>
-            <ul>
-              {% for equipment in reservation.equipment.all %}
-                <li>
-                  {{equipment.equipment_type}}
-                  {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
-                    ({{equipment.name}})
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
-          </td>
-          <td>
-            {% if total_messages %}
-              {% if new_messages %}
-                <a href="{% url 'bcse:reservationView' reservation.id %}"><strong>{{new_messages}}</strong></a>/{{total_messages}}
+            </td>
+          {% endif %}
+          {% if 'EQ' in columns or tag == 'profile' %}
+            <td>
+              <ul>
+                {% for equipment in reservation.equipment.all %}
+                  <li>
+                    {{equipment.equipment_type}}
+                    {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+                      ({{equipment.name}})
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </td>
+          {% endif %}
+          {% if 'CC' in columns %}
+            <td>
+              {% if total_messages %}
+                {% if new_messages %}
+                  <a href="{% url 'bcse:reservationView' reservation.id %}"><strong>{{new_messages}}</strong></a>/{{total_messages}}
+                {% else %}
+                  {{total_messages}}
+                {% endif %}
+              {% endif %}
+            </td>
+          {% endif %}
+          {% if 'DD' in columns or tag == 'profile' %}
+            <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
+          {% endif %}
+          {% if 'RD' in columns or tag == 'profile' %}
+            <td>{{reservation.return_date|date:"F j, Y"}}</td>
+          {% endif %}
+          {% if 'DA' in columns %}
+            <td>
+              {% if reservation.delivery_address %}
+                {{reservation.delivery_address.street_address_1}}<br>
+                {% if reservation.delivery_address.street_address_2 %}
+                  {{reservation.delivery_address.street_address_2}}<br>
+                {% endif %}
+                {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
               {% else %}
-                {{total_messages}}
+                {{reservation.user.work_place.name}}<br>
+                {{reservation.user.work_place.street_address_1}}<br>
+                {% if reservation.user.work_place.street_address_2 %}
+                  {{reservation.user.work_place.street_address_2}}<br>
+                {% endif %}
+                {% if reservation.user.work_place.city %}
+                  {{reservation.user.work_place.city}},
+                {% endif %}
+                {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
               {% endif %}
-            {% endif %}
-          </td>
-          <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
-          <td>{{reservation.return_date|date:"F j, Y"}}</td>
-          <td>
-            {% if reservation.delivery_address %}
-              {{reservation.delivery_address.street_address_1}}<br>
-              {% if reservation.delivery_address.street_address_2 %}
-                {{reservation.delivery_address.street_address_2}}<br>
-              {% endif %}
-              {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
-            {% else %}
-              {{reservation.user.work_place.name}}<br>
-              {{reservation.user.work_place.street_address_1}}<br>
-              {% if reservation.user.work_place.street_address_2 %}
-                {{reservation.user.work_place.street_address_2}}<br>
-              {% endif %}
-              {% if reservation.user.work_place.city %}
-                {{reservation.user.work_place.city}},
-              {% endif %}
-              {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
-            {% endif %}
-          </td>
+            </td>
+          {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
             {% if reservation.delivery_address %}
-              <td> {{reservation.delivery_address.distance_from_base|default_if_none:""}} </td>
-              <td> {{reservation.delivery_address.time_from_base|default_if_none:""}} </td>
+              {% if 'DI' in columns %}
+                <td> {{reservation.delivery_address.distance_from_base|default_if_none:""}} </td>
+              {% endif %}
+              {% if 'DT' in columns %}
+                <td> {{reservation.delivery_address.time_from_base|default_if_none:""}} </td>
+              {% endif %}
             {% else %}
-              <td> {{reservation.user.work_place.distance_from_base|default_if_none:""}} </td>
-              <td> {{reservation.user.work_place.time_from_base|default_if_none:""}} </td>
+              {% if 'DI' in columns %}
+                <td> {{reservation.user.work_place.distance_from_base|default_if_none:""}} </td>
+              {% endif %}
+              {% if 'DT' in columns %}
+                <td> {{reservation.user.work_place.time_from_base|default_if_none:""}} </td>
+              {% endif %}
             {% endif %}
-            <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
+            {% if 'AT' in columns %}
+              <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
+            {% endif %}
           {% endif %}
-          <td> {{reservation.get_status_display}} </td>
+          {% if 'ST' in columns or tag == 'profile' %}
+            <td> {{reservation.get_status_display}} </td>
+          {% endif %}
           <td class='noExl'>
             <div class="btn-group">
               <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

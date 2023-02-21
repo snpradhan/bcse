@@ -9,30 +9,41 @@
 
     <div id="filter_content">
       <div id="filter_fields">
+      <div class="filter_fields">
         {% if searchForm.user %}
-        <div class="form-group">
-          <label for="id_{{searchForm.user.name}}" class="form-label"> {{searchForm.user.label|title}}</label>
-          <div>{{searchForm.user}}</div>
-          <div class="error">{{ searchForm.user.errors }}</div>
-        </div>
+          <div class="filter_fields">
+            <div class="form-group">
+              <label for="id_{{searchForm.user.name}}" class="form-label"> {{searchForm.user.label|title}}</label>
+              <div>{{searchForm.user}}</div>
+              <div class="error">{{ searchForm.user.errors }}</div>
+            </div>
+          </div>
         {% endif %}
+        {% if searchForm.work_place %}
+          <div class="filter_fields">
+            <div class="form-group">
+              <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
+              <div>{{searchForm.work_place}}</div>
+              <div class="error">{{ searchForm.work_place.errors }}</div>
+            </div>
+          </div>
+        {% endif %}
+
         <div class="form-group">
           <label for="id_{{searchForm.activity.name}}" class="form-label"> {{searchForm.activity.label|title}}</label>
           <div>{{searchForm.activity}}</div>
           <div class="error">{{ searchForm.activity.errors }}</div>
         </div>
         <div class="form-group">
-          <label for="id_{{searchForm.equipment.name}}" class="form-label"> {{searchForm.equipment.label|title}}</label>
+          <label for="id_{{searchForm.equipment.name}}" class="form-label">
+            {{searchForm.equipment.label|title}}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.equipment.help_text}}"></i>
+          </label>
           <div>{{searchForm.equipment}}</div>
           <div class="error">{{ searchForm.equipment.errors }}</div>
         </div>
-        {% if searchForm.status %}
-          <div class="form-group">
-            <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
-            <div>{{searchForm.status}}</div>
-            <div class="error">{{ searchForm.status.errors }}</div>
-          </div>
-        {% endif %}
+      </div>
+      <div class="filter_fields">
         <div class="form-group">
           <label for="id_{{searchForm.delivery_after.name}}" class="form-label"> {{searchForm.delivery_after.label|title}}</label>
           <div class="input-group">
@@ -49,6 +60,16 @@
           </div>
           <div class="error">{{ searchForm.return_before.errors }}</div>
         </div>
+        {% if searchForm.status %}
+          <div class="form-group">
+            <label for="id_{{searchForm.status.name}}" class="form-label">
+              {{searchForm.status.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.status.help_text}}"></i>
+            </label>
+            <div>{{searchForm.status}}</div>
+            <div class="error">{{ searchForm.status.errors }}</div>
+          </div>
+        {% endif %}
         {% if searchForm.assignee %}
           <div class="form-group">
             <label for="id_{{searchForm.assignee.name}}" class="form-label"> {{searchForm.assignee.label|title}}</label>
@@ -56,7 +77,8 @@
             <div class="error">{{ searchForm.assignee.errors }}</div>
           </div>
         {% endif %}
-
+      </div>
+      <div class="filter_fields">
         <div class="form-group">
           <label for="id_{{searchForm.keywords.name}}" class="form-label"> {{searchForm.keywords.label|title}}</label>
           <div>{{searchForm.keywords}}</div>
@@ -67,7 +89,27 @@
           <div>{{searchForm.sort_by}}</div>
           <div class="error">{{ searchForm.sort_by.errors }}</div>
         </div>
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          <div class="form-group">
+            <label for="id_{{searchForm.columns.name}}" class="form-label">
+              {{searchForm.columns.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.columns.help_text}}"></i>
+            </label>
+            <div>{{searchForm.columns}}</div>
+            <div class="error">{{ searchForm.columns.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+            <div>{{searchForm.rows_per_page}}</div>
+            <div class="error">{{ searchForm.rows_per_page.errors }}</div>
+          </div>
+        {% else %}
+          <div class="form-group">{{searchForm.columns.as_hidden}}</div>
+          <div class="form-group">{{searchForm.rows_per_page.as_hidden}}</div>
+        {% endif %}
+
       </div>
+    </div>
       <input type="hidden" name="page" id="page" value="1"/>
       <div class="form-group right" id="filter_buttons">
         <button class="btn" type="button" id="clear">Clear Filter</button>

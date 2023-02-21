@@ -73,7 +73,7 @@ $(function (){
     var autocomplete_elements = $('form.filter_form :input[data-autocomplete-light-function=select2]');
     if($(autocomplete_elements).length) {
       $(autocomplete_elements).val('');
-      $(autocomplete_elements).first().trigger('change');
+      $(autocomplete_elements).trigger('change');
     }
     else {
       var form = $(this).closest('form');
@@ -117,6 +117,11 @@ $(function (){
     $(iframe).attr('src', $(iframe).attr('src') + '?autoplay=1');
     $('div#slides').slick('slickPause');
 
+  });
+
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
   });
 
   bindPagination();

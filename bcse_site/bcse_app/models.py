@@ -120,6 +120,29 @@ SURVEY_COMPONENT_TYPE_CHOICES = (
   ('UL', 'URL'),
 )
 
+RESERVATION_TABLE_COLUMN_CHOICES = (
+  ('ID', 'ID'),
+  ('CR', 'Created Date'),
+  ('UR', 'User'),
+  ('KT', 'Kit'),
+  ('EQ', 'Equipment'),
+  ('CC', 'Comment Count'),
+  ('DD', 'Delivery Date'),
+  ('RD', 'Return Date'),
+  ('DA', 'Delivery Address'),
+  ('DI', 'Delivery Distance'),
+  ('DT', 'Delivery Time'),
+  ('AT', 'Assigned To'),
+  ('ST', 'Status'),
+)
+
+TABLE_ROWS_PER_PAGE_CHOICES = (
+  (25, '25'),
+  (50, '50'),
+  (75, '75'),
+  (100, '100')
+)
+
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
   YEAR_CHOICES.append((x, x))

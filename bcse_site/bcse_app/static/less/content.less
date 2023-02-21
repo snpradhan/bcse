@@ -589,7 +589,7 @@ body {
       background-color: @nu-light-purple;
       padding: 1em;
 
-      div#filter_fields {
+      div#filter_fields, div.filter_fields {
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
@@ -601,6 +601,9 @@ body {
         .form-group {
           margin-bottom: 0.5em;
         }
+      }
+      div.filter_fields {
+        flex-direction: column;
       }
     }
 

@@ -993,6 +993,7 @@ def reservationsSearch(request):
       query_filter = Q()
       keyword_filter = None
       user_filter = None
+      workplace_filter = None
       activity_filter = None
       equipment_filter = None
       delivery_after_filter = None
@@ -1002,6 +1003,7 @@ def reservationsSearch(request):
 
       keywords = request.GET.get('reservation_search-keywords', '')
       user = request.GET.get('reservation_search-user', '')
+      work_place = request.GET.get('reservation_search-work_place', '')
       assignee = request.GET.get('reservation_search-assignee', '')
       activity = request.GET.get('reservation_search-activity', '')
       equipment = request.GET.getlist('reservation_search-equipment', '')
@@ -1009,6 +1011,8 @@ def reservationsSearch(request):
       return_before = request.GET.get('reservation_search-return_before', '')
       status = request.GET.getlist('reservation_search-status', '')
       sort_by = request.GET.get('reservation_search-sort_by', '')
+      columns = request.GET.getlist('reservation_search-columns', '')
+      rows_per_page = request.GET.get('reservation_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
 
       if keywords:
         keyword_filter = Q(activity__name__icontains=keywords) | Q(other_activity_name__icontains=keywords)
@@ -1018,6 +1022,9 @@ def reservationsSearch(request):
 
       if user:
         user_filter = Q(user=user)
+
+      if work_place:
+        workplace_filter = Q(user__work_place=work_place)
 
       if assignee:
         assignee_filter = Q(assignee=assignee)
@@ -1041,6 +1048,8 @@ def reservationsSearch(request):
 
       if user_filter:
         query_filter = query_filter & user_filter
+      if workplace_filter:
+        query_filter = query_filter & workplace_filter
       if assignee_filter:
         query_filter = query_filter & assignee_filter
       if activity_filter:
@@ -1088,9 +1097,9 @@ def reservationsSearch(request):
 
       sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
 
-      reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+      reservations = paginate(request, reservations, sort_order, rows_per_page)
 
-      context = {'reservations': reservations, 'tag': 'reservations'}
+      context = {'reservations': reservations, 'tag': 'reservations', 'columns': columns}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/ReservationsTableView.html', context, request)
