@@ -753,7 +753,7 @@ def reservationEdit(request, id=''):
       reservation = models.Reservation(created_by=request.user.userProfile)
 
     current_date = datetime.datetime.now().date()
-    if request.user.userProfile.user_role in ['T', 'P']:
+    if request.user.userProfile.user_role in ['T', 'P'] and reservation.id:
       if reservation.user != request.user.userProfile:
         raise CustomException('You do not have the permission to edit this reservation')
       elif reservation.status in ['D', 'O', 'I']:
