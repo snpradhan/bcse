@@ -44,7 +44,7 @@ class SignInForm (forms.Form):
         self.add_error('email', 'Email is incorrect.')
         self.fields['email'].widget.attrs['class'] += ' error'
       elif password is not None:
-        user = authenticate(username=email, password=password)
+        user = authenticate(username=email.lower(), password=password)
         if user is None:
           self.add_error('password', 'Password is incorrect.')
           self.fields['password'].widget.attrs['class'] += ' error'
@@ -116,7 +116,7 @@ class SignUpForm (forms.Form):
 
     if email is None:
       self.fields['email'].widget.attrs['class'] += ' error'
-    elif User.objects.filter(email=email).count() > 0:
+    elif User.objects.filter(email=email.lower()).count() > 0:
       self.add_error('email', 'This email is already taken. Please choose another.')
       self.fields['email'].widget.attrs['class'] += ' error'
     elif 'confirm_email' in self.fields and email != confirm_email:
@@ -211,7 +211,7 @@ class UserForm(ModelForm):
     if email is None or email == '':
       self.add_error('email', 'Email is required')
       valid = False
-    elif User.objects.filter(email=email).exclude(id=user_id).count() > 0:
+    elif User.objects.filter(email=email.lower()).exclude(id=user_id).count() > 0:
       self.add_error('email', 'This email is already taken. Please choose another.')
       valid = False
 
