@@ -9,7 +9,7 @@
     <h1 class="center"> Create Standalone Page </h1>
   {% endif %}
   <div class="admin_form">
-    <form method="post" enctype="multipart/form-data" id="formHomepageBlock">
+    <form method="post" enctype="multipart/form-data" id="formHomepageBlock" data-changed="false">
       {% csrf_token %}
       {{form.media}}
 
@@ -73,6 +73,9 @@
           <button class="btn btn-danger delete action" data-href="{% url 'bcse:standalonePageDelete' form.instance.id %}" data-title="the Standalone Page <strong>{{form.instance.title}}</strong>">
             Delete
           </button>
+          <button class="btn action preview" data-href="{% url 'bcse:standalonePageIdView' form.instance.id %}">
+            Preview
+          </button>
         {% endif %}
         <button class="btn" type="submit" id="submit_bottom">
           Save
@@ -81,4 +84,24 @@
 
     </form>
   </div>
+
+  <script type="text/javascript">
+    $(function(){
+      $("form :input").change(function() {
+        $(this).closest('form').data('changed', true);
+      });
+
+      $('.preview').on('click', function(){
+        if($(this).closest('form').data('changed')) {
+          displayWarningDialog("This form has unsaved data.  Please save the form first and then click Preview");
+          return false;
+        }
+        else {
+          var redirect = $(this).data('href');
+          window.open(redirect, '_blank');
+        }
+      });
+
+    });
+  </script>
 {% endblock %}
