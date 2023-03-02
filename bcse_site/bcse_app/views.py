@@ -712,7 +712,7 @@ def reservations(request):
 
     reservations = reservationsList(request)
 
-    sort_order = [{'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'}]
+    sort_order = [{'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'}]
     reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
     searchForm = forms.ReservationsSearchForm(user=request.user, prefix="reservation_search")
 
@@ -734,7 +734,7 @@ def reservationsList(request, user_id=''):
     else:
       reservations = models.Reservation.objects.all()
 
-    reservations = reservations.order_by('-created_date')
+    reservations = reservations.order_by('delivery_date')
 
   return reservations
 
@@ -1083,8 +1083,9 @@ def reservationsSearch(request):
           sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
         elif sort_by == 'status':
           sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'new_messages':
+          sort_order.append({'order_by': 'new_messages', 'direction': 'desc', 'ignorecase': 'false'})
 
-      sort_order.append({'order_by': 'new_messages', 'direction': 'desc', 'ignorecase': 'false'})
       sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
 
       reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)

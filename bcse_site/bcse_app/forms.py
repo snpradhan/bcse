@@ -839,7 +839,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('activity', 'Activity'),
                                                        ('delivery_date', 'Delivery Date'),
                                                        ('return_date', 'Return Date'),
-                                                       ('status', 'Status')))
+                                                       ('status', 'Status')), initial='delivery_date')
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
