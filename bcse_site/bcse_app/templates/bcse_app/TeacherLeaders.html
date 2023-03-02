@@ -33,7 +33,7 @@
               {% endif %}
             </td>
             <td> {{teacher_leader.school}} </td>
-            <td> {{teacher_leader.bio|safe}} </td>
+            <td class="wysiwyg_content"> {{teacher_leader.bio|safe}} </td>
             <td> {{teacher_leader.highlight|yesno:"Yes,No"}} </td>
             <td> {{teacher_leader.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{teacher_leader.modified_date|date:"F j, Y g:i A"}} </td>

@@ -46,7 +46,7 @@
         </div>
       </div>
 
-      <div class="workshop_content">
+      <div class="workshop_content wysiwyg_content">
         {% if workshop.description %}
           {{workshop.description|safe}}
         {% endif %}
@@ -65,7 +65,7 @@
             <div class="teacher_leader_details">
               <h4>{{workshop.teacher_leader.first_name}} {{workshop.teacher_leader.last_name}}</h4>
               <h4>{{workshop.teacher_leader.school.name}}</h4>
-              <div>{{workshop.teacher_leader.bio|safe}}</div>
+              <div class="wysiwyg_content">{{workshop.teacher_leader.bio|safe}}</div>
             </div>
           </div>
         {% endif %}

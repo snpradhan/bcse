@@ -14,9 +14,9 @@
         <div class="details">
           <h2><a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a></h2>
           <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
-          <p>
+          <div class="wysiwyg_content">
             {{workshop.summary|safe}}
-          </p>
+          </div>
         </div>
         <div class="date_location">
           <div class="start">

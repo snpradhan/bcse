@@ -18,7 +18,7 @@
               <h2>{{teacher.first_name}} {{teacher.last_name}}</h2>
               <h3>{{teacher.school}}</h3>             
             </div>
-            {{teacher.bio|safe}}
+            <div class="wysiwyg_content">{{teacher.bio|safe}}</div>
           </div>
         </div>
         {% endfor %}
