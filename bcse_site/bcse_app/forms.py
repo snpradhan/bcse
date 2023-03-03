@@ -362,6 +362,7 @@ class ReservationForm(ModelForm):
     widgets = {
       'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
       'notes': forms.Textarea(attrs={'rows':3}),
+      'admin_notes': forms.Textarea(attrs={'rows':3}),
       #'other_activity': forms.CheckboxInput(),
     }
 
@@ -413,6 +414,7 @@ class ReservationForm(ModelForm):
     if user.user_role not in ['A', 'S']:
       self.fields.pop('assignee')
       self.fields.pop('more_num_of_classes')
+      self.fields.pop('admin_notes')
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
 
@@ -842,7 +844,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('delivery_date', 'Delivery Date'),
                                                        ('return_date', 'Return Date'),
                                                        ('status', 'Status')), initial='delivery_date')
-  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DD', 'RD', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DD', 'RD', 'AN', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):

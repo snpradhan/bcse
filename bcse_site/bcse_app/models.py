@@ -129,9 +129,11 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('CC', 'Comment Count'),
   ('DD', 'Delivery Date'),
   ('RD', 'Return Date'),
+  ('UN', 'Pickup/Return Notes'),
   ('DA', 'Delivery Address'),
   ('DI', 'Delivery Distance'),
   ('DT', 'Delivery Time'),
+  ('AN', 'Admin Notes'),
   ('AT', 'Assigned To'),
   ('ST', 'Status'),
 )
@@ -390,6 +392,7 @@ class Reservation(models.Model):
   return_date = models.DateField(null=True, blank=True)
   notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   additional_help_needed = models.BooleanField(default=False)
+  admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   status = models.CharField(default='R', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)
   created_date = models.DateTimeField(auto_now_add=True)

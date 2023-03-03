@@ -22,6 +22,9 @@
         {% if 'EQ' in columns or tag == 'profile' %}
           <th> Equipment </th>
         {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UN' in columns %}
+          <th> Pickup/Return<br>Notes</th>
+        {% endif %}
         {% if 'CC' in columns %}
           <th> Comments<br>(New/Total)</th>
         {% endif %}
@@ -40,6 +43,9 @@
           {% endif %}
           {% if 'DT' in columns %}
             <th> Delivery Travel Time (mins) </th>
+          {% endif %}
+          {% if 'AN' in columns %}
+            <th> Admin Notes </th>
           {% endif %}
           {% if 'AT' in columns %}
             <th> Assigned To </th>
@@ -68,6 +74,9 @@
         {% if 'EQ' in columns or tag == 'profile' %}
           <td style="background-color: #767676; color: white;"> Equipment </td>
         {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UN' in columns %}
+          <td style="background-color: #767676; color: white;"> Pickup/Return<br>Notes </td>
+        {% endif %}
         {% if 'CC' in columns %}
           <td style="background-color: #767676; color: white;"> Comments<br>(New/Total)</td>
         {% endif %}
@@ -86,6 +95,9 @@
           {% endif %}
           {% if 'DT' in columns %}
             <td style="background-color: #767676; color: white;"> Delivery Travel Time (mins) </td>
+          {% endif %}
+          {% if 'AN' in columns %}
+            <td style="background-color: #767676; color: white;"> Admin Notes </td>
           {% endif %}
           {% if 'AT' in columns %}
             <td style="background-color: #767676; color: white;"> Assigned To </td>
@@ -132,6 +144,9 @@
                 {% endfor %}
               </ul>
             </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UN' in columns %}
+            <td>{{reservation.notes|default_if_none:""}}</td>
           {% endif %}
           {% if 'CC' in columns %}
             <td>
@@ -186,6 +201,9 @@
               {% if 'DT' in columns %}
                 <td> {{reservation.user.work_place.time_from_base|default_if_none:""}} </td>
               {% endif %}
+            {% endif %}
+            {% if 'AN' in columns %}
+              <td>{{reservation.admin_notes|default_if_none:""}}</td>
             {% endif %}
             {% if 'AT' in columns %}
               <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
