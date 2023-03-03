@@ -561,11 +561,18 @@ body {
 
     &.admin {
       padding: unset !important;
+
+      div.right-content {
+        overflow-x: scroll;
+      }
     }
 
     div.container {
       background-color: white;
       padding-bottom: 4em;
+
+    }
+    &:not(.admin) div.container {
       overflow-x: scroll;
     }
 
