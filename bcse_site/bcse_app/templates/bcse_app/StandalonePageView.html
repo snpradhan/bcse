@@ -7,7 +7,9 @@
   <div class="content">
     <div class="standalone_page container">
       <h1>{{standalone_page.title}}</h1>
-      <img class="curve {% if standalone_page.image_position == 'L' %} left {% else %} right {% endif %}" alt="" src="{{standalone_page.image.url}}">
+      {% if standalone_page.image %}
+        <img class="curve {% if standalone_page.image_position == 'L' %} left {% else %} right {% endif %}" alt="" src="{{standalone_page.image.url}}">
+      {% endif %}
       <h2 class="left">{{standalone_page.sub_title|default:""}}</h2>
       <div class="wysiwyg_content">{{standalone_page.body|safe}}</div>
 

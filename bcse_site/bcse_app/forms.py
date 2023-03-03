@@ -8,6 +8,7 @@ from localflavor.us.models import USStateField
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from dal import autocomplete
 
+
 ####################################
 # Login Form
 ####################################
@@ -737,7 +738,7 @@ class StandalonePageForm(ModelForm):
     model = models.StandalonePage
     exclude = ('id', 'created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
     }
 
   def __init__(self, *args, **kwargs):

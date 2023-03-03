@@ -1,5 +1,5 @@
 #widgets.py
-from django.forms.widgets import FileInput
+from django.forms.widgets import FileInput, ClearableFileInput
 from django.utils.translation import ugettext_lazy
 from django.utils.html import format_html
 from django.utils.encoding import force_text
