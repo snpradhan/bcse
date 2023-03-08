@@ -522,13 +522,13 @@ body {
 
         div#team_members, div#teacher_leaders {
           display: flex;
-          justify-content: space-between;
+          justify-content: space-around;
           flex-wrap: wrap;
           cursor: pointer;
 
           div.team, div.teacher_leader {
-            width: 20em;
-            height: 20em;
+            width: 22em;
+            height: 22em;
             text-align: center;
 
             img.circle.staff {
@@ -1399,10 +1399,13 @@ body {
               font-family : din-2014, sans-serif !important;
               color: @nu-purple;
             }
+            h2 {
+              text-align: inherit !important;
+            }
           }
           @media (max-width: 991px) {
             div.intro {
-              text-align: center;
+              text-align: center !important;
             }
           }
         }

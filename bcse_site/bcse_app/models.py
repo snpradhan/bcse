@@ -307,7 +307,7 @@ class TeacherLeader(models.Model):
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
-      ordering = ['-id']
+      ordering = ['last_name', 'first_name']
 
   def __str__(self):
       return '%s %s' % (self.first_name, self.last_name)
