@@ -89,7 +89,7 @@
               </button>
             {% else %}
               {% if survey.resource_url %}
-                <button class="btn next" id="submit_bottom_with_download" data-name='{{survey.name|replace_space:"_"}}.pdf' data-href='{{survey.resource_url}}'>
+                <button class="btn next" type="button" id="submit_bottom_with_download" data-name='{{survey.name|replace_space:"_"}}.pdf' data-href='{{survey.resource_url}}'>
                   Submit
                 </button>
               {% else %}
@@ -115,24 +115,16 @@
       $('#submit_bottom_with_download').on('click', function(e){
         var url = $(this).data('href');
         var filename = $(this).data('name');
-        $('#formSurvey').ajaxSubmit({
-          dataType : 'json',
-          success: function(data){
-            var element = document.createElement('a');
-            element.setAttribute('href',url);
-            element.setAttribute('download', filename);
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-            return false;
-          },
-          complete: function (data) {
-            window.setTimeout(function(){
-              window.location = data.responseJSON['redirect_url'];
-              window.focus();
-            }, 5000);
-          },
-        });
+        var element = document.createElement('a');
+        element.setAttribute('href',url);
+        element.setAttribute('download', filename);
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        //wait for the download to initiate before submitting the form
+        window.setTimeout(function(){
+          $('#formSurvey').submit();
+        }, 7000);
 
       });
     });
