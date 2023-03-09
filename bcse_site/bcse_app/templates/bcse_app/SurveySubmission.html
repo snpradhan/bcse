@@ -118,10 +118,12 @@
         var element = document.createElement('a');
         element.setAttribute('href',url);
         element.setAttribute('download', filename);
+        element.setAttribute('target', '_blank');
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
         //wait for the download to initiate before submitting the form
+        window.focus();
         window.setTimeout(function(){
           $('#formSurvey').submit();
         }, 7000);
