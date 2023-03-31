@@ -1067,8 +1067,7 @@ def reservationsSearch(request):
       reservations = reservations.filter(query_filter)
 
       if equipment:
-        for e in equipment:
-          reservations = reservations.filter(equipment__equipment_type__id=e)
+        reservations = reservations.filter(equipment__equipment_type__id__in=equipment)
 
       reservations = reservations.distinct()
 
