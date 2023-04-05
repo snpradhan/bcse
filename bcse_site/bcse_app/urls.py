@@ -15,6 +15,7 @@ urlpatterns = [
     path('reservations/search/', views.reservationsSearch, name='reservationsSearch'),
     path('reservation/<int:reservation_id>/deliveryAddress/edit', views.reservationDeliveryAddressEdit, name='reservationDeliveryAddressEdit'),
     path('reservation/<int:reservation_id>/deliveryAddress/delete', views.reservationDeliveryAddressDelete, name='reservationDeliveryAddressDelete'),
+    path('reservation/<int:reservation_id>/color/edit', views.reservationAssignedColorEdit, name='reservationAssignedColorEdit'),
     path('availability/<int:id>', views.getAvailabilityData, name='getAvailabilityData'),
     path('availability/new', views.getAvailabilityData, name='getAvailabilityData'),
     path('workshop/<int:id>/edit', views.workshopEdit, name='workshopEdit'),
@@ -61,6 +62,12 @@ urlpatterns = [
     path('adminConfiguration/baxter_box/blackout_date/new', views.blackoutDateEdit, name='blackoutDateNew'),
     path('adminConfiguration/baxter_box/blackout_date/<int:id>/delete', views.blackoutDateDelete, name='blackoutDateDelete'),
     path('adminConfiguration/baxter_box/blackout_dates/', views.blackoutDates, name='blackoutDates'),
+
+    path('adminConfiguration/baxter_box/reservation_color/<int:id>/edit', views.reservationColorEdit, name='reservationColorEdit'),
+    path('adminConfiguration/baxter_box/reservation_color/new', views.reservationColorEdit, name='reservationColorNew'),
+    path('adminConfiguration/baxter_box/reservation_color/<int:id>/delete', views.reservationColorDelete, name='reservationColorDelete'),
+    path('adminConfiguration/baxter_box/reservation_colors/', views.reservationColors, name='reservationColors'),
+
     path('adminConfiguration/workshopCategory/<int:id>/edit', views.workshopCategoryEdit, name='workshopCategoryEdit'),
     path('adminConfiguration/workshopCategory/<int:id>/delete', views.workshopCategoryDelete, name='workshopCategoryDelete'),
     path('adminConfiguration/workshopCategory/<int:id>/details', views.getWorkshopCategoryDetails, name='getWorkshopCategoryDetails'),

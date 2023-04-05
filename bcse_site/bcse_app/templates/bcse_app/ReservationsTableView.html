@@ -109,7 +109,11 @@
       </tr>
       {% for reservation in reservations %}
         {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
-        <tr class="{% if new_messages %} has_new_message {% endif %}">
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.color %}
+          <tr style="background-color: {{reservation.color.color}};">
+        {% else %}
+           <tr class="{% if new_messages %} has_new_message {% endif %}">
+        {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
             <td> {{reservation.id}}</td>
           {% endif %}
@@ -238,6 +242,8 @@
                 {% if user.userProfile.user_role in 'AS' %}
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}" href="#">Update Delivery Address</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationAssignedColorEdit' reservation.id %}" href="#">Update Color</a></li>
                 {% endif %}
                 <li><hr class="dropdown-divider"></li>
                 <li>

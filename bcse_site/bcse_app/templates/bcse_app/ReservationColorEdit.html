@@ -1,0 +1,94 @@
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3 class="left"> Edit Reservation Color </h3>
+      {% else %}
+        <h3 class="left"> Create Reservation Color  </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="blackoutDateMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:reservationColorEdit' form.instance.id %} {% else %} {% url 'bcse:reservationColorNew' %}{% endif %}" id="formReservationColor">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label}}
+            {% if form.name.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}</label>
+          <div class="input-group">
+            {{form.name}}
+          </div>
+          <div class="error">{{ form.name.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.color.name}}" class="form-label"> {{form.color.label}}
+            {% if form.color.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div class="input-group">
+            {{form.color}}
+          </div>
+          <div class="error">{{ form.color.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.description.name}}" class="form-label"> {{form.description.label}}
+            {% if form.description.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div class="input-group">
+            {{form.description}}
+          </div>
+          <div class="error">{{ form.description.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+    $('#formReservationColor').submit(function(e){
+      e.preventDefault();
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#general').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          alert("Something went wrong.");
+        }
+      });
+    });
+
+  });
+</script>
+
+

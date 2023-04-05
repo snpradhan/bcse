@@ -77,6 +77,16 @@
             <div class="error">{{ searchForm.assignee.errors }}</div>
           </div>
         {% endif %}
+        {% if searchForm.color %}
+          <div class="form-group">
+            <label for="id_{{searchForm.color.name}}" class="form-label">
+              {{searchForm.color.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.status.help_text}}"></i>
+            </label>
+            <div>{{searchForm.color}}</div>
+            <div class="error">{{ searchForm.color.errors }}</div>
+          </div>
+        {% endif %}
       </div>
       <div class="filter_fields">
         <div class="form-group">

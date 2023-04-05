@@ -393,6 +393,7 @@ class Reservation(models.Model):
   notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   additional_help_needed = models.BooleanField(default=False)
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
+  color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
   status = models.CharField(default='R', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -445,6 +446,19 @@ class BaxterBoxBlackoutDate(models.Model):
 
   class Meta:
       ordering = ['start_date', 'end_date']
+
+class ReservationColor(models.Model):
+  name = models.CharField(null=False, max_length=256, help_text='Name of the Color')
+  color = models.CharField(null=False, max_length=8, unique=True, help_text='Hex code of the Color')
+  description = models.CharField(null=False, blank=False, max_length=512, help_text='Describe the types of reservations this color will be applied to')
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['name']
+
+  def __str__(self):
+    return '%s' % (self.name)
 
 class Team(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Team Member')

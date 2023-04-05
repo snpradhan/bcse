@@ -199,6 +199,87 @@ def blackoutDateDelete(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+##########################################################
+# LIST OF RESERVATION COLORS
+##########################################################
+@login_required
+def reservationColors(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view reservation colors')
+
+    colors = models.ReservationColor.objects.all()
+    context = {'colors': colors}
+    return render(request, 'bcse_app/ReservationColors.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# EDIT RESERVATION COLOR
+##########################################################
+@login_required
+def reservationColorEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit reservation color')
+    if '' != id:
+      color = models.ReservationColor.objects.get(id=id)
+    else:
+      color = models.ReservationColor()
+
+    if request.method == 'GET':
+      form = forms.ReservationColorForm(instance=color)
+      context = {'form': form}
+      return render(request, 'bcse_app/ReservationColorEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ReservationColorForm(data, instance=color)
+      response_data = {}
+      if form.is_valid():
+        savedReservationColor = form.save()
+        messages.success(request, "Reservation color saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Reservation color could not be saved. Check the errors below.")
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/ReservationColorEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# DELETE RESERVATION COLOR
+##########################################################
+@login_required
+def reservationColorDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete reservation Color')
+    if '' != id:
+      color = models.ReservationColor.objects.get(id=id)
+      color.delete()
+      messages.success(request, "Reservation color deleted")
+
+    return shortcuts.redirect('bcse:reservationColors')
+
+  except models.ReservationColor.DoesNotExist:
+    messages.success(request, "Reservation color not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ####################################
 # CLASSROOM SUPPORT
 ####################################
@@ -1000,6 +1081,7 @@ def reservationsSearch(request):
       return_before_filter = None
       status_filter = None
       assignee_filter = None
+      color_filter = None
 
       keywords = request.GET.get('reservation_search-keywords', '')
       user = request.GET.get('reservation_search-user', '')
@@ -1013,6 +1095,7 @@ def reservationsSearch(request):
       sort_by = request.GET.get('reservation_search-sort_by', '')
       columns = request.GET.getlist('reservation_search-columns', '')
       rows_per_page = request.GET.get('reservation_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      color = request.GET.getlist('reservation_search-color', '')
 
       if keywords:
         keyword_filter = Q(activity__name__icontains=keywords) | Q(other_activity_name__icontains=keywords)
@@ -1042,6 +1125,12 @@ def reservationsSearch(request):
         return_before = datetime.datetime.strptime(return_before, '%B %d, %Y')
         return_before_filter = Q(return_date__lte=return_before)
 
+      if color:
+        color_filter = Q(color__id__in=color)
+
+      if equipment:
+        equipment_filter = Q(equipment__equipment_type__id__in=equipment)
+
 
       if keyword_filter:
         query_filter = keyword_filter
@@ -1064,10 +1153,14 @@ def reservationsSearch(request):
       if return_before_filter:
         query_filter = query_filter & return_before_filter
 
-      reservations = reservations.filter(query_filter)
+      if color_filter:
+        query_filter = query_filter & color_filter
 
-      if equipment:
-        reservations = reservations.filter(equipment__equipment_type__id__in=equipment)
+      if equipment_filter:
+        query_filter = query_filter & equipment_filter
+
+
+      reservations = reservations.filter(query_filter)
 
       reservations = reservations.distinct()
 
@@ -1200,6 +1293,45 @@ def checkAvailability(request, current_reservation_id, equipment_types, start_da
 
 
   return equipment_availability_matrix
+
+####################################
+# UPDATE ASSIGNED RESERVATION COLOR
+####################################
+@login_required
+def reservationAssignedColorEdit(request, reservation_id):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to update reservation color')
+
+    reservation = models.Reservation.objects.get(id=reservation_id)
+    if request.method == 'GET':
+      form = forms.ReservationAssignedColorForm(instance=reservation)
+      context = {'form': form, 'reservation_id': reservation_id}
+      return render(request, 'bcse_app/ReservationAssignedColorModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ReservationAssignedColorForm(data, instance=reservation)
+      response_data = {}
+      if form.is_valid():
+        form.save()
+        response_data['success'] = True
+        messages.success(request, 'Reservation color updated for id %s' % reservation_id)
+      else:
+        print(form.errors)
+        response_data['success'] = False
+        context = {'form': form, 'reservation_id': reservation_id}
+        response_data['html'] = render_to_string('bcse_app/ReservationAssignedColorModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Reservation.DoesNotExist as e:
+    messages.error(request, 'Reservation does not exists')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # UPDATE RESERVATION DELIVERY ADDRESS

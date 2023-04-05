@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from bcse_app import models, widgets, utils
+from django.forms.widgets import TextInput
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.db.models.functions import Lower
@@ -416,6 +417,7 @@ class ReservationForm(ModelForm):
       self.fields.pop('assignee')
       self.fields.pop('more_num_of_classes')
       self.fields.pop('admin_notes')
+      self.fields.pop('color')
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
 
@@ -444,6 +446,23 @@ class ReservationForm(ModelForm):
       attrs.update({'class': attrs.get('class', '') + ' is-invalid'})
 
     return valid
+
+
+####################################
+# Reservation Assigned Color Form
+####################################
+class ReservationAssignedColorForm(ModelForm):
+
+  class Meta:
+    model = models.Reservation
+    fields = ['color']
+
+  def __init__(self, *args, **kwargs):
+    super(ReservationAssignedColorForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
 # ReservationDeliveryAddress Form
@@ -506,6 +525,25 @@ class BaxterBoxBlackoutDateForm(ModelForm):
       valid = False
 
     return valid
+
+class ReservationColorForm(ModelForm):
+  class Meta:
+    model = models.ReservationColor
+    fields = ['name', 'color', 'description']
+    widgets = {
+        'color': TextInput(attrs={'type': 'color'}),
+    }
+
+  def __init__(self, *args, **kwargs):
+
+    super(ReservationColorForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
 
 
 class WorkshopForm(ModelForm):
@@ -833,10 +871,10 @@ class ReservationsSearchForm(forms.Form):
   assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
   activity = forms.ModelChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'))
-  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
   return_before = forms.DateField(required=False, label=u'Return on/before')
-  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, initial=['O', 'R', 'U'], widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, initial=['O', 'R', 'U'], widget=forms.SelectMultiple(attrs={'size':6}))
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('new_messages', 'New Messages'),
@@ -845,8 +883,10 @@ class ReservationsSearchForm(forms.Form):
                                                        ('delivery_date', 'Delivery Date'),
                                                        ('return_date', 'Return Date'),
                                                        ('status', 'Status')), initial='delivery_date')
-  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DD', 'RD', 'AN', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DD', 'RD', 'AN', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+  color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().order_by('name'))
+
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -856,6 +896,7 @@ class ReservationsSearchForm(forms.Form):
       self.fields.pop('user')
       self.fields.pop('work_place')
       self.fields.pop('assignee')
+      self.fields.pop('color')
     else:
       self.fields['rows_per_page'].initial = 75
 
@@ -867,6 +908,9 @@ class ReservationsSearchForm(forms.Form):
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
+
+      if field_name in ['equipment', 'status', 'columns', 'color']:
+        field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
 
 
 ####################################
