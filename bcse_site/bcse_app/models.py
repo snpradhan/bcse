@@ -124,6 +124,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('ID', 'ID'),
   ('CR', 'Created Date'),
   ('UR', 'User'),
+  ('AC', 'Activity'),
   ('KT', 'Kit'),
   ('EQ', 'Equipment'),
   ('CC', 'Comment Count'),
