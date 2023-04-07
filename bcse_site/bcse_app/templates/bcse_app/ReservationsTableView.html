@@ -16,6 +16,9 @@
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
           <th> User </th>
         {% endif %}
+         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
+          <th> Email </td>
+        {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'AC' in columns %}
           <th> Activity </th>
         {% endif %}
@@ -70,6 +73,9 @@
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
           <td style="background-color: #767676; color: white;"> User </td>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
+          <td style="background-color: #767676; color: white;"> Email </td>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'AC' in columns %}
           <td style="background-color: #767676; color: white;"> Activity </td>
@@ -128,6 +134,9 @@
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
             <td> {{reservation.user}} </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
+            <td> {{reservation.user.user.email}} </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'AC' in columns %}
             <td>
