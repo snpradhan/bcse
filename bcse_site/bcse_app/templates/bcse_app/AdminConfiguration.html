@@ -68,8 +68,8 @@
                                              {% leftnavactive request 'equipment' %}
                                              {% leftnavactive request 'blackout_dates' %}
                                              {% leftnavactive request 'usage_report' %}
-                                             {% leftnavactive request 'reservation_colors' %}"
-
+                                             {% leftnavactive request 'reservation_colors' %}
+                                             {% leftnavactive request 'availabilityCalendar' %}"
                                              id="baxter_box_config">
                 <li class="{% if 'activities' in request.path or 'activity' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:activities' %}">Activities</a>
@@ -92,6 +92,9 @@
                 </li>
                 <li class="{% if 'usage_report' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:baxterBoxUsageReport' %}">Baxter Box Usage Report</a>
+                </li>
+                <li class="{% if 'availabilityCalendar' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:adminAvailabilityCalendar' %}">Availability Calendar</a>
                 </li>
               </ul>
             </li>

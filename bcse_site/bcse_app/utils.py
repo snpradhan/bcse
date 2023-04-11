@@ -63,3 +63,102 @@ class Calendar(HTMLCalendar):
       cal += f'{self.formatweek(week, availability_matrix, delivery_date, return_date)}\n'
     cal += f'</table>'
     return cal
+
+
+class AdminCalendar(HTMLCalendar):
+  def __init__(self, year=None, month=None):
+    self.year = year
+    self.month = month
+    super(AdminCalendar, self).__init__()
+
+  def formatday(self, day, availability_matrix):
+    #events_per_day = events.filter(start_time__day=day)
+    d = ''
+
+    is_in_range = False
+    availability_class = ''
+
+    if day != 0:
+      index_date = date(self.year, self.month, day)
+
+      if len(availability_matrix) == 1:
+        for equipment_type, availability in availability_matrix.items():
+
+          availability_class = ''
+          index = 0
+
+          for equip, equip_availability in availability[index_date].items():
+            index += 1
+            if equip_availability['available']:
+              d += f'<div class="availability_row all_available"> \
+                   <div>Kit {index} - <i class="fas fa-check"></i></div></div>'
+            else:
+              location = equip_availability['location']
+              if location is None:
+                location = "Location not set"
+              d += f'<div class="availability_row all_checked_out"> \
+                   <div>Kit {index} <i class="fas fa-at"></i> {location}</div></div>'
+
+        return f"<td> \
+                  <div class='date'>{day}</div> \
+                  <div> {d} </div> \
+                </td>"
+
+      else:
+        for equipment_type, availability in availability_matrix.items():
+
+          available = 0
+          checked_out = 0
+          availability_class = ''
+
+          for equip, equip_availability in availability[index_date].items():
+
+            if equip_availability['available']:
+              available += 1
+            else:
+              checked_out += 1
+
+          if available > 0:
+            if checked_out > 0:
+              availability_class = "availability_row mixed_availability"
+            else:
+              availability_class = "availability_row all_available"
+          else:
+            availability_class = "availability_row all_checked_out"
+
+          d += f'<div class="{availability_class}"> \
+                   <div>{equipment_type.short_name}</div>\
+                   <div class="availability">'
+
+          if available:
+            d += f'<div>{available} <i class="fas fa-check"></i></div>'
+
+          if checked_out:
+            d += f'<div>{checked_out} <i class="fas fa-shopping-cart"></i><i class="fas fa-arrow-right"></i></div>'
+
+          d += '</div></div>'
+
+
+        return f"<td> \
+                  <div class='date'>{day}</div> \
+                  <div> {d} </div> \
+                </td>"
+
+
+    return "<td></td>"
+
+  def formatweek(self, theweek, availability_matrix):
+    week = ''
+    for d, weekday in theweek:
+      week += self.formatday(d, availability_matrix)
+    return f'<tr> {week} </tr>'
+
+  def formatmonth(self, withyear=True, availability_matrix={}):
+    #events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
+    cal = f'<table class="calendar table table-bordered">\n'
+    cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
+    cal += f'{self.formatweekheader()}\n'
+    for week in self.monthdays2calendar(self.year, self.month):
+      cal += f'{self.formatweek(week, availability_matrix)}\n'
+    cal += f'</table>'
+    return cal

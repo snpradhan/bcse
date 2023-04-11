@@ -2,7 +2,7 @@ $(function (){
 
   $("#copyright_year").html(new Date().getFullYear());
 
-  $(".datepicker:not(.reservation_date)").datepicker({
+  $(".datepicker:not(.reservation_date):not(.availability)").datepicker({
     dateFormat: "MM dd, yy",
     changeMonth: true,
     changeYear: true
@@ -46,6 +46,9 @@ $(function (){
           $(result_container).html(data['html']);
           if(form_id == 'workshop_filter_form') {
             bindRegistrationSubmit();
+          }
+          else if (form_id == 'availability_filter_form') {
+            bindCalendarNavigation();
           }
           bindPagination();
           bindDeleteAction();
@@ -304,6 +307,38 @@ function bindPagination(){
     $('form.filter_form').submit();
   });
 }
+
+function bindCalendarNavigation() {
+  $('table.calendar th.month').prepend('<i class="fa fa-caret-left prev_month nav_month" title="Previous Month"></i>').append('<i class="fa fa-caret-right next_month nav_month" title-"Next Month"></i>');
+  $('table.calendar th.month .nav_month').on('click', function(){
+    var delta = 0;
+    if($(this).hasClass('prev_month')){
+      delta = -1;
+    }
+    else {
+      delta = 1;
+    }
+    var selected_date = $('.datepicker.availability').val().split(' ');
+    var new_date = new Date(selected_date[0] + '1, '+ selected_date[1]);
+    new_date.setMonth(new_date.getMonth() + delta);
+    $('.datepicker.availability').datepicker("setDate", new_date).trigger("change");
+  });
+  equalheight();
+  $(window).bind("resize", equalheight);
+}
+
+function equalheight() {
+  var maxHeight = 0;
+  $('.availability_row').height('auto');
+  $('.availability_row').each(function () {
+    if ($(this).height() > maxHeight) {
+      maxHeight = $(this).height();
+    }
+  });
+  $('.availability_row').height(maxHeight);
+}
+
+
 
 function auto_submit_search(form) {
   clearTimeout(timeout);

@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, F
 from django.db.models.functions import Lower
 import datetime, time
-from .utils import Calendar
+from .utils import Calendar, AdminCalendar
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
@@ -1323,6 +1323,86 @@ def checkAvailability(request, current_reservation_id, equipment_types, start_da
 
 
   return equipment_availability_matrix
+
+
+
+####################################
+# GET EQUIPMENT AVAILABILITY
+####################################
+def adminAvailabilityCalendar(request):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to view availability calendar')
+    elif request.user.is_authenticated and request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view availability calendar')
+
+    if request.method == 'GET':
+      equipment_types = models.EquipmentType.objects.all().filter(id__in=request.GET.getlist('equipment_types', ''))
+
+      if equipment_types:
+        selected_month = datetime.datetime.strptime(request.GET.get('selected_month'), '%B %Y').date()
+        start_date = selected_month.replace(day=1)
+        equipment_availability_matrix = checkAvailabilityForAdmin(request, equipment_types, start_date)
+
+        availability_calendar = []
+        cal = AdminCalendar(start_date.year, start_date.month)
+        cal.setfirstweekday(6)
+        availability_calendar.append(cal.formatmonth(withyear=True, availability_matrix=equipment_availability_matrix))
+
+        if request.is_ajax():
+          response_data = {}
+          response_data['success'] = True
+          context = {'availability_calendar': availability_calendar}
+          response_data['html'] = render_to_string('bcse_app/AdminAvailabilityCalendarView.html', context, request)
+          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        else:
+          availability_data = {'equipment_availability_matrix': equipment_availability_matrix,
+                             'availability_calendar': availability_calendar}
+        return availability_data
+      else:
+        searchForm = forms.EquipmentAvailabilityForm()
+        context = {'searchForm': searchForm}
+        return render(request, 'bcse_app/AdminAvailabilityCalendar.html', context)
+    return http.HttpResponseNotAllowed(['GET'])
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# CHECK EQUIPMENT AVAILABILITY
+####################################
+
+def checkAvailabilityForAdmin(request, equipment_types, selected_month):
+  equipment_availability_matrix = {}
+
+  oneday = datetime.timedelta(days=1)
+  start_date = selected_month.replace(day=1)
+  end_date = selected_month.replace(day=calendar.monthrange(selected_month.year, selected_month.month)[1])
+
+  #iterate each equipment type selected
+  for equipment_type in equipment_types:
+    equipment_availability_matrix[equipment_type] = {}
+
+    #get all active equipment of the equipment type
+    equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='A').order_by('name')
+
+    index_date = start_date
+    while index_date <= end_date:
+      equipment_availability_matrix[equipment_type][index_date] = {}
+      #check if each copy of the equipment type is available on the selected dates
+      for equip in equipment:
+        reservations = models.Reservation.objects.all().filter(equipment=equip, delivery_date__lte=index_date, return_date__gte=index_date).exclude(status='N')
+        reservation_count = reservations.count()
+        if reservation_count > 0:
+          equipment_availability_matrix[equipment_type][index_date][equip] = {'available': False, 'location': reservations.first().user.work_place}
+        else:
+          equipment_availability_matrix[equipment_type][index_date][equip] = {'available': True}
+
+      index_date += oneday
+
+
+  return equipment_availability_matrix
+
 
 ####################################
 # UPDATE ASSIGNED RESERVATION COLOR

@@ -1,0 +1,11 @@
+{% load bcse_extras %}
+
+{% if availability_calendar %}
+  <div class="availability_calendar">
+    <div class="admin_calendar">
+      {% for calendar in availability_calendar %}
+        {{calendar|safe}}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

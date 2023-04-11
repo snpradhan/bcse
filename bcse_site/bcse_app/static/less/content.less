@@ -816,62 +816,6 @@ body {
             }
           }
         }
-        /*****************************
-        * AVAILABILITY CALENDAR
-        ******************************/
-        div.availability_calendar {
-          div.legends {
-            display: flex;
-            justify-content: center;
-            gap: 2em;
-            margin-bottom: 1em;
-
-            div.legend {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              gap: 0.5em;
-
-              div.color {
-                width: 1.5em;
-                height: 1.5em;
-                border: 1px solid black;
-              }
-
-              &.selected div.color {
-                background-color: #FFD452;
-              }
-              &.available div.color {
-                background-color: #8BC53F;
-              }
-              &.unavailable div.color {
-                background-color: #d8411d;
-              }
-            }
-          }
-          div.calendar {
-            height: 30em;
-            overflow-y: scroll;
-
-            table.calendar {
-              td {
-                &.selected_date {
-                  background-color: #FFD452;
-                }
-                &.out_of_range {
-                  background-color: @bcse-mid-gray;
-                }
-
-                div.available {
-                  background-color:  #8BC53F;
-                }
-                div.unavailable {
-                  background-color:  #d8411d;
-                }
-              }
-            }
-          }
-        }
       }
       /*****************************
       * RESERVATION FORM END
@@ -983,6 +927,102 @@ body {
     * RESERVATION END
     ******************************/
 
+    /*****************************
+    * AVAILABILITY CALENDAR
+    ******************************/
+    div.availability_calendar {
+      div.legends {
+        display: flex;
+        justify-content: center;
+        gap: 2em;
+        margin-bottom: 1em;
+
+        div.legend {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 0.5em;
+
+          div.color {
+            width: 1.5em;
+            height: 1.5em;
+            border: 1px solid black;
+          }
+
+          &.selected div.color {
+            background-color: #FFD452;
+          }
+          &.available div.color {
+            background-color: #8BC53F;
+          }
+          &.unavailable div.color {
+            background-color: #d8411d;
+          }
+        }
+      }
+      div.calendar {
+        height: 30em;
+        overflow-y: scroll;
+      }
+
+      div.calendar, div.admin_calendar {
+        table.calendar {
+          td {
+            &.selected_date {
+              background-color: #FFD452;
+            }
+            &.out_of_range {
+              background-color: @bcse-mid-gray;
+            }
+
+            div.available {
+              background-color:  #8BC53F;
+            }
+            div.unavailable {
+              background-color:  #d8411d;
+            }
+            div.date {
+              font-weight: bold;
+            }
+            div.availability_row {
+              border: 1px solid gray;
+              padding: 0.25em;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              gap: 0.5em;
+
+              &.all_available {
+                background-color: #8BC53F;
+              }
+              &.all_checked_out {
+                background-color: #d8411d;
+              }
+              &.mixed_availability {
+                background-color: #FFD452;
+              }
+              .availability {
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5em;
+              }
+            }
+          }
+          .prev_month, .next_month {
+            font-size: 1.5em;
+            cursor: pointer;
+          }
+          .prev_month {
+            float: left;
+
+          }
+          .next_month {
+            float: right;
+          }
+        }
+      }
+    }
     /*****************************
     * USER PROFILE START
     ******************************/

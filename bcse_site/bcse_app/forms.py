@@ -8,6 +8,7 @@ from django.db.models.functions import Lower
 from localflavor.us.models import USStateField
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from dal import autocomplete
+import datetime
 
 
 ####################################
@@ -353,6 +354,25 @@ class EquipmentForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+####################################
+# Equipment Availability Search Form
+####################################
+class EquipmentAvailabilityForm (forms.Form):
+  equipment_types = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  selected_month = forms.DateField(required=True, initial=datetime.datetime.now(), label=u'Month/Year', widget=forms.widgets.DateInput(format="%B %Y"))
+
+  def __init__(self, *args, **kwargs):
+    super(EquipmentAvailabilityForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+      if field_name == 'selected_month':
+        field.widget.attrs['class'] = 'form-control datepicker availability'
+
 
 class ReservationForm(ModelForm):
   equipment_types = forms.ModelMultipleChoiceField(required=False,
