@@ -1035,6 +1035,11 @@ class WorkPlacesSearchForm(ModelForm):
 class BaxterBoxUsageSearchForm(forms.Form):
   from_date = forms.DateField(required=False, label=u'From')
   to_date = forms.DateField(required=False, label=u'To')
+  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Work Place", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the work place ...'}),)
+  activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -1045,6 +1050,9 @@ class BaxterBoxUsageSearchForm(forms.Form):
         field.widget.attrs['class'] = 'form-control datepicker'
       else:
         field.widget.attrs['class'] = 'form-control'
+
+      if field_name in ['activity', 'equipment', 'status']:
+        field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text

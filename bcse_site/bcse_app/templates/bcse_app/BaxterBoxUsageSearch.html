@@ -9,26 +9,58 @@
 
     <div id="filter_content">
       <div id="filter_fields">
-        <div class="form-group">
-          <label for="id_{{searchForm.from_date.name}}" class="form-label"> {{searchForm.from_date.label|title}}</label>
-          <div class="input-group">
-            {{searchForm.from_date}}
-            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.from_date.name}}" class="form-label"> {{searchForm.from_date.label|title}}</label>
+            <div class="input-group">
+              {{searchForm.from_date}}
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="error">{{ searchForm.from_date.errors }}</div>
           </div>
-          <div class="error">{{ searchForm.from_date.errors }}</div>
-        </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.to_date.name}}" class="form-label"> {{searchForm.to_date.label|title}}</label>
-          <div class="input-group">
-            {{searchForm.to_date}}
-            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          <div class="form-group">
+            <label for="id_{{searchForm.to_date.name}}" class="form-label"> {{searchForm.to_date.label|title}}</label>
+            <div class="input-group">
+              {{searchForm.to_date}}
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="error">{{ searchForm.to_date.errors }}</div>
           </div>
-          <div class="error">{{ searchForm.to_date.errors }}</div>
         </div>
-        <div class="form-group" id="filter_buttons">
-          <button class="btn" type="button" id="clear">Clear Filter</button>
-          <button class="btn" type="button" id="export">Export Table</button>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
+            <div>{{searchForm.work_place}}</div>
+            <div class="error">{{ searchForm.work_place.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.activity.name}}" class="form-label"> {{searchForm.activity.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.activity.help_text}}"></i>
+            </label>
+            <div>{{searchForm.activity}}</div>
+            <div class="error">{{ searchForm.activity.errors }}</div>
+          </div>
         </div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.equipment.name}}" class="form-label">  {{searchForm.equipment.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.equipment.help_text}}"></i>
+            </label>
+            <div>{{searchForm.equipment}}</div>
+            <div class="error">{{ searchForm.equipment.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.equipment.help_text}}"></i>
+            </label>
+            <div>{{searchForm.status}}</div>
+            <div class="error">{{ searchForm.status.errors }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group right" id="filter_buttons">
+        <button class="btn" type="button" id="clear">Clear Filter</button>
+        <button class="btn" type="button" id="export">Export Table</button>
       </div>
 
     </div>

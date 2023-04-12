@@ -3,13 +3,13 @@
   <thead>
     <tr class="noExl">
       <th colspan="2">From</th>
-      <th colspan="2">To</th>
+      <th colspan="4">To</th>
     </tr>
   </thead>
   <tbody>
     <tr style="display:none;">
       <td colspan="2" style="background-color: #767676; color: white;">From</td>
-      <td colspan="2" style="background-color: #767676; color: white;">To</td>
+      <td colspan="4" style="background-color: #767676; color: white;">To</td>
     </tr>
     <tr>
       <td colspan="2">
@@ -19,7 +19,7 @@
           Any
         {% endif %}
       </td>
-      <td colspan="2">
+      <td colspan="4">
         {% if to_date %}
           {{to_date|date:"F j, Y"}}
         {% else %}
@@ -27,7 +27,7 @@
         {% endif %}
       </td>
       <tr>
-        <td colspan="4"></td>
+        <td colspan="6"></td>
       </tr>
     </tr>
   </tbody>
@@ -37,6 +37,8 @@
       <th> # of Reservation </th>
       <th> # of Unique Teachers </th>
       <th> # of Unique Schools </th>
+      <th> # of Classes </th>
+      <th> # of Students </th>
     </tr>
   </thead>
   <tbody>
@@ -45,6 +47,8 @@
       <td style="background-color: #767676; color: white;"> # of Reservation </td>
       <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
       <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
+      <th style="background-color: #767676; color: white;"> # of Classes </th>
+      <th style="background-color: #767676; color: white;"> # of Students </th>
     </tr>
     {% for id, equipment in equipment_usage.items %}
       <tr>
@@ -52,6 +56,8 @@
         <td>{{equipment.reservations|length}}</td>
         <td>{{equipment.teachers|length}}</td>
         <td>{{equipment.schools|length}}</td>
+        <td>{{equipment.classes}}</td>
+        <td>{{equipment.students}}</td>
       </tr>
     {% endfor %}
     <tr>
@@ -64,6 +70,8 @@
       <th> Usage Count </th>
       <th> # of Unique Teachers </th>
       <th> # of Unique Schools </th>
+      <th> # of Classes </th>
+      <th> # of Students </th>
     </tr>
   </thead>
   <tbody>
@@ -72,6 +80,8 @@
       <td style="background-color: #767676; color: white;"> Usage Count </td>
       <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
       <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
+      <th style="background-color: #767676; color: white;"> # of Classes </th>
+      <th style="background-color: #767676; color: white;"> # of Students </th>
     </tr>
     {% for id, kit in kit_usage.items %}
       <tr>
@@ -79,6 +89,8 @@
         <td>{{kit.count}}</td>
         <td>{{kit.teachers|length}}</td>
         <td>{{kit.schools|length}}</td>
+        <td>{{kit.classes}}</td>
+        <td>{{kit.students}}</td>
       </tr>
     {% endfor %}
     <tr>
@@ -90,7 +102,9 @@
       <th> Total # of Reservations </th>
       <th> Total # of Kits Used </th>
       <th> Total # of Unique Teachers </th>
-      <th> Total #of Unique Schools </th>
+      <th> Total # of Unique Schools </th>
+      <th> Total # of Classes </th>
+      <th> Total # of Students </th>
     </tr>
   </thead>
   <tbody>
@@ -98,13 +112,17 @@
       <td style="background-color: #767676; color: white;"> Total # of Reservations</td>
       <td style="background-color: #767676; color: white;"> Total # of Kits Used</td>
       <td style="background-color: #767676; color: white;"> Total # of Unique Teachers </td>
-      <td style="background-color: #767676; color: white;"> Total #of Unique Schools </td>
+      <td style="background-color: #767676; color: white;"> Total # of Unique Schools </td>
+      <th style="background-color: #767676; color: white;"> Total # of Classes </th>
+      <th style="background-color: #767676; color: white;"> Total # of Students </th>
     </tr>
     <tr>
       <td>{{total_usage.reservations}}</td>
       <td>{{total_usage.kits}}</td>
       <td>{{total_usage.teachers|length}}</td>
       <td>{{total_usage.schools|length}}</td>
+      <td>{{total_usage.classes}}</td>
+      <td>{{total_usage.students}}</td>
     </tr>
   </tbody>
 </table>
