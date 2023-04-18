@@ -129,7 +129,7 @@
         {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
         {% if new_messages and tag == 'reservations' %}
           <tr class="needs_attention" title="New message">
-        {% elif user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.additional_help_needed and tag == 'reservations' %}
+        {% elif user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.additional_help_needed and not reservation.color and tag == 'reservations' %}
           <tr class="needs_attention" title="Help requested">
         {% elif user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.color and tag == 'reservations' %}
           <tr style="background-color: {{reservation.color.color}};" title="{{reservation.color.description}}">
