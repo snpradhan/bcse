@@ -53,6 +53,9 @@
           {% if 'AN' in columns %}
             <th> Admin Notes </th>
           {% endif %}
+          {% if 'HP' in columns %}
+            <th> Help Needed? </th>
+          {% endif %}
           {% if 'AT' in columns %}
             <th> Assigned To </th>
           {% endif %}
@@ -111,6 +114,9 @@
           {% if 'AN' in columns %}
             <td style="background-color: #767676; color: white;"> Admin Notes </td>
           {% endif %}
+          {% if 'HP' in columns %}
+            <td style="background-color: #767676; color: white;"> Help Needed? </td>
+          {% endif %}
           {% if 'AT' in columns %}
             <td style="background-color: #767676; color: white;"> Assigned To </td>
           {% endif %}
@@ -121,10 +127,14 @@
       </tr>
       {% for reservation in reservations %}
         {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.color %}
-          <tr style="background-color: {{reservation.color.color}};">
+        {% if new_messages and tag == 'reservations' %}
+          <tr class="needs_attention" title="New message">
+        {% elif user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.additional_help_needed and tag == 'reservations' %}
+          <tr class="needs_attention" title="Help requested">
+        {% elif user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.color and tag == 'reservations' %}
+          <tr style="background-color: {{reservation.color.color}};" title="{{reservation.color.description}}">
         {% else %}
-           <tr class="{% if new_messages %} has_new_message {% endif %}">
+           <tr>
         {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
             <td> {{reservation.id}}</td>
@@ -232,6 +242,9 @@
             {% endif %}
             {% if 'AN' in columns %}
               <td>{{reservation.admin_notes|default_if_none:""}}</td>
+            {% endif %}
+            {% if 'HP' in columns %}
+              <td>{{reservation.additional_help_needed|yesno:"Yes,No"}}</td>
             {% endif %}
             {% if 'AT' in columns %}
               <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>

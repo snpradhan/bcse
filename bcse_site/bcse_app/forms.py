@@ -883,7 +883,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('delivery_date', 'Delivery Date'),
                                                        ('return_date', 'Return Date'),
                                                        ('status', 'Status')), initial='delivery_date')
-  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DD', 'RD', 'AN', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
+  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DD', 'RD', 'AN', 'HP', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
   color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().order_by('name'))
 

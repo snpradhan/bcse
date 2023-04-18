@@ -132,6 +132,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('DD', 'Delivery Date'),
   ('RD', 'Return Date'),
   ('UN', 'Pickup/Return Notes'),
+  ('HP', 'Help Needed'),
   ('DA', 'Delivery Address'),
   ('DI', 'Delivery Distance'),
   ('DT', 'Delivery Time'),
