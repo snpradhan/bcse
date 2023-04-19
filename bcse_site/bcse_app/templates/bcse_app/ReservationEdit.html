@@ -337,7 +337,7 @@
         $('button#reservationSubmit').click(function(e){
           var dates_valid = validateDates();
           if (dates_valid) {
-            $('select#id_equipment_types_to option').attr('selected', true);
+            $('select#id_equipment_types_to option').prop('selected', true);
             $('form#reservationForm').submit();
           }
         });
@@ -352,7 +352,7 @@
           var dates_valid = validateDates();
           //get availability calendar only if dates are valid
           if (dates_valid) {
-            $('select#id_equipment_types_to option').attr('selected', true);
+            $('select#id_equipment_types_to option').prop('selected', true);
 
             data = $('form#reservationForm').serialize();
             var url ='';
@@ -371,7 +371,7 @@
                 $('div.availability_calendar_container').html('<div class="availability_calendar center"><h3>Checking Availability</h3><img src="/static/img/page-loader.gif" class="icon"/></div>');
               },
               complete: function(){
-                $('select#id_equipment_types_to option').attr('selected', false);
+                $('select#id_equipment_types_to option').prop('selected', false);
               },
               success: function(data){
                 console.log(data);
