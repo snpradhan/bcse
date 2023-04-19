@@ -208,7 +208,21 @@
       </div>
       <div>
         <a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a>
-        <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}" data-title="this reservation">Delete</button>
+        {% if user.is_authenticated %}
+          {% if user.userProfile.user_role in 'AS'%}
+            <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}" data-title="this reservation">Delete</button>
+          {% else %}
+            {% if reservation.status != 'D' %}
+              {% if reservation.status in 'IO' %}
+                <a class="btn btn-danger warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel</a>
+              {% elif reservation.delivery_date|is_past %}
+                <a class="btn btn-danger warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel</a>
+              {% else %}
+                <a class="btn btn-danger cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="this reservation">Cancel</a>
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        {% endif %}
       </div>
     </div>
   </div>

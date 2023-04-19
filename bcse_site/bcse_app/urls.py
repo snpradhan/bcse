@@ -9,6 +9,7 @@ urlpatterns = [
     path('reservation/<int:id>/edit', views.reservationEdit, name='reservationEdit'),
     path('reservation/<int:id>/view', views.reservationView, name='reservationView'),
     path('reservation/<int:id>/delete', views.reservationDelete, name='reservationDelete'),
+    path('reservation/<int:id>/cancel', views.reservationCancel, name='reservationCancel'),
     path('reservation/<int:id>/message', views.reservationMessage, name='reservationMessage'),
     path('reservation/new', views.reservationEdit, name='reservationNew'),
     path('reservations', views.reservations, name='reservations'),

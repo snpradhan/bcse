@@ -281,18 +281,37 @@
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}" href="#">Update Delivery Address</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationAssignedColorEdit' reservation.id %}" href="#">Update Color</a></li>
-                {% endif %}
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  {% if reservation.status in 'IO' %}
-                    <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be deleted">Delete</a>
-                  {% else %}
-                    <a class="dropdown-item delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}"
-                    data-title="the reservation with id <strong>{{reservation.id}}</strong>">
-                      Delete
-                    </a>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    {% if reservation.status in 'IO' %}
+                      <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be deleted">Delete</a>
+                    {% else %}
+                      <a class="dropdown-item delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}"
+                      data-title="the reservation id <strong>{{reservation.id}}</strong>">
+                        Delete
+                      </a>
+                    {% endif %}
+                  </li>
+                  {% if reservation.status != 'D' %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel</a>
+                    </li>
                   {% endif %}
-                </li>
+                {% else %}
+                  {% if reservation.status != 'D' %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      {% if reservation.status in 'IO' %}
+                        <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel</a>
+                      {% elif reservation.delivery_date|is_past %}
+                        <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel</a>
+                      {% else %}
+                        <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel</a>
+                      {% endif %}
+                    </li>
+                  {% endif %}
+                {% endif %}
               </ul>
             </div>
           </td>

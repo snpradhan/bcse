@@ -232,7 +232,11 @@
               {% endif %}
             </button>
             {% if form.instance.id %}
-              <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' form.instance.id %}" data-title="this reservation">Delete</button>
+              {% if user.userProfile.user_role in 'AS'%}
+                <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' form.instance.id %}" data-title="this reservation">Delete</button>
+              {% else %}
+                <button class="btn btn-danger cancel action" data-href="{% url 'bcse:reservationCancel' form.instance.id %}" data-title="this reservation">Cancel Reservation</button>
+              {% endif %}
             {% endif %}
           </form>
         </div>

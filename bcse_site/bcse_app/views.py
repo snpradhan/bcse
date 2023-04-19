@@ -1033,21 +1033,51 @@ def reservationMessage(request, id=''):
 def reservationDelete(request, id=''):
 
   try:
-    if request.user.is_anonymous:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete reservation')
 
     if '' != id:
       reservation = models.Reservation.objects.get(id=id)
 
-      #non admin/staff users cannot delete reservations that they do not own
-      if request.user.userProfile.user_role not in ['A', 'S'] and reservation.user.user != request.user:
-        raise CustomException('You do not have the permission to delete this reservation')
       #reservations that are checked out or checked in cannot be deleted
-      elif reservation.status in ['O', 'I']:
+      if reservation.status in ['O', 'I']:
         raise CustomException('This reservation is %s and cannot be deleted' % reservation.get_status_display())
 
       reservation.delete()
       messages.success(request, "Reservation deleted")
+
+    return shortcuts.redirect('bcse:reservations')
+
+  except models.Reservation.DoesNotExist:
+    messages.success(request, "Reservation not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# CANCEL RESERVATION
+####################################
+@login_required
+def reservationCancel(request, id=''):
+
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to cancel reservation')
+
+    if '' != id:
+      reservation = models.Reservation.objects.get(id=id)
+
+      #non admin/staff users cannot cancel reservations that they do not own
+      if request.user.userProfile.user_role not in ['A', 'S'] and reservation.user.user != request.user:
+        raise CustomException('You do not have the permission to cancel this reservation')
+      #reservations that are checked out or checked in cannot be cancelled
+      if request.user.userProfile.user_role not in ['A', 'S'] and reservation.status in ['O', 'I']:
+        raise CustomException('This reservation is %s and cannot be cancelled' % reservation.get_status_display())
+
+      reservation.status = 'D'
+      reservation.save()
+      messages.success(request, "Reservation cancelled")
 
     return shortcuts.redirect('bcse:reservations')
 

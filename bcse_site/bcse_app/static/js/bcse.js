@@ -49,6 +49,7 @@ $(function (){
           }
           bindPagination();
           bindDeleteAction();
+          bindCancelAction();
           bindModalOpen();
           bindWarningAction();
         }
@@ -127,6 +128,7 @@ $(function (){
   bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();
+  bindCancelAction();
   bindWarningAction();
 
 });
@@ -181,7 +183,7 @@ function bindDeleteAction() {
     var title = $(this).data('title');
 
     bootbox.confirm({ title: 'Confirm',
-                      message: "<p>Do you want to delete "+title+"</p>",
+                      message: "<p>Do you want to delete "+title+"?</p>",
                       buttons: {
                         confirm: {
                             label: 'Delete',
@@ -201,6 +203,36 @@ function bindDeleteAction() {
                     });
   });
 }
+
+function bindCancelAction() {
+  $('.cancel.action').unbind('click');
+  $('.cancel.action').on('click', function(e){
+    e.preventDefault();
+    var link = $(this).data('href');
+    var title = $(this).data('title');
+
+    bootbox.confirm({ title: 'Confirm',
+                      message: "<p>Do you want to cancel "+title+"?</p>",
+                      buttons: {
+                        confirm: {
+                            label: 'Confirm',
+                            className: 'btn btn-small btn-danger'
+                        },
+                        cancel: {
+                            label: 'Cancel',
+                            className: 'btn btn-small'
+                        }
+                      },
+                      closeButton: false,
+                      callback: function(result){
+                        if (result == true) {
+                          window.location = link;
+                        }
+                      },
+                    });
+  });
+}
+
 
 function displayErrorDialog() {
   bootbox.alert({title: "Error",
