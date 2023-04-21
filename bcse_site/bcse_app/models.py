@@ -139,6 +139,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('AN', 'Admin Notes'),
   ('AT', 'Assigned To'),
   ('ST', 'Status'),
+  ('ES', 'Confirmation Email Sent'),
 )
 
 TABLE_ROWS_PER_PAGE_CHOICES = (
@@ -398,6 +399,7 @@ class Reservation(models.Model):
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
   status = models.CharField(default='R', max_length=1, choices=RESERVATION_STATUS_CHOICES)
+  email_sent = models.BooleanField(default=False)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

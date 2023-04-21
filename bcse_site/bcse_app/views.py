@@ -896,7 +896,7 @@ def reservationEdit(request, id=''):
             else:
               messages.success(request, "Reservation made")
               if current_date <= savedReservation.delivery_date:
-                send_reservation_confirmation_email(request, savedReservation)
+                reservationEmailSend(request, savedReservation.id)
 
             return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
           else:
@@ -912,7 +912,7 @@ def reservationEdit(request, id=''):
           else:
             messages.success(request, "Reservation made")
             if current_date <= savedReservation.delivery_date:
-              send_reservation_confirmation_email(request, savedReservation)
+              reservationEmailSend(request, savedReservation.id)
 
           return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
       else:
@@ -4503,19 +4503,53 @@ def subscription(userProfile, status, subscriber_hash=None):
 # SEND A CONFIRMATION EMAIL TO ADMINS AND THE USER
 # WHEN A NEW RESERVATIONIS MADE
 #####################################################
-def send_reservation_confirmation_email(request, reservation):
-  current_site = Site.objects.get_current()
-  domain = current_site.domain
-  subject = 'Baxter Box Reservation Confirmed'
-  if domain != 'bcse.northwestern.edu':
-    subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+def reservationEmailSend(request, id):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to send reservation email')
 
-  context = {'reservation': reservation, 'domain': domain}
-  body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
-  receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=reservation.user.id)).values_list('user__email', flat=True)
-  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
-  email.content_subtype = "html"
-  email.send(fail_silently=True)
+    reservation = models.Reservation.objects.get(id=id)
+    if request.user.userProfile.user_role in ['T', 'P'] and reservation.user != request.user.userProfile:
+      raise CustomException('You do not have the permission to send reservation email')
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+    subject = 'Baxter Box Reservation Confirmed'
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+    context = {'reservation': reservation, 'domain': domain}
+    body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
+    receipients = models.UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+    email.content_subtype = "html"
+    success = email.send(fail_silently=True)
+    if success:
+      reservation.email_sent = True
+      reservation.save()
+
+    if request.is_ajax():
+      response_data = {}
+      if success:
+        response_data['success'] = True
+        response_data['message'] = 'Reservation confirmation email sent'
+      else:
+        response_data['success'] = False
+        response_data['message'] = 'Reservation confirmation email could not be sent'
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
 
 #####################################################

@@ -111,6 +111,27 @@
                     <th>Admin Notes:</th>
                     <td>{{reservation.admin_notes|default_if_none:""}}</td>
                   </tr>
+                   <tr>
+                    <th>Confirmation Email Sent:</th>
+                    <td>
+
+                    <div class="reservation_email">
+                      <div>
+                        {{reservation.email_sent|yesno:"Yes,No"}}
+                      </div>
+                      <div>
+                        <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationEmailSend' reservation.id %}" href="#">
+                          {% if reservation.email_sent %}
+                            Resend
+                          {% else %}
+                            Send
+                          {% endif %}
+                          Email
+                        </a>
+                      </div>
+                    </div>
+                    </td>
+                  </tr>
                   <tr>
                     <th>Assigned To:</th>
                     <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>

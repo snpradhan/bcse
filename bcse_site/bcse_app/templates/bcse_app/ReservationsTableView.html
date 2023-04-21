@@ -59,6 +59,9 @@
           {% if 'AT' in columns %}
             <th> Assigned To </th>
           {% endif %}
+          {% if 'ES' in columns %}
+            <th> Confirmation Email Sent? </th>
+          {% endif %}
         {% endif %}
         {% if 'ST' in columns or tag == 'profile' %}
           <th> Status </th>
@@ -119,6 +122,9 @@
           {% endif %}
           {% if 'AT' in columns %}
             <td style="background-color: #767676; color: white;"> Assigned To </td>
+          {% endif %}
+          {% if 'ES' in columns %}
+            <td style="background-color: #767676; color: white;"> Confirmation Email Sent? </td>
           {% endif %}
         {% endif %}
         {% if 'ST' in columns or tag == 'profile' %}
@@ -249,6 +255,9 @@
             {% if 'AT' in columns %}
               <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
             {% endif %}
+            {% if 'ES' in columns %}
+              <td>{{reservation.email_sent|yesno:"Yes,No"}}</td>
+            {% endif %}
           {% endif %}
           {% if 'ST' in columns or tag == 'profile' %}
             <td> {{reservation.get_status_display}} </td>
@@ -282,6 +291,19 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationAssignedColorEdit' reservation.id %}" href="#">Update Color</a></li>
                   <li><hr class="dropdown-divider"></li>
+                  {% if reservation.status != 'D' %}
+                    <li>
+                      <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationEmailSend' reservation.id %}" href="#">
+                        {% if reservation.email_sent %}
+                          Resend
+                        {% else %}
+                          Send
+                        {% endif %}
+                        Confirmation Email
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                  {% endif %}
                   <li>
                     {% if reservation.status in 'IO' %}
                       <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be deleted">Delete</a>

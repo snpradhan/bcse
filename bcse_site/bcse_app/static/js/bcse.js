@@ -52,6 +52,7 @@ $(function (){
           bindCancelAction();
           bindModalOpen();
           bindWarningAction();
+          bindUseAjax();
         }
         else{
           displayErrorDialog();
@@ -130,6 +131,7 @@ $(function (){
   bindDeleteAction();
   bindCancelAction();
   bindWarningAction();
+  bindUseAjax();
 
 });
 
@@ -233,6 +235,34 @@ function bindCancelAction() {
   });
 }
 
+function bindUseAjax() {
+  $('.useAjax').unbind('click');
+  $('.useAjax').on('click', function(e){
+    e.preventDefault()
+    var url = $(this).data('href');
+    $.ajax({
+      type: 'GET',
+      url: url,
+      success: function(data){
+        if (data['success'] = true) {
+          if (data['message']) {
+            displayInfoDialog('Reservation Email', data['message'], true);
+          }
+          else {
+            location.reload();
+          }
+        }
+        else {
+          displayErrorDialog();
+        }
+        return false;
+      },
+      error: function(xhr, ajaxOptions, thrownError){
+        displayErrorDialog();
+      },
+    });
+  });
+}
 
 function displayErrorDialog() {
   bootbox.alert({title: "Error",
