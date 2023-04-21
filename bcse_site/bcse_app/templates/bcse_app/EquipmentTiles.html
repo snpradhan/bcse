@@ -8,6 +8,8 @@
         <div class="image">
           {% if equipment.image and equipment.image.url %}
             <img class="preview" src="{{equipment.image.url}}">
+          {% else %}
+            <img class="preview" src="{% staticfile 'img/supplies.png' %}">
           {% endif %}
         </div>
         <div class="title">

@@ -1,4 +1,5 @@
 {% extends "bcse_app/EmailBase.html" %}
+{% load base_extras %}
 {% load bcse_extras %}
 
 {% block emailbody %}
@@ -32,34 +33,40 @@
                   <div><a href="https://{{domain}}/reservation/{{reservation.id}}/edit" style="color:white;">Edit</a></div>
                </td>
                <td class="col" align="right">
-                  <table cellspacing="0" class="address">
-                     <tbody>
-                        <tr>
-                           <td class="col left" align="center">Your Baxter Box will be coming from</td>
-                           <td class="col right" align="center">Your Baxter Box will be delivered to</td>
-                        </tr>
-                        <tr class="fromto">
-                           <td class="col left" align="left">
-                            OCEP office at Colfax
-                           </td>
-                           <td class="col right" align="right">
-                            {% with user=reservation.user.user work_place=reservation.user.work_place %}
-                              <div>{{user.get_full_name}}</div>
+                  <div style="font-style: italic;">Your Baxter Box will be delivered to:</div>
+                  <div>
+                     {% with user=reservation.user.user work_place=reservation.user.work_place %}
+                        <div>{{user.get_full_name}}</div>
+                        {% if work_place %}
+                           {% if work_place.name %}
                               <div>{{work_place.name}}</div>
-                              {% if work_place.district_num %}
-                                <div>District# {{work_place.district_num}}</div>
-                              {% endif %}
+                           {% endif %}
+                           {% if work_place.district_num %}
+                             <div>District# {{work_place.district_num}}</div>
+                           {% endif %}
+                           {% if work_place.street_address_1 %}
                               <div>{{work_place.street_address_1}}</div>
-                              {% if work_place.street_address_2 %}
-                                <div>{{work_place.street_address_2}}</div>
+                           {% endif %}
+                           {% if work_place.street_address_2 %}
+                             <div>{{work_place.street_address_2}}</div>
+                           {% endif %}
+                           <div>
+                              {% if work_place.city %}
+                                 {{work_place.city}},
                               {% endif %}
-                              <div>{{work_place.city}}, {{work_place.state}} {{work_place.zip_code}}</div>
-                              <div style="font-style: italic;">Note: If your information has changed, please update your profile.</div>
-                            {% endwith %}
-                           </td>
-                        </tr>
-                     </tbody>
-                  </table>
+                              {% if work_place.state %}
+                                 {{work_place.state}}
+                              {% endif %}
+                              {% if work_place.zip_code %}
+                                 {{work_place.zip_code}}
+                              {% endif %}
+                           </div>
+                           <div style="font-style: italic;">Note: If your information has changed, please update your profile.</div>
+                        {% else %}
+                           <div style="font-style: italic; color: red;">Note: Your work place information is missing. Please update your profile.</div>
+                        {% endif %}
+                     {% endwith %}
+                  </div>
                </td>
             </tr>
          </tbody>
@@ -86,7 +93,13 @@
                    <td class="col" align="center">
                       <div class="tile">
                          <div class="title">{{reservation.activity.kit_name}}</div>
-                         <div class="image"><img class="preview" src="{{reservation.activity.image.url}}"></div>
+                         <div class="image">
+                           {% if reservation.activity.image %}
+                              <img class="preview" src="{{reservation.activity.image.url}}">
+                           {% else %}
+                              <img class="preview" src="https://{{domain}}{% staticfile 'img/baxter_activity.png' %}">
+                           {% endif %}
+                        </div>
                       </div>
                    </td>
                 </tr>
@@ -102,7 +115,12 @@
                      </td>
                      <td class="col" align="center">
                         <div class="tile">
-                           <div class="image"><img class="preview" src="{{equipment.equipment_type.image.url}}"></div>
+                           <div class="image">
+                              {% if equipment.equipment_type.image and equipment.equipment_type.image.url %}
+                                 <img class="preview" src="{{equipment.equipment_type.image.url}}"></div>
+                              {% else %}
+                                 <img class="preview" src="https://{{domain}}{% staticfile 'img/supplies.png' %}">
+                              {% endif %}
                            <div class="title">{{equipment.equipment_type.name}}</div>
                         </div>
                      </td>

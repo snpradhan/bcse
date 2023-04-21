@@ -8,6 +8,8 @@
         <div class="image">
           {% if activity.image and activity.image.url %}
             <img class="preview" src="{{activity.image.url}}">
+          {% else %}
+            <img class="preview" src="{% staticfile 'img/baxter_activity.png' %}">
           {% endif %}
         </div>
         <div class="title">
