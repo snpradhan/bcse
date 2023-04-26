@@ -1858,8 +1858,8 @@ def workshopView(request, id=''):
           raise CustomException('You do not have the permission to view this workshop')
 
       registration = workshopRegistration(request, workshop.id)
-
-      context = {'workshop': workshop, 'registration': registration}
+      path = Site.objects.get_current().domain + request.get_full_path()
+      context = {'workshop': workshop, 'registration': registration, 'path': path}
 
       return render(request, 'bcse_app/WorkshopView.html', context)
     else:

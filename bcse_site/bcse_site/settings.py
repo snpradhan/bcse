@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'password_reset',
     'django_crontab',
     'dbbackup', #django-dbbackup
+    'qr_code',
 ]
 
 MIDDLEWARE = [

@@ -1,6 +1,7 @@
 {% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
 {% load base_extras %}
+{% load qr_code %}
 
 {% block content %}
   {{block.super}}
@@ -20,6 +21,9 @@
         <div class="details">
           <h2>{{workshop.name}}</h2>
           <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
+          <div class="qr_code">
+            {% qr_from_text path size="T" %}
+          </div>
         </div>
         <div class="date_location">
           <div class="start">
