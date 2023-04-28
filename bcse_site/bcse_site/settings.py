@@ -236,5 +236,7 @@ BAXTER_BOX_RESERVATION_REMINDER_DAYS = 30
 CRONJOBS = [
     # run cron at 1 am to backup database
     ('0 1 * * *', 'bcse_app.cron.backup_db', '>> /srv/project/logs/cron.log'),
+    # run cron at 2 am to backup database
+    ('0 2 * * *', 'bcse_app.cron.export_reservations', '>> /srv/project/logs/cron.log'),
 ]
 

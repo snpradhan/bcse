@@ -36,6 +36,9 @@ from urllib.request import urlretrieve, urlcleanup
 from django.core.files import File
 from dal import autocomplete
 from django.db.models import Count
+import xlwt
+from PIL import ImageColor
+import copy
 
 # Create your views here.
 
