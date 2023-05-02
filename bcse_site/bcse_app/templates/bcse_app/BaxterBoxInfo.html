@@ -1,4 +1,5 @@
 {% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
 
 {% block content %}
   {{block.super}}
@@ -18,13 +19,28 @@
         {% endif %}
 
         {% if blackout_dates %}
+
           <br><br>
           <div class="warning">
-            <p>Baxter Box delivery and pickup will not be available on the following dates: <br>
+            <!--p>Delivery and Pickup are not available on the following dates:</p>
+            <ul>
               {% for blackout_date in blackout_dates %}
-                {{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} <br>
+                <li>{{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} </li>
               {% endfor %}
-            </p>
+            </ul-->
+            {% for blackout_date in blackout_dates %}
+              {% if blackout_date.start_date|is_future %}
+                {% with available_until=blackout_date.start_date|add_days_to_date:-1%}
+                <p>Delivery and pickup are available until {{available_until|date:"F j, Y"}} for this school year. <br> Reservations for the 23-24 school year will become available later in summer.</p>
+                {% endwith %}
+              {% else %}
+                {% with available_from=blackout_date.end_date|add_days_to_date:-14%}
+                {% if available_from|is_future %}
+                  <p>Reservations for the 23-24 school year will become available later in the summer.</p>
+                {% endif %}
+                {% endwith %}
+              {% endif %}
+            {% endfor %}
           </div>
         {% endif %}
       </div>

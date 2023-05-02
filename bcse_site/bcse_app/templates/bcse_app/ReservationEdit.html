@@ -150,13 +150,27 @@
                   <li>Reservations dates need to be between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.</li>
                   <li>Reservations need to be for a minimum of {{reservation_settings.reservation_min_days}} days and can be for a maximum of  {{reservation_settings.reservation_max_days}} days at a time.</li>
                   {% if reservation_settings.reservation_blackout_dates %}
-                    <li>Delivery and Pickup are not available on the following dates:
+                    <!--li>Delivery and Pickup are not available on the following dates:
                       <ul>
                         {% for blackout_date in reservation_settings.reservation_blackout_dates %}
                           <li>{{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} </li>
                         {% endfor %}
                       </ul>
-                    </li>
+                    </li-->
+                    {% for blackout_date in reservation_settings.reservation_blackout_dates %}
+                      {% if blackout_date.start_date|is_future %}
+                        {% with available_until=blackout_date.start_date|add_days_to_date:-1%}
+                        <li>Delivery and pickup are available until {{available_until|date:"F j, Y"}} for this school year. </li>
+                        <li> Reservations for the 23-24 school year will become available later in the summer.</li>
+                        {% endwith %}
+                      {% else %}
+                        {% with available_from=blackout_date.end_date|add_days_to_date:-14%}
+                        {% if available_from|is_future %}
+                          <li>Reservations for the 23-24 school year will become available later in summer.</li>
+                        {% endif %}
+                        {% endwith %}
+                      {% endif %}
+                    {% endfor %}
                   {% endif %}
                </ul>
             </div>

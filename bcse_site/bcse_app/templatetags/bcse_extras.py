@@ -128,6 +128,15 @@ def is_past(dt):
     return False
 
 @register.filter
+def add_days_to_date(dt, days):
+  abs_days = abs(days)
+  delta = datetime.timedelta(days=abs(days))
+  if days < 0:
+    return dt - delta
+  else:
+    return dt + delta
+
+@register.filter
 def inline_style(html_string):
   return html_string.replace('<li', '<li style="margin:0;padding:0"')
 
