@@ -10,7 +10,7 @@ from django.utils.crypto import get_random_string
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import signals, Q, F
 from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save, m2m_changed, pre_delete
+from django.db.models.signals import pre_save, post_save, m2m_changed, pre_delete, post_delete
 from django.db.models.functions import Upper
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -616,8 +616,59 @@ def check_registration_status_change(sender, instance, **kwargs):
 
       email.content_subtype = "html"
       email.send(fail_silently=True)
+
+      check_registration_promotion(workshop)
+
   except RegistrationEmailMessage.DoesNotExist as e:
     pass
+
+# signal to check if registration has been deleted
+# and promote other registrations in the waitlist if applicable
+@receiver(post_delete, sender=Registration)
+def check_registration_delete(sender, instance, **kwargs):
+  try:
+    workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
+    check_registration_promotion(workshop)
+
+  except Workshop.DoesNotExist as e:
+    pass
+
+# signal to check if workshop capacity has changed
+# and promote other registrations in the waitlist if applicable
+@receiver(pre_save, sender=WorkshopRegistrationSetting)
+def check_workshop_capacity_change(sender, instance, **kwargs):
+  try:
+    obj = sender.objects.get(pk=instance.pk)
+    if obj.capacity != instance.capacity:
+      check_registration_promotion(instance.workshop)
+  except sender.DoesNotExist:
+    pass
+
+
+# when a workshop registration is cancelled, deleted or workshop capacity increased,
+# promote registrations in the waitlist if applicable
+def check_registration_promotion(workshop):
+  current_datetime = datetime.datetime.now()
+  current_date = current_datetime.date()
+  if current_date < workshop.end_date:
+    registration_type = workshop.registration_setting.registration_type
+    capacity = workshop.registration_setting.capacity
+    if registration_type == 'R':
+      registered_count = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R').count()
+      waitlist = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').order_by('created_date')
+      if waitlist.count() > 0:
+        if capacity is not None and capacity > 0:
+          available_space = capacity - registered_count
+          if available_space > 0:
+            if available_space < waitlist.count():
+              waitlist = waitlist[:available_space]
+          else:
+            waitlist = None
+
+        if waitlist:
+          for registration in waitlist:
+            registration.status = 'R'
+            registration.save()
 
 # signal to check if workplace address has changed
 # then update latitude and longitude

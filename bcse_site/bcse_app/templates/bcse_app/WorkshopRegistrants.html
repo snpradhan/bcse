@@ -69,7 +69,7 @@
               <td> {{registrant.user.user.email}} </td>
               <td> {{registrant.user.user.get_full_name}}</td>
               <td> {{registrant.user.work_place|default_if_none:""}}</td>
-              <td> {{registrant.created_date|date}}</td>
+              <td> {{registrant.created_date|date:"F j, Y g:i a" }}</td>
               <td> {{registrant.get_status_display}} </td>
               <td class="noExl">
                 <div class="btn-group">
