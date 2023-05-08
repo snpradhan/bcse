@@ -203,10 +203,14 @@
               {% endif %}
             </td>
           {% endif %}
-          {% if 'DD' in columns or tag == 'profile' %}
+          {% if 'DD' in columns %}
+            <td>{{reservation.delivery_date|date:"l, F j, Y"}}</td>
+          {% elif  tag == 'profile' %}
             <td>{{reservation.delivery_date|date:"F j, Y"}}</td>
           {% endif %}
-          {% if 'RD' in columns or tag == 'profile' %}
+          {% if 'RD' in columns %}
+            <td>{{reservation.return_date|date:"l, F j, Y"}}</td>
+          {% elif tag == 'profile' %}
             <td>{{reservation.return_date|date:"F j, Y"}}</td>
           {% endif %}
           {% if 'DA' in columns %}
