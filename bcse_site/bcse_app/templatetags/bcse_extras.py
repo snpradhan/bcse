@@ -176,3 +176,20 @@ def get_user_registration(context, workshop_id, user_id):
   request = context.get('request')
   return views.userRegistration(request, workshop_id, user_id)
 
+@register.simple_tag(takes_context=True)
+def get_registration_breakdown(context, workshop_registration_setting):
+  registrants = models.Registration.objects.filter(workshop_registration_setting=workshop_registration_setting)
+  breakdown = {}
+  for registrant in registrants:
+    status = registrant.get_status_display()
+    if status in breakdown:
+      breakdown[status] += 1
+    else:
+      breakdown[status] = 1
+
+  keys = list(breakdown.keys())
+  keys.sort()
+  sorted_breakdown = {i: breakdown[i] for i in keys}
+  return sorted_breakdown
+
+

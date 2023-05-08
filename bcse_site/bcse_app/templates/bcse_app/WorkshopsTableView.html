@@ -66,7 +66,14 @@
               <td> {{workshop.registration_setting.capacity|default_if_none:""}} </td>
               <td> {{workshop.registration_setting.enable_waitlist|yesno|title}} </td>
               <td> {{workshop.registration_setting.waitlist_capacity|default_if_none:""}} </td>
-              <td> {{workshop.registration_setting.registrants.all|length}} </td>
+              <td>
+                {% if workshop.registration_setting %}
+                  {% get_registration_breakdown workshop.registration_setting as registration_summary %}
+                  {% for status, total in registration_summary.items %}
+                    <div>{{status|slice:"3"}}. : {{total}}</div>
+                  {% endfor %}
+                {% endif %}
+              </td>
               <td> {{workshop.created_date|date:"F j, Y g:i A"}} </td>
               <td> {{workshop.modified_date|date:"F j, Y g:i A"}} </td>
               <td> {{workshop.get_status_display}} </td>

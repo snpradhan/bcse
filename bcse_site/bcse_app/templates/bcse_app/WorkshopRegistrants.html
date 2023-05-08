@@ -8,6 +8,24 @@
     <div class="workshop_container container">
       <h1 class="center"> {{workshop.name}}</h1>
       {% include "bcse_app/WorkshopTabs.html" with tab='registrants' %}
+      <table class="table table-bordered table-striped" id="registrants_summary">
+        {% get_registration_breakdown workshop.registration_setting as registration_summary %}
+        <thead>
+          <tr>
+            <th colspan={{registration_summary|length}} class="center"> Registration Summary </th>
+          </tr>
+          <tr>
+            {% for status, total in registration_summary.items %}
+            <th>{{status}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for status, total in registration_summary.items %}
+          <td>{{total}}</td>
+          {% endfor %}
+        </tbody>
+      </table>
       <table class="table table-bordered table-striped" id="workshop_registrants">
         <tbody style="display:none;">
           <tr>
