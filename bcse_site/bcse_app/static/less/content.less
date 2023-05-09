@@ -971,21 +971,31 @@ body {
             &.selected_date {
               background-color: #FFD452;
             }
-            &.out_of_range {
+            /*&.out_of_range {
               background-color: @bcse-mid-gray;
-            }
+            }*/
 
             div.available {
               background-color:  #8BC53F;
+
             }
             div.unavailable {
               background-color:  #d8411d;
             }
+            div.available, div.unavailable {
+              border: 1px solid @bcse-gray;
+              padding: 0.25em;
+            }
             div.date {
               font-weight: bold;
+              display: flex;
+              justify-content: space-between;
+              background-color: @bcse-gray;
+              color: white;
+              padding: 0 0.5em;
             }
             div.availability_row {
-              border: 1px solid gray;
+              border: 1px solid @bcse-gray;
               padding: 0.25em;
               display: flex;
               flex-direction: column;

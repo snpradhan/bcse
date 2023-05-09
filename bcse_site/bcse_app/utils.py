@@ -23,6 +23,7 @@ class Calendar(HTMLCalendar):
 
     if day != 0:
       index_date = date(self.year, self.month, day)
+      dayofweek = index_date.strftime('%a')
       if index_date >= delivery_date and index_date <= return_date:
         is_in_range = True
 
@@ -37,12 +38,18 @@ class Calendar(HTMLCalendar):
 
 
         return f"<td class='selected_date'> \
-                  <div class='date'>{day}</div> \
+                  <div class='date'>\
+                    <div>{dayofweek}</div> \
+                    <div> {day} </div> \
+                  </div> \
                   <div> {d} </div> \
                 </td>"
       else:
         return f"<td class='out_of_range'> \
-                  <div class='date'>{day}</div> \
+                  <div class='date'> \
+                    <div>{dayofweek}</div> \
+                    <div> {day} </div> \
+                  </div> \
                   <div> </div> \
                 </td>"
 
@@ -58,7 +65,7 @@ class Calendar(HTMLCalendar):
     #events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
     cal = f'<table class="calendar table table-bordered">\n'
     cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
-    cal += f'{self.formatweekheader()}\n'
+    #cal += f'{self.formatweekheader()}\n'
     for week in self.monthdays2calendar(self.year, self.month):
       cal += f'{self.formatweek(week, availability_matrix, delivery_date, return_date)}\n'
     cal += f'</table>'
@@ -80,6 +87,7 @@ class AdminCalendar(HTMLCalendar):
 
     if day != 0:
       index_date = date(self.year, self.month, day)
+      dayofweek = index_date.strftime('%a')
 
       if len(availability_matrix) == 1:
         for equipment_type, availability in availability_matrix.items():
@@ -100,7 +108,10 @@ class AdminCalendar(HTMLCalendar):
                    <div>Kit {index} <i class="fas fa-at"></i> {location}</div></div>'
 
         return f"<td> \
-                  <div class='date'>{day}</div> \
+                  <div class='date'>\
+                    <div>{dayofweek}</div> \
+                    <div> {day} </div> \
+                  </div> \
                   <div> {d} </div> \
                 </td>"
 
@@ -140,7 +151,10 @@ class AdminCalendar(HTMLCalendar):
 
 
         return f"<td> \
-                  <div class='date'>{day}</div> \
+                  <div class='date'> \
+                    <div>{dayofweek} </div> \
+                    <div>{day}</div> \
+                  </div>\
                   <div> {d} </div> \
                 </td>"
 
@@ -157,7 +171,7 @@ class AdminCalendar(HTMLCalendar):
     #events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
     cal = f'<table class="calendar table table-bordered">\n'
     cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
-    cal += f'{self.formatweekheader()}\n'
+    #cal += f'{self.formatweekheader()}\n'
     for week in self.monthdays2calendar(self.year, self.month):
       cal += f'{self.formatweek(week, availability_matrix)}\n'
     cal += f'</table>'
