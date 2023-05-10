@@ -420,6 +420,9 @@ class ReservationForm(ModelForm):
         initial.append(equipment.equipment_type.id)
       self.fields['equipment_types'].initial = initial
       self.fields['user'].widget.attrs['disabled'] = True
+      self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A') | models.Activity.objects.all().filter(id=self.instance.activity.id)
+    else:
+      self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
 
     self.fields['equipment_types'].label = 'Select one or more equipment'
     self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
