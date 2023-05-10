@@ -154,6 +154,11 @@
                         </a>
                       </li>
                       {% if user.userProfile.user_role in 'AS' %}
+                        <li class="{% navactive request 'bcse:adminAvailabilityCalendar' %}">
+                          <a class="dropdown-item" href="{% url 'bcse:adminAvailabilityCalendar' %}">
+                            Availability Calendar
+                          </a>
+                        </li>
                         <li class="{% navactive request 'bcse:baxterBoxUsageReport' %}">
                           <a class="dropdown-item" href="{% url 'bcse:baxterBoxUsageReport' %}">
                             Baxter Box Usage Report
