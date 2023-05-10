@@ -79,7 +79,7 @@ WORKSHOP_REGISTRATION_STATUS_CHOICES = (
 )
 
 RESERVATION_STATUS_CHOICES = (
-  ('D', 'Cancelled'),
+  ('N', 'Cancelled'),
   ('I', 'Checked In'),
   ('O', 'Checked Out'),
   ('R', 'Confirmed'),

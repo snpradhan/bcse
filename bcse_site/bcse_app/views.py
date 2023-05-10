@@ -1522,7 +1522,7 @@ def baxterBoxUsageReport(request):
       raise CustomException('You do not have the permission to view Baxter Box Report')
 
     if request.method == 'GET':
-      reservations = models.Reservation.objects.all().exclude(status='D')
+      reservations = models.Reservation.objects.all().exclude(status='N')
       equipment_types = models.EquipmentType.objects.all().order_by('name')
       activities = models.Activity.objects.all().order_by('name')
       searchForm = forms.BaxterBoxUsageSearchForm(user=request.user, prefix="usage")
