@@ -964,6 +964,19 @@ body {
         height: 30em;
         overflow-y: scroll;
       }
+      div.admin_calendar {
+        table.calendar {
+          td {
+            div.date {
+              display: flex;
+              justify-content: space-between;
+              background-color: @bcse-gray;
+              color: white;
+              padding: 0 0.5em;
+            }
+          }
+        }
+      }
 
       div.calendar, div.admin_calendar {
         table.calendar {
@@ -988,11 +1001,6 @@ body {
             }
             div.date {
               font-weight: bold;
-              display: flex;
-              justify-content: space-between;
-              background-color: @bcse-gray;
-              color: white;
-              padding: 0 0.5em;
             }
             div.availability_row {
               border: 1px solid @bcse-gray;

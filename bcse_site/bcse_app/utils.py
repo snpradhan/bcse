@@ -39,7 +39,6 @@ class Calendar(HTMLCalendar):
 
         return f"<td class='selected_date'> \
                   <div class='date'>\
-                    <div>{dayofweek}</div> \
                     <div> {day} </div> \
                   </div> \
                   <div> {d} </div> \
@@ -47,7 +46,6 @@ class Calendar(HTMLCalendar):
       else:
         return f"<td class='out_of_range'> \
                   <div class='date'> \
-                    <div>{dayofweek}</div> \
                     <div> {day} </div> \
                   </div> \
                   <div> </div> \
@@ -65,7 +63,7 @@ class Calendar(HTMLCalendar):
     #events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
     cal = f'<table class="calendar table table-bordered">\n'
     cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
-    #cal += f'{self.formatweekheader()}\n'
+    cal += f'{self.formatweekheader()}\n'
     for week in self.monthdays2calendar(self.year, self.month):
       cal += f'{self.formatweek(week, availability_matrix, delivery_date, return_date)}\n'
     cal += f'</table>'
