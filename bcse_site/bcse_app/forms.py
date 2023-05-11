@@ -420,7 +420,10 @@ class ReservationForm(ModelForm):
         initial.append(equipment.equipment_type.id)
       self.fields['equipment_types'].initial = initial
       self.fields['user'].widget.attrs['disabled'] = True
-      self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A') | models.Activity.objects.all().filter(id=self.instance.activity.id)
+      if self.instance.activity:
+        self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A') | models.Activity.objects.all().filter(id=self.instance.activity.id)
+      else:
+        self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
     else:
       self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
 
@@ -452,6 +455,7 @@ class ReservationForm(ModelForm):
     other_activity = cleaned_data.get('other_activity')
     other_activity_name = cleaned_data.get('other_activity_name')
     num_of_classes = cleaned_data.get('num_of_classes')
+    more_num_of_classes = cleaned_data.get('more_num_of_classes')
 
     if activity is None and not other_activity:
       self.add_error('activity', 'Please select an activity from the dropdown or select "I am doing something not listed here"')
@@ -463,6 +467,11 @@ class ReservationForm(ModelForm):
     if activity and num_of_classes is None:
       self.add_error('num_of_classes', 'Please provide the number of classes doing this activity')
       valid = False
+
+    if num_of_classes is not None and int(num_of_classes) == 5:
+      if more_num_of_classes is None or int(more_num_of_classes) < 5:
+        self.add_error('more_num_of_classes', 'Please provide the number of classes more than 4')
+        valid = False
 
     for x in self.errors:
       attrs = self.fields[x].widget.attrs

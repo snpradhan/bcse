@@ -62,7 +62,9 @@
             </div>
             <div class="form-group mb-4 row">
               <div class="col">
-                <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}} (<span class="required">*</span>)</label>
+                <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}}
+                  <span>(<span class="required">*</span>)</span>
+                </label>
                 <div>{{form.num_of_classes}}</div>
                 <div class="error">{{ form.num_of_classes.errors }}</div>
               </div>
@@ -364,6 +366,7 @@
           e.preventDefault();
           $('.reservation_date').datepicker('setDate', null);
         });
+
         //"Check Availibility" button is clicked
         $('button#check_availability').click(function(e){
           e.preventDefault();
@@ -454,9 +457,9 @@
                 displayErrorDialog();
               },
             });
-            //display number of class and kit not need fields
+            //display number of class and kit not needed fields
             $('select#id_num_of_classes').prop('required', true);
-            $('select#id_num_of_classes').closest('.form-group').show();
+            $('select#id_num_of_classes').closest('.col').find('label>span').show();
             $('select#id_num_of_classes').trigger('change');
             $('input#id_activity_kit_not_needed').closest('.form-group').show();
           }
@@ -469,14 +472,16 @@
               $('div.activity_container div.activity.general').show();
             }
             $('div.activity_container div.activity.specific').remove();
-            //hide number of class and kit not need fields
+            //hide kit not need fields
             $('select#id_num_of_classes').prop('required', false);
-            $('select#id_num_of_classes').val('').closest('.form-group').hide();
+            $('select#id_num_of_classes').closest('.col').find('label>span').hide();
             $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
             $('div.form-group.kit_info span.kit_name').html('');
             $('div.form-group.kit_info span.num_of_classes').html('');
             $('div.form-group.kit_info').hide();
           }
+          $('select#id_num_of_classes').trigger('change');
+          $('input#id_more_num_of_classes').trigger('change');
         });
 
         //enable "Check Availability" button only if equipment is selected and delivery and return dates are provided
@@ -601,8 +606,6 @@
             $('input#id_other_activity_name').closest('.form-group').show();
             $('div.activity_container div.activity.general').hide();
             $('div.activity_container div.activity.specific').remove();
-            $('input#id_more_num_of_classes').prop('required', false);
-            $('input#id_more_num_of_classes').val('');
           }
           //other activity checkbox unchecked
           else{
@@ -664,7 +667,7 @@
             $('input#id_more_num_of_classes').closest('.col').hide();
           }
           //if num of classes is selected, display kit info
-          if($(this).val() && $(this).val() != '5') {
+          if($(this).val() && $(this).val() != '5' && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
             $('div.form-group.kit_info span.num_of_classes').html($(this).val());
             $('div.form-group.kit_info').show();
           }
@@ -672,10 +675,14 @@
             $('div.form-group.kit_info').hide();
           }
         });
+
         $('input#id_more_num_of_classes').on('change', function(e){
-          if($(this).val()) {
+          if($(this).val() && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
             $('div.form-group.kit_info span.num_of_classes').html($(this).val());
             $('div.form-group.kit_info').show();
+          }
+          else {
+            $('div.form-group.kit_info').hide();
           }
         });
 
@@ -683,16 +690,13 @@
         $('input#id_activity_kit_not_needed').on('change', function(e){
           //checkbox checked
           if($(this).is(':checked')){
-            $('select#id_num_of_classes').val('');
-            $('select#id_num_of_classes').closest('.form-group').hide();
             $('div.form-group.kit_info span.kit_name').html('');
             $('div.form-group.kit_info span.num_of_classes').html('');
             $('div.form-group.kit_info').hide();
           }
           //checkbox unchecked
           else{
-            $('select#id_num_of_classes').closest('.form-group').show();
-            $('input#id_return_date').prop('required', false);
+            $('select#id_activity').trigger('change');
           }
         });
         toggleCheckAvailability();
@@ -700,7 +704,7 @@
         $('select#id_activity').trigger('change');
         $('input#id_equipment_not_needed').trigger('change');
         $('select#id_num_of_classes').trigger('change');
-        //$('select#id_equipment_types_to').trigger('change');
+        $('input#id_more_num_of_classes').trigger('change');
       }
     });
   </script>
