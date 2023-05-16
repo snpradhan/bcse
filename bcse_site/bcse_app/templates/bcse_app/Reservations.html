@@ -6,11 +6,7 @@
   {{block.super}}
   <div class="content">
     <div id="reservations" class="container">
-      {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
-        <h1 class="center"> User Reservations </h1>
-      {% else %}
-        <h1 class="center"> My Reservations </h1>
-      {% endif %}
+      <h1 class="center"> My Reservations </h1>
       <div class="button-row">
         <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
       </div>

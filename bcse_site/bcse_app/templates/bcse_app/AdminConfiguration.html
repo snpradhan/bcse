@@ -68,6 +68,7 @@
                                              {% leftnavactive request 'equipment' %}
                                              {% leftnavactive request 'blackout_dates' %}
                                              {% leftnavactive request 'usage_report' %}
+                                             {% leftnavactive request 'reservations' %}
                                              {% leftnavactive request 'reservation_colors' %}
                                              {% leftnavactive request 'availabilityCalendar' %}"
                                              id="baxter_box_config">
@@ -81,7 +82,7 @@
                   <a href="{% url 'bcse:equipments' %}">Equipment</a>
                 </li>
 
-                <li>
+                <li class="{% if 'reservations' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:reservations' %}">User Reservations</a>
                 </li>
                 <li class="{% if 'blackout_dates' in request.path %} active {% endif %}">

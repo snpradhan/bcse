@@ -801,7 +801,10 @@ def reservations(request):
     searchForm = forms.ReservationsSearchForm(user=request.user, prefix="reservation_search")
 
     context = {'reservations': reservations, 'searchForm': searchForm}
-    return render(request, 'bcse_app/Reservations.html', context)
+    if request.user.userProfile.user_role in ['A', 'S']:
+      return render(request, 'bcse_app/UserReservations.html', context)
+    else:
+      return render(request, 'bcse_app/Reservations.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
