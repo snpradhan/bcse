@@ -446,6 +446,7 @@ class ReservationForm(ModelForm):
       self.fields.pop('color')
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
+      self.fields['activity'].queryset = models.Activity.objects.all()
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()
