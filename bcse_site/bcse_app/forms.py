@@ -913,9 +913,13 @@ class ReservationsSearchForm(forms.Form):
                                                        ('new_messages', 'New Messages'),
                                                        ('user', 'User'),
                                                        ('activity', 'Activity'),
-                                                       ('delivery_date', 'Delivery Date'),
-                                                       ('return_date', 'Return Date'),
-                                                       ('status', 'Status')), initial='delivery_date')
+                                                       ('delivery_date_desc', 'Delivery Date (Desc)'),
+                                                       ('delivery_date_asc', 'Delivery Date (Asc)'),
+                                                       ('return_date_desc', 'Return Date (Desc)'),
+                                                       ('return_date_asc', 'Return Date (Asc)'),
+                                                       ('created_date_desc', 'Created Date (Desc)'),
+                                                       ('created_date_asc', 'Created Date (Asc)'),
+                                                       ('status', 'Status')), initial='delivery_date_desc')
   columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
   color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().order_by('name'))
@@ -957,7 +961,11 @@ class WorkshopsSearchForm(forms.Form):
   registration_open = forms.BooleanField(required=False)
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES, initial='A')
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
-  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Title'), ('start_date', 'Start Date')))
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Title'),
+                                                       ('start_date_desc', 'Start Date (Desc)'),
+                                                       ('start_date_asc', 'Start Date (Asc)'),
+                                                       ('created_date_desc', 'Created Date (Desc)'),
+                                                       ('created_date_asc', 'Created Date (Asc)'),), initial='start_date_desc')
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -1026,7 +1034,8 @@ class UsersSearchForm(forms.Form):
                                                        ('email', 'Email'),
                                                       ('first_name', 'First Name'),
                                                       ('last_name', 'Last Name'),
-                                                      ('date_joined', 'Date Joined')))
+                                                      ('date_joined_desc', 'Date Joined (Desc)'),
+                                                      ('date_joined_asc', 'Date Joined (Asc)')), initial='date_joined_desc')
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -1048,7 +1057,8 @@ class WorkPlacesSearchForm(ModelForm):
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('name', 'Name'),
                                                       ('status', 'Status'),
-                                                      ('created_date', 'Created Date')))
+                                                      ('created_date_desc', 'Created Date (Desc)'),
+                                                      ('created_date_asc', 'Created Date (Asc)')), initial='created_date_desc')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
   class Meta:
     model = models.WorkPlace

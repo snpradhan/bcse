@@ -1214,10 +1214,20 @@ def reservationsSearch(request):
           sort_order.append({'order_by': 'activity__name', 'direction': 'asc', 'ignorecase': 'true'})
           sort_order.append({'order_by': 'other_activity_name', 'direction': 'asc', 'ignorecase': 'true'})
 
-        elif sort_by == 'delivery_date':
+        elif sort_by == 'delivery_date_asc':
           sort_order.append({'order_by': 'delivery_date', 'direction': 'asc', 'ignorecase': 'false'})
-        elif sort_by == 'return_date':
+        elif sort_by == 'delivery_date_desc':
+          sort_order.append({'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'})
+        elif sort_by == 'return_date_asc':
           sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'return_date_desc':
+          sort_order.append({'order_by': 'return_date', 'direction': 'desc', 'ignorecase': 'false'})
+
+        elif sort_by == 'created_date_asc':
+          sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'created_date_desc':
+          sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
+
         elif sort_by == 'status':
           sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
         elif sort_by == 'new_messages':
@@ -2463,13 +2473,26 @@ def workshopsSearch(request, flag='list', audience='teacher'):
       workshops = workshops.filter(id__in=workshops_with_open_registration)
 
     order_by = 'start_date'
-    direction = request.GET.get('direction') or 'asc'
+    direction = request.GET.get('direction') or 'desc'
     ignorecase = request.GET.get('ignorecase') or 'false'
     if sort_by:
       if sort_by == 'title':
         order_by = 'name'
-      elif sort_by == 'start_date':
+      elif sort_by == 'start_date_desc':
         order_by = 'start_date'
+        direction = 'desc'
+        ignorecase = 'false'
+      elif sort_by == 'start_date_asc':
+        order_by = 'start_date'
+        direction = 'asc'
+        ignorecase = 'false'
+      elif sort_by == 'created_date_desc':
+        order_by = 'created_date'
+        direction = 'desc'
+        ignorecase = 'false'
+      elif sort_by == 'created_date_asc':
+        order_by = 'created_date'
+        direction = 'asc'
         ignorecase = 'false'
 
 
@@ -3320,6 +3343,9 @@ def usersSearch(request):
 
       users = models.UserProfile.objects.all().filter(query_filter)
 
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
       if sort_by:
         if sort_by == 'email':
           order_by = 'user__email'
@@ -3327,13 +3353,16 @@ def usersSearch(request):
           order_by = 'user__first_name'
         elif sort_by == 'last_name':
           order_by = 'user__last_name'
-        elif sort_by == 'date_joined':
+        elif sort_by == 'date_joined_desc':
           order_by = 'created_date'
+          direction = 'desc'
+        elif sort_by == 'date_joined_asc':
+          order_by = 'created_date'
+          direction = 'asc'
       else:
         order_by = 'user__email'
 
-      direction = request.GET.get('direction') or 'asc'
-      ignorecase = request.GET.get('ignorecase') or 'false'
+
 
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
 
@@ -3546,18 +3575,23 @@ def workPlacesSearch(request):
 
       work_places = models.WorkPlace.objects.all().filter(query_filter)
       ignorecase = 'false'
+      direction = request.GET.get('direction') or 'asc'
       if sort_by:
         if sort_by == 'name':
           order_by = 'name'
           ignorecase = 'true'
         elif sort_by == 'status':
           order_by = 'status'
-        elif sort_by == 'created_date':
+        elif sort_by == 'created_date_desc':
           order_by = 'created_date'
+          direction = 'desc'
+        elif sort_by == 'created_date_asc':
+          order_by = 'created_date'
+          direction = 'asc'
       else:
         order_by = 'name'
 
-      direction = request.GET.get('direction') or 'asc'
+
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
       work_places = paginate(request, work_places, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
 
