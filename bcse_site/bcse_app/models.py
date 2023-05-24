@@ -274,7 +274,7 @@ class WorkshopCategory(models.Model):
 
 class Workshop (models.Model):
   workshop_category = models.ForeignKey(WorkshopCategory, null=False, related_name="workshop", on_delete=models.CASCADE)
-  teacher_leader = models.ForeignKey('TeacherLeader', null=True, blank=True, on_delete=models.SET_NULL)
+  teacher_leaders = models.ManyToManyField('TeacherLeader', null=True, blank=True, related_name="workshops", help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   name = models.CharField(null=False, max_length=256, help_text='Name of Workshop')
   sub_title = models.CharField(null=True, blank=True, max_length=256)
   summary = RichTextField(null=True, blank=True)

@@ -2429,8 +2429,8 @@ def workshopsSearch(request, flag='list', audience='teacher'):
     if keywords:
       keyword_filter = Q(name__icontains=keywords) | Q(sub_title__icontains=keywords)
       keyword_filter = keyword_filter | Q(workshop_category__name__icontains=keywords)
-      keyword_filter = keyword_filter | Q(teacher_leader__first_name__icontains=keywords)
-      keyword_filter = keyword_filter | Q(teacher_leader__last_name__icontains=keywords)
+      keyword_filter = keyword_filter | Q(teacher_leaders__first_name__icontains=keywords)
+      keyword_filter = keyword_filter | Q(teacher_leaders__last_name__icontains=keywords)
       keyword_filter = keyword_filter | Q(summary__icontains=keywords)
       keyword_filter = keyword_filter | Q(description__icontains=keywords)
       keyword_filter = keyword_filter | Q(location__icontains=keywords)

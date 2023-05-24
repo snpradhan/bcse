@@ -53,21 +53,23 @@
       </div>
 
       <div class="workshop_teacher_leader">
-        {% if workshop.teacher_leader %}
+        {% if workshop.teacher_leaders.all %}
           <hr>
-          <h3>About the Teacher</h3>
+          <h3>About the Teacher{% if workshop.teacher_leaders.all.count > 1 %}s{% endif %}</h3>
+          {% for teacher_leader in workshop.teacher_leaders.all %}
           <div class="teacher_leader_info">
             <div class="teacher_leader_image">
-              {% if workshop.teacher_leader.image %}
-                <img src="{{workshop.teacher_leader.image.url}}"/>
+              {% if teacher_leader.image %}
+                <img src="{{teacher_leader.image.url}}"/>
               {% endif %}
             </div>
             <div class="teacher_leader_details">
-              <h4>{{workshop.teacher_leader.first_name}} {{workshop.teacher_leader.last_name}}</h4>
-              <h4>{{workshop.teacher_leader.school.name}}</h4>
-              <div class="wysiwyg_content">{{workshop.teacher_leader.bio|safe}}</div>
+              <h4>{{teacher_leader.first_name}} {{teacher_leader.last_name}}</h4>
+              <h4>{{teacher_leader.school.name}}</h4>
+              <div class="wysiwyg_content">{{teacher_leader.bio|safe}}</div>
             </div>
           </div>
+          {% endfor %}
         {% endif %}
       </div>
     </div>

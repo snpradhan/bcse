@@ -29,6 +29,14 @@
             <div class="error">{{ form.teacher_leader.errors }}</div>
           </div>
           <div class="form-group mb-3">
+            <label for="id_{{form.teacher_leaders.name}}" class="form-label">
+              {{form.teacher_leaders.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.teacher_leaders.help_text}}"></i>
+            </label>
+            <div>{{form.teacher_leaders}}</div>
+            <div class="error">{{ form.teacher_leaders.errors }}</div>
+          </div>
+          <div class="form-group mb-3">
             <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
             <div>{{form.name}}</div>
             <div class="error">{{ form.name.errors }}</div>
