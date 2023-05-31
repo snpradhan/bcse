@@ -1031,6 +1031,36 @@ def reservationMessage(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+def reservationMessageDismiss(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role in ['T', 'P']:
+      raise CustomException('You do not have the permission to dismiss reservation messages')
+
+    if '' != id:
+      reservation = models.Reservation.objects.get(id=id)
+      reservation_messages = models.ReservationMessage.objects.all().filter(reservation=reservation)
+    else:
+      reservation_messages = models.ReservationMessage.objects.all()
+
+    message_count = 0
+    for reservation_message in reservation_messages:
+      if request.user.userProfile not in reservation_message.viewed_by.all() and request.user.userProfile != reservation_message.created_by:
+        reservation_message.viewed_by.add(request.user.userProfile)
+        message_count += 1
+
+    if message_count > 0:
+      if '' != id:
+        messages.success(request, "Messages for reservation id %s dismissed" % id)
+      else:
+        messages.success(request, "All reservation messages dismissed")
+    else:
+      messages.warning(request, "No new messages to dismiss")
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.Reservation.DoesNotExist:
+    messages.error(request, 'Reservation not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # DELETE RESERVATION

@@ -295,6 +295,8 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationAssignedColorEdit' reservation.id %}" href="#">Update Color</a></li>
                   <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
+                  <li><hr class="dropdown-divider"></li>
                   {% if reservation.status != 'D' %}
                     <li>
                       <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationEmailSend' reservation.id %}" href="#">
