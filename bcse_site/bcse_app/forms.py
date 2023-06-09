@@ -982,6 +982,7 @@ class WorkshopsSearchForm(forms.Form):
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('status')
+      self.fields['sort_by'].initial = 'start_date_asc'
 
     for field_name, field in self.fields.items():
       if field_name in ['registration_open']:
