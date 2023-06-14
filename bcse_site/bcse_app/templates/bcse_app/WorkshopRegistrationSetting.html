@@ -98,12 +98,13 @@
       $('#id_registration_type').on('change', function(e){
         if($(this).val() == 'R') {
           $('#id_capacity').closest('.form-group').show();
-          $('#id_enable_waitlist').closest('.form-group').show();
+          $('#id_enable_waitlist').prop('checked', true).closest('.form-group').show();
+          $('#id_enable_waitlist').trigger('change');
           $('#id_survey_url').val("").closest('.form-group').hide();
         }
         else{
           $('#id_capacity').val("").closest('.form-group').hide();
-          $('#id_enable_waitlist').removeAttr('checked').closest('.form-group').hide();
+          $('#id_enable_waitlist').prop('checked', false).closest('.form-group').hide();
           $('#id_waitlist_capacity').val("").closest('.form-group').hide();
           if($(this).val() == 'A') {
             $('#id_survey_url').closest('.form-group').show();

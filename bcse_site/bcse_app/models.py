@@ -322,7 +322,7 @@ class WorkshopRegistrationSetting(models.Model):
   registration_type = models.CharField(null=True, blank=True, max_length=1, choices=WORKSHOP_REGISTRATION_TYPE_CHOICES)
   survey_url = models.URLField(null=True, blank=True)
   capacity = models.IntegerField(null=True, blank=True, help_text='Maximum capacity for this workshop. Leave blank for unlimited capacity')
-  enable_waitlist = models.BooleanField(default=False)
+  enable_waitlist = models.BooleanField(default=True)
   waitlist_capacity = models.IntegerField(null=True, blank=True, help_text='Capacity for the waitlist. Leave blank for unlimited waitlist capacity')
   open_date = models.DateField(null=True, blank=True, help_text="The date registration is open. Leave blank if registration is always open")
   open_time = models.TimeField(null=True, blank=True)
