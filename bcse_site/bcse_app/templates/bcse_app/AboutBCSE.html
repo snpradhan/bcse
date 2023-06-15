@@ -101,22 +101,17 @@
              <p class="callout">The Baxter Center for Science Education collaborates with many local and national experts and thought leaders, including: </p>
           </div>
           <div class="row logos">
-             <div class="logo"><a href="https://www.cps.edu" target="_blank"><img src="{% staticfile 'img/logos/cps.png' %}"></a></div>
-             <div class="logo"><a href="http://www.minipcr.com" target="_blank"><img src="{% staticfile 'img/logos/miniPCR.png' %}"></a></div>
-             <div class="logo"><a href="http://www.bio-rad.com" target="_blank"><img src="{% staticfile 'img/logos/Bio-Rad.jpeg' %}"></a></div>
-             <div class="logo"><a href="https://us.vwr.com/store/" target="_blank"><img src="{% staticfile 'img/logos/VWR.png' %}"></a></div>
-             <div class="logo"><a href="http://biobuilder.org" target="_blank"><img src="{% staticfile 'img/logos/BioBuilder.png' %}"></a></div>
-             <div class="logo"><a href="https://www.digife.com" target="_blank"><img src="{% staticfile 'img/logos/digife.png' %}"></a></div>
-             <div class="logo"><a href="https://www.clcillinois.edu/student-services/additional-services/trio" target="_blank"><img src="{% staticfile 'img/logos/trio.jpg' %}"></a></div>
-             <div class="logo nologo">
-                <div>
-                   <h3><a href="https://www.cps.edu/about/departments/science-technology-engineering-and-mathematics/" target="_blank">Chicago Public Schools Department of STEM</a></h3>
-                   <br>
-                   <h3><a href="http://jewettlab.northwestern.edu" target="_blank">Michael Jewett Lab at Northwestern University</a></h3>
-                   <br>
-                   <h3><a href="https://www.mccormick.northwestern.edu/biotechnology/" target="_blank">Master of Science in Biotechnology Program at Northwestern University</a></h3>
-                </div>
-             </div>
+             {% for collaborator in collaborators %}
+               <div class="logo">
+                  <a href="{{collaborator.url}}" target="_blank">
+                     {% if collaborator.image %}
+                        <img src="{{collaborator.image.url}}">
+                     {% else %}
+                        <h3>{{collaborator.name}}</h3>
+                     {% endif %}
+                  </a>
+               </div>
+             {% endfor %}
           </div>
        </div>
     </div>

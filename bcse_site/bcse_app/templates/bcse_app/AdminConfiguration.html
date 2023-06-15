@@ -117,6 +117,10 @@
               <a class="nav-link" href="{% url 'bcse:partners' %}">Partners</a>
             </li>
             <li><hr class="dropdown-divider"></li>
+            <li class="nav-item {% if 'partner' in request.path or  'collaborators' in request.path %} active {% endif %}">
+              <a class="nav-link" href="{% url 'bcse:collaborators' %}">Collaborators</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'homepageBlock' in request.path or  'homepageBlocks' in request.path %} active {% endif %}">
               <a class="nav-link" href="{% url 'bcse:homepageBlocks' %}">Homepage Blocks</a>
             </li>

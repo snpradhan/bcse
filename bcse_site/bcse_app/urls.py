@@ -104,6 +104,12 @@ urlpatterns = [
     path('adminConfiguration/partner/<int:id>/edit', views.partnerEdit, name='partnerEdit'),
     path('adminConfiguration/partner/<int:id>/delete', views.partnerDelete, name='partnerDelete'),
     path('adminConfiguration/partner/new', views.partnerEdit, name='partnerNew'),
+
+    path('adminConfiguration/collaborators/', views.collaborators, name='collaborators'),
+    path('adminConfiguration/collaborator/<int:id>/edit', views.collaboratorEdit, name='collaboratorEdit'),
+    path('adminConfiguration/collaborator/<int:id>/delete', views.collaboratorDelete, name='collaboratorDelete'),
+    path('adminConfiguration/collaborator/new', views.collaboratorEdit, name='collaboratorNew'),
+
     path('adminConfiguration/homepageBlocks/', views.homepageBlocks, name='homepageBlocks'),
     path('adminConfiguration/homepageBlock/<int:id>/edit', views.homepageBlockEdit, name='homepageBlockEdit'),
     path('adminConfiguration/homepageBlock/<int:id>/delete', views.homepageBlockDelete, name='homepageBlockDelete'),

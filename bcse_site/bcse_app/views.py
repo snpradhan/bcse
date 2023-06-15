@@ -71,7 +71,8 @@ def adminConfiguration(request):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def aboutBCSE(request):
-  context = {}
+  collaborators = models.Collaborator.objects.all().filter(status='A').order_by('order')
+  context = {'collaborators': collaborators}
   return render(request, 'bcse_app/AboutBCSE.html', context)
 
 def aboutCaseStudy(request):
@@ -4091,7 +4092,7 @@ def partners(request):
     return render(request, 'bcse_app/Partners.html', context)
 
   except models.Partner.DoesNotExist as e:
-    messages.error(request, 'Team not found')
+    messages.error(request, 'Partner not found')
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
@@ -4159,6 +4160,91 @@ def partnerDelete(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# VIEW COLLABORATORS
+##########################################################
+@login_required
+def collaborators(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view collaborators')
+
+    collaborators = models.Collaborator.objects.all()
+    context = {'collaborators': collaborators}
+    return render(request, 'bcse_app/Collaborators.html', context)
+
+  except models.Collaborator.DoesNotExist as e:
+    messages.error(request, 'Collaborator not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# EDIT COLLABORATOR
+##########################################################
+@login_required
+def collaboratorEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit collaborator')
+    if '' != id:
+      collaborator = models.Collaborator.objects.get(id=id)
+    else:
+      collaborator = models.Collaborator()
+
+    if request.method == 'GET':
+      form = forms.CollaboratorForm(instance=collaborator)
+      context = {'form': form}
+      return render(request, 'bcse_app/CollaboratorEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.CollaboratorForm(data, files=request.FILES, instance=collaborator)
+      response_data = {}
+      if form.is_valid():
+        savedcollaborator = form.save()
+        messages.success(request, "Collaborator saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/CollaboratorEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# DELETE COLLABORATOR
+##########################################################
+@login_required
+def collaboratorDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete collaborator')
+    if '' != id:
+      collaborator = models.Collaborator.objects.get(id=id)
+      collaborator.delete()
+      messages.success(request, "Collaborator deleted")
+
+    return shortcuts.redirect('bcse:collaborators')
+
+  except models.Collaborator.DoesNotExist:
+    messages.error(request, "Collaborator not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 
 ####################################

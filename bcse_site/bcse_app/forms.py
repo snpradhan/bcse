@@ -782,6 +782,26 @@ class PartnerForm(ModelForm):
 
 
 ####################################
+# Collaborator Form
+####################################
+class CollaboratorForm(ModelForm):
+
+  class Meta:
+    model = models.Collaborator
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(CollaboratorForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
 # HomepageBlock Form
 ####################################
 class HomepageBlockForm(ModelForm):
