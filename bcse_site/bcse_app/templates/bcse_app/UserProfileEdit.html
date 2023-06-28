@@ -57,6 +57,9 @@
           <div class="form-group col-md-6">
             <label for="id_{{userProfileForm.user_role.name}}" class="form-label"> {{userProfileForm.user_role.label|title}}</label>
             <div>{{userProfileForm.user_role}}</div>
+            {% if user.userProfile.user_role not in 'AS' %}
+              {{userProfileForm.user_role.as_hidden}}
+            {% endif %}
             <div class="error">{{ userProfileForm.user_role.errors }}</div>
           </div>
           <div class="form-group col-md-6">
@@ -114,6 +117,9 @@
         <div class="form-group mb-3">
           <label for="id_{{userProfileForm.validation_code.name}}" class="form-label"> {{userProfileForm.validation_code.label}}</label>
           <div>{{userProfileForm.validation_code}}</div>
+          {% if userProfileForm.instance.id %}
+            {{userProfileForm.validation_code.as_hidden}}
+          {% endif %}
           <div class="error">{{ userProfileForm.validation_code.errors }}</div>
         </div>
         {% endif %}

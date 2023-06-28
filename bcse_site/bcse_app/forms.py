@@ -245,9 +245,9 @@ class UserProfileForm (ModelForm):
 
     if user.is_authenticated:
       if user.userProfile.user_role in ['A', 'S']:
-        self.fields['validation_code'].widget.attrs['readonly'] = True
+        self.fields['validation_code'].widget.attrs['disabled'] = True
       else:
-        self.fields['user_role'].widget.attrs['readonly'] = True
+        self.fields['user_role'].widget.attrs['disabled'] = True
         self.fields.pop('validation_code')
 
     for field_name, field in list(self.fields.items()):
