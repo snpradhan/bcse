@@ -633,6 +633,16 @@ class WorkshopRegistrationSettingForm(ModelForm):
           field.widget.attrs['class'] = 'form-control timepicker'
         else:
           field.widget.attrs['class'] = 'form-control'
+          if field_name == 'application':
+            if self.instance.id and self.instance.application:
+              if self.instance.application.survey_submission.all().count() > 0:
+                field.queryset = models.Survey.objects.all().filter(id=self.instance.application.id)
+                field.widget.attrs['disabled'] = True
+
+              else:
+                field.queryset = models.Survey.objects.all().filter(id=self.instance.application.id) | models.Survey.objects.all().filter(survey_type='W', status='A', registration_setting__isnull=True)
+            else:
+              field.queryset = models.Survey.objects.all().filter(survey_type='W', status='A', registration_setting__isnull=True)
       else:
         field.widget.attrs['class'] = 'form-check-input'
       field.widget.attrs['aria-describedby'] = field.label

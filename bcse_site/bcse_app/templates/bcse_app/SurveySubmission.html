@@ -1,23 +1,29 @@
-{% extends "bcse_app/base.html" %}
-{% load bcse_extras %}
 {% load base_extras %}
+{% load bcse_extras %}
 
-{% block content %}
-  {{block.super}}
-  <div class="content">
-    <div class="survey_container container">
-      <h1 class="center"> {{survey.name}} </h1>
-      <div class="survey_form">
-        <form method="post" enctype="multipart/form-data" id="formSurvey">
-          {% csrf_token %}
-          {{formset.management_form}}
-          {% if formset|length > 0 %}
-            {% for form in formset %}
+<div class="modal-dialog modal-xl">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="center"> {{survey.name}} </h3>
+    </div>
+    <div id="SurveyMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form method="post" enctype="multipart/form-data" id="formSurvey" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}">
+      {% csrf_token %}
+      {{formset.management_form}}
+      <div class="modal-body">
+        {% if formset|length > 0 %}
+          {% for form in formset %}
               <div class="survey_component form-group mb-3">
                 <div class="context {% if form.instance.survey_component.component_type != 'IN' %} question_label {% endif %}">
                   {{form.id}}
                   {% if form.instance.survey_component.component_type != 'IN' %}
-                    {{form.instance.survey_component.content|inline_style|strip_html}}
+                    <label>{{form.instance.survey_component.content|inline_style|strip_html}}</label>
                     {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}
                   {% else %}
                     {{form.instance.survey_component.content|inline_style|safe}}
@@ -26,11 +32,11 @@
                 {% if form.instance.survey_component.component_type != 'IN' %}
                   <div class="response">
                     {% if form.instance.survey_component.component_type == 'TA' %}
-                      {{form.response}}
+                      <textarea placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}>{{form.response.value}}</textarea>
                     {% elif form.instance.survey_component.component_type == 'TF' %}
-                      <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" />
+                      <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>
                     {% elif form.instance.survey_component.component_type == 'DD' %}
-                      <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}">
+                      <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" {% if form.instance.survey_component.is_required %}required{% endif %}>
                         <option value="">--------</option>
                         {% for option in form.instance.survey_component.options|splitlines%}
                           {% if option|slugify == form.response.value|slugify %}
@@ -44,9 +50,9 @@
                       <div>
                         {% for option in form.instance.survey_component.options|splitlines%}
                           {% if option|slugify == form.response.value|slugify %}
-                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true"/>  {{option}}<br>
+                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}<br>
                           {% else %}
-                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" />  {{option}}<br>
+                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}<br>
                           {% endif %}
                         {% endfor %}
                       </div>
@@ -68,20 +74,35 @@
                         <label>Upload files that are less than 10MB in size.</label>
                         {{form.responseFile}}
                       </div>
+                    {% elif form.instance.survey_component.component_type == 'DT' %}
+                      <div>
+                        <input type="date" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if sform.instance.survey_component.is_required %}required{% endif %}/>
+                      </div>
+                    {% elif form.instance.survey_component.component_type == 'EM' %}
+                      <div>
+                        <input type="email" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %}/>
+                      </div>
+                    {% elif form.instance.survey_component.component_type == 'UL' %}
+                      <div>
+                        <input type="url" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %}/>
+                      </div>
                     {% endif %}
                   </div>
                 {% endif %}
               </div>
             {% endfor %}
           {% endif %} 
-
-          <div class="form-group mb-3">
+          <div class="form-group" id="spinner">
+            <img src="/static/img/page-loader.gif" class="icon"/>
+          </div>
+        </div>
+        <div class="modal-footer button-row">
+          <div class="form-group">
+            <input type="hidden" id="back" name="back" value="0"/>
             {% if page_num > 1 %}
-              {% with prev=page_num|add:"-1" %}
-              <a class="btn back" href="{% url 'bcse:surveySubmission' survey.id submission.UUID prev %}">
-                Back
-              </a>
-              {% endwith %}
+              <button class="btn back" type="button" id="back_bottom">
+                  Back
+              </button>
             {% endif %}
             {% if page_num < total_pages %}
               <button class="btn next" type="submit" id="submit_bottom">
@@ -99,10 +120,11 @@
               {% endif %}
             {% endif %}
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   </div>
+
 
   <script type="text/javascript">
     $(function (){
@@ -129,6 +151,46 @@
         }, 7000);
 
       });
+      $('button.back').on('click', function(e){
+        $('input#back').val(1);
+        $("#formSurvey").submit();
+      });
+      $("#formSurvey").submit(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+          type: $(this).attr('method'),
+          url: this.action,
+          data: $(this).serialize(),
+          context: this,
+          beforeSend: function(){
+            $('#formSurvey #spinner').show();
+          },
+          complete: function(){
+            $('#formSurvey #spinner').hide();
+          },
+          success: function(data, status) {
+            if(data['success'] == true){
+              if(data['html']) {
+                $('#general').html(data['html']);
+              }
+              else if(data['redirect_url']) {
+                window.parent.location.href = data['redirect_url'];
+              }
+              else {
+                window.parent.location.reload();
+              }
+            }
+            else{
+              $('#general').html(data['html']);
+            }
+          },
+          error: function(){
+            displayErrorDialog();
+          }
+        });
+      });
+
     });
   </script>
-{% endblock %}
+

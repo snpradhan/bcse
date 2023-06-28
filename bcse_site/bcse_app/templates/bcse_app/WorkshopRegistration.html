@@ -31,15 +31,29 @@
         {{registration.form.status.as_hidden}}
       {% endif %}
       <div class="form-group mb-3 center">
-        <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
-          {% if workshop.registration_setting.registration_type == 'R' %}
-            Register
-          {% else %}
-            Apply
-          {% endif %}
-        </button>
         {% if user.userProfile.user_role in 'AS' %}
+          <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+            {% if workshop.registration_setting.registration_type == 'R' %}
+              Register
+            {% else %}
+              Apply
+            {% endif %}
+          </button>
           <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+        {% else %}
+          {% if workshop.registration_setting.registration_type == 'R' %}
+            <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+              Register
+            </button>
+          {% else %}
+            {% if workshop.registration_setting.application %}
+              <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" href="#">Apply</a>
+            {% else %}
+              <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+                Apply
+              </button>
+            {% endif %}
+          {% endif %}
         {% endif %}
       </div>
     </form>

@@ -104,6 +104,7 @@ NUM_OF_CLASS_CHOICES = (
 SURVEY_TYPE_CHOICES = (
   ('A', 'Async Learning'),
   ('C', 'Case Study'),
+  ('W', 'Workshop Application'),
   ('O', 'Other'),
 )
 
@@ -323,7 +324,7 @@ class TeacherLeader(models.Model):
 class WorkshopRegistrationSetting(models.Model):
   workshop = models.OneToOneField(Workshop, null=False, related_name="registration_setting", on_delete=models.CASCADE)
   registration_type = models.CharField(null=True, blank=True, max_length=1, choices=WORKSHOP_REGISTRATION_TYPE_CHOICES)
-  survey_url = models.URLField(null=True, blank=True)
+  application = models.ForeignKey('Survey', null=True, blank=True, related_name="registration_setting", on_delete=models.SET_NULL)
   capacity = models.IntegerField(null=True, blank=True, help_text='Maximum capacity for this workshop. Leave blank for unlimited capacity')
   enable_waitlist = models.BooleanField(default=True)
   waitlist_capacity = models.IntegerField(null=True, blank=True, help_text='Capacity for the waitlist. Leave blank for unlimited waitlist capacity')
@@ -354,6 +355,14 @@ class Registration(models.Model):
 
   def __str__(self):
       return '%s - Registration' % (self.workshop_registration_setting.workshop.name)
+
+class WorkshopApplication(models.Model):
+  registration = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name='registration_to_application')
+  application = models.ForeignKey('SurveySubmission', on_delete=models.CASCADE, related_name='application_to_registration')
+
+  class Meta:
+      ordering = ['-id']
+      unique_together = ('registration', 'application')
 
 class RegistrationEmailMessage(models.Model):
   registration_status = models.CharField(null=False, blank=False, max_length=1, unique=True, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
@@ -750,10 +759,6 @@ def replace_workshop_tokens(text, workshop, registration):
   replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
   replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')
-  survey_url = ''
-  if registration.workshop_registration_setting and registration.workshop_registration_setting.survey_url:
-    survey_url = registration.workshop_registration_setting.survey_url + '?registration_id=%s&user_id=%s' %(registration.id, registration.user.id)
-  replaced_text = replaced_text.replace('[workshop_survey_url]', survey_url)
   return replaced_text
 
 #

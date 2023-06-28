@@ -90,6 +90,15 @@
                         Delete
                       </a>
                     </li>
+                    {% get_registrant_application registrant.id as application %}
+                    {% if application %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' application.survey.id application.UUID %}" href="#">
+                          View Application
+                        </a>
+                    </li>
+                    {% endif %}
                   </ul>
                 </div>
               </td>

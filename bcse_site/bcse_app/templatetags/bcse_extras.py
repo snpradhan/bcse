@@ -192,4 +192,13 @@ def get_registration_breakdown(context, workshop_registration_setting):
   sorted_breakdown = {i: breakdown[i] for i in keys}
   return sorted_breakdown
 
+@register.simple_tag(takes_context=True)
+def get_registrant_application(context, registration_id):
+  request = context.get('request')
+  applications = models.SurveySubmission.objects.all().filter(application_to_registration__registration__id=registration_id)
+  if applications.count():
+    return applications[0]
+  else:
+    return None
+
 

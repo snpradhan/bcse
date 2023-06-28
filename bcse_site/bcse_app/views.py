@@ -2317,6 +2317,10 @@ def workshopRegistrationDelete(request, workshop_id='', id=''):
       if registration.workshop_registration_setting.workshop.id != workshop.id:
         raise CustomException('Registration does not belong to the workshop')
 
+      #delete associated workshop application
+      workshop_applications = models.WorkshopApplication.objects.all().filter(registration=registration)
+      for workshop_application in workshop_applications:
+        workshop_application.application.delete()
       registration.delete()
       messages.success(request, "Registration has been deleted")
       return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -4516,56 +4520,105 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
     else:
       user = request.user.userProfile
 
+
+    #connecting parameters
+    workshop_id = request.GET['workshop_id']
+
     if '' != submission_uuid:
       submission = models.SurveySubmission.objects.get(UUID=submission_uuid)
     else:
+      if survey.survey_type == 'W' and workshop_id:
+        incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user)
+        incomplete_submissions.delete()
+
       submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, user=user, ip_address=request.META['REMOTE_ADDR'])
       submission.save()
-      return shortcuts.redirect('bcse:surveySubmission', survey_id=survey.id, submission_uuid=submission.UUID, page_num=1)
+      #return shortcuts.redirect('bcse:surveySubmission', survey_id=survey.id, submission_uuid=submission.UUID, page_num=1)
 
     if '' == page_num:
       page_num = 1
 
     if page_num <= total_pages:
-        surveyComponents = models.SurveyComponent.objects.all().filter(survey=survey, page=page_num).order_by('order')
+        surveyComponents = getSurveyComponents(request, survey.id, submission, page_num)
     else:
       raise CustomException('Survey does not have the request page number')
 
-    for surveyComponent in surveyComponents:
-      surveyResponse, created = models.SurveyResponse.objects.get_or_create(submission=submission, survey_component=surveyComponent)
-      if surveyResponse.response is None:
-        surveyResponse.response = ''
-        surveyResponse.save()
+
 
     SurveyResponseFormSet = modelformset_factory(models.SurveyResponse, form=forms.SurveyResponseForm, can_delete=False, can_order=False, extra=0)
     if request.method == 'GET':
       formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
       context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+      if survey.survey_type == 'W' and workshop_id:
+        context['workshop_id'] = workshop_id
       return render(request, 'bcse_app/SurveySubmission.html', context)
+      #response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
 
     elif request.method == 'POST':
       data = request.POST.copy()
-      formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
-      if formset.is_valid():
-        formset.save()
-        if page_num < total_pages:
-          messages.success(request, 'Page %s has been saved' % page_num)
-          return shortcuts.redirect('bcse:surveySubmission', survey_id=survey.id, submission_uuid=submission.UUID, page_num=page_num+1)
-        else:
-          submission.status = 'S'
-          submission.save()
-          messages.success(request, 'The survey has been submitted')
-          if request.is_ajax():
+      print(data)
+      print(page_num)
+      if page_num > 1 and data['back'][0] == '1':
+        print('processing back')
+        response_data = {}
+        response_data['success'] = True
+        #go to the next page
+        next_page_num = page_num - 1
+        surveyComponents = getSurveyComponents(request, survey.id, submission, next_page_num)
+        formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
+        context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': next_page_num, 'total_pages': total_pages}
+        if survey.survey_type == 'W' and workshop_id:
+          context['workshop_id'] = workshop_id
+
+        response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
+        return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+      else:
+        formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
+
+        if formset.is_valid():
+          formset.save()
+          if page_num < total_pages:
+            print('continue')
+            messages.success(request, 'Page %s has been saved' % page_num)
             response_data = {}
             response_data['success'] = True
-            response_data['redirect_url'] = '/'
+            #go to the next page
+            next_page_num = page_num + 1
+            surveyComponents = getSurveyComponents(request, survey.id, submission, next_page_num)
+            formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
+            context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': next_page_num, 'total_pages': total_pages}
+            if survey.survey_type == 'W' and workshop_id:
+              context['workshop_id'] = workshop_id
+            response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
             return http.HttpResponse(json.dumps(response_data), content_type="application/json")
           else:
-            return shortcuts.redirect('bcse:home')
-      else:
-        messages.error(request, 'Please correct the errors below and resubmit')
-        context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
-        return render(request, 'bcse_app/SurveySubmission.html', context)
+            print('done')
+            submission.status = 'S'
+            submission.save()
+            if survey.survey_type == 'W' and workshop_id:
+              workshop = models.Workshop.objects.get(id=workshop_id)
+              registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status='A')
+              models.WorkshopApplication.objects.create(registration=registration, application=submission)
+              messages.success(request, 'Your application has been submitted')
+
+            else:
+              messages.success(request, 'The survey has been submitted')
+            if request.is_ajax():
+              response_data = {}
+              response_data['success'] = True
+              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+            else:
+              return shortcuts.redirect('bcse:home')
+        else:
+          messages.error(request, 'Please correct the errors below and resubmit')
+          context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+          if survey.survey_type == 'W' and workshop_id:
+            context['workshop_id'] = workshop_id
+          response_data['success'] = False
+          response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
+          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
     return http.HttpResponseNotAllowed(['GET', 'POST'])
   except models.Survey.DoesNotExist:
     messages.success(request, "Survey not found")
@@ -4573,6 +4626,32 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+
+def getSurveyComponents(request, survey_id, submission, page_num):
+  try:
+    if '' != survey_id and '' != page_num:
+      surveyComponents = models.SurveyComponent.objects.all().filter(survey__id=survey_id, page=page_num).order_by('order')
+
+      for surveyComponent in surveyComponents:
+        surveyResponse, created = models.SurveyResponse.objects.get_or_create(submission=submission, survey_component=surveyComponent)
+        if surveyResponse.response is None:
+          surveyResponse.response = ''
+          surveyResponse.save()
+
+      return surveyComponents
+    else:
+      raise models.SurveyComponent.DoesNotExist
+
+  except models.SurveyComponent.DoesNotExist:
+    messages.success(request, "Survey Component not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 
 ##########################################################
 # SURVEY SUBMISSION VIEW BY ADMIN
@@ -4587,6 +4666,31 @@ def surveySubmissionView(request, id='', submission_uuid=''):
     surveyResponses = models.SurveyResponse.objects.all().filter(submission=submission).order_by('survey_component__page', 'survey_component__order')
     context = {'survey': survey, 'submission': submission, 'surveyResponses': surveyResponses}
     return render(request, 'bcse_app/SurveySubmissionView.html', context)
+
+
+  except models.Survey.DoesNotExist:
+    messages.success(request, "Survey not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.SurveySubmission.DoesNotExist:
+    messages.success(request, "Survey submission not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# SURVEY SUBMISSION VIEW IN A MODAL BY ADMIN
+##########################################################
+@login_required
+def surveySubmissionViewModal(request, id='', submission_uuid=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view survey submission')
+    survey = models.Survey.objects.get(id=id)
+    submission = models.SurveySubmission.objects.get(UUID=submission_uuid, survey=survey)
+    surveyResponses = models.SurveyResponse.objects.all().filter(submission=submission).order_by('survey_component__page', 'survey_component__order')
+    context = {'survey': survey, 'submission': submission, 'surveyResponses': surveyResponses}
+    return render(request, 'bcse_app/SurveySubmissionViewModal.html', context)
 
 
   except models.Survey.DoesNotExist:

@@ -59,6 +59,12 @@
                 <label>Upload files that are less than 10MB in size.</label>
                 <input type="file" class="form-control" {% if survey_component.is_required %}required{% endif %}/>
               </div>
+            {% elif survey_component.component_type == 'DT' %}
+              <input type="date" placeholder="Enter your response" class="form-control" {% if survey_component.is_required %}required{% endif %}/>
+            {% elif survey_component.component_type == 'EM' %}
+              <input type="email" placeholder="Enter your response" class="form-control" {% if survey_component.is_required %}required{% endif %}/>
+            {% elif survey_component.component_type == 'UL' %}
+              <input type="url" placeholder="Enter your response" class="form-control" {% if survey_component.is_required %}required{% endif %}/>
             {% endif %}
           </div>
         {% endif %}

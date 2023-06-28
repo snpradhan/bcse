@@ -21,9 +21,12 @@
             <div class="error">{{ form.registration_type.errors }}</div>
           </div>
           <div class="form-group mb-3">
-            <label for="id_{{form.survey_url.name}}" class="form-label"> {{form.survey_url.label|title}}</label>
-            <div>{{form.survey_url}}</div>
-            <div class="error">{{ form.survey_url.errors }}</div>
+            <label for="id_{{form.application.name}}" class="form-label"> {{form.application.label|title}}</label>
+            <div>{{form.application}}</div>
+            {% if form.instance.id and form.instance.application.survey_submission.all|length %}
+              {{form.application.as_hidden}}
+            {% endif %}
+            <div class="error">{{ form.application.errors }}</div>
           </div>
           <div class="form-group mb-3">
             <label for="id_{{form.capacity.name}}" class="form-label"> {{form.capacity.label|title}}</label>
@@ -100,17 +103,17 @@
           $('#id_capacity').closest('.form-group').show();
           $('#id_enable_waitlist').prop('checked', true).closest('.form-group').show();
           $('#id_enable_waitlist').trigger('change');
-          $('#id_survey_url').val("").closest('.form-group').hide();
+          $('#id_application').val("").closest('.form-group').hide();
         }
         else{
           $('#id_capacity').val("").closest('.form-group').hide();
           $('#id_enable_waitlist').prop('checked', false).closest('.form-group').hide();
           $('#id_waitlist_capacity').val("").closest('.form-group').hide();
           if($(this).val() == 'A') {
-            $('#id_survey_url').closest('.form-group').show();
+            $('#id_application').closest('.form-group').show();
           }
           else {
-            $('#id_survey_url').val("").closest('.form-group').hide();
+            $('#id_application').val("").closest('.form-group').hide();
           }
         }
       });
