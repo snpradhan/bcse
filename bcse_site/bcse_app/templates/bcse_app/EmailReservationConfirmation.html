@@ -27,6 +27,12 @@
                <td class="col title" align="left">Reservation</td>
                <td class="col" align="right"><a href="https://{{domain}}/reservation/{{reservation.id}}/view" style="color:white;">View Reservation</a></td>
             </tr>
+            {% if reservation.activity and reservation.activity.manuals_resources %}
+               <tr class="row">
+                  <td class="col title" align="left">Manuals/Resources</td>
+                  <td class="col" align="right"><div style="color:white;">{{reservation.activity.manuals_resources|safe}}</div></td>
+               </tr>
+            {% endif %}
             <tr class="row address">
                <td class="col title" align="left">
                   <div>Delivery Details</div>

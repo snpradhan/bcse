@@ -100,6 +100,8 @@
               <div class="error">{{ form.num_of_students.errors }}</div>
             </div>
 
+            <div class="form-group mb-2 equipment_info">
+            </div>
             <div class="form-group form-check mb-2">
               <div>{{form.equipment_not_needed}}</div>
               <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}
@@ -138,7 +140,7 @@
                 <div class="error">{{ form.return_date.errors }}</div>
               </div>
             </div>
-            <div class="form-group mb-2 warning">
+            <div class="form-group mb-2 reservation_rules">
                {% if user.userProfile.user_role in 'AS' %}
                 <label>The restrictions below apply only to non-admins.</label>
                {% endif %}
@@ -433,6 +435,8 @@
               beforeSend: function(){
                 $('div.activity_container div.activity.general').hide();
                 $('div.activity_container div.activity.specific').remove();
+                $('div.form-group.equipment_info').html('');
+                $('div.form-group.equipment_info').hide()
               },
               complete: function(){
 
@@ -443,6 +447,11 @@
                   if (data['html']) {
                     $('div.activity_container div.activity.general').after(data['html']);
                     $('div.form-group.kit_info span.kit_name').html(data['kit_name']);
+                    if(data['materials_equipment']) {
+                      $('div.form-group.equipment_info').html(data['materials_equipment']);
+                      $('div.form-group.equipment_info').show();
+                    }
+
                   }
                   else {
                     displayErrorDialog();
@@ -465,6 +474,8 @@
           }
           //Activity is unselected
           else {
+            $('div.form-group.equipment_info').html('');
+            $('div.form-group.equipment_info').hide();
             if($('input#id_other_activity').is(':checked')) {
               $('div.activity_container div.activity.general').hide();
             }
@@ -680,9 +691,6 @@
           if($(this).val() && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
             $('div.form-group.kit_info span.num_of_classes').html($(this).val());
             $('div.form-group.kit_info').show();
-          }
-          else {
-            $('div.form-group.kit_info').hide();
           }
         });
 

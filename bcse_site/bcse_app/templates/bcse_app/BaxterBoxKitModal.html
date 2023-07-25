@@ -7,8 +7,23 @@
     <div class="modal-body">
       <div class="kit_info">
         <div class="kit_details">
+          {% if type == 'activity' %}
+            <h3 class="underline">Activity</h3>
+          {% endif %}
           <div class="wysiwyg_content">{{kit.description|safe}}</div>
         </div>
+        {% if type == 'activity' %}
+          <br>
+          <div>
+            <h3 class="underline">Materials/Equipment</h3>
+            <div class="wysiwyg_content">{{kit.materials_equipment|safe}}</div>
+          </div>
+          <br>
+          <div>
+            <h3 class="underline">Instruction Manuals/Resources</h3>
+            <div class="wysiwyg_content">{{kit.manuals_resources|safe}}</div>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>

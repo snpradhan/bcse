@@ -29,6 +29,14 @@
                       {% endif %}
                   </td>
                 </tr>
+                {% if reservation.activity.manuals_resources %}
+                  <tr>
+                    <th>Manuals/Resources</th>
+                    <td>
+                        {{reservation.activity.manuals_resources|safe}}
+                    </td>
+                  </tr>
+                {% endif %}
                 <tr>
                   <th>Number of Classes:</th>
                   <td>
@@ -46,8 +54,13 @@
                 <tr>
                   <th>Requested Lab Kits:</th>
                   <td>
-                    {% if reservation.activity %}
-                      {{reservation.activity.kit_name}} x {{reservation.num_of_classes}}
+                    {% if reservation.activity and not reservation.activity_kit_not_needed %}
+                      {{reservation.activity.kit_name}} x
+                      {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
+                        {{reservation.num_of_classes}}
+                      {% elif reservation.more_num_of_classes %}
+                        {{reservation.more_num_of_classes}}
+                      {% endif %}
                     {% endif %}
                   </td>
                 </tr>

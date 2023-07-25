@@ -24,6 +24,23 @@
         <div class="error">{{ form.description.errors }}</div>
       </div>
       <div class="form-group mb-3">
+        <label for="id_{{form.materials_equipment.name}}" class="form-label"> {{form.materials_equipment.label|title}}</label>
+        <div>{{form.materials_equipment}}</div>
+        <div class="error">{{ form.materials_equipment.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.manuals_resources.name}}" class="form-label"> {{form.manuals_resources.label|title}}</label>
+        <div>{{form.manuals_resources}}</div>
+        <div class="error">{{ form.manuals_resources.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.equipment_mapping.name}}" class="form-label"> {{form.equipment_mapping.label|title}}
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.equipment_mapping.help_text}}"></i>
+        </label>
+        <div>{{form.equipment_mapping}}</div>
+        <div class="error">{{ form.equipment_mapping.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
         <label for="id_{{form.kit_name.name}}" class="form-label"> {{form.kit_name.label|title}}</label>
         <div>{{form.kit_name}}</div>
         <div class="error">{{ form.kit_name.errors }}</div>

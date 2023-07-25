@@ -783,6 +783,11 @@ body {
       ******************************/
       div.reservation_form {
         flex: 1 1 47%;
+
+        div.equipment_info, div.reservation_rules {
+          background-color: #fafad2;
+          padding: 1em;
+        }
       }
       div.other_info {
         flex: 1 1 50%;
@@ -803,19 +808,6 @@ body {
 
             img {
               max-width: 25em;
-            }
-            div.activity_info {
-              div.activity_image {
-                float: left;
-                margin-right: 1em;
-                margin-bottom: 1em;
-                img {
-                  max-width: 10em;
-                }
-              }
-              div.activity_details {
-
-              }
             }
           }
         }
@@ -919,6 +911,10 @@ body {
           .delivery_address, .reservation_email {
             display: flex;
             justify-content: space-between;
+          }
+          a {
+            color: #0d6efd;
+            text-decoration: underline;
           }
         }
       }

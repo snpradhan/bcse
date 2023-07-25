@@ -3,7 +3,18 @@
     <h3 class="center underline"> You have selected {{activity}}</h3>
     <div class="activity_info">
       <div class="activity_details">
+        <h3 class="underline">Activity</h3>
         <div class="wysiwyg_content">{{activity.description|safe}}</div>
+      </div>
+      <br>
+      <div>
+        <h3 class="underline">Materials/Equipment</h3>
+        <div class="wysiwyg_content">{{activity.materials_equipment|safe}}</div>
+      </div>
+      <br>
+      <div>
+        <h3 class="underline">Instruction Manuals/Resources</h3>
+        <div class="wysiwyg_content">{{activity.manuals_resources|safe}}</div>
       </div>
     </div>
   </div>

@@ -553,10 +553,13 @@ def activityView(request, id=''):
           response_data = {}
           response_data['success'] = True
           response_data['kit_name'] = activity.kit_name
+          response_data['materials_equipment'] = activity.materials_equipment
+          response_data['manuals_resources'] = activity.manuals_resources
+          response_data['equipment_mapping'] = list(activity.equipment_mapping.all().values_list('name', flat=True))
           response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
           return http.HttpResponse(json.dumps(response_data), content_type="application/json")
         else:
-          context = {'title': activity.kit_name, 'kit': activity}
+          context = {'title': activity.kit_name, 'kit': activity, 'type': 'activity'}
           return render(request, 'bcse_app/BaxterBoxKitModal.html', context)
       else:
         context = {'activity': activity}
@@ -682,7 +685,7 @@ def equipmentTypeView(request, id=''):
 
     if request.method == 'GET':
       if request.is_ajax():
-        context = {'title': equipment_type.name, 'kit': equipment_type}
+        context = {'title': equipment_type.name, 'kit': equipment_type, 'type': 'equipment'}
         return render(request, 'bcse_app/BaxterBoxKitModal.html', context)
 
     return http.HttpResponseNotAllowed(['GET'])

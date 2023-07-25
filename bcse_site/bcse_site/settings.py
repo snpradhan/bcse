@@ -152,6 +152,23 @@ CKEDITOR_CONFIGS = {
         'disableNativeSpellChecker': False,
         'editorplaceholder': 'Type your message here'
     },
+    'resource_url_ckeditor': {
+        'removePlugins': 'stylesheetparser',
+        'toolbar': [
+             ['BulletedList', '-', 'Link'] ,
+             "/"
+        ],
+        'height': '50%',
+        'width': '100%',
+        'allowedContent': True,
+        'extraPlugins': ','.join(
+            ['scayt', 'autogrow']
+        ),
+        'autoGrow_onStartup': True,
+        'scayt_autoStartup': True,
+        'scayt_sLang': 'en_US',
+        'disableNativeSpellChecker': False,
+    },
 
 }
 

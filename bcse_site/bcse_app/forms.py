@@ -313,6 +313,8 @@ class ActivityForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(ActivityForm, self).__init__(*args, **kwargs)
+    self.fields['materials_equipment'].label = 'Materials/Equipment'
+    self.fields['manuals_resources'].label = 'Instruction Manuals/Resources'
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
