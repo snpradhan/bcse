@@ -228,7 +228,7 @@ class UserProfileForm (ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['work_place', 'user_role', 'image', 'validation_code', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe']
+    fields = ['work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete']
     widgets = {
       'image': widgets.FileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
@@ -244,14 +244,12 @@ class UserProfileForm (ModelForm):
     self.fields['subscribe'].label = 'Subscribe To Our Mailing List'
 
     if user.is_authenticated:
-      if user.userProfile.user_role in ['A', 'S']:
-        self.fields['validation_code'].widget.attrs['disabled'] = True
-      else:
+      if user.userProfile.user_role not in ['A', 'S']:
         self.fields['user_role'].widget.attrs['disabled'] = True
-        self.fields.pop('validation_code')
+        self.fields.pop('photo_release_complete')
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['subscribe']:
+      if field_name not in ['subscribe', 'photo_release_complete']:
         field.widget.attrs['class'] = 'form-control'
       else:
         field.widget.attrs['class'] = 'form-check-input'

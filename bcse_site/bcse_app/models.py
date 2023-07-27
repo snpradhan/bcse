@@ -220,6 +220,7 @@ class UserProfile(models.Model):
   twitter_handle = models.CharField(null=True, blank=True, max_length=20)
   instagram_handle = models.CharField(null=True, blank=True, max_length=20)
   subscribe =  models.BooleanField(default=False)
+  photo_release_complete = models.BooleanField(default=False)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

@@ -102,15 +102,24 @@
             <div class="error">{{ userProfileForm.subscribe.errors }}</div>
           </div>
         </div>
-        <div class="form-group mb-3">
-          <label for="id_{{userProfileForm.image.name}}" class="form-label"> {{userProfileForm.image.label}}</label>
-          {% if userProfileForm.instance.id and userProfileForm.instance.image.url %}
-            <div class="image_preview">
-              <img src="{{userProfileForm.instance.image.url}}" class="icon curve" alt="">
-            </div>
+        <div class="row mb-3">
+          <div class="form-group col-md-8">
+            <label for="id_{{userProfileForm.image.name}}" class="form-label"> {{userProfileForm.image.label}}</label>
+            {% if userProfileForm.instance.id and userProfileForm.instance.image.url %}
+              <div class="image_preview">
+                <img src="{{userProfileForm.instance.image.url}}" class="icon curve" alt="">
+              </div>
+            {% endif %}
+            <div>{{userProfileForm.image}}</div>
+            <div class="error">{{ userProfileForm.image.errors }}</div>
+          </div>
+          {% if userProfileForm.photo_release_complete %}
+          <div class="form-group col-md-4">
+            <label for="id_{{userProfileForm.photo_release_complete.name}}" class="form-label"> {{userProfileForm.photo_release_complete.label|title}}</label>
+            <div>{{userProfileForm.photo_release_complete}}</div>
+            <div class="error">{{ userProfileForm.photo_release_complete.errors }}</div>
+          </div>
           {% endif %}
-          <div>{{userProfileForm.image}}</div>
-          <div class="error">{{ userProfileForm.image.errors }}</div>
         </div>
 
         {% if userProfileForm.validation_code %}
@@ -123,6 +132,7 @@
           <div class="error">{{ userProfileForm.validation_code.errors }}</div>
         </div>
         {% endif %}
+
 
         <div class="form-group mb-3">
           {{userForm.is_active}}
