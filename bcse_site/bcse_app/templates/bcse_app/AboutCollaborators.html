@@ -1,0 +1,33 @@
+{% extends "bcse_app/base.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+   <div class="about_us container">
+      <div class="collaborators">
+      <h1>Our Collaborators</h1>
+      {% for collaborator in collaborators %}
+      <div class="row collaborator">
+        <div class="col-md-3"><a href="{{collaborator.url}}" target="_blank">
+          {% if collaborator.image and collaborator.image.url %}
+            <img src="{{collaborator.image.url}}">
+          {% else %}
+            {{collaborator.name}}
+          {% endif %}
+          </a>
+        </div>
+        <div class="col-md-9">
+          <div class="description">
+            <div>
+              <p class="callout wysiwyg_content">{{collaborator.description}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

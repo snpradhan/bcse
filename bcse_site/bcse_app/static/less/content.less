@@ -1491,6 +1491,30 @@ body {
           }
         }
       }
+
+      div.collaborators {
+        margin: 3em 0;
+        div.collaborator {
+          margin-top: 1em;
+          margin-bottom: 2.5em;
+          display: flex;
+          align-items: center;
+          text-align: center;
+          img {
+            max-height: 15em;
+          }
+        }
+        @media (max-width: 991px) {
+          div.collaborator {
+            display: block;
+            img {
+              max-width: 30em;
+              margin-bottom: 3em;
+            }
+          }
+        }
+      }
+
       div.baxter_centers {
         div.baxter_center {
           margin-top: 1em;

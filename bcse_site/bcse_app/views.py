@@ -88,6 +88,11 @@ def aboutPartners(request):
   context = {'partners': partners}
   return render(request, 'bcse_app/AboutPartners.html', context)
 
+def aboutCollaborators(request):
+  collaborators = models.Collaborator.objects.all().filter(status='A').order_by('order')
+  context = {'collaborators': collaborators}
+  return render(request, 'bcse_app/AboutCollaborators.html', context)
+
 def aboutTeam(request):
   members = models.Team.objects.all().filter(status='A').order_by('order')
   context = {'members': members}
