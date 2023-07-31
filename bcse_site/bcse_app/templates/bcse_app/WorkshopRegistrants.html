@@ -47,6 +47,7 @@
             <th> Email </th>
             <th> Full Name </th>
             <th> Work Place </th>
+            <th> Photo Release Complete?</th>
             <th> Created Date </th>
             <th> Status </th>
             <th > Action </th>
@@ -59,6 +60,7 @@
             <td style="background-color: #767676; color: white;"> Email </td>
             <td style="background-color: #767676; color: white;"> Full Name </td>
             <td style="background-color: #767676; color: white;"> Work Place </td>
+            <td style="background-color: #767676; color: white;"> Photo Release Complete?</td>
             <td style="background-color: #767676; color: white;"> Created Date </td>
             <td style="background-color: #767676; color: white;"> Status </td>
           </tr>
@@ -69,6 +71,7 @@
               <td> {{registrant.user.user.email}} </td>
               <td> {{registrant.user.user.get_full_name}}</td>
               <td> {{registrant.user.work_place|default_if_none:""}}</td>
+              <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>
               <td> {{registrant.created_date|date:"F j, Y g:i a" }}</td>
               <td> {{registrant.get_status_display}} </td>
               <td class="noExl">
