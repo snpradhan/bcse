@@ -410,7 +410,7 @@ class Reservation(models.Model):
   additional_help_needed = models.BooleanField(default=False)
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
-  status = models.CharField(default='R', max_length=1, choices=RESERVATION_STATUS_CHOICES)
+  status = models.CharField(default='U', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   email_sent = models.BooleanField(default=False)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -611,6 +611,60 @@ class StandalonePage(models.Model):
 
   def __str__(self):
       return '%s' % (self.title)
+
+
+# signal to check if reservation status has changed
+# then send confirmation email
+@receiver(pre_save, sender=Reservation)
+def check_reservation_status_change(sender, instance, **kwargs):
+  send_confirmation = send_request_received = False
+  current_date = datetime.datetime.now().date()
+  try:
+    obj = sender.objects.get(pk=instance.pk)
+  except sender.DoesNotExist:
+    # Object is new, so field hasn't technically changed, but you may want to do something else here.
+
+    if current_date <= instance.delivery_date:
+      if instance.status == 'U':
+        #send reservation request received email
+        send_request_received = True
+      elif instance.status == 'R':
+        #send reservation confirmation email
+        send_confirmation = True
+  else:
+    # confirming unconfirmed reservation
+    if current_date <= instance.delivery_date and obj.status == 'U' and instance.status == 'R':
+      #send confirmation email
+      send_confirmation = True
+
+  if send_confirmation or send_request_received:
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+
+    if send_confirmation:
+      subject = 'Baxter Box Reservation Confirmed'
+      if domain != 'bcse.northwestern.edu':
+        subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+      context = {'reservation': instance, 'domain': domain}
+      body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
+      receipients = UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=instance.user.id)).values_list('user__email', flat=True)
+      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+      email.content_subtype = "html"
+      success = email.send(fail_silently=True)
+      if success:
+        instance.email_sent = True
+    else:
+      subject = 'Baxter Box Reservation Request Received'
+      if domain != 'bcse.northwestern.edu':
+        subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+      context = {'reservation': instance, 'domain': domain}
+      body = get_template('bcse_app/EmailReservationRequest.html').render(context)
+      receipients = UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=instance.user.id)).values_list('user__email', flat=True)
+      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+      email.content_subtype = "html"
+      email.send(fail_silently=True)
 
 
 # signal to check if registration status has changed

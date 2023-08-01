@@ -5,7 +5,13 @@
   {{block.super}}
   <div class="content">
     <div class="reservation_container container">
-      <h1> Reservation Confirmation </h1>
+      <h1>
+        {% if reservation.status in 'R' %}
+          Reservation Confirmation
+        {% else %}
+          Reservation Details
+        {% endif %}
+      </h1>
       {% include "bcse_app/ReservationTabs.html" with tab='view' %}
       <div id="reservation_container">
         <div class="reservation_contact_details">

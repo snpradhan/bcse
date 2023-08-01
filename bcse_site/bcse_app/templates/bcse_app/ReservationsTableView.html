@@ -297,7 +297,7 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  {% if reservation.status != 'D' %}
+                  {% if reservation.status not in 'UD' %}
                     <li>
                       <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationEmailSend' reservation.id %}" href="#">
                         {% if reservation.email_sent %}

@@ -906,9 +906,7 @@ def reservationEdit(request, id=''):
             if '' != id:
               messages.success(request, "Reservation saved")
             else:
-              messages.success(request, "Reservation made")
-              if current_date <= savedReservation.delivery_date:
-                reservationEmailSend(request, savedReservation.id)
+              messages.success(request, "Reservation request received")
 
             return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
           else:
@@ -922,9 +920,7 @@ def reservationEdit(request, id=''):
           if '' != id:
             messages.success(request, "Reservation saved")
           else:
-            messages.success(request, "Reservation made")
-            if current_date <= savedReservation.delivery_date:
-              reservationEmailSend(request, savedReservation.id)
+            messages.success(request, "Reservation request received")
 
           return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
       else:
