@@ -6,11 +6,6 @@
     </div>
     <div class="modal-body">
       <div class="kit_info">
-        <div class="kit_image">
-          {% if kit.image %}
-            <img src="{{kit.image.url}}"/>
-          {% endif %}
-        </div>
         <div class="kit_details">
           <div class="wysiwyg_content">{{kit.description|safe}}</div>
         </div>
