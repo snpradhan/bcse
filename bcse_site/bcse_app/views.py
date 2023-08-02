@@ -113,7 +113,7 @@ def contactUs(request):
 def baxterBoxInfo(request):
   try:
     activities = models.Activity.objects.all().filter(status='A')
-    equipment_types = models.EquipmentType.objects.all().filter(status='A')
+    equipment_types = models.EquipmentType.objects.all().filter(status='A').order_by('order')
     current_date = datetime.datetime.now().date()
     blackout_dates = models.BaxterBoxBlackoutDate.objects.all().filter(Q(start_date__gte=current_date) | Q(end_date__gte=current_date))
 
@@ -604,7 +604,7 @@ def equipmentTypes(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view equipment types')
 
-    equipment_types = models.EquipmentType.objects.all()
+    equipment_types = models.EquipmentType.objects.all().order_by('order')
     context = {'equipment_types': equipment_types}
     return render(request, 'bcse_app/EquipmentTypes.html', context)
 
@@ -1571,7 +1571,7 @@ def baxterBoxUsageReport(request):
 
     if request.method == 'GET':
       reservations = models.Reservation.objects.all().exclude(status='N')
-      equipment_types = models.EquipmentType.objects.all().order_by('name')
+      equipment_types = models.EquipmentType.objects.all().order_by('order')
       activities = models.Activity.objects.all().order_by('name')
       searchForm = forms.BaxterBoxUsageSearchForm(user=request.user, prefix="usage")
       equipment_usage = {}

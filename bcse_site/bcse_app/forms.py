@@ -359,6 +359,7 @@ class EquipmentForm(ModelForm):
 # Equipment Availability Search Form
 ####################################
 class EquipmentAvailabilityForm (forms.Form):
+
   equipment_types = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   selected_month = forms.DateField(required=True, initial=datetime.datetime.now(), label=u'Month/Year', widget=forms.widgets.DateInput(format="%B %Y"))
 
@@ -376,7 +377,7 @@ class EquipmentAvailabilityForm (forms.Form):
 
 class ReservationForm(ModelForm):
   equipment_types = forms.ModelMultipleChoiceField(required=False,
-                                  queryset=models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('name'), widget=FilteredSelectMultiple("", is_stacked=False))
+                                  queryset=models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order'), widget=FilteredSelectMultiple("", is_stacked=False))
  
   class Meta:
     model = models.Reservation
@@ -934,7 +935,7 @@ class ReservationsSearchForm(forms.Form):
   assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
   activity = forms.ModelChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'))
-  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':6}))
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
   return_before = forms.DateField(required=False, label=u'Return on/before')
   status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, initial=['O', 'R', 'U'], widget=forms.SelectMultiple(attrs={'size':6}))
@@ -1111,7 +1112,7 @@ class BaxterBoxUsageSearchForm(forms.Form):
   to_date = forms.DateField(required=False, label=u'To')
   work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Work Place", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the work place ...'}),)
   activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
-  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':6}))
   status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
 
 

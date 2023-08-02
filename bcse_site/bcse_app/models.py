@@ -236,12 +236,13 @@ class EquipmentType(models.Model):
   short_name = models.CharField(null=True, blank=True, max_length=256, help_text='Short name for displaying on the calendar')
   description = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment type')
+  order = models.IntegerField(null=False, blank=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
-      ordering = ['name']
+      ordering = ['order']
 
   def __str__(self):
       return '%s' % (self.name)
@@ -254,7 +255,7 @@ class Equipment (models.Model):
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
-      ordering = ['-id']
+      ordering = ['equipment_type__order', 'name']
 
   def __str__(self):
       return '%s - %s' % (self.equipment_type, self.name)
