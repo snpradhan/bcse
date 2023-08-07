@@ -280,12 +280,18 @@
         var reservation_return_days = {{reservation_settings.reservation_return_days}};
         var reservation_min_advance_days = {{reservation_settings.reservation_min_advance_days}};
         var reservation_max_advance_days = {{reservation_settings.reservation_max_advance_days}};
+
+        var reservation_min_days = {{reservation_settings.reservation_min_days}};
+        var reservation_max_days = {{reservation_settings.reservation_max_days}};
+
         var reservation_blackout_timestamps = '{{reservation_settings.reservation_blackout_timestamps}}';
         if (reservation_blackout_timestamps != '') {
           reservation_blackout_timestamps = JSON.parse(reservation_blackout_timestamps);
         }
         var user_role = "{{user.userProfile.user_role}}";
         var current_timestamp = Math.floor(Date.now() / 1000);
+        var min_reservation_unixdate = current_timestamp + reservation_min_advance_days * 24 * 60 * 60;
+        var max_reservation_unixdate = current_timestamp + reservation_max_advance_days * 24 * 60 * 60;
 
         //date restrictions for non admins
         if(!["A", "S"].includes(user_role)) {
@@ -297,7 +303,7 @@
               //convert javascript day to python day
               var day = d.getDay() - 1;
               var unixtime = Math.floor(d.getTime() / 1000);
-              if (unixtime < current_timestamp) {
+              if (unixtime < current_timestamp || unixtime < min_reservation_unixdate || unixtime > max_reservation_unixdate) {
                 return [false]
               }
               else {
@@ -315,32 +321,49 @@
               }
             }
           });
-          $('.datepicker.reservation_return_date').datepicker({
-            dateFormat: "MM dd, yy",
-            changeMonth: true,
-            changeYear: true,
-            beforeShowDay: function(d) {
-              //convert javascript day to python day
-              var day = d.getDay() - 1;
-              var unixtime = Math.floor(d.getTime() / 1000);
-              if (unixtime < current_timestamp) {
-                return [false]
-              }
-              else {
-                var is_blackout_date = false;
-                for (index in reservation_blackout_timestamps) {
-                  if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
-                    is_blackout_date = true;
-                    break;
-                  }
-                }
-                if (is_blackout_date) {
-                  return [false]
-                }
-                return [reservation_return_days.includes(day)];
-              }
+          $('.datepicker.reservation_return_date').attr('disabled', true);
+          $('.datepicker.reservation_return_date').on('click', function(){
+            if($('input#id_delivery_date').datepicker('getDate') == null){
+              displayWarningDialog('Please select the Delivery Date first.');
             }
           });
+
+          $('.datepicker.reservation_delivery_date').on('change', function(){
+            if($(this).val()){
+              var delivery_unixtime = Math.floor($('input#id_delivery_date').datepicker('getDate').getTime() / 1000);
+              var min_return_unixtime = delivery_unixtime + reservation_min_days * 24 * 60 * 60;
+              var max_return_unixtime = delivery_unixtime + reservation_max_days * 24 * 60 * 60;
+              $('.datepicker.reservation_return_date').datepicker("setDate", null);
+              $('.datepicker.reservation_return_date').datepicker("destroy");
+              $('.datepicker.reservation_return_date').datepicker({
+                dateFormat: "MM dd, yy",
+                changeMonth: true,
+                changeYear: true,
+                beforeShowDay: function(d) {
+                  //convert javascript day to python day
+                  var day = d.getDay() - 1;
+                  var unixtime = Math.floor(d.getTime() / 1000);
+                  if (unixtime < current_timestamp || unixtime < min_reservation_unixdate || unixtime > max_reservation_unixdate || unixtime < min_return_unixtime || unixtime > max_return_unixtime) {
+                    return [false]
+                  }
+                  else {
+                    var is_blackout_date = false;
+                    for (index in reservation_blackout_timestamps) {
+                      if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
+                        is_blackout_date = true;
+                        break;
+                      }
+                    }
+                    if (is_blackout_date) {
+                      return [false]
+                    }
+                    return [reservation_return_days.includes(day)];
+                  }
+                }
+              });
+            }
+          });
+
         }
         else {
           $('.datepicker.reservation_date').datepicker({
