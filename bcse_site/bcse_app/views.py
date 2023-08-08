@@ -2039,7 +2039,7 @@ def workshopView(request, id=''):
 def workshopRegistration(request, workshop_id):
 
   registration = {}
-  form = workshop_registration = user_message = admin_message = message_class = None
+  form = workshop_registration = user_message = admin_message = message_class = current_status = None
   registration_open = False
 
   workshop = models.Workshop.objects.get(id=workshop_id)
@@ -2071,6 +2071,10 @@ def workshopRegistration(request, workshop_id):
           registration_message = workshopRegistrationMessage(workshop_registration)
           user_message = registration_message['message']
           message_class = registration_message['message_class']
+          current_status = workshop_registration.status
+          # if registration is cancelled, allow users to re-register or re-apply
+          if current_status == 'N':
+            workshop_registration.status = registration_setting_status['default_registration_status']
         except models.Registration.DoesNotExist:
           workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
           if registration_setting_status['message']:
@@ -2086,6 +2090,7 @@ def workshopRegistration(request, workshop_id):
     registration['instance'] = workshop_registration
     registration['user_message'] = user_message
     registration['message_class'] = message_class
+    registration['current_status'] = current_status
 
     return registration
 
@@ -2110,6 +2115,7 @@ def workshopRegistration(request, workshop_id):
         registration['user_message'] = user_message
         registration['message_class'] = message_class
         registration['instance'] = saved_registration
+        registration['current_status'] = saved_registration.status
 
       success = True
     else:
@@ -2125,6 +2131,7 @@ def workshopRegistration(request, workshop_id):
       registration['form'] = form
       registration['instance'] = workshop_registration
       registration['message_class'] = message_class
+      registration['current_status'] = current_status
       success = False
 
     if request.is_ajax():
@@ -2310,8 +2317,7 @@ def workshopRegistrationDelete(request, workshop_id='', id=''):
       workshop = models.Workshop.objects.get(id=workshop_id)
 
       if request.user.userProfile.user_role not in ['A', 'S']:
-        if request.user.userProfile != registration.user:
-          raise CustomException('You do not have the permission to edit this registration')
+        raise CustomException('You do not have the permission to edit this registration')
 
       if registration.workshop_registration_setting.workshop.id != workshop.id:
         raise CustomException('Registration does not belong to the workshop')
@@ -2322,6 +2328,44 @@ def workshopRegistrationDelete(request, workshop_id='', id=''):
         workshop_application.application.delete()
       registration.delete()
       messages.success(request, "Registration has been deleted")
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.Registration.DoesNotExist:
+    messages.success(request, "Registration not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################
+# CANCEL WORKSHOP REGISTRATION
+################################################
+def workshopRegistrationCancel(request, workshop_id='', id=''):
+
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to edit this registration')
+    else:
+      registration = models.Registration.objects.get(id=id)
+      workshop = models.Workshop.objects.get(id=workshop_id)
+
+      if request.user.userProfile.user_role not in ['A', 'S']:
+        if request.user.userProfile != registration.user:
+          raise CustomException('You do not have the permission to edit this registration')
+
+      if registration.workshop_registration_setting.workshop.id != workshop.id:
+        raise CustomException('Registration does not belong to the workshop')
+
+      #delete associated workshop application
+      workshop_applications = models.WorkshopApplication.objects.all().filter(registration=registration)
+      for workshop_application in workshop_applications:
+        workshop_application.application.delete()
+      registration.status = 'N'
+      registration.save()
+      messages.success(request, "Registration has been cancelled")
       return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
   except models.Workshop.DoesNotExist:
@@ -2358,9 +2402,9 @@ def workshopRegistrationMessage(workshop_registration):
   elif workshop_registration.status == 'P':
     message = 'You %s is pending for this workshop' % registration_type
     message_class = 'warning'
-  elif workshop_registration.status == 'N':
-    message = 'Your %s is cancelled for this workshop' % registration_type
-    message_class = 'error'
+  #elif workshop_registration.status == 'N':
+  #  message = 'Your %s is cancelled for this workshop' % registration_type
+  #  message_class = 'error'
   elif workshop_registration.status == 'W':
     message = 'Your %s is waitlisted for this workshop' % registration_type
     message_class = 'warning'
@@ -2393,12 +2437,12 @@ def workshopsBaseQuery(request, flag='list', user_id=''):
   workshops = None
   if request.user.is_authenticated:
     if user_id:
-      workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user__id=user_id)
+      workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user__id=user_id).exclude(registration_setting__workshop_registrants__status='N')
     elif request.user.userProfile.user_role not in ['A', 'S']:
       if flag =='list':
         workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
       else:
-        workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user=request.user.userProfile)
+        workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user=request.user.userProfile).exclude(registration_setting__workshop_registrants__status='N')
     else:
       workshops = models.Workshop.objects.all()
   else:
@@ -4597,7 +4641,13 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
             submission.save()
             if survey.survey_type == 'W' and workshop_id:
               workshop = models.Workshop.objects.get(id=workshop_id)
-              registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status='A')
+              try:
+                registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
+                registration.status = 'A'
+                registration.save()
+              except models.Registration.DoesNotExist:
+                registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status='A')
+
               models.WorkshopApplication.objects.create(registration=registration, application=submission)
               messages.success(request, 'Your application has been submitted')
 

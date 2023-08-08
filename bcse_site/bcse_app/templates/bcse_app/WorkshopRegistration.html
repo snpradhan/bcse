@@ -4,58 +4,63 @@
       <div>{{registration.user_message|safe}}</div>
       <br>
       {% now 'Y-m-d' as current_date %}
-      {% if registration.instance.id  and current_date < workshop.start_date|date:'Y-m-d' %}
-        <a role="button" class="btn btn-danger btn-small delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.instance.id %}" data-title="your registration for <strong>{{workshop.name}}</strong>">
-          Delete
+      {% if registration.instance.id  and registration.current_status != 'N' and current_date < workshop.start_date|date:'Y-m-d' %}
+        <a role="button" class="btn btn-danger btn-small cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.instance.id %}" data-title="your registration for <strong>{{workshop.name}}</strong>">
+          Cancel
         </a>
       {% endif %}
     </div>
-  {% elif registration.form %}
-    <form method="POST" id="formWorkshopRegistration_{{workshop.id}}" action="{% url 'bcse:workshopRegistration' workshop.id %}" class="formWorkshopRegistration">
-      {% csrf_token %}
-      {% if user.userProfile.user_role == 'A' %}
-        {{registration.form.workshop_registration_setting.as_hidden}}
-        <div class="form-group mb-3">
-          <label for="id_{{registration.form.user.name}}" class="form-label"> {{registration.form.user.label}}</label>
-          <div>{{registration.form.user}}</div>
-          <div class="error">{{ registration.form.user.errors }}</div>
-        </div>
-        <div class="form-group mb-3">
-          <label for="id_{{registration.form.status.name}}" class="form-label"> {{registration.form.status.label}}</label>
-          <div>{{registration.form.status}}</div>
-          <div class="error">{{ registration.form.status.errors }}</div>
-        </div>
-      {% else %}
-        {{registration.form.workshop_registration_setting.as_hidden}}
-        {{registration.form.user.as_hidden}}
-        {{registration.form.status.as_hidden}}
-      {% endif %}
-      <div class="form-group mb-3 center">
-        {% if user.userProfile.user_role in 'AS' %}
-          <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
-            {% if workshop.registration_setting.registration_type == 'R' %}
-              Register
-            {% else %}
-              Apply
-            {% endif %}
-          </button>
-          <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+  {% endif %}
+  {% if registration.form %}
+    {% if registration.current_status == None or registration.current_status == 'N' %}
+      <form method="POST" id="formWorkshopRegistration_{{workshop.id}}" action="{% url 'bcse:workshopRegistration' workshop.id %}" class="formWorkshopRegistration">
+        {% csrf_token %}
+        {% if user.userProfile.user_role == 'A' %}
+          {{registration.form.workshop_registration_setting.as_hidden}}
+          <div class="form-group mb-3">
+            <label for="id_{{registration.form.user.name}}" class="form-label"> {{registration.form.user.label}}</label>
+            <div>{{registration.form.user}}</div>
+            <div class="error">{{ registration.form.user.errors }}</div>
+          </div>
+          <div class="form-group mb-3">
+            <label for="id_{{registration.form.status.name}}" class="form-label"> {{registration.form.status.label}}</label>
+            <div>{{registration.form.status}}</div>
+            <div class="error">{{ registration.form.status.errors }}</div>
+          </div>
         {% else %}
-          {% if workshop.registration_setting.registration_type == 'R' %}
+          {{registration.form.workshop_registration_setting.as_hidden}}
+          {{registration.form.user.as_hidden}}
+          {{registration.form.status.as_hidden}}
+        {% endif %}
+        <div class="form-group mb-3 center">
+          {% if user.userProfile.user_role in 'AS' %}
             <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
-              Register
-            </button>
-          {% else %}
-            {% if workshop.registration_setting.application %}
-              <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" href="#">Apply</a>
-            {% else %}
-              <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+              {% if workshop.registration_setting.registration_type == 'R' %}
+                Register
+              {% else %}
                 Apply
+              {% endif %}
+            </button>
+            <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+          {% else %}
+            {% if workshop.registration_setting.registration_type == 'R' %}
+              <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+                Register
               </button>
+            {% else %}
+              {% if workshop.registration_setting.application %}
+                <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" href="#">
+                  Apply
+                </a>
+              {% else %}
+                <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+                  Apply
+                </button>
+              {% endif %}
             {% endif %}
           {% endif %}
-        {% endif %}
-      </div>
-    </form>
+        </div>
+      </form>
+    {% endif %}
   {% endif %}
 {% endif %}

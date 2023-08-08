@@ -162,7 +162,8 @@ function bindRegistrationSubmit(){
               });
             }
             bindRegistrationSubmit();
-            bindDeleteAction()
+            bindDeleteAction();
+            bindCancelAction();
           }
           else {
             displayErrorDialog();

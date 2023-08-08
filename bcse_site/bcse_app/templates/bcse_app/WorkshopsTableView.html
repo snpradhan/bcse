@@ -123,9 +123,9 @@
                       {% if current_date < workshop.start_date|date:'Y-m-d' %}
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                          <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registration.id %}"
+                          <a class="dropdown-item cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.id %}"
                           data-title="your registration for <strong>{{workshop.name}}</strong>">
-                            Delete Registration
+                            Cancel Registration
                           </a>
                         </li>
                       {% endif %}
