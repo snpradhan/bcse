@@ -321,7 +321,12 @@
               }
             }
           });
-          $('.datepicker.reservation_return_date').attr('disabled', true);
+          if($('input#id_delivery_date').datepicker('getDate') == null) {
+            $('.datepicker.reservation_return_date').attr('disabled', true);
+          }
+          else{
+            setReturnDatePicker();
+          }
           $('.datepicker.reservation_return_date').on('click', function(){
             if($('input#id_delivery_date').datepicker('getDate') == null){
               displayWarningDialog('Please select the Delivery Date first.');
@@ -330,37 +335,7 @@
 
           $('.datepicker.reservation_delivery_date').on('change', function(){
             if($(this).val()){
-              var delivery_unixtime = Math.floor($('input#id_delivery_date').datepicker('getDate').getTime() / 1000);
-              var min_return_unixtime = delivery_unixtime + reservation_min_days * 24 * 60 * 60;
-              var max_return_unixtime = delivery_unixtime + reservation_max_days * 24 * 60 * 60;
-              $('.datepicker.reservation_return_date').datepicker("setDate", null);
-              $('.datepicker.reservation_return_date').datepicker("destroy");
-              $('.datepicker.reservation_return_date').datepicker({
-                dateFormat: "MM dd, yy",
-                changeMonth: true,
-                changeYear: true,
-                beforeShowDay: function(d) {
-                  //convert javascript day to python day
-                  var day = d.getDay() - 1;
-                  var unixtime = Math.floor(d.getTime() / 1000);
-                  if (unixtime < current_timestamp || unixtime < min_reservation_unixdate || unixtime > max_reservation_unixdate || unixtime < min_return_unixtime || unixtime > max_return_unixtime) {
-                    return [false]
-                  }
-                  else {
-                    var is_blackout_date = false;
-                    for (index in reservation_blackout_timestamps) {
-                      if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
-                        is_blackout_date = true;
-                        break;
-                      }
-                    }
-                    if (is_blackout_date) {
-                      return [false]
-                    }
-                    return [reservation_return_days.includes(day)];
-                  }
-                }
-              });
+              setReturnDatePicker();
             }
           });
 
@@ -370,6 +345,40 @@
             dateFormat: "MM dd, yy",
             changeMonth: true,
             changeYear: true
+          });
+        }
+
+        function setReturnDatePicker() {
+          var delivery_unixtime = Math.floor($('input#id_delivery_date').datepicker('getDate').getTime() / 1000);
+          var min_return_unixtime = delivery_unixtime + reservation_min_days * 24 * 60 * 60;
+          var max_return_unixtime = delivery_unixtime + reservation_max_days * 24 * 60 * 60;
+          $('.datepicker.reservation_return_date').datepicker("setDate", null);
+          $('.datepicker.reservation_return_date').datepicker("destroy");
+          $('.datepicker.reservation_return_date').datepicker({
+            dateFormat: "MM dd, yy",
+            changeMonth: true,
+            changeYear: true,
+            beforeShowDay: function(d) {
+              //convert javascript day to python day
+              var day = d.getDay() - 1;
+              var unixtime = Math.floor(d.getTime() / 1000);
+              if (unixtime < current_timestamp || unixtime < min_reservation_unixdate || unixtime > max_reservation_unixdate || unixtime < min_return_unixtime || unixtime > max_return_unixtime) {
+                return [false]
+              }
+              else {
+                var is_blackout_date = false;
+                for (index in reservation_blackout_timestamps) {
+                  if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
+                    is_blackout_date = true;
+                    break;
+                  }
+                }
+                if (is_blackout_date) {
+                  return [false]
+                }
+                return [reservation_return_days.includes(day)];
+              }
+            }
           });
         }
 
