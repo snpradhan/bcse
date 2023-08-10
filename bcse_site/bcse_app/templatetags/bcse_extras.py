@@ -31,44 +31,44 @@ def get_page_end_index(paginator, page_number):
 @register.filter
 def get_current_reservation_status(equipment):
   if equipment.status == 'A':
-    reservations = models.Reservation.objects.all().filter(delivery_date__lte=datetime.datetime.now(), return_date__gte=datetime.datetime.now(), equipment__id=equipment.id)
+    reservations = models.Reservation.objects.all().filter(delivery_date__lte=datetime.datetime.now(), return_date__gte=datetime.datetime.now(), equipment__id=equipment.id).exclude(status='N')
     if reservations.count() == 1:
-      return 'Checked Out'
+      return reservations[0].get_status_display()
     else:
       return 'Available'
   else:
-    return 'Unavailable'
+    return 'Inactive'
 
 @register.filter
 def get_available_equipment_count(equipment_type):
   if equipment_type.status == 'A':
     total_equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='A').count()
-    checked_out_equipment = models.Reservation.objects.all().filter(delivery_date__lte=datetime.datetime.now(),
+    reserved_equipment = models.Reservation.objects.all().filter(delivery_date__lte=datetime.datetime.now(),
                                                            return_date__gte=datetime.datetime.now(),
                                                            equipment__equipment_type__id=equipment_type.id,
                                                            equipment__status='A'
-                                                           ).count()
-    return total_equipment - checked_out_equipment
+                                                           ).exclude(status='N').count()
+    return total_equipment - reserved_equipment
   else:
     return 0
 
 @register.filter
-def get_unavailable_equipment_count(equipment_type):
+def get_inactive_equipment_count(equipment_type):
   if equipment_type.status == 'A':
-    unavailable_equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='I').count()
-    return unavailable_equipment
+    inactive_equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='I').count()
+    return inactive_equipment
   else:
     return 0
 
 @register.filter
-def get_checked_out_equipment_count(equipment_type):
+def get_reserved_equipment_count(equipment_type):
   if equipment_type.status == 'A':
-    checked_out_equipment = models.Reservation.objects.all().filter(delivery_date__lte=datetime.datetime.now(),
+    reserved_equipment = models.Reservation.objects.all().filter(delivery_date__lte=datetime.datetime.now(),
                                                            return_date__gte=datetime.datetime.now(),
                                                            equipment__equipment_type__id=equipment_type.id,
                                                            equipment__status='A'
-                                                           ).count()
-    return checked_out_equipment
+                                                           ).exclude(status='N').count()
+    return reserved_equipment
   else:
     return 0
 

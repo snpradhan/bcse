@@ -16,8 +16,9 @@
           <th> Short Name </th>
           <th> Status </th>
           <th> Available </th>
-          <th> Unavailable </th>
-          <th> Checked Out </th>
+          <th> Inactive </th>
+          <th> Reserved </th>
+          <th> Order </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -31,8 +32,9 @@
             <td> {{equipment_type.short_name}} </td>
             <td> {{equipment_type.get_status_display}} </td>
             <td> {{equipment_type|get_available_equipment_count}}</td>
-            <td> {{equipment_type|get_unavailable_equipment_count}}</td>
-            <td> {{equipment_type|get_checked_out_equipment_count}}</td>
+            <td> {{equipment_type|get_inactive_equipment_count}}</td>
+            <td> {{equipment_type|get_reserved_equipment_count}}</td>
+            <td> {{equipment_type.order}}</td>
             <td> {{equipment_type.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{equipment_type.modified_date|date:"F j, Y g:i A"}} </td>
             <td>
