@@ -63,6 +63,8 @@
               <ul class="collapse navbar-nav {% leftnavactive request 'activities' %}
                                              {% leftnavactive request 'activity' %}
                                              {% leftnavactive request 'equipmentTypes' %}
+                                             {% leftnavactive request 'baxterBoxCategories' %}
+                                             {% leftnavactive request 'baxterBoxSubCategories' %}
                                              {% leftnavactive request 'equipmentType' %}
                                              {% leftnavactive request 'equipments' %}
                                              {% leftnavactive request 'equipment' %}
@@ -77,6 +79,9 @@
                 </li>
                 <li class="{% if 'equipmentType' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:equipmentTypes' %}">Equipment Types</a>
+                </li>
+                 <li class="{% if 'baxterBoxCategories' in request.path or 'baxterBoxSubCategories' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:baxterBoxCategories' %}">Baxter Box Categories</a>
                 </li>
                 <li class="{% if 'equipments' in request.path or 'equipment/' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:equipments' %}">Equipment</a>

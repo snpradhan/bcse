@@ -50,6 +50,10 @@ $(function (){
           else if (form_id == 'availability_filter_form') {
             bindCalendarNavigation();
           }
+          else if (form_id == 'baxter_box_filter_form') {
+            bindBaxterBoxTabs();
+            bindModalOpen();
+          }
           bindPagination();
           bindDeleteAction();
           bindCancelAction();
@@ -326,6 +330,15 @@ function bindCalendarNavigation() {
   });
   equalheight();
   $(window).bind("resize", equalheight);
+}
+
+function bindBaxterBoxTabs() {
+  if ($('input#current_tab').val() == 'activities_tab') {
+    $('a#activities_tab').trigger('click');
+  }
+  else {
+    $('a#equipment_tab').trigger('click');
+  }
 }
 
 function equalheight() {

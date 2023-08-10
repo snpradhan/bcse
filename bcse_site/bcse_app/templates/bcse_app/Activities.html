@@ -15,6 +15,7 @@
           <th> Name </th>
           <th> Kit Name </th>
           <th> Status </th>
+          <th> Tags </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -27,6 +28,10 @@
             <td> {{activity.name}} </td>
             <td> {{activity.kit_name}} </td>
             <td> {{activity.get_status_display}} </td>
+            <td> {% for tag in activity.tags.all %}
+                  {{tag}} <br>
+                 {% endfor %}
+            </td>
             <td> {{activity.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{activity.modified_date|date:"F j, Y g:i A"}} </td>
             <td>

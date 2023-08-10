@@ -1,0 +1,67 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Baxter Box Sub Categories </h1>
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxCategoryNew' %}" href="#" role="button">Create Baxter Box Category</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxSubCategoryNew' %}" href="#" role="button">Create Baxter Box Sub Category</a>
+  </div>
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <label><a class="nav-link" aria-current="page" id="category_tab" href="{% url 'bcse:baxterBoxCategories' %}">Categories</a></label>
+    </li>
+    <li class="nav-item">
+      <label><a class="nav-link active" aria-current="page" id="sub_category_tab" >Sub Categories</a></label>
+    </li>
+  </ul>
+  <div class="search_results">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> Baxter Box Sub Category ID</th>
+          <th> Baxter Box Sub Category</th>
+          <th> Name </th>
+          <th> Status </th>
+          <th> Order </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for baxter_box_sub_category in baxter_box_sub_categories %}
+          <tr>
+            <td> {{baxter_box_sub_category.id}}</td>
+            <td> {{baxter_box_sub_category.category}}</td>
+            <td> {{baxter_box_sub_category.name}} </td>
+            <td> {{baxter_box_sub_category.get_status_display}} </td>
+            <td> {{baxter_box_sub_category.order}} </td>
+            <td> {{baxter_box_sub_category.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{baxter_box_sub_category.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxSubCategoryEdit' baxter_box_sub_category.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:baxterBoxSubCategoryDelete' baxter_box_sub_category.id %}"
+                    data-title="the Baxter Box subcategory <strong>{{baxter_box_sub_category.name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>          
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

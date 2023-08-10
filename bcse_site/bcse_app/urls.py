@@ -69,6 +69,16 @@ urlpatterns = [
     path('adminConfiguration/baxter_box/blackout_date/<int:id>/delete', views.blackoutDateDelete, name='blackoutDateDelete'),
     path('adminConfiguration/baxter_box/blackout_dates/', views.blackoutDates, name='blackoutDates'),
 
+    path('adminConfiguration/baxter_box/baxterBoxCategories/', views.baxterBoxCategories, name='baxterBoxCategories'),
+    path('adminConfiguration/baxter_box/baxterBoxSubCategories/', views.baxterBoxSubCategories, name='baxterBoxSubCategories'),
+    path('adminConfiguration/baxter_box/category/<int:id>/edit', views.baxterBoxCategoryEdit, name='baxterBoxCategoryEdit'),
+    path('adminConfiguration/baxter_box/category/<int:id>/delete', views.baxterBoxCategoryDelete, name='baxterBoxCategoryDelete'),
+    path('adminConfiguration/baxter_box/category/new', views.baxterBoxCategoryEdit, name='baxterBoxCategoryNew'),
+    path('adminConfiguration/baxter_box/subCategory/<int:id>/edit', views.baxterBoxSubCategoryEdit, name='baxterBoxSubCategoryEdit'),
+    path('adminConfiguration/baxter_box/subCategory/<int:id>/delete', views.baxterBoxSubCategoryDelete, name='baxterBoxSubCategoryDelete'),
+    path('adminConfiguration/baxter_box/subCategory/new', views.baxterBoxSubCategoryEdit, name='baxterBoxSubCategoryNew'),
+
+
     path('adminConfiguration/baxter_box/reservation_color/<int:id>/edit', views.reservationColorEdit, name='reservationColorEdit'),
     path('adminConfiguration/baxter_box/reservation_color/new', views.reservationColorEdit, name='reservationColorNew'),
     path('adminConfiguration/baxter_box/reservation_color/<int:id>/delete', views.reservationColorDelete, name='reservationColorDelete'),
@@ -141,6 +151,7 @@ urlpatterns = [
     path('survey/<int:survey_id>/submission/<uuid:submission_uuid>/page/<int:page_num>', views.surveySubmission, name='surveySubmission'),
     path('survey/<int:survey_id>/submission/new', views.surveySubmission, name='surveySubmissionNew'),
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
+    path('baxter_box/search/', views.baxterBoxSearch, name='baxterBoxSearch'),
     path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),
     path('about/bcse', views.aboutBCSE, name='aboutBCSE'),
     path('about/centers', views.aboutCenters, name='aboutCenters'),

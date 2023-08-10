@@ -43,6 +43,32 @@
           </div>
         {% endif %}
       </div>
+      <div class="filter_container">
+        <form method="get" action="{% url 'bcse:baxterBoxSearch' %}" id="baxter_box_filter_form" class="filter_form">
+          {% csrf_token %}
+          <div class="form-group right" id="filter_toggle">
+            <label style="display:none;">Show Filters <span class="fa fa-plus-circle"></span></label>
+            <label>Hide Filters <span class="fa fa-minus-circle"></span></label>
+          </div>
+           <div id="filter_content">
+            <div id="filter_fields">
+              {% for field in searchForm %}
+                <div class="form-group">
+                  <label for="id_{{field.name}}">{{ field.label }}</label>
+                  <div>{{field}}</div>
+                  <div class="error">{{ field.errors }}</div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <div class="form-group right" id="filter_buttons">
+              <input type="hidden" id="current_tab" value="activities_tab"/>
+              <button class="btn" type="button" id="clear">Clear Filter</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
       <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
           <label><a class="nav-link" aria-current="page" id="activities_tab">Activities</a></label>
@@ -51,8 +77,15 @@
           <label><a class="nav-link" aria-current="page" id="equipment_tab">Lab Equipment</a></label>
         </li>
       </ul>
-      {% include "bcse_app/ActivityTiles.html" %}
-      {% include "bcse_app/EquipmentTiles.html" %}
+      <div class="form-group" id="spinner">
+        <img src="/static/img/page-loader.gif" class="icon"/>
+      </div>
+
+      <div class="baxter_boxes search_results">
+        {% include "bcse_app/ActivityTiles.html" %}
+        {% include "bcse_app/EquipmentTiles.html" %}
+      </div>
+
       <div class="mt-3 center">
         {% if user.is_authenticated %}
           <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
@@ -65,19 +98,25 @@
 
     <script type="text/javascript">
       $(function(){
-        $('a#activities_tab').on('click', function(e){
-          $('a.nav-link').removeClass('active');
-          $('.tiles').hide();
-          $(this).addClass('active');
-          $('.tiles.activity_tiles').show();
-        });
-        $('a#equipment_tab').on('click', function(e){
-          $('a.nav-link').removeClass('active');
-          $('.tiles').hide();
-          $(this).addClass('active');
-          $('.tiles.equipment_tiles').show();
-        });
-        $('a#activities_tab').trigger('click');
+        window.onload = function() {
+          $('a#activities_tab').on('click', function(e){
+            $('a.nav-link').removeClass('active');
+            $('.tiles').hide();
+            $(this).addClass('active');
+            $('.tiles.activity_tiles').show();
+            $('input#current_tab').val('activities_tab')
+          });
+          $('a#equipment_tab').on('click', function(e){
+            $('a.nav-link').removeClass('active');
+            $('.tiles').hide();
+            $(this).addClass('active');
+            $('.tiles.equipment_tiles').show();
+            $('input#current_tab').val('equipment_tab')
+          });
+          $('a#activities_tab').trigger('click');
+
+
+        }
       });
     </script>
   </div>

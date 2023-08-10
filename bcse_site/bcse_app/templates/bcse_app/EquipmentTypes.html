@@ -19,6 +19,7 @@
           <th> Inactive </th>
           <th> Reserved </th>
           <th> Order </th>
+          <th> Tags </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -35,6 +36,10 @@
             <td> {{equipment_type|get_inactive_equipment_count}}</td>
             <td> {{equipment_type|get_reserved_equipment_count}}</td>
             <td> {{equipment_type.order}}</td>
+            <td> {% for tag in equipment_type.tags.all %}
+                  {{tag}} <br>
+                 {% endfor %}
+            </td>
             <td> {{equipment_type.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{equipment_type.modified_date|date:"F j, Y g:i A"}} </td>
             <td>

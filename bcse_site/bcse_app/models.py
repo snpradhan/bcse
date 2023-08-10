@@ -236,6 +236,7 @@ class EquipmentType(models.Model):
   short_name = models.CharField(null=True, blank=True, max_length=256, help_text='Short name for displaying on the calendar')
   description = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment type')
+  tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   order = models.IntegerField(null=False, blank=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -383,6 +384,7 @@ class Activity(models.Model):
   manuals_resources = RichTextField(null=True, blank=True, config_name='resource_url_ckeditor', help_text='Enter a list of urls for instruction manuals and resoruces')
   kit_name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable Kit')
   equipment_mapping = models.ManyToManyField(EquipmentType, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Consumable Kit')
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -393,6 +395,35 @@ class Activity(models.Model):
 
   def __str__(self):
       return '%s' % (self.name)
+
+
+class BaxterBoxCategory(models.Model):
+  name = models.CharField(null=False, max_length=256, unique=True, help_text='Name of Baxter Box Category')
+  order = models.IntegerField(null=False, blank=False)
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['order']
+
+  def __str__(self):
+      return '%s' % (self.name)
+
+class BaxterBoxSubCategory(models.Model):
+  category = models.ForeignKey(BaxterBoxCategory, related_name='sub_categories', null=False, on_delete=models.CASCADE)
+  name = models.CharField(null=False, max_length=256, help_text='Name of Baxter Box Category')
+  order = models.IntegerField(null=False, blank=False)
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['category__order', 'order']
+      unique_together = ('category', 'name')
+
+  def __str__(self):
+      return '%s - %s' % (self.category.name, self.name)
 
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)

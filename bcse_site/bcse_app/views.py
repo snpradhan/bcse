@@ -112,17 +112,51 @@ def contactUs(request):
 ####################################
 def baxterBoxInfo(request):
   try:
-    activities = models.Activity.objects.all().filter(status='A')
-    equipment_types = models.EquipmentType.objects.all().filter(status='A').order_by('order')
     current_date = datetime.datetime.now().date()
     blackout_dates = models.BaxterBoxBlackoutDate.objects.all().filter(Q(start_date__gte=current_date) | Q(end_date__gte=current_date))
 
-    context = {'activities': activities, 'equipment_types': equipment_types, 'blackout_dates': blackout_dates}
+    activities = models.Activity.objects.all().filter(status='A').distinct()
+    equipment_types = models.EquipmentType.objects.all().filter(status='A').distinct().order_by('order')
+    searchForm = forms.BaxterBoxSearchForm()
+    context = {'activities': activities, 'equipment_types': equipment_types, 'blackout_dates': blackout_dates, 'searchForm': searchForm}
     return render(request, 'bcse_app/BaxterBoxInfo.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def baxterBoxSearch(request):
+
+  try:
+    if request.method == 'GET':
+      activities = models.Activity.objects.all().filter(status='A').distinct()
+      equipment_types = models.EquipmentType.objects.all().filter(status='A').distinct().order_by('order')
+      categories = models.BaxterBoxCategory.objects.all().filter(status='A')
+
+      for category in categories:
+        sub_categories = request.GET.getlist('category_%s'%category.id, '')
+        if sub_categories:
+          activities = activities.filter(tags__id__in=sub_categories)
+          equipment_types = equipment_types.filter(tags__id__in=sub_categories)
+
+      response_data = {}
+      response_data['success'] = True
+      context = {'activities': activities}
+      activities_html = render_to_string('bcse_app/ActivityTiles.html', context, request)
+      context = {'equipment_types': equipment_types}
+      equipment_html = render_to_string('bcse_app/EquipmentTiles.html', context, request)
+
+      response_data['html'] = activities_html + equipment_html
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 ##########################################################
 # LIST OF BLACKOUT DATES
@@ -511,9 +545,11 @@ def activityEdit(request, id=''):
     else:
       activity = models.Activity()
 
+    categories = models.BaxterBoxCategory.objects.all().filter(status='A')
+
     if request.method == 'GET':
       form = forms.ActivityForm(instance=activity)
-      context = {'form': form}
+      context = {'form': form, 'categories': categories}
       return render(request, 'bcse_app/ActivityEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
@@ -525,7 +561,7 @@ def activityEdit(request, id=''):
       else:
         print(form.errors)
         message.error(request, "Activity could not be saved. Check the errors below.")
-        context = {'form': form}
+        context = {'form': form, 'categories': categories}
         return render(request, 'bcse_app/ActivityEdit.html', context)
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
@@ -1795,6 +1831,178 @@ def registrationEmailMessageDelete(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# EDIT BAXTER BOX CATEGORY
+####################################
+@login_required
+def baxterBoxCategoryEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit Baxter Box categories')
+    if '' != id:
+      baxter_box_category = models.BaxterBoxCategory.objects.get(id=id)
+    else:
+      baxter_box_category = models.BaxterBoxCategory()
+
+    if request.method == 'GET':
+      form = forms.BaxterBoxCategoryForm(instance=baxter_box_category)
+      context = {'form': form}
+      return render(request, 'bcse_app/BaxterBoxCategoryEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.BaxterBoxCategoryForm(data, files=request.FILES, instance=baxter_box_category)
+      response_data = {}
+      if form.is_valid():
+        savedCategory = form.save()
+        messages.success(request, "Baxter Box Category saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Baxter Box Category could not be saved. Check the errors below.")
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/BaxterBoxCategoryEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE BAXTER BOX CATEGORY
+####################################
+@login_required
+def baxterBoxCategoryDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete Baxter Box category')
+    if '' != id:
+      baxter_box_category = models.BaxterBoxCategory.objects.get(id=id)
+      baxter_box_category.delete()
+      messages.success(request, "Baxter Box Category deleted")
+
+    return shortcuts.redirect('bcse:baxterBoxCategories')
+
+  except models.BaxterBoxCategory.DoesNotExist:
+    messages.success(request, "Baxter Box category not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# BAXTER BOX CATEGORIES
+####################################
+@login_required
+def baxterBoxCategories(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view Baxter Box categories')
+
+    baxter_box_categories = models.BaxterBoxCategory.objects.all().order_by('order')
+    context = {'baxter_box_categories': baxter_box_categories}
+    return render(request, 'bcse_app/BaxterBoxCategories.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# BAXTER BOX SUBCATEGORIES
+####################################
+@login_required
+def baxterBoxSubCategories(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view Baxter Box sub categories')
+
+    baxter_box_sub_categories = models.BaxterBoxSubCategory.objects.all().order_by('order')
+    context = {'baxter_box_sub_categories': baxter_box_sub_categories}
+    return render(request, 'bcse_app/BaxterBoxSubCategories.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# EDIT BAXTER BOX SUBCATEGORY
+####################################
+@login_required
+def baxterBoxSubCategoryEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit Baxter Box sub categories')
+    if '' != id:
+      baxter_box_sub_category = models.BaxterBoxSubCategory.objects.get(id=id)
+    else:
+      if request.GET.get('baxter_box_category'):
+        print(request.GET)
+        baxter_box_category = models.BaxterBoxCategory.objects.get(id=request.GET.get('baxter_box_category'))
+        baxter_box_sub_category = models.BaxterBoxSubCategory(category=baxter_box_category)
+      else:
+        baxter_box_sub_category = models.BaxterBoxSubCategory()
+
+    if request.method == 'GET':
+      form = forms.BaxterBoxSubCategoryForm(instance=baxter_box_sub_category)
+      context = {'form': form}
+      return render(request, 'bcse_app/BaxterBoxSubCategoryEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.BaxterBoxSubCategoryForm(data, files=request.FILES, instance=baxter_box_sub_category)
+      response_data = {}
+      if form.is_valid():
+        savedCategory = form.save()
+        messages.success(request, "Baxter Box Sub Category saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Baxter Box Sub Category could not be saved. Check the errors below.")
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/BaxterBoxSubCategoryEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE BAXTER BOX SUBCATEGORY
+####################################
+@login_required
+def baxterBoxSubCategoryDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete Baxter Box sub category')
+    if '' != id:
+      baxter_box_sub_category = models.BaxterBoxSubCategory.objects.get(id=id)
+      baxter_box_sub_category.delete()
+      messages.success(request, "Baxter Box Sub Category deleted")
+
+    return shortcuts.redirect('bcse:baxterBoxCategories')
+
+  except models.BaxterBoxSubCategory.DoesNotExist:
+    messages.success(request, "Baxter Box sub category not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+
 
 ####################################
 # EDIT WORKSHOP CATEGORY

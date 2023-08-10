@@ -12,7 +12,6 @@
     <form method="post" enctype="multipart/form-data" id="formWorkshopCategory">
       {% csrf_token %}
       {{form.media}}
-
       <div class="form-group mb-3">
         <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
         <div>{{form.name}}</div>
@@ -45,6 +44,15 @@
         <div>{{form.kit_name}}</div>
         <div class="error">{{ form.kit_name.errors }}</div>
       </div>
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.tags.name}}" class="form-label"> {{form.tags.label|title}}
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.tags.help_text}}"></i>
+        </label>
+        <div>{{form.tags}}</div>
+        <div class="error">{{ form.tags.errors }}</div>
+      </div>
+
       <div class="form-group mb-3">
         <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
         {% if form.instance.id and form.instance.image.url %}

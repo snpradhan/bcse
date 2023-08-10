@@ -317,11 +317,70 @@ class ActivityForm(ModelForm):
     super(ActivityForm, self).__init__(*args, **kwargs)
     self.fields['materials_equipment'].label = 'Materials/Equipment'
     self.fields['manuals_resources'].label = 'Instruction Manuals/Resources'
+    self.fields['tags'].label = 'Tags/Categories'
+
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
+
+####################################
+# Baxter Box Category Form
+####################################
+class BaxterBoxCategoryForm(ModelForm):
+
+  class Meta:
+    model = models.BaxterBoxCategory
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(BaxterBoxCategoryForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
+# Baxter Box Sub Category Form
+####################################
+class BaxterBoxSubCategoryForm(ModelForm):
+
+  class Meta:
+    model = models.BaxterBoxSubCategory
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(BaxterBoxSubCategoryForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
+# Baxter Box Search Form
+####################################
+class BaxterBoxSearchForm(forms.Form):
+
+  def __init__(self, *args, **kwargs):
+
+    super(BaxterBoxSearchForm, self).__init__(*args, **kwargs)
+    categories = models.BaxterBoxCategory.objects.all().filter(status='A')
+    for category in categories:
+      self.fields['category_'+str(category.id)] = forms.MultipleChoiceField(
+                                                          required=False,
+                                                          widget=forms.SelectMultiple(attrs={'size':6}),
+                                                          choices=[(sub.id, sub.name) for sub in models.BaxterBoxSubCategory.objects.all().filter(category=category, status='A')],
+                                                      )
+      self.fields['category_'+str(category.id)].label = category.name
+
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
 ####################################
 # Equipment Type Form
 ####################################
@@ -336,6 +395,16 @@ class EquipmentTypeForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(EquipmentTypeForm, self).__init__(*args, **kwargs)
+    categories = models.BaxterBoxCategory.objects.all().filter(status='A')
+    for category in categories:
+      self.fields['category_'+str(category.id)] = forms.MultipleChoiceField(
+                                                          required=False,
+                                                          widget=forms.SelectMultiple,
+                                                          choices=[(sub.id, sub.name) for sub in models.BaxterBoxSubCategory.objects.all().filter(category=category, status='A')],
+                                                      )
+      self.fields['category_'+str(category.id)].label = category.name
+
+    self.fields['tags'].label = 'Tags/Categories'
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
