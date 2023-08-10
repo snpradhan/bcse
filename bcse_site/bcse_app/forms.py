@@ -247,6 +247,8 @@ class UserProfileForm (ModelForm):
       if user.userProfile.user_role not in ['A', 'S']:
         self.fields['user_role'].widget.attrs['disabled'] = True
         self.fields.pop('photo_release_complete')
+      else:
+        self.fields['work_place'].required = False
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['subscribe', 'photo_release_complete']:
