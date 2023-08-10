@@ -429,7 +429,7 @@ class ReservationForm(ModelForm):
       self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
 
     self.fields['equipment_types'].label = 'Select one or more equipment'
-    self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
+    #self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
     self.fields['other_activity'].label = 'I am doing something not listed here.'
     self.fields['other_activity_name'].label = 'What activity are you planning to do?'
     self.fields['activity_kit_not_needed'].label = 'I already have all the kits I need.'
