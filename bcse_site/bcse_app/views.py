@@ -852,7 +852,7 @@ def reservationEdit(request, id=''):
     if request.user.userProfile.user_role in ['T', 'P'] and reservation.id:
       if reservation.user != request.user.userProfile:
         raise CustomException('You do not have the permission to edit this reservation')
-      elif reservation.status in ['D', 'O', 'I']:
+      elif reservation.status in ['R', 'N', 'O', 'I']:
         raise CustomException('This reservation is %s and cannot be modified' % reservation.get_status_display())
       elif reservation.delivery_date and reservation.delivery_date < current_date:
         raise CustomException('This reservation is in the past and cannot be modified')
