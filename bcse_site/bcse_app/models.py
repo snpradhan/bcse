@@ -650,7 +650,7 @@ def check_reservation_status_change(sender, instance, **kwargs):
 
       context = {'reservation': instance, 'domain': domain}
       body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
-      receipients = UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=instance.user.id)).values_list('user__email', flat=True)
+      receipients = UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=instance.user.id)).values_list('user__email', flat=True)
       email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
       email.content_subtype = "html"
       success = email.send(fail_silently=True)
@@ -663,7 +663,7 @@ def check_reservation_status_change(sender, instance, **kwargs):
 
       context = {'reservation': instance, 'domain': domain}
       body = get_template('bcse_app/EmailReservationRequest.html').render(context)
-      receipients = UserProfile.objects.all().filter(Q(user_role__in=['A']) | Q(id=instance.user.id)).values_list('user__email', flat=True)
+      receipients = UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=instance.user.id)).values_list('user__email', flat=True)
       email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
       email.content_subtype = "html"
       email.send(fail_silently=True)
