@@ -139,14 +139,16 @@
                         {{reservation.email_sent|yesno:"Yes,No"}}
                       </div>
                       <div>
-                        <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationEmailSend' reservation.id %}" href="#">
-                          {% if reservation.email_sent %}
-                            Resend
-                          {% else %}
-                            Send
-                          {% endif %}
-                          Email
-                        </a>
+                        {% if reservation.status == 'R' %}
+                          <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" href="#">
+                            {% if reservation.email_sent %}
+                              Resend
+                            {% else %}
+                              Send
+                            {% endif %}
+                            Email
+                          </a>
+                        {% endif %}
                       </div>
                     </div>
                     </td>

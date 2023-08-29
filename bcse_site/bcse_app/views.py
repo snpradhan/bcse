@@ -843,8 +843,12 @@ def reservationEdit(request, id=''):
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to create/edit a reservation')
 
+    original_status = None
+    current_date = datetime.datetime.now().date()
+
     if '' != id:
       reservation = models.Reservation.objects.get(id=id)
+      original_status = reservation.status
     else:
       reservation = models.Reservation(created_by=request.user.userProfile)
 
@@ -891,6 +895,7 @@ def reservationEdit(request, id=''):
       if form.is_valid():
 
         equipment_types = form.cleaned_data['equipment_types']
+        savedReservation = None
 
         if equipment_types:
           availability_data = getAvailabilityData(request, id)
@@ -906,12 +911,7 @@ def reservationEdit(request, id=''):
               savedReservation.equipment.add(availability['most_available_equip'])
 
             savedReservation.save()
-            if '' != id:
-              messages.success(request, "Reservation saved")
-            else:
-              messages.success(request, "Reservation request received")
 
-            return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
           else:
             messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
             context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar, 'reservation_settings': reservation_settings }
@@ -920,12 +920,22 @@ def reservationEdit(request, id=''):
           savedReservation = form.save()
           savedReservation.equipment.clear()
           savedReservation.save()
-          if '' != id:
-            messages.success(request, "Reservation saved")
-          else:
-            messages.success(request, "Reservation request received")
 
-          return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
+        if '' != id:
+          messages.success(request, "Reservation saved")
+          if current_date <= savedReservation.delivery_date:
+            if original_status == 'U' and savedReservation.status == 'R':
+              reservationConfirmationEmailSend(request, savedReservation.id)
+        else:
+          messages.success(request, "Reservation request received")
+          if current_date <= savedReservation.delivery_date:
+            if savedReservation.status == 'U':
+              reservationReceiptEmailSend(request, savedReservation.id)
+            elif savedReservation.status == 'R':
+              reservationConfirmationEmailSend(request, savedReservation.id)
+
+        return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
+
       else:
         print(form.errors)
         messages.error(request, "Please correct the errors below and click Save again")
@@ -4895,9 +4905,9 @@ def subscription(userProfile, status, subscriber_hash=None):
 
 #####################################################
 # SEND A CONFIRMATION EMAIL TO ADMINS AND THE USER
-# WHEN A NEW RESERVATIONIS MADE
+# WHEN A RESERVATION IS CONFIRMED
 #####################################################
-def reservationEmailSend(request, id):
+def reservationConfirmationEmailSend(request, id):
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to send reservation email')
@@ -4946,6 +4956,54 @@ def reservationEmailSend(request, id):
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
 
+#####################################################
+# SEND A RECEIPT EMAIL TO ADMINS AND THE USER
+# WHEN A NEW RESERVATIONIS MADE
+#####################################################
+def reservationReceiptEmailSend(request, id):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to send reservation email')
+
+    reservation = models.Reservation.objects.get(id=id)
+    if request.user.userProfile.user_role in ['T', 'P'] and reservation.user != request.user.userProfile:
+      raise CustomException('You do not have the permission to send reservation email')
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+    subject = 'Baxter Box Reservation Request Received'
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+    context = {'reservation': reservation, 'domain': domain}
+    body = get_template('bcse_app/EmailReservationRequest.html').render(context)
+    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+    email.content_subtype = "html"
+    success = email.send(fail_silently=True)
+
+    if request.is_ajax():
+      response_data = {}
+      if success:
+        response_data['success'] = True
+        response_data['message'] = 'Reservation receipt email sent'
+      else:
+        response_data['success'] = False
+        response_data['message'] = 'Reservation receipt email could not be sent'
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 #####################################################
 # SEND A NOTIFICATION EMAIL TO ADMINS AND THE USER
 # WHEN A NEW MESSAGE IS POSTED FOR A RESERVATION

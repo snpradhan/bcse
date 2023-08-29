@@ -299,7 +299,7 @@
                   <li><hr class="dropdown-divider"></li>
                   {% if reservation.status not in 'UD' %}
                     <li>
-                      <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationEmailSend' reservation.id %}" href="#">
+                      <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" href="#">
                         {% if reservation.email_sent %}
                           Resend
                         {% else %}
