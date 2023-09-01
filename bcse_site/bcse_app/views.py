@@ -3587,6 +3587,8 @@ def usersSearch(request):
       joined_after_filter = None
       joined_before_filter = None
       status_filter = None
+      subscribed_filter = None
+      photo_release_filter = None
 
       email = request.GET.get('user_search-email', '')
       first_name = request.GET.get('user_search-first_name', '')
@@ -3596,7 +3598,12 @@ def usersSearch(request):
       joined_after = request.GET.get('user_search-joined_after', '')
       joined_before = request.GET.get('user_search-joined_before', '')
       status = request.GET.get('user_search-status', '')
+      subscribed = request.GET.get('user_search-subscribed', '')
+      photo_release_complete = request.GET.get('user_search-photo_release_complete', '')
       sort_by = request.GET.get('user_search-sort_by', '')
+      columns = request.GET.getlist('user_search-columns', '')
+      rows_per_page = request.GET.get('user_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+
 
       if email:
         email_filter = Q(user__email__icontains=email)
@@ -3617,6 +3624,19 @@ def usersSearch(request):
 
       if joined_before:
         joined_before_filter = Q(created_date__lte=joined_before)
+
+      if subscribed:
+        if subscribed == 'Y':
+          subscribed_filter = Q(subscribe=True)
+        else:
+          subscribed_filter = Q(subscribe=False)
+
+      if photo_release_complete:
+        if photo_release_complete == 'Y':
+          photo_release_filter = Q(photo_release_complete=True)
+        else:
+          photo_release_filter = Q(photo_release_complete=False)
+
 
       if status:
         if status == 'A':
@@ -3641,6 +3661,12 @@ def usersSearch(request):
 
       if joined_before_filter:
         query_filter = query_filter & joined_before_filter
+
+      if subscribed_filter:
+        query_filter = query_filter & subscribed_filter
+
+      if photo_release_filter:
+        query_filter = query_filter & photo_release_filter
 
       if status_filter:
         query_filter = query_filter & status_filter
@@ -3672,9 +3698,9 @@ def usersSearch(request):
 
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
 
-      users = paginate(request, users, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+      users = paginate(request, users, sort_order, rows_per_page)
 
-      context = {'users': users}
+      context = {'users': users, 'columns': columns}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/UsersTableView.html', context, request)
@@ -3687,6 +3713,67 @@ def usersSearch(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+##########################################################
+# EXPORT USERS ON AN EXCEL DOC
+##########################################################
+@login_required
+def usersExport(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to export users')
+
+    if request.method == 'GET':
+      users = models.UserProfile.objects.all().order_by('user__last_name', 'user__first_name')
+      response = http.HttpResponse(content_type='application/ms-excel')
+      response['Content-Disposition'] = 'attachment; filename="users_%s.xls"'%datetime.datetime.now()
+      wb = xlwt.Workbook(encoding='utf-8')
+      bold_font_style = xlwt.XFStyle()
+      bold_font_style.font.bold = True
+      font_style = xlwt.XFStyle()
+      font_style.alignment.wrap = 1
+      date_format = xlwt.XFStyle()
+      date_format.num_format_str = 'mm/dd/yyyy'
+      date_time_format = xlwt.XFStyle()
+      date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
+
+      columns = ['User ID', 'Email', 'Full Name', 'Role', 'Work Place', 'Phone Number', 'IEIN', 'Grades Taught', 'Instagram Handle', 'Twitter Handle', 'Subscribed?', 'Photo Release Complete?', 'Status', 'Joined On', 'Last Login']
+      font_styles = [font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_time_format]
+
+      ws = wb.add_sheet('BCSE Users')
+      row_num = 0
+      #write the headers
+      for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], bold_font_style)
+
+      for user in users:
+        row = [user.id,
+               user.user.email,
+               user.user.get_full_name(),
+               user.get_user_role_display(),
+               user.work_place.name if user.work_place else '',
+               user.phone_number,
+               user.iein,
+               user.get_grades_taught_display(),
+               user.instagram_handle,
+               user.twitter_handle,
+               'Yes' if user.subscribe else 'No',
+               'Yes' if user.photo_release_complete else 'No',
+               'Active' if user.user.is_active else 'Inactive',
+               user.created_date.replace(tzinfo=None),
+               user.user.last_login.replace(tzinfo=None) if user.user.last_login else '']
+        row_num += 1
+        for col_num in range(len(row)):
+          ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+      wb.save(response)
+      return response
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # UPLOAD USERS VIA AN EXCEL TEMPLATE

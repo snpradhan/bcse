@@ -1133,12 +1133,17 @@ class UsersSearchForm(forms.Form):
   joined_after = forms.DateField(required=False, label=u'Joined on/after')
   joined_before = forms.DateField(required=False, label=u'Joined on/before')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
+  subscribed = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
+  photo_release_complete = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('email', 'Email'),
                                                       ('first_name', 'First Name'),
                                                       ('last_name', 'Last Name'),
                                                       ('date_joined_desc', 'Date Joined (Desc)'),
                                                       ('date_joined_asc', 'Date Joined (Asc)')), initial='date_joined_desc')
+  columns = forms.MultipleChoiceField(required=False, choices=models.USER_TABLE_COLUMN_CHOICES, initial=['ID', 'EM', 'FN', 'RL', 'WP', 'ST', 'JD', 'LL'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')

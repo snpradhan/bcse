@@ -143,6 +143,24 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('ES', 'Confirmation Email Sent'),
 )
 
+USER_TABLE_COLUMN_CHOICES = (
+  ('ID', 'User ID'),
+  ('EM', 'Email'),
+  ('FN', 'Full Name'),
+  ('RL', 'Role'),
+  ('WP', 'Work Place'),
+  ('JD', 'Joined Date'),
+  ('LL', 'Last Login'),
+  ('PN', 'Phone Number'),
+  ('IE', 'IEIN'),
+  ('GT', 'Grades Taught'),
+  ('IH', 'Instagram Handle'),
+  ('TH', 'Twitter Handle'),
+  ('SC', 'Subscribed'),
+  ('PC', 'Photo Release Complete'),
+  ('ST', 'Status'),
+)
+
 TABLE_ROWS_PER_PAGE_CHOICES = (
   (25, '25'),
   (50, '50'),

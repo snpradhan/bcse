@@ -8,42 +8,71 @@
     </div>
     <div id="filter_content">
       <div id="filter_fields">
-        <div class="form-group">
-          <label for="id_{{searchForm.email.name}}" class="form-label"> {{searchForm.email.label|title}}</label>
-          <div>{{searchForm.email}}</div>
-          <div class="error">{{ searchForm.email.errors }}</div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.email.name}}" class="form-label"> {{searchForm.email.label|title}}</label>
+            <div>{{searchForm.email}}</div>
+            <div class="error">{{ searchForm.email.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.first_name.name}}" class="form-label"> {{searchForm.first_name.label|title}}</label>
+            <div>{{searchForm.first_name}}</div>
+            <div class="error">{{ searchForm.first_name.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.last_name.name}}" class="form-label"> {{searchForm.last_name.label|title}}</label>
+            <div>{{searchForm.last_name}}</div>
+            <div class="error">{{ searchForm.last_name.errors }}</div>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label for="id_{{searchForm.first_name.name}}" class="form-label"> {{searchForm.first_name.label|title}}</label>
-          <div>{{searchForm.first_name}}</div>
-          <div class="error">{{ searchForm.first_name.errors }}</div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.user_role.name}}" class="form-label"> {{searchForm.user_role.label|title}}</label>
+            <div>{{searchForm.user_role}}</div>
+            <div class="error">{{ searchForm.user_role.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
+            <div>{{searchForm.work_place}}</div>
+            <div class="error">{{ searchForm.work_place.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
+            <div>{{searchForm.status}}</div>
+            <div class="error">{{ searchForm.status.errors }}</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.last_name.name}}" class="form-label"> {{searchForm.last_name.label|title}}</label>
-          <div>{{searchForm.last_name}}</div>
-          <div class="error">{{ searchForm.last_name.errors }}</div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.subscribed.name}}" class="form-label"> {{searchForm.subscribed.label|title}}</label>
+            <div>{{searchForm.subscribed}}</div>
+            <div class="error">{{ searchForm.subscribed.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.photo_release_complete.name}}" class="form-label"> {{searchForm.photo_release_complete.label|title}}</label>
+            <div>{{searchForm.photo_release_complete}}</div>
+            <div class="error">{{ searchForm.photo_release_complete.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
+            <div>{{searchForm.sort_by}}</div>
+            <div class="error">{{ searchForm.sort_by.errors }}</div>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label for="id_{{searchForm.user_role.name}}" class="form-label"> {{searchForm.user_role.label|title}}</label>
-          <div>{{searchForm.user_role}}</div>
-          <div class="error">{{ searchForm.user_role.errors }}</div>
-        </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
-          <div>{{searchForm.work_place}}</div>
-          <div class="error">{{ searchForm.work_place.errors }}</div>
-        </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
-          <div>{{searchForm.status}}</div>
-          <div class="error">{{ searchForm.status.errors }}</div>
-        </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
-          <div>{{searchForm.sort_by}}</div>
-          <div class="error">{{ searchForm.sort_by.errors }}</div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.columns.name}}" class="form-label">
+              {{searchForm.columns.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.columns.help_text}}"></i>
+            </label>
+            <div>{{searchForm.columns}}</div>
+            <div class="error">{{ searchForm.columns.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+            <div>{{searchForm.rows_per_page}}</div>
+            <div class="error">{{ searchForm.rows_per_page.errors }}</div>
+          </div>
         </div>
         <input type="hidden" name="page" id="page" value="1"/>
       </div>
