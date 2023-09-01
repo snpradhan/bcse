@@ -108,6 +108,7 @@ urlpatterns = [
     path('adminConfiguration/workPlaces/search', views.workPlacesSearch, name='workPlacesSearch'),
     path('adminConfiguration/workPlaces/', views.workPlaces, name='workPlaces'),
     path('adminConfiguration/workPlaces/upload', views.workPlacesUpload, name='workPlacesUpload'),
+     path('adminConfiguration/workPlaces/export', views.workPlacesExport, name='workPlacesExport'),
     path('adminConfiguration/teamMembers/', views.teamMembers, name='teamMembers'),
     path('adminConfiguration/teamMember/<int:id>/edit', views.teamMemberEdit, name='teamMemberEdit'),
     path('adminConfiguration/teamMember/<int:id>/delete', views.teamMemberDelete, name='teamMemberDelete'),

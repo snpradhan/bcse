@@ -161,6 +161,25 @@ USER_TABLE_COLUMN_CHOICES = (
   ('ST', 'Status'),
 )
 
+WORKPLACE_TABLE_COLUMN_CHOICES = (
+  ('ID', 'ID'),
+  ('NM', 'Name'),
+  ('WT', 'Work Place Type'),
+  ('DN', 'District #'),
+  ('S1', 'Street Address 1'),
+  ('S2', 'Street Address 2'),
+  ('CT', 'City'),
+  ('SA', 'State'),
+  ('ZP', 'Zip Code'),
+  ('LT', 'Latitude'),
+  ('LO', 'Longitude'),
+  ('TM', 'Travel Time'),
+  ('DT', 'Distance'),
+  ('ST', 'Status'),
+  ('CD', 'Created Date'),
+  ('MD', 'Modified Date'),
+)
+
 TABLE_ROWS_PER_PAGE_CHOICES = (
   (25, '25'),
   (50, '50'),

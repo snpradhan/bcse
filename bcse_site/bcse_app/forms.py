@@ -801,6 +801,8 @@ class WorkPlaceForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
+      if field_name == 'district_number':
+        field.label = 'District #'
 
 ####################################
 # Teacher Leader Form
@@ -1141,7 +1143,7 @@ class UsersSearchForm(forms.Form):
                                                       ('last_name', 'Last Name'),
                                                       ('date_joined_desc', 'Date Joined (Desc)'),
                                                       ('date_joined_asc', 'Date Joined (Asc)')), initial='date_joined_desc')
-  columns = forms.MultipleChoiceField(required=False, choices=models.USER_TABLE_COLUMN_CHOICES, initial=['ID', 'EM', 'FN', 'RL', 'WP', 'ST', 'JD', 'LL'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
+  columns = forms.MultipleChoiceField(required=False, choices=models.USER_TABLE_COLUMN_CHOICES, initial=['ID', 'EM', 'FN', 'RL', 'WP', 'ST', 'JD', 'LL'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
 
@@ -1155,9 +1157,6 @@ class UsersSearchForm(forms.Form):
       else:
         field.widget.attrs['class'] = 'form-control'
 
-      if field.help_text:
-        field.widget.attrs['placeholder'] = field.help_text
-
 ####################################
 # Work Place Search Form
 ####################################
@@ -1168,6 +1167,9 @@ class WorkPlacesSearchForm(ModelForm):
                                                       ('created_date_desc', 'Created Date (Desc)'),
                                                       ('created_date_asc', 'Created Date (Asc)')), initial='created_date_desc')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
+  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'DN', 'S1', 'S2', 'CT', 'SA', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
   class Meta:
     model = models.WorkPlace
     exclude = ('id', 'created_date', 'modified_date')
@@ -1178,6 +1180,8 @@ class WorkPlacesSearchForm(ModelForm):
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
+      if field_name == 'district_number':
+        field.label = 'District #'
 
 
 ####################################

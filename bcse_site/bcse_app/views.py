@@ -3927,6 +3927,8 @@ def workPlacesSearch(request):
       zip_code = request.GET.get('work_place_search-zip_code', '')
       status = request.GET.get('work_place_search-status', '')
       sort_by = request.GET.get('work_place_search-sort_by', '')
+      columns = request.GET.getlist('work_place_search-columns', '')
+      rows_per_page = request.GET.get('work_place_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
 
       if name:
         name_filter = Q(name__icontains=name)
@@ -3986,9 +3988,9 @@ def workPlacesSearch(request):
 
 
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
-      work_places = paginate(request, work_places, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+      work_places = paginate(request, work_places, sort_order, rows_per_page)
 
-      context = {'work_places': work_places}
+      context = {'work_places': work_places, 'columns': columns}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkPlacesTableView.html', context, request)
@@ -4153,6 +4155,70 @@ def workPlacesUpload(request):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# EXPORT WORK PLACES ON AN EXCEL DOC
+##########################################################
+@login_required
+def workPlacesExport(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to export work places')
+
+    if request.method == 'GET':
+      workplaces = models.WorkPlace.objects.all().order_by('name')
+      response = http.HttpResponse(content_type='application/ms-excel')
+      response['Content-Disposition'] = 'attachment; filename="workplaces_%s.xls"'%datetime.datetime.now()
+      wb = xlwt.Workbook(encoding='utf-8')
+      bold_font_style = xlwt.XFStyle()
+      bold_font_style.font.bold = True
+      font_style = xlwt.XFStyle()
+      font_style.alignment.wrap = 1
+      date_format = xlwt.XFStyle()
+      date_format.num_format_str = 'mm/dd/yyyy'
+      date_time_format = xlwt.XFStyle()
+      date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
+
+      columns = ['ID', 'Name', 'Work Place Type', 'District #', 'Street Address 1', 'Street Address 2', 'City', 'State', 'Zip Code', 'Latitude', 'Longitude', 'Distance (miles)', 'Travel Time (mins)', 'Status', 'Created Date', 'Modified Date']
+      font_styles = [font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_time_format, date_time_format]
+
+      ws = wb.add_sheet('Work Places')
+      row_num = 0
+      #write the headers
+      for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], bold_font_style)
+
+      for workplace in workplaces:
+        row = [workplace.id,
+               workplace.name,
+               workplace.get_work_place_type_display(),
+               workplace.district_number,
+               workplace.street_address_1,
+               workplace.street_address_2,
+               workplace.city,
+               workplace.state,
+               workplace.zip_code,
+               workplace.latitude,
+               workplace.longitude,
+               workplace.distance_from_base,
+               workplace.time_from_base,
+               workplace.get_status_display(),
+               workplace.created_date.replace(tzinfo=None),
+               workplace.modified_date.replace(tzinfo=None)]
+        row_num += 1
+        for col_num in range(len(row)):
+          ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+      wb.save(response)
+      return response
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 ##########################################################
 # UPLOAD WORKSHOP REGISTRATIONS VIA AN EXCEL TEMPLATE
