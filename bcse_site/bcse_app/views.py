@@ -962,7 +962,9 @@ def reservationEdit(request, id=''):
 def reservationView(request, id=''):
   try:
     if request.user.is_anonymous:
-      raise CustomException('You do not have the permission to view this reservation')
+      next1 = "?next=/signin"
+      next2 = "?next=/reservation/%s/view" % id
+      raise CustomException('Please <u><a href="%s%s">login</a></u> to view the reservation'%(next1, next2))
 
     if '' != id:
       reservation = models.Reservation.objects.get(id=id)
@@ -989,7 +991,10 @@ def reservationView(request, id=''):
 
   except models.Reservation.DoesNotExist:
     messages.error(request, 'Reservation not found')
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return shortcuts.redirect('bcse:home')
+  except CustomException as ce:
+    messages.error(request, ce)
+    return shortcuts.redirect('bcse:home')
 
 
 ####################################
