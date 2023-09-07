@@ -43,6 +43,9 @@
         {% if 'TM' in columns %}
           <th> Travel Time (mins) </th>
         {% endif %}
+        {% if 'NU' in columns %}
+          <th> # of Users </th>
+        {% endif %}
         {% if 'ST' in columns %}
           <th> Status </th>
         {% endif %}
@@ -96,6 +99,9 @@
           {% endif %}
           {% if 'TM' in columns %}
             <td> {{work_place.time_from_base|default_if_none:""}} </td>
+          {% endif %}
+          {% if 'NU' in columns %}
+            <td> {{work_place.users_count}} </td>
           {% endif %}
           {% if 'ST' in columns %}
             <td> {{work_place.get_status_display}} </td>

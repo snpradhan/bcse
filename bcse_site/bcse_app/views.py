@@ -3968,7 +3968,7 @@ def workPlacesSearch(request):
       if status_filter:
         query_filter = query_filter & status_filter
 
-      work_places = models.WorkPlace.objects.all().filter(query_filter)
+      work_places = models.WorkPlace.objects.all().annotate(users_count=Count('users')).filter(query_filter)
       ignorecase = 'false'
       direction = request.GET.get('direction') or 'asc'
       if sort_by:
@@ -3982,6 +3982,12 @@ def workPlacesSearch(request):
           direction = 'desc'
         elif sort_by == 'created_date_asc':
           order_by = 'created_date'
+          direction = 'asc'
+        elif sort_by == 'users_desc':
+          order_by = 'users_count'
+          direction = 'desc'
+        elif sort_by == 'users_asc':
+          order_by = 'users_count'
           direction = 'asc'
       else:
         order_by = 'name'

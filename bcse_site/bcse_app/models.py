@@ -175,6 +175,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('LO', 'Longitude'),
   ('TM', 'Travel Time'),
   ('DT', 'Distance'),
+  ('NU', '# of Users'),
   ('ST', 'Status'),
   ('CD', 'Created Date'),
   ('MD', 'Modified Date'),

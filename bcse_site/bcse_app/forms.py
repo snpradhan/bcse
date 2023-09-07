@@ -1163,11 +1163,13 @@ class UsersSearchForm(forms.Form):
 class WorkPlacesSearchForm(ModelForm):
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('name', 'Name'),
+                                                       ('users_desc', '# of Users (Desc)'),
+                                                       ('users_asc', '# of Users (Asc)'),
                                                       ('status', 'Status'),
                                                       ('created_date_desc', 'Created Date (Desc)'),
-                                                      ('created_date_asc', 'Created Date (Asc)')), initial='created_date_desc')
+                                                      ('created_date_asc', 'Created Date (Asc)')), initial='name')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
-  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'DN', 'S1', 'S2', 'CT', 'SA', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'DN', 'S1', 'S2', 'CT', 'SA', 'NU', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   class Meta:
