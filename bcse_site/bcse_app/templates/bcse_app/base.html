@@ -330,6 +330,13 @@
         <div class="credits">
             <div class="credit copyright left">&copy; 2009 - <span id="copyright_year">2009</span> Northwestern University. All Rights Reserved </div>
             <div class="credit terms center"> <a href="{% url 'bcse:termsOfUse' %}">Terms of Use</a></div>
+            <div class="credit subscribe">
+              {% if user.is_authenticated %}
+                <a href="{% url 'bcse:subscribe' %}">Subscribe</a>
+              {% else %}
+                <a class="modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subscribe' %}" href="#">Subscribe</a>
+              {% endif %}
+            </div>
             <!-- Social Links -->
             <div class="credit social right">
               <a class="fb" href="https://www.facebook.com/bcse.nu/" target="_blank" rel="me">

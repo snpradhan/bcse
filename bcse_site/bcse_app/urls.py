@@ -163,6 +163,8 @@ urlpatterns = [
     path('about/case_study', views.aboutCaseStudy, name='aboutCaseStudy'),
     path('about/contact', views.contactUs, name='contactUs'),
     path('about/terms', views.termsOfUse, name='termsOfUse'),
-    path('about/teacherLeaders', views.aboutTeacherLeaders, name='aboutTeacherLeaders')
+    path('about/teacherLeaders', views.aboutTeacherLeaders, name='aboutTeacherLeaders'),
+    path('subscribe', views.subscribe, name='subscribe'),
+
 
 ]

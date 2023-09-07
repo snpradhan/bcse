@@ -473,7 +473,10 @@ def userSignup(request):
         newUser.save()
 
       if form.cleaned_data['subscribe']:
-        subscription(newUser, 'add')
+        userDetails = {'email_address': newUser.user.email, 'first_name': newUser.user.first_name, 'last_name': newUser.user.last_name}
+        if newUser.phone_number:
+          userDetails['phone_number'] = newUser.phone_number
+        subscription(userDetails, 'add')
 
       current_site = Site.objects.get_current()
       domain = current_site.domain
@@ -3173,15 +3176,18 @@ def userProfileEdit(request, id=''):
         if request.user.id == userProfile.user.id and new_password != old_password:
           update_session_auth_hash(request, userProfile.user)
 
+        userDetails = {'email_address': savedUserProfile.user.email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
+        if savedUserProfile.phone_number:
+          userDetails['phone_number'] = savedUserProfile.phone_number
         #user unsubscribed
         if subscribed and not savedUserProfile.subscribe:
-          subscription(savedUserProfile, 'delete', subscriber_hash)
+          subscription(userDetails, 'delete', subscriber_hash)
         #user subscribed
         elif not subscribed and savedUserProfile.subscribe:
-          subscription(savedUserProfile, 'add')
+          subscription(userDetails, 'add')
         #user email, first name or last name changed
         elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
-          subscription(savedUserProfile, 'update', subscriber_hash)
+          subscription(userDetails, 'update', subscriber_hash)
 
         messages.success(request, "User profile saved successfully")
         response_data['success'] = True
@@ -3224,6 +3230,63 @@ def userProfileDelete(request, id=''):
   except models.UserProfile.DoesNotExist:
     messages.success(request, "User not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def subscribe(request):
+  try:
+    if request.method == 'GET':
+      if request.user.is_authenticated:
+        userProfile = models.UserProfile.objects.get(id=request.user.userProfile.id)
+        if userProfile.subscribe:
+          messages.success(request, "You are already subscribed to our mailing list")
+          return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+          userDetails = {'email_address': userProfile.user.email.lower(), 'first_name':  userProfile.user.first_name, 'last_name':  userProfile.user.last_name}
+          if userProfile.phone_number:
+            userDetails['phone_number'] = userProfile.phone_number
+          subscription(userDetails, 'add')
+          userProfile.subscribe = True
+          userProfile.save()
+          messages.success(request, "You have successfully subscribed to our mailing list")
+          return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+      else:
+        form = forms.SubscriptionForm(user=request.user)
+        context = {'form': form}
+        return render(request, 'bcse_app/SubscribeModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.SubscriptionForm(data, user=request.user)
+      response_data = {}
+      if form.is_valid():
+        userDetails = {'email_address': data.__getitem__('email').lower(), 'first_name':  data.__getitem__('first_name'), 'last_name':  data.__getitem__('last_name')}
+        if data.__getitem__('phone_number'):
+          userDetails['phone_number'] = data.__getitem__('phone_number')
+        subscription(userDetails, 'add')
+        try:
+          userProfile = models.UserProfile.objects.get(user__email=userDetails['email_address'])
+          userProfile.subscribe = True
+          userProfile.save()
+        except models.UserProfile.DoesNotExist:
+          pass
+
+        messages.success(request, "You have successfully subscribed to our mailing list")
+        response_data['success'] = True
+
+      else:
+        print(form.errors)
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/SubscribeModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+
+    return render(request, 'bcse_app/SubscribeModal.html', context)
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -5240,7 +5303,7 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
 #######################################
 # UPDATE MAILING LIST SUBSCRIPTION
 #######################################
-def subscription(userProfile, status, subscriber_hash=None):
+def subscription(userDetails, status, subscriber_hash=None):
   api_key = settings.MAILCHIMP_API_KEY
   server = settings.MAILCHIMP_DATA_CENTER
   list_id = settings.MAILCHIMP_EMAIL_LIST_ID
@@ -5252,24 +5315,21 @@ def subscription(userProfile, status, subscriber_hash=None):
   })
 
   try:
-    if status == 'add':
+    if status != 'delete':
       member_info = {
-        "email_address": userProfile.user.email,
-        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name, "PHONE": userProfile.phone_number},
+        "email_address": userDetails['email_address'],
+        "merge_fields": {"FNAME": userDetails['first_name'], "LNAME": userDetails['last_name']},
         "status": "subscribed",
       }
-      response = mailchimp.lists.add_list_member(list_id, member_info)
+      if 'phone_number' in userDetails:
+        member_info['merge_fields']['PHONE'] = userDetails['phone_number']
 
-    elif status == 'delete':
-      response = mailchimp.lists.delete_list_member(list_id, subscriber_hash)
-
+      if status == 'add':
+        response = mailchimp.lists.add_list_member(list_id, member_info)
+      else:
+        response = mailchimp.lists.update_list_member(list_id, subscriber_hash, member_info)
     else:
-      member_info = {
-        "email_address": userProfile.user.email,
-        "merge_fields": {"FNAME": userProfile.user.first_name, "LNAME": userProfile.user.last_name, "PHONE": userProfile.phone_number},
-        "status": "subscribed",
-      }
-      response = mailchimp.lists.update_list_member(list_id, subscriber_hash, member_info)
+      response = mailchimp.lists.delete_list_member(list_id, subscriber_hash)
 
     #print("response: {}".format(response))
 

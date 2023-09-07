@@ -260,6 +260,30 @@ class UserProfileForm (ModelForm):
 
 
 ####################################
+# Subscription Form
+####################################
+class SubscriptionForm (forms.Form):
+  email = forms.EmailField(required=True, max_length=75, label='Email')
+  first_name = forms.CharField(required=True, max_length=30, label='First Name')
+  last_name = forms.CharField(required=True, max_length=30, label='Last Name')
+  phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(SubscriptionForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+    if user.is_authenticated:
+      self.fields['email'].initial = user.email
+      self.fields['first_name'].initial = user.first_name
+      self.fields['last_name'].initial = user.last_name
+      if user.userProfile.phone_number:
+        self.fields['phone_number'].initial = user.userProfile.phone_number
+
+####################################
 # User Upload Form
 ####################################
 class UsersUploadForm(forms.Form):

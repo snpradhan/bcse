@@ -1,0 +1,84 @@
+
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Subscribe To Our Mailing List</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="subscribeMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+     <form class="form" method="post" action="{% url 'bcse:subscribe' %}" id="formSubscription">
+      {% csrf_token %}
+      <div class="modal-body">
+        {% for field in form %}
+          <div class="form-group mb-3">
+            <label for="id_{{field.name}}">
+              {{ field.label }}
+              {% if field.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{field}}</div>
+            <div class="warning">{{field.help_text}}</div>
+            <div class="error">{{ field.errors }}</div>
+          </div>
+        {% endfor %}
+        <div class="form-group" id="spinner">
+          <img src="/static/img/page-loader.gif" class="icon"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+          <button type="submit" id="submit" class="btn btn-success">
+            Subscribe
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function(){
+    $("#formSubscription").submit(function(e){
+      e.preventDefault();
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        beforeSend: function(){
+          $('#formSubscription #spinner').show();
+        },
+        complete: function(){
+          $('#formSubscription #spinner').hide();
+        },
+        success: function(data, status) {
+          if(data['success'] == true){
+            location.reload();
+            //displayInfoDialog('Subscription', "You have successfully subscribed to our mailing list", true);
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+
+
