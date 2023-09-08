@@ -335,6 +335,8 @@ class ActivityForm(ModelForm):
     exclude = ('created_date', 'modified_date')
     widgets = {
       'image': widgets.FileInput,
+      'inventory': forms.Textarea(attrs={'rows':2}),
+
     }
 
   def __init__(self, *args, **kwargs):

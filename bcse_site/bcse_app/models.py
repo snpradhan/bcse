@@ -421,6 +421,7 @@ class Activity(models.Model):
   materials_equipment = RichTextField(null=True, blank=True, help_text='Enter a list of materials the Baxter Center provides, equipment the users can borrow and materials the user has to arrange themselves')
   manuals_resources = RichTextField(null=True, blank=True, config_name='resource_url_ckeditor', help_text='Enter a list of urls for instruction manuals and resoruces')
   kit_name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable Kit')
+  inventory = models.TextField(null=True, blank=True, help_text='Consumable Kit inventory')
   equipment_mapping = models.ManyToManyField(EquipmentType, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Consumable Kit')

@@ -14,6 +14,7 @@
           <th> Activity ID</th>
           <th> Name </th>
           <th> Kit Name </th>
+          <th> Inventory </th>
           <th> Status </th>
           <th> Tags </th>
           <th> Created Date</th>
@@ -27,6 +28,7 @@
             <td> {{activity.id}}</td>
             <td> {{activity.name}} </td>
             <td> {{activity.kit_name}} </td>
+            <td> {{activity.inventory|default_if_none:""}} </td>
             <td> {{activity.get_status_display}} </td>
             <td> {% for tag in activity.tags.all %}
                   {{tag}} <br>

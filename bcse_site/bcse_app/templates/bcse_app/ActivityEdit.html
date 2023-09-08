@@ -44,7 +44,11 @@
         <div>{{form.kit_name}}</div>
         <div class="error">{{ form.kit_name.errors }}</div>
       </div>
-
+      <div class="form-group mb-3">
+        <label for="id_{{form.inventory.name}}" class="form-label"> {{form.inventory.label|title}}</label>
+        <div>{{form.inventory}}</div>
+        <div class="error">{{ form.inventory.errors }}</div>
+      </div>
       <div class="form-group mb-3">
         <label for="id_{{form.tags.name}}" class="form-label"> {{form.tags.label|title}}
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.tags.help_text}}"></i>
