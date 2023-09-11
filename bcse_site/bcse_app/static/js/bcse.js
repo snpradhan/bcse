@@ -80,9 +80,13 @@ $(function (){
   $('form.filter_form #clear').on('click', function(e){
     $('form.filter_form')[0].reset();
     var autocomplete_elements = $('form.filter_form :input[data-autocomplete-light-function=select2]');
+    var select2_elements = $('form.filter_form .select2');
     if($(autocomplete_elements).length) {
       $(autocomplete_elements).val('');
       $(autocomplete_elements).trigger('change');
+    }
+    else if(select2_elements.length) {
+      $(select2_elements).val(null).trigger('change');
     }
     else {
       var form = $(this).closest('form');

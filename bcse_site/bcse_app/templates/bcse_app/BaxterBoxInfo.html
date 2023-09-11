@@ -1,6 +1,7 @@
 {% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
 
+
 {% block content %}
   {{block.super}}
   <div class="content">
@@ -43,7 +44,7 @@
           </div>
         {% endif %}
       </div>
-      <!--div class="filter_container">
+      <div class="filter_container">
         <form method="get" action="{% url 'bcse:baxterBoxSearch' %}" id="baxter_box_filter_form" class="filter_form">
           {% csrf_token %}
           <div class="form-group right" id="filter_toggle">
@@ -67,7 +68,7 @@
             </div>
           </div>
         </form>
-      </div-->
+      </div>
 
       <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
@@ -115,7 +116,12 @@
           });
           $('a#activities_tab').trigger('click');
 
-
+          $('select.select2').select2({
+            placeholder: {
+              id: '-1', // the value of the option
+              text: '---------'
+            }
+          });
         }
       });
     </script>

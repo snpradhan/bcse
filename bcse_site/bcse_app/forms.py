@@ -397,14 +397,14 @@ class BaxterBoxSearchForm(forms.Form):
     for category in categories:
       self.fields['category_'+str(category.id)] = forms.MultipleChoiceField(
                                                           required=False,
-                                                          widget=forms.SelectMultiple(attrs={'size':6}),
+                                                          widget=forms.SelectMultiple(),
                                                           choices=[(sub.id, sub.name) for sub in models.BaxterBoxSubCategory.objects.all().filter(category=category, status='A')],
                                                       )
       self.fields['category_'+str(category.id)].label = category.name
 
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['class'] = 'form-control select2'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 ####################################
