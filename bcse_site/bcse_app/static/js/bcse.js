@@ -100,7 +100,7 @@ $(function (){
   });
 
   //disable Enter key press
-  $("form").bind("keypress", function(e) {
+  $("form.filter_form").bind("keypress", function(e) {
     if (e.keyCode == 13) {
       return false;
     }

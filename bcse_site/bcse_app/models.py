@@ -328,6 +328,7 @@ class Workshop (models.Model):
   start_time = models.TimeField(null=True, blank=True, help_text='Workshop start time')
   end_date = models.DateField(null=False, blank=False, help_text='Workshop end date')
   end_time = models.TimeField(null=True, blank=True, help_text='Workshop end time')
+  display_date = models.TextField(null=True, blank=True, help_text='For multi-day workshop, enter start and end times for each day')
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
   enable_registration =  models.BooleanField(default=False)
   meetup_link = models.URLField(null=True, blank=True, max_length=500)

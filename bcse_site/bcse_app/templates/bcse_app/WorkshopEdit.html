@@ -78,6 +78,11 @@
             </div>
           </div>
           <div class="form-group mb-3">
+            <label for="id_{{form.display_date.name}}" class="form-label"> {{form.display_date.label|title}}</label>
+            <div>{{form.display_date}}</div>
+            <div class="error">{{ form.display_date.errors }}</div>
+          </div>
+          <div class="form-group mb-3">
             <label for="id_{{form.summary.name}}" class="form-label"> {{form.summary.label|title}}</label>
             <div>{{form.summary}}</div>
             <div class="error">{{ form.summary.errors }}</div>

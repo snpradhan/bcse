@@ -684,6 +684,7 @@ class WorkshopForm(ModelForm):
     exclude = ('nid', 'created_date', 'modified_date')
     widgets = {
       'image': widgets.FileInput,
+      'display_date': forms.Textarea(attrs={'rows':3}),
     }
 
   def __init__(self, *args, **kwargs):
