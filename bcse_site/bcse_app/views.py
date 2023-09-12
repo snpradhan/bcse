@@ -2652,6 +2652,7 @@ def userRegistration(request, workshop_id, user_id):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ################################################
 # WORKSHOPS BASE QUERY BEFORE APPLYING FILTERS
 ################################################
@@ -2660,12 +2661,12 @@ def workshopsBaseQuery(request, flag='list', user_id=''):
   workshops = None
   if request.user.is_authenticated:
     if user_id:
-      workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user__id=user_id).exclude(registration_setting__workshop_registrants__status='N')
+      workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user__id=user_id), ~Q(registration_setting__workshop_registrants__status='N'))
     elif request.user.userProfile.user_role not in ['A', 'S']:
       if flag =='list':
         workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
       else:
-        workshops = models.Workshop.objects.all().filter(registration_setting__workshop_registrants__user=request.user.userProfile).exclude(registration_setting__workshop_registrants__status='N')
+        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user=request.user.userProfile), ~Q(registration_setting__workshop_registrants__status='N'))
     else:
       workshops = models.Workshop.objects.all()
   else:
