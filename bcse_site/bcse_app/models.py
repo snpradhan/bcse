@@ -188,6 +188,11 @@ TABLE_ROWS_PER_PAGE_CHOICES = (
   (100, '100')
 )
 
+YES_NO_CHOICES = (
+  (False, 'No'),
+  (True, 'Yes'),
+)
+
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
   YEAR_CHOICES.append((x, x))

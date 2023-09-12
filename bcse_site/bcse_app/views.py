@@ -2772,12 +2772,11 @@ def workshopsSearch(request, flag='list', audience='teacher'):
       query_filter = query_filter & ends_before_filter
 
     workshops = workshops.filter(query_filter)
-
-    if registration_open:
+    if registration_open != '':
       workshops_with_open_registration = []
       for workshop in workshops:
         registration_setting_status = workshopRegistrationSettingStatus(workshop)
-        if registration_setting_status['registration_open']:
+        if str(registration_setting_status['registration_open']) == registration_open:
           workshops_with_open_registration.append(workshop.id)
 
       workshops = workshops.filter(id__in=workshops_with_open_registration)

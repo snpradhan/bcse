@@ -1089,7 +1089,7 @@ class WorkshopsSearchForm(forms.Form):
   workshop_category = forms.ModelChoiceField(required=False, queryset=models.WorkshopCategory.objects.all())
   starts_after = forms.DateField(required=False, label=u'Starts on/after')
   ends_before = forms.DateField(required=False, label=u'Ends on/before')
-  registration_open = forms.BooleanField(required=False)
+  registration_open = forms.ChoiceField(choices=(('', '---------'),)+models.YES_NO_CHOICES, initial='', widget=forms.Select(), required=False)
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES, initial='A')
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Title'),
@@ -1116,9 +1116,7 @@ class WorkshopsSearchForm(forms.Form):
       self.fields['sort_by'].initial = 'start_date_asc'
 
     for field_name, field in self.fields.items():
-      if field_name in ['registration_open']:
-        field.widget.attrs['class'] = 'form-check-input'
-      elif field_name in ['starts_after', 'ends_before']:
+      if field_name in ['starts_after', 'ends_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
       else:
         field.widget.attrs['class'] = 'form-control'
