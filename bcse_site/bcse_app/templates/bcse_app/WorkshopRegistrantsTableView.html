@@ -1,0 +1,89 @@
+{% load bcse_extras %}
+{% if registrations %}
+  <table class="table table-bordered table-striped" id="workshop_registrants">
+    <tbody style="display:none;">
+      <tr>
+        <td style="background-color: #767676; color: white;"> Worshop ID</td>
+        <td style="background-color: #767676; color: white;"> Workshop Title </td>
+      </tr>
+      <tr>
+        <td>{{workshop.id}}</td>
+        <td>{{workshop.name}}</td>
+      </tr>
+      <tr>
+        <td colspan="2"></td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr class='noExl'>
+        <th> Registration ID</th>
+        <th> User ID </th>
+        <th> Email </th>
+        <th> Full Name </th>
+        <th> Work Place </th>
+        <th> Subscribed?</th>
+        <th> Photo Release Complete?</th>
+        <th> Created Date </th>
+        <th> Registration Status </th>
+        <th > Action </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="display:none;">
+        <td style="background-color: #767676; color: white;"> Registration ID</td>
+        <td style="background-color: #767676; color: white;"> User ID </td>
+        <td style="background-color: #767676; color: white;"> Email </td>
+        <td style="background-color: #767676; color: white;"> Full Name </td>
+        <td style="background-color: #767676; color: white;"> Work Place </td>
+        <td style="background-color: #767676; color: white;"> Subscribed?</td>
+        <td style="background-color: #767676; color: white;"> Photo Release Complete?</td>
+        <td style="background-color: #767676; color: white;"> Created Date </td>
+        <td style="background-color: #767676; color: white;"> Status </td>
+      </tr>
+      {% for registrant in registrations %}
+        <tr>
+          <td> {{registrant.id}}</td>
+          <td> {{registrant.user.id}}</td>
+          <td> {{registrant.user.user.email}} </td>
+          <td> {{registrant.user.user.get_full_name}}</td>
+          <td> {{registrant.user.work_place|default_if_none:""}}</td>
+          <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>
+          <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>
+          <td> {{registrant.created_date|date:"F j, Y g:i a" }}</td>
+          <td> {{registrant.get_status_display}} </td>
+          <td class="noExl">
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' workshop.id registrant.id %}" href="#">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registrant.id %}"
+                  data-title="the registration for <strong>{{registrant.user.user.get_full_name}}</strong>">
+                    Delete
+                  </a>
+                </li>
+                {% get_registrant_application registrant.id as application %}
+                {% if application %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' application.survey.id application.UUID %}" href="#">
+                      View Application
+                    </a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=registrations %}
+{% else %}
+  <div class="warning center">No registrants matching your search criteria found</div>
+{% endif %}

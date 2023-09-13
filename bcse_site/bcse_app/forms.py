@@ -1127,7 +1127,7 @@ class WorkshopsSearchForm(forms.Form):
 ####################################
 # Registrants Search Form
 ####################################
-class RegistrantsSearchForm(forms.Form):
+class WorkshopsRegistrantsSearchForm(forms.Form):
 
   workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().filter(audience='T').order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
   workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().filter(workshop_category__audience='T').order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
@@ -1137,7 +1137,7 @@ class RegistrantsSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
-    super(RegistrantsSearchForm, self).__init__(*args, **kwargs)
+    super(WorkshopsRegistrantsSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
       field.widget.attrs['class'] = 'form-control'
@@ -1238,3 +1238,34 @@ class BaxterBoxUsageSearchForm(forms.Form):
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
+
+
+##################################################
+# Registrants Search Form For A Single Workshop
+##################################################
+class WorkshopRegistrantsSearchForm(forms.Form):
+  email = forms.CharField(required=False, max_length=256, label=u'Email')
+  first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
+  last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
+  user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
+  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}))
+  registration_status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  subscribed = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
+  photo_release_complete = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('email', 'Email'),
+                                                      ('first_name', 'First Name'),
+                                                      ('last_name', 'Last Name'),
+                                                      ('created_date_desc', 'Created Date (Desc)'),
+                                                      ('created_date_asc', 'Created Date (Asc)')), initial='created_date_desc')
+
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(WorkshopRegistrantsSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'

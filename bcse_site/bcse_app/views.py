@@ -2877,7 +2877,7 @@ def workshopRegistrationSetting(request, id=''):
 
 
 ##########################################################
-# LIST OF WORKSHOP REGISTRANTS
+# LIST OF SINGLE WORKSHOP REGISTRANTS
 ##########################################################
 def workshopRegistrants(request, id=''):
   try:
@@ -2885,13 +2885,116 @@ def workshopRegistrants(request, id=''):
     if request.user.is_anonymous or request.user.userProfile.user_role not in  ['A', 'S'] :
       raise CustomException('You do not have the permission to view workshop registrants')
 
-    if '' != id:
-      workshop = models.Workshop.objects.get(id=id)
-      workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
-      context = {'workshop': workshop}
-      return render(request, 'bcse_app/WorkshopRegistrants.html', context)
-    else:
-      raise models.Workshop.DoesNotExist
+    if request.method == 'GET':
+
+      if '' != id:
+        workshop = models.Workshop.objects.get(id=id)
+        workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
+
+        searchForm = forms.WorkshopRegistrantsSearchForm(user=request.user, prefix="registrant_search")
+
+        query_filter = Q()
+        email_filter = None
+        first_name_filter = None
+        last_name_filter = None
+        user_role_filter = None
+        work_place_filter = None
+        registration_status_filter = None
+        subscribed_filter = None
+        photo_release_filter = None
+
+        email = request.GET.get('registrant_search-email', '')
+        first_name = request.GET.get('registrant_search-first_name', '')
+        last_name = request.GET.get('registrant_search-last_name', '')
+        user_role = request.GET.get('registrant_search-user_role', '')
+        work_place = request.GET.get('registrant_search-work_place', '')
+        registration_status = request.GET.getlist('registrant_search-registration_status', '')
+        subscribed = request.GET.get('registrant_search-subscribed', '')
+        photo_release_complete = request.GET.get('registrant_search-photo_release_complete', '')
+        sort_by = request.GET.get('registrant_search-sort_by', '')
+        rows_per_page = request.GET.get('registrant_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+
+
+        if email:
+          email_filter = Q(user__user__email__icontains=email)
+          query_filter = query_filter & email_filter
+
+        if first_name:
+          first_name_filter = Q(user__user__first_name__icontains=first_name)
+          query_filter = query_filter & first_name_filter
+        if last_name:
+          last_name_filter = Q(user__user__last_name__icontains=last_name)
+          query_filter = query_filter & last_name_filter
+
+        if user_role:
+          user_role_filter = Q(user__user_role=user_role)
+          query_filter = query_filter & user_role_filter
+
+        if work_place:
+          work_place_filter = Q(user__work_place=work_place)
+          query_filter = query_filter & work_place_filter
+
+        if subscribed:
+          if subscribed == 'Y':
+            subscribed_filter = Q(user__subscribe=True)
+          else:
+            subscribed_filter = Q(user__subscribe=False)
+
+          query_filter = query_filter & subscribed_filter
+
+        if photo_release_complete:
+          if photo_release_complete == 'Y':
+            photo_release_filter = Q(user__photo_release_complete=True)
+          else:
+            photo_release_filter = Q(user__photo_release_complete=False)
+
+          query_filter = query_filter & photo_release_filter
+
+        if registration_status:
+          registration_status_filter = Q(status__in=registration_status)
+          query_filter = query_filter & registration_status_filter
+
+        registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=id)
+        registrations = registrations.filter(query_filter)
+
+        direction = request.GET.get('direction') or 'asc'
+        ignorecase = request.GET.get('ignorecase') or 'false'
+
+        if sort_by:
+          if sort_by == 'email':
+            order_by = 'user__user__email'
+          elif sort_by == 'first_name':
+            order_by = 'user__user__first_name'
+          elif sort_by == 'last_name':
+            order_by = 'user__user__last_name'
+          elif sort_by == 'created_date_desc':
+            order_by = 'created_date'
+            direction = 'desc'
+          elif sort_by == 'created_date_asc':
+            order_by = 'created_date'
+            direction = 'asc'
+        else:
+          order_by = 'created_date'
+
+        sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+        registrations = paginate(request, registrations, sort_order, rows_per_page)
+
+        if request.is_ajax():
+          context = {'workshop': workshop, 'registrations': registrations}
+          response_data = {}
+          response_data['success'] = True
+          response_data['html'] = render_to_string('bcse_app/WorkshopRegistrantsTableView.html', context, request)
+          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        else:
+          context = {'workshop': workshop, 'registrations': registrations, 'searchForm': searchForm}
+          return render(request, 'bcse_app/WorkshopRegistrants.html', context)
+
+
+      else:
+        raise models.Workshop.DoesNotExist
+
+    return http.HttpResponseNotAllowed(['GET'])
 
   except models.Workshop.DoesNotExist:
     messages.error(request, 'Workshop not found')
@@ -2909,7 +3012,7 @@ def workshopsRegistrants(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in  ['A', 'S'] :
       raise CustomException('You do not have the permission to view workshop registrants')
 
-    searchForm = forms.RegistrantsSearchForm(user=request.user, prefix="registrants_search")
+    searchForm = forms.WorkshopsRegistrantsSearchForm(user=request.user, prefix="registrants_search")
     if request.method == 'GET':
 
       query_filter = Q()
