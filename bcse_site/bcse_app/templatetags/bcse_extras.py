@@ -201,4 +201,22 @@ def get_registrant_application(context, registration_id):
   else:
     return None
 
+@register.simple_tag(takes_context=True)
+def get_reservation_feedback(context, reservation_id):
+  request = context.get('request')
+  feedback = models.SurveySubmission.objects.all().filter(feedback_to_reservation__reservation__id=reservation_id)
+  if feedback.count():
+    return feedback[0]
+  else:
+    return None
 
+@register.simple_tag(takes_context=True)
+def get_reservation_activity(context, reservation_id):
+  request = context.get('request')
+  reservation = models.Reservation.objects.get(id=reservation_id)
+  if reservation.activity:
+    return reservation.activity.name
+  elif reservation.other_activity:
+    return reservation.other_activity
+  else:
+    return None

@@ -39,6 +39,9 @@ from django.db.models import Count
 import xlwt
 from PIL import ImageColor
 import copy
+import re
+import html
+from django.utils.encoding import smart_str
 
 # Create your views here.
 
@@ -366,7 +369,9 @@ def userSignin(request, user_email=''):
       response_data['html'] = render_to_string('bcse_app/SignInModal.html', context, request)
 
     return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
   elif request.method == 'GET':
+    logout(request)
     messages.warning(request, 'We have updated our website. Before you login for the first time, please reset your password using "Forgot Password" link below. \
         Then login using your email and new password.')
     if user_email:
@@ -1207,6 +1212,7 @@ def reservationsSearch(request):
       status_filter = None
       assignee_filter = None
       color_filter = None
+      feedback_status_filter = None
 
       keywords = request.GET.get('reservation_search-keywords', '')
       user = request.GET.get('reservation_search-user', '')
@@ -1221,6 +1227,7 @@ def reservationsSearch(request):
       columns = request.GET.getlist('reservation_search-columns', '')
       rows_per_page = request.GET.get('reservation_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
       color = request.GET.getlist('reservation_search-color', '')
+      feedback_status = request.GET.get('reservation_search-feedback_status', '')
 
       if keywords:
         keyword_filter = Q(activity__name__icontains=keywords) | Q(other_activity_name__icontains=keywords)
@@ -1253,6 +1260,9 @@ def reservationsSearch(request):
       if color:
         color_filter = Q(color__id__in=color)
 
+      if feedback_status:
+        feedback_status_filter = Q(feedback_status=feedback_status)
+
       if equipment:
         equipment_filter = Q(equipment__equipment_type__id__in=equipment)
 
@@ -1280,6 +1290,9 @@ def reservationsSearch(request):
 
       if color_filter:
         query_filter = query_filter & color_filter
+
+      if feedback_status_filter:
+        query_filter = query_filter & feedback_status_filter
 
       if equipment_filter:
         query_filter = query_filter & equipment_filter
@@ -5004,6 +5017,85 @@ def surveySubmissions(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+###################################################################################
+# EXPORT SURVEY SUBMISSIONS OF ONE SURVEY OR ONE SUBMISSION ON AN EXCEL DOC
+###################################################################################
+@login_required
+def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to export survey submissions')
+
+    if request.method == 'GET':
+      if '' != survey_id:
+        survey = models.Survey.objects.get(id=survey_id)
+      if '' != submission_uuid:
+        surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey, UUID=submission_uuid)
+      else:
+        surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
+
+      if surveySubmissions.count() == 0:
+        raise CustomException('There are no submissions to export')
+
+      response = http.HttpResponse(content_type='application/ms-excel')
+      if submission_uuid:
+        response['Content-Disposition'] = 'attachment; filename="survey_%s_submission_%s.xls"'% (survey.id, submission_uuid)
+      else:
+        response['Content-Disposition'] = 'attachment; filename="survey_%s_submissions.xls"'%survey.id
+      wb = xlwt.Workbook(encoding='utf-8')
+      bold_font_style = xlwt.XFStyle()
+      bold_font_style.font.bold = True
+      font_style = xlwt.XFStyle()
+      font_style.alignment.wrap = 1
+      date_format = xlwt.XFStyle()
+      date_format.num_format_str = 'mm/dd/yyyy'
+      date_time_format = xlwt.XFStyle()
+      date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
+
+      columns = ['User ID', 'Email', 'Full Name', 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
+      font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
+
+      ws = wb.add_sheet('Survey Submissions')
+      row_num = 0
+      #write the headers
+      for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], bold_font_style)
+
+      for submission in surveySubmissions:
+        for survey_response in submission.survey_response.all():
+          row = [submission.user.id if submission.user else '',
+                 submission.user.user.email if submission.user else '',
+                 submission.user.user.get_full_name() if submission.user else '',
+                 submission.survey.id,
+                 submission.survey.name,
+                 str(submission.UUID),
+                 submission.ip_address,
+                 survey_response.survey_component.page,
+                 survey_response.survey_component.order,
+                 survey_response.survey_component.get_component_type_display(),
+                 remove_html_tags(request, smart_str(survey_response.survey_component.content)),
+                 survey_response.survey_component.options,
+                 'Yes' if survey_response.survey_component.is_required else 'No',
+                 survey_response.response,
+                 survey_response.created_date.replace(tzinfo=None),
+                 submission.get_status_display()
+               ]
+          row_num += 1
+          for col_num in range(len(row)):
+            ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+      wb.save(response)
+      return response
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Survey.DoesNotExist as ce:
+    messages.error(request, "Survey not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ##########################################################
 # EDIT SURVEY COMPONENT
 ##########################################################
@@ -5111,20 +5203,25 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
     else:
       user = request.user.userProfile
 
-
     #connecting parameters
-    workshop_id = request.GET['workshop_id']
+    workshop_id = request.GET.get('workshop_id', '')
+    reservation_id = request.GET.get('reservation_id', '')
 
     if '' != submission_uuid:
       submission = models.SurveySubmission.objects.get(UUID=submission_uuid)
     else:
+      delete_incomplete_submission = False
       if survey.survey_type == 'W' and workshop_id:
+        delete_incomplete_submission = True
+      elif survey.survey_type == 'B' and reservation_id:
+        delete_incomplete_submission = True
+
+      if delete_incomplete_submission:
         incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user)
         incomplete_submissions.delete()
 
       submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, user=user, ip_address=request.META['REMOTE_ADDR'])
       submission.save()
-      #return shortcuts.redirect('bcse:surveySubmission', survey_id=survey.id, submission_uuid=submission.UUID, page_num=1)
 
     if '' == page_num:
       page_num = 1
@@ -5134,43 +5231,49 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
     else:
       raise CustomException('Survey does not have the request page number')
 
-
-
     SurveyResponseFormSet = modelformset_factory(models.SurveyResponse, form=forms.SurveyResponseForm, can_delete=False, can_order=False, extra=0)
+
     if request.method == 'GET':
       formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
       context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+
       if survey.survey_type == 'W' and workshop_id:
         context['workshop_id'] = workshop_id
+      elif survey.survey_type == 'B' and reservation_id:
+        context['reservation_id'] = reservation_id
+
       return render(request, 'bcse_app/SurveySubmission.html', context)
-      #response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
 
     elif request.method == 'POST':
       data = request.POST.copy()
-      print(data)
-      print(page_num)
+
       if page_num > 1 and data['back'][0] == '1':
-        print('processing back')
+        print('clicking back button')
         response_data = {}
         response_data['success'] = True
-        #go to the next page
+        #go to the previous page
         next_page_num = page_num - 1
         surveyComponents = getSurveyComponents(request, survey.id, submission, next_page_num)
         formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
         context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': next_page_num, 'total_pages': total_pages}
+        #workshop application
         if survey.survey_type == 'W' and workshop_id:
           context['workshop_id'] = workshop_id
+        #reservation feedback
+        elif survey.survey_type == 'B' and reservation_id:
+          context['reservation_id'] = reservation_id
 
         response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
         return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
       else:
+        #clicking Next or Submit
         formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
 
         if formset.is_valid():
           formset.save()
           if page_num < total_pages:
-            print('continue')
+            print('clicking Next')
             messages.success(request, 'Page %s has been saved' % page_num)
             response_data = {}
             response_data['success'] = True
@@ -5179,16 +5282,29 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
             surveyComponents = getSurveyComponents(request, survey.id, submission, next_page_num)
             formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
             context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': next_page_num, 'total_pages': total_pages}
+
+            #workshop application
             if survey.survey_type == 'W' and workshop_id:
               context['workshop_id'] = workshop_id
+            #reservation feedback
+            elif survey.survey_type == 'B' and reservation_id:
+              context['reservation_id'] = reservation_id
+              reservation = models.Reservation.objects.get(id=reservation_id)
+              #reservation feedback in progress
+              reservation.feedback_status = 'I'
+              reservation.save()
+
+            response_data['success'] = True
             response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
             return http.HttpResponse(json.dumps(response_data), content_type="application/json")
           else:
             print('done')
             submission.status = 'S'
             submission.save()
+            #workshop application
             if survey.survey_type == 'W' and workshop_id:
               workshop = models.Workshop.objects.get(id=workshop_id)
+              #get or create registration and set status to Apply
               try:
                 registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
                 registration.status = 'A'
@@ -5198,7 +5314,15 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
               models.WorkshopApplication.objects.create(registration=registration, application=submission)
               messages.success(request, 'Your application has been submitted')
-
+            #reservation feedback
+            elif survey.survey_type == 'B' and reservation_id:
+              reservation = models.Reservation.objects.get(id=reservation_id)
+              #reservation feedback submitted
+              reservation.feedback_status = 'S'
+              reservation.save()
+              models.ReservationFeedback.objects.create(reservation=reservation, feedback=submission)
+              messages.success(request, 'Your feedback has been submitted')
+            #other surveys
             else:
               messages.success(request, 'The survey has been submitted')
             if request.is_ajax():
@@ -5212,6 +5336,8 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
           if survey.survey_type == 'W' and workshop_id:
             context['workshop_id'] = workshop_id
+          elif survey.survey_type == 'B' and reservation_id:
+            context['reservation_id'] = reservation_id
           response_data['success'] = False
           response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
           return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -5223,7 +5349,6 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 
 
 def getSurveyComponents(request, survey_id, submission, page_num):
@@ -5490,6 +5615,59 @@ def reservationConfirmationEmailSend(request, id):
     else:
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
+#####################################################
+# SEND FEEDBACK REQUEST EMAIL TO THE USER
+# AFTER A RESERVATION IS CHECKED IN
+#####################################################
+def reservationFeedbackEmailSend(request, id):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to send feedback email')
+
+    reservation = models.Reservation.objects.get(id=id)
+    survey = models.Survey.objects.all().filter(status='A', survey_type='B').first()
+    if not survey:
+      raise CustomException('Baxter Box Feedback Survey not found')
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+    subject = 'Baxter Box Reservation Feedback Request'
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+    context = {'reservation': reservation, 'survey': survey, 'domain': domain}
+
+    body = get_template('bcse_app/EmailReservationFeedbackRequest.html').render(context)
+    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+    email.content_subtype = "html"
+    success = email.send(fail_silently=True)
+    if success and reservation.feedback_status is None:
+      reservation.feedback_status = 'E'
+      reservation.save()
+
+    if request.is_ajax():
+      response_data = {}
+      if success:
+        response_data['success'] = True
+        response_data['message'] = 'Reservation feedback request email sent'
+      else:
+        response_data['success'] = False
+        response_data['message'] = 'Reservation feedback request email could not be sent'
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
 
 #####################################################
 # SEND A RECEIPT EMAIL TO ADMINS AND THE USER
@@ -5668,3 +5846,14 @@ class WorkplaceAutocomplete(autocomplete.Select2QuerySetView):
       qs = qs.filter(name__icontains=self.q)
 
     return qs
+
+
+################################
+# REMOVE HTML TAGS FROM STRING
+################################
+@login_required
+def remove_html_tags(request, text):
+  html_re = re.compile(r'<[^>]+>')
+  text_re = html_re.sub('', text)
+  plain_text = html.unescape(text_re)
+  return plain_text

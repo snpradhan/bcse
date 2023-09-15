@@ -13,6 +13,7 @@ urlpatterns = [
     path('reservation/<int:id>/message', views.reservationMessage, name='reservationMessage'),
     path('reservation/<int:id>/dismissMessages', views.reservationMessageDismiss, name='reservationMessageDismiss'),
     path('reservation/<int:id>/sendconfirmationemail', views.reservationConfirmationEmailSend, name='reservationConfirmationEmailSend'),
+    path('reservation/<int:id>/sendfeedbackemail', views.reservationFeedbackEmailSend, name='reservationFeedbackEmailSend'),
     path('reservation/new', views.reservationEdit, name='reservationNew'),
     path('reservations', views.reservations, name='reservations'),
     path('reservations/search/', views.reservationsSearch, name='reservationsSearch'),
@@ -147,6 +148,9 @@ urlpatterns = [
     path('adminConfiguration/survey/<int:id>/submission/<uuid:submission_uuid>/view/modal', views.surveySubmissionViewModal, name='surveySubmissionViewModal'),
     path('adminConfiguration/survey/<int:id>/submission/<uuid:submission_uuid>/edit', views.surveySubmissionEdit, name='surveySubmissionEdit'),
     path('adminConfiguration/survey/<int:id>/submission/<uuid:submission_uuid>/delete', views.surveySubmissionDelete, name='surveySubmissionDelete'),
+    path('adminConfiguration/survey/<int:survey_id>/submission/<uuid:submission_uuid>/export', views.surveySubmissionsExport, name='surveySubmissionsExport'),
+    path('adminConfiguration/survey/<int:survey_id>/submissions/export', views.surveySubmissionsExport, name='surveySubmissionsExport'),
+
     path('adminConfiguration/survey/<int:survey_id>/surveyComponent/<int:id>/edit', views.surveyComponentEdit, name='surveyComponentEdit'),
     path('adminConfiguration/survey/<int:survey_id>/surveyComponent/<int:id>/delete', views.surveyComponentDelete, name='surveyComponentDelete'),
     path('adminConfiguration/survey/<int:survey_id>/surveyComponent/new', views.surveyComponentEdit, name='surveyComponentNew'),

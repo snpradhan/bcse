@@ -62,6 +62,9 @@
           {% if 'ES' in columns %}
             <th> Confirmation Email Sent? </th>
           {% endif %}
+          {% if 'FS' in columns %}
+            <th> Feedback Status </th>
+          {% endif %}
         {% endif %}
         {% if 'ST' in columns or tag == 'profile' %}
           <th> Status </th>
@@ -125,6 +128,9 @@
           {% endif %}
           {% if 'ES' in columns %}
             <td style="background-color: #767676; color: white;"> Confirmation Email Sent? </td>
+          {% endif %}
+          {% if 'FS' in columns %}
+            <td style="background-color: #767676; color: white;"> Feedback Status </td>
           {% endif %}
         {% endif %}
         {% if 'ST' in columns or tag == 'profile' %}
@@ -262,6 +268,9 @@
             {% if 'ES' in columns %}
               <td>{{reservation.email_sent|yesno:"Yes,No"}}</td>
             {% endif %}
+            {% if 'FS' in columns %}
+              <td>{{reservation.get_feedback_status_display|default:""}}</td>
+            {% endif %}
           {% endif %}
           {% if 'ST' in columns or tag == 'profile' %}
             <td> {{reservation.get_status_display}} </td>
@@ -296,6 +305,22 @@
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationAssignedColorEdit' reservation.id %}" href="#">Update Color</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
+                  {% get_reservation_feedback reservation.id as reservation_feedback %}
+                  {% if reservation_feedback %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' reservation_feedback.survey.id reservation_feedback.UUID %}" href="#">
+                        View Feedback
+                      </a>
+                    </li>
+                  {% elif reservation.status == 'I' %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" href="#">
+                        Send Feedback Email
+                      </a>
+                    </li>
+                  {% endif %}
                   <li><hr class="dropdown-divider"></li>
                   {% if reservation.status not in 'UD' %}
                     <li>

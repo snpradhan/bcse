@@ -6,6 +6,8 @@
   <h1> Users </h1>
   <div>
     <a class="btn" href="?next={% url 'bcse:signup' %}">Create User</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#work_place" data-href="{% url 'bcse:signup' %}" href="#">Create U2</a>
+
     <a class="btn" href="{% staticfile 'xls/UserTemplate.xlsx' %}" target="_blank" download>Download User Template</a>
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:usersUpload' %}">Upload Users</a>
     <a class="btn" href="{% url 'bcse:usersExport' %}">Export Users</a>

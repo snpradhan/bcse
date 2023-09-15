@@ -478,7 +478,7 @@ class ReservationForm(ModelForm):
  
   class Meta:
     model = models.Reservation
-    exclude = ('equipment', 'created_by', 'created_date', 'modified_date')
+    exclude = ('equipment', 'feedback_status', 'created_by', 'created_date', 'modified_date')
     widgets = {
       'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
       'notes': forms.Textarea(attrs={'rows':3}),
@@ -1038,6 +1038,7 @@ class ReservationsSearchForm(forms.Form):
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':6}))
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
   return_before = forms.DateField(required=False, label=u'Return on/before')
+  feedback_status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.RESERVATION_FEEDBACK_STATUS_CHOICES)
   status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, initial=['O', 'R', 'U'], widget=forms.SelectMultiple(attrs={'size':6}))
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
@@ -1065,6 +1066,7 @@ class ReservationsSearchForm(forms.Form):
       self.fields.pop('work_place')
       self.fields.pop('assignee')
       self.fields.pop('color')
+      self.fields.pop('feedback_status')
     else:
       self.fields['rows_per_page'].initial = 75
 

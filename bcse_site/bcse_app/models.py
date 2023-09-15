@@ -86,6 +86,12 @@ RESERVATION_STATUS_CHOICES = (
   ('U', 'Unconfirmed'),
 )
 
+RESERVATION_FEEDBACK_STATUS_CHOICES = (
+  ('E', 'Email Sent'),
+  ('I', 'Feedback In Progress'),
+  ('S', 'Feedback Submitted'),
+)
+
 GRADES_CHOICES = (
   ('E', 'Elementary School'),
   ('M', 'Middle School'),
@@ -105,6 +111,7 @@ SURVEY_TYPE_CHOICES = (
   ('A', 'Async Learning'),
   ('C', 'Case Study'),
   ('W', 'Workshop Application'),
+  ('B', 'Baxter Box Feedback'),
   ('O', 'Other'),
 )
 
@@ -141,6 +148,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('AT', 'Assigned To'),
   ('ST', 'Status'),
   ('ES', 'Confirmation Email Sent'),
+  ('FS', 'Feedback Status'),
 )
 
 USER_TABLE_COLUMN_CHOICES = (
@@ -490,6 +498,7 @@ class Reservation(models.Model):
   color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
   status = models.CharField(default='U', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   email_sent = models.BooleanField(default=False)
+  feedback_status = models.CharField(null=True, max_length=1, choices=RESERVATION_FEEDBACK_STATUS_CHOICES)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
@@ -503,6 +512,15 @@ class Reservation(models.Model):
       return '%s - %s' % (self.activity.name, self.user)
     else:
       return '%s - %s' % (self.other_activity_name, self.user)
+
+
+class ReservationFeedback(models.Model):
+  reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='reservation_to_feedback')
+  feedback = models.ForeignKey('SurveySubmission', on_delete=models.CASCADE, related_name='feedback_to_reservation')
+
+  class Meta:
+      ordering = ['-id']
+      unique_together = ('reservation', 'feedback')
 
 
 class ReservationDeliveryAddress(models.Model):

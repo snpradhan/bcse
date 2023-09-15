@@ -1,0 +1,20 @@
+{% extends "bcse_app/EmailBase.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block emailbody %}
+   <div id="text">
+      <div>
+         Thank you for using our reservation system.  Please use the link below to provide feedback for the activity
+         {% if reservation.activity %}
+            {{reservation.activity.name}}
+         {% else %}
+            {{reservation.other_activity}}
+         {% endif %}
+      </div>
+      <div>
+         <a href="https://{{domain}}/?next=/signin/?next=/?next=/survey/{{survey.id}}/submission/new?reservation_id={{reservation.id}}">Feedback Link</a>
+      </div>
+   </div>
+{% endblock %}
+
