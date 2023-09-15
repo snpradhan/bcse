@@ -201,6 +201,7 @@
       </style>
    </head>
    <body>
+      {% block header %}
       <div id="header">
          <table cellspacing="0">
             <tbody>
@@ -218,10 +219,12 @@
             </tbody>            
          </table>
       </div>
+      {% endblock %}
       <div id="message">
          {% block emailbody %}
          {% endblock %}
       </div>
+      {% block footer %}
       <div id="footer">
          <div id="signature">
             <div>BCSE Team</div>
@@ -241,5 +244,6 @@
           </a>
          </div>
       </div>
+      {% endblock %}
    </body>
 </html>

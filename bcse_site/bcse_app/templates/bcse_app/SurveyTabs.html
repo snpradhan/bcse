@@ -14,6 +14,10 @@
         <li class="nav-item">
           <label><a class="nav-link active" aria-current="page">Submission {{submission.UUID|truncatechars:9}}</a></label>
         </li>
+      {% else %}
+        <li class="nav-item right">
+          <a class="btn" href="{% url 'bcse:surveySubmissionsExport' survey.id %}">Export Submissions</a>
+        </li>
       {% endif %}
     {% elif tab == 'edit' %}
       <li class="nav-item">

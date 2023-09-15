@@ -4,7 +4,18 @@
 <div class="modal-dialog modal-xl">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 class="center"> {{survey.name}} </h3>
+      <h3 class="center">
+        {% if reservation_id %}
+          {% get_reservation_activity reservation_id as reservation_activity %}
+          {% if reservation_activity %}
+            Baxter Box Feedback for {{reservation_activity}}
+          {% else %}
+            Baxter Box Feedback
+          {% endif %}
+        {% else %}
+          {{survey.name}}
+        {% endif %}
+      </h3>
     </div>
     <div id="SurveyMsg" class="msg">
       <ul class="errorlist">
@@ -13,7 +24,7 @@
         {% endfor %}
       </ul>
     </div>
-    <form method="post" enctype="multipart/form-data" id="formSurvey" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}">
+    <form method="post" enctype="multipart/form-data" id="formSurvey" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}{% if reservation_id %}?reservation_id={{reservation_id}}{% endif %}">
       {% csrf_token %}
       {{formset.management_form}}
       <div class="modal-body">
@@ -178,7 +189,7 @@
                 window.parent.location.href = data['redirect_url'];
               }
               else {
-                window.parent.location.reload();
+                window.parent.location.href = '/';
               }
             }
             else{

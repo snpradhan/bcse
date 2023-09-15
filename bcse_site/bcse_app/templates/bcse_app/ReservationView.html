@@ -130,27 +130,50 @@
                     <th>Admin Notes:</th>
                     <td>{{reservation.admin_notes|default_if_none:""}}</td>
                   </tr>
-                   <tr>
+                  <tr>
                     <th>Confirmation Email Sent:</th>
                     <td>
-
-                    <div class="reservation_email">
-                      <div>
-                        {{reservation.email_sent|yesno:"Yes,No"}}
+                      <div class="reservation_email">
+                        <div>
+                          {{reservation.email_sent|yesno:"Yes,No"}}
+                        </div>
+                        <div>
+                          {% if reservation.status == 'R' %}
+                            <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" href="#">
+                              {% if reservation.email_sent %}
+                                Resend
+                              {% else %}
+                                Send
+                              {% endif %}
+                              Confirmation Email
+                            </a>
+                          {% endif %}
+                        </div>
                       </div>
-                      <div>
-                        {% if reservation.status == 'R' %}
-                          <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" href="#">
-                            {% if reservation.email_sent %}
-                              Resend
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Feedback Status:</th>
+                    <td>
+                      <div class="reservation_email">
+                        <div>
+                          {{reservation.get_feedback_status_display|default:""}}
+                        </div>
+                        <div>
+                          {% if reservation.status == 'I' %}
+                            {% get_reservation_feedback reservation.id as reservation_feedback %}
+                            {% if reservation_feedback %}
+                              <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' reservation_feedback.survey.id reservation_feedback.UUID %}" href="#">
+                                View Feedback
+                              </a>
                             {% else %}
-                              Send
+                              <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" href="#">
+                                Send Feedback Email
+                              </a>
                             {% endif %}
-                            Email
-                          </a>
-                        {% endif %}
+                          {% endif %}
+                        </div>
                       </div>
-                    </div>
                     </td>
                   </tr>
                   <tr>

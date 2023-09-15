@@ -54,6 +54,12 @@
                     Delete
                   </a>
                 </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item action export" href="{% url 'bcse:surveySubmissionsExport' survey.id submission.UUID %}">
+                    Export Submission
+                  </a>
+                </li>
               </ul>
             </div>
           </td>

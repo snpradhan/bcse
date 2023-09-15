@@ -101,6 +101,11 @@
         </div>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
           <div class="form-group">
+            <label for="id_{{searchForm.feedback_status.name}}" class="form-label"> {{searchForm.feedback_status.label|title}}</label>
+            <div>{{searchForm.feedback_status}}</div>
+            <div class="error">{{ searchForm.feedback_status.errors }}</div>
+          </div>
+          <div class="form-group">
             <label for="id_{{searchForm.columns.name}}" class="form-label">
               {{searchForm.columns.label|title}}
               <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.columns.help_text}}"></i>

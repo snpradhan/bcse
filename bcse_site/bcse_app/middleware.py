@@ -63,12 +63,14 @@ class NextParameterMiddleware(MiddlewareMixin):
   def process_request(self, request):
     redirect_url = request.GET.get('next', '')
     target = None
-    if 'password_reset' in redirect_url:
+    if redirect_url.find('password_reset') == 1:
       target = '#password'
-    elif 'signin' in redirect_url:
+    elif redirect_url.find('signin') == 1:
       target = '#signin'
-    elif 'signup' in redirect_url:
+    elif redirect_url.find('signup') == 1:
       target = '#signup'
+    elif redirect_url.find('survey') == 1:
+      target = '#general'
 
     if target and redirect_url:
       request.target = target
