@@ -1170,7 +1170,7 @@ def reservationCancel(request, id=''):
       if request.user.userProfile.user_role not in ['A', 'S'] and reservation.status in ['O', 'I']:
         raise CustomException('This reservation is %s and cannot be cancelled' % reservation.get_status_display())
 
-      reservation.status = 'D'
+      reservation.status = 'N'
       reservation.save()
       messages.success(request, "Reservation cancelled")
 
