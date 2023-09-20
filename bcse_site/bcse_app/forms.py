@@ -530,7 +530,7 @@ class ReservationForm(ModelForm):
     self.fields['other_activity'].label = 'I am doing something not listed here.'
     self.fields['other_activity_name'].label = 'What activity are you planning to do?'
     self.fields['activity_kit_not_needed'].label = 'I already have all the kits I need.'
-    self.fields['num_of_students'].label = 'How many students will be doing this activity?'
+    self.fields['num_of_students'].label = 'Total # of students who will be doing this activity?'
     self.fields['num_of_classes'].label = 'Number of classes'
     self.fields['more_num_of_classes'].label = 'Number of classes more than 4'
     self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
@@ -555,6 +555,7 @@ class ReservationForm(ModelForm):
     other_activity_name = cleaned_data.get('other_activity_name')
     num_of_classes = cleaned_data.get('num_of_classes')
     more_num_of_classes = cleaned_data.get('more_num_of_classes')
+    num_of_students = cleaned_data.get('num_of_students')
 
     if activity is None and not other_activity:
       self.add_error('activity', 'Please select an activity from the dropdown or select "I am doing something not listed here"')
@@ -571,6 +572,10 @@ class ReservationForm(ModelForm):
       if more_num_of_classes is None or int(more_num_of_classes) < 5:
         self.add_error('more_num_of_classes', 'Please provide the number of classes more than 4')
         valid = False
+
+    if num_of_students is not None and int(num_of_students) <= 0:
+      self.add_error('num_of_students', 'Please provide the total # of students more than 0')
+      valid = False
 
     for x in self.errors:
       attrs = self.fields[x].widget.attrs
