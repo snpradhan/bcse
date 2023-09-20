@@ -310,8 +310,14 @@ function bindWarningAction() {
 }
 
 function bindPagination(){
+  var page = '';
   $('div.paginate a.page').on('click', function(e){
-    var page = $(this).data('page');
+    page = $(this).data('page');
+    $('form.filter_form input#page').val(page);
+    $('form.filter_form').submit();
+  });
+  $('div.paginate select.pages').on('change', function(e){
+    page = $(this).val();
     $('form.filter_form input#page').val(page);
     $('form.filter_form').submit();
   });

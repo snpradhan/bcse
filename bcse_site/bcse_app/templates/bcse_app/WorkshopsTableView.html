@@ -5,6 +5,9 @@
 {% endif %}
 {% now 'Y-m-d' as current_date %}
 {% if workshops %}
+  {% if tag == 'workshops' %}
+    {% include "bcse_app/Pagination.html" with model=workshops %}
+  {% endif %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>

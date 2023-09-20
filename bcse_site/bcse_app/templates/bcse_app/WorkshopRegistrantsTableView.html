@@ -1,5 +1,6 @@
 {% load bcse_extras %}
 {% if registrations %}
+  {% include "bcse_app/Pagination.html" with model=registrations %}
   <table class="table table-bordered table-striped" id="workshop_registrants">
     <tbody style="display:none;">
       <tr>
