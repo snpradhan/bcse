@@ -1,6 +1,7 @@
 {% load bcse_extras %}
 
 {% if work_places %}
+  {% include "bcse_app/Pagination.html" with model=work_places %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>

@@ -733,12 +733,28 @@ body {
     div.paginate {
       width: 100%;
       font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
 
       .counter {
-        float: left;
+
       }
       .page-links {
-        float: right;
+        display: flex;
+        justify-content: space-between;
+        gap: 1em;
+
+        .current {
+          display: flex;
+          justify-content: space-between;
+          gap: 0.5em;
+          align-items: center;
+
+          & > * {
+            white-space:nowrap;
+          }
+        }
       }
     }
 

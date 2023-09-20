@@ -4,6 +4,9 @@
   <h2 class="center">My Baxter Box Reservations</h2>
 {% endif %}
 {% if reservations %}
+  {% if tag == 'reservations' %}
+    {% include "bcse_app/Pagination.html" with model=reservations %}
+  {% endif %}
   <table class="table table-bordered table-striped" id="baxter_box_reservations">
     <thead>
       <tr class='noExl'>

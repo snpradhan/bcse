@@ -2,6 +2,7 @@
 
 {% if users %}
   {% with online_users=request.online_now_ids %}
+  {% include "bcse_app/Pagination.html" with model=users %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>

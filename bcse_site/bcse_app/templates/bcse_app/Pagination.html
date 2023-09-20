@@ -1,21 +1,33 @@
 {% load bcse_extras %}
 <div class="paginate">
-  <span class="counter">
+  <div class="counter">
     Showing {{model.paginator|get_page_start_index:model.number}} to {{model.paginator|get_page_end_index:model.number}} of {{model.paginator.count}} entries.
-  </span>
-  <span class="page-links">
+  </div>
+  <div class="page-links">
     {% if model.has_previous %}
-      <a href="#" data-page="{{ model.previous_page_number }}" class="page">Previous</a>
-      &nbsp;
+      <div>
+        <a href="#" data-page="{{ model.previous_page_number }}" class="page btn">Previous</a>
+    </div>
     {% endif %}
 
-    <span class="current">
-      Page {{ model.number }} of {{ model.paginator.num_pages }}.
-    </span>
+    <div class="current">
+      <div>Page</div>
+      <select class="pages form-control">
+        {% for i in model.paginator.num_pages|iterate %}
+          {% if i == model.number %}
+            <option value="{{i}}" selected>{{i}}</option>
+          {% else %}
+            <option value="{{i}}">{{i}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <div>of {{ model.paginator.num_pages }}.</div>
+    </div>
 
     {% if model.has_next %}
-      &nbsp;
-      <a href="#" data-page="{{ model.next_page_number }}" class="page">Next</a>
+      <div>
+        <a href="#" data-page="{{ model.next_page_number }}" class="page btn">Next</a>
+      </div>
     {% endif %}
-  </span>
+  </div>
 </div>
