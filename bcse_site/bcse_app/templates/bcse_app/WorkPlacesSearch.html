@@ -80,12 +80,12 @@
             <div>{{searchForm.rows_per_page}}</div>
             <div class="error">{{ searchForm.rows_per_page.errors }}</div>
           </div>
-          <input type="hidden" name="page" id="page" value="1"/>
+          <input type="hidden" name="page" id="page" value="{{page}}"/>
         </div>
       </div>
 
       <div class="form-group right" id="filter_buttons">
-        <button class="btn" type="button" id="clear">Clear Filter</button>
+        <a class="btn" type="button" href="{% url 'bcse:clearSearch' 'workplaces_search' %}">Clear Filter</a>
       </div>
     </div>
   </form>

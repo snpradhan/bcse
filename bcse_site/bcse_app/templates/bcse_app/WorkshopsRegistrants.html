@@ -5,11 +5,15 @@
 {% block configuration %}
   <h1 class="center"> Registrants </h1>
   {% include "bcse_app/WorkshopsRegistrantsSearch.html" %}
+  <div class="form-group" id="spinner">
+    <img src="/static/img/page-loader.gif" class="icon"/>
+  </div>
   <div class="workshops_registrants search_results">
-    {% include "bcse_app/WorkshopsRegistrantsTableView.html" %}
   </div>
   <script type="text/javascript">
     $(function (){
+      $('form#workshops_registrants_filter_form').submit();
+
       $('.download').on('click', function(e) {
         $("#workshop_registrants").table2excel({
           exclude: ".noExl",

@@ -1,5 +1,5 @@
 <div class="filter_container">
-  <form method="get" action="{% url 'bcse:workshopsRegistrants' %}" id="workshops_registrants_filter_form" class="filter_form">
+  <form method="get" action="{% url 'bcse:workshopsRegistrantsSearch' %}" id="workshops_registrants_filter_form" class="filter_form">
     {% csrf_token %}
     {{searchForm.media}}
     <div class="form-group right" id="filter_toggle">
@@ -34,12 +34,16 @@
           <div>{{searchForm.sort_by}}</div>
           <div class="error">{{ searchForm.sort_by.errors }}</div>
         </div>
-        <input type="hidden" name="page" id="page" value="1"/>
-
-        <div class="form-group" id="filter_buttons">
-          <button class="btn" type="button" id="clear">Clear Filter</button>
-          <button class="btn download" type="button">Download Registrants</button>
+        <div class="form-group">
+          <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+          <div>{{searchForm.rows_per_page}}</div>
+          <div class="error">{{ searchForm.rows_per_page.errors }}</div>
         </div>
+        <input type="hidden" name="page" id="page" value="{{page}}"/>
+      </div>
+      <div class="form-group right" id="filter_buttons">
+        <button class="btn download" type="button">Download Registrants</button>
+        <a class="btn" type="button" href="{% url 'bcse:clearSearch' 'workshops_registrants_search' %}">Clear Filter</a>
       </div>
     </div>
   </form>

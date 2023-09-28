@@ -391,7 +391,7 @@ class BaxterBoxSubCategoryForm(ModelForm):
 class BaxterBoxSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
-
+    initials = kwargs.pop('initials')
     super(BaxterBoxSearchForm, self).__init__(*args, **kwargs)
     categories = models.BaxterBoxCategory.objects.all().filter(status='A')
     for category in categories:
@@ -407,6 +407,11 @@ class BaxterBoxSearchForm(forms.Form):
       field.widget.attrs['class'] = 'form-control select2'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
 ####################################
 # Equipment Type Form
 ####################################
@@ -1064,6 +1069,7 @@ class ReservationsSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
     super(ReservationsSearchForm, self).__init__(*args, **kwargs)
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
@@ -1087,6 +1093,10 @@ class ReservationsSearchForm(forms.Form):
       if field_name in ['equipment', 'status', 'columns', 'color']:
         field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
 
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
 
 ####################################
 # Workshop Search Form
@@ -1104,10 +1114,12 @@ class WorkshopsSearchForm(forms.Form):
                                                        ('start_date_asc', 'Start Date (Asc)'),
                                                        ('created_date_desc', 'Created Date (Desc)'),
                                                        ('created_date_asc', 'Created Date (Asc)'),), initial='start_date_desc')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
     audience = kwargs.pop('audience')
+    initials = kwargs.pop('initials')
     super(WorkshopsSearchForm, self).__init__(*args, **kwargs)
 
 
@@ -1131,6 +1143,10 @@ class WorkshopsSearchForm(forms.Form):
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
 
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
 ####################################
 # Registrants Search Form
 ####################################
@@ -1141,14 +1157,20 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
   year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
   status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('year', 'Year'), ('status', 'Status')))
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
     super(WorkshopsRegistrantsSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
 
     self.fields['workshop'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.start_date.year)
 
@@ -1181,6 +1203,7 @@ class UsersSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
     super(UsersSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
@@ -1188,6 +1211,11 @@ class UsersSearchForm(forms.Form):
         field.widget.attrs['class'] = 'form-control datepicker'
       else:
         field.widget.attrs['class'] = 'form-control'
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
 
 ####################################
 # Work Place Search Form
@@ -1210,12 +1238,18 @@ class WorkPlacesSearchForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
+
     super(WorkPlacesSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       if field_name == 'district_number':
         field.label = 'District #'
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
 
 
 ####################################
@@ -1232,6 +1266,7 @@ class BaxterBoxUsageSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
     super(BaxterBoxUsageSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
@@ -1246,6 +1281,9 @@ class BaxterBoxUsageSearchForm(forms.Form):
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
 
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
 
 ##################################################
 # Registrants Search Form For A Single Workshop
@@ -1272,7 +1310,12 @@ class WorkshopRegistrantsSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
     super(WorkshopRegistrantsSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
       field.widget.attrs['class'] = 'form-control'
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]

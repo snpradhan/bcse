@@ -13,11 +13,11 @@
     <img src="/static/img/page-loader.gif" class="icon"/>
   </div>
   <div class="reservations search_results">
-    {% include "bcse_app/BaxterBoxUsageTableView.html" %}
   </div>
 
   <script type="text/javascript">
     $(function (){
+      $('.filter_form').submit();
       $('button#export').on('click', function(e) {
         $("#baxter_box_usage_report").table2excel({
           exclude: ".noExl",

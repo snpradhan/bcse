@@ -120,14 +120,17 @@ def baxterBoxInfo(request):
 
     activities = models.Activity.objects.all().filter(status='A').distinct()
     equipment_types = models.EquipmentType.objects.all().filter(status='A').distinct().order_by('order')
-    searchForm = forms.BaxterBoxSearchForm()
+    if request.session.get('baxter_box_search', False):
+      searchForm = forms.BaxterBoxSearchForm(initials=request.session['baxter_box_search'])
+    else:
+      searchForm = forms.BaxterBoxSearchForm(initials=None)
+
     context = {'activities': activities, 'equipment_types': equipment_types, 'blackout_dates': blackout_dates, 'searchForm': searchForm}
     return render(request, 'bcse_app/BaxterBoxInfo.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 
 def baxterBoxSearch(request):
 
@@ -137,8 +140,12 @@ def baxterBoxSearch(request):
       equipment_types = models.EquipmentType.objects.all().filter(status='A').distinct().order_by('order')
       categories = models.BaxterBoxCategory.objects.all().filter(status='A')
 
+      #set session variable
+      request.session['baxter_box_search'] = {}
+
       for category in categories:
         sub_categories = request.GET.getlist('category_%s'%category.id, '')
+        request.session['baxter_box_search']['category_'+str(category.id)] = sub_categories
         if sub_categories:
           activities = activities.filter(tags__id__in=sub_categories)
           equipment_types = equipment_types.filter(tags__id__in=sub_categories)
@@ -847,13 +854,19 @@ def reservations(request):
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to view reservations')
 
-    reservations = reservationsList(request)
+    #reservations = reservationsList(request)
 
-    sort_order = [{'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'}]
-    reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
-    searchForm = forms.ReservationsSearchForm(user=request.user, prefix="reservation_search")
+    #sort_order = [{'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'}]
+    #reservations = paginate(request, reservations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
 
-    context = {'reservations': reservations, 'searchForm': searchForm}
+    if request.session.get('reservations_search', False):
+      searchForm = forms.ReservationsSearchForm(user=request.user, initials=request.session['reservations_search'], prefix="reservation_search")
+      page = request.session['reservations_search']['page']
+    else:
+      searchForm = forms.ReservationsSearchForm(user=request.user, initials=None, prefix="reservation_search")
+      page = 1
+
+    context = {'searchForm': searchForm, 'page': page}
     if request.user.userProfile.user_role in ['A', 'S']:
       return render(request, 'bcse_app/UserReservations.html', context)
     else:
@@ -1228,6 +1241,27 @@ def reservationsSearch(request):
       rows_per_page = request.GET.get('reservation_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
       color = request.GET.getlist('reservation_search-color', '')
       feedback_status = request.GET.get('reservation_search-feedback_status', '')
+      page = request.GET.get('page', '')
+
+      #set session variable
+      request.session['reservations_search'] = {
+        'keywords': keywords,
+        'user': user,
+        'work_place': work_place,
+        'assignee': assignee,
+        'activity': activity,
+        'equipment': equipment,
+        'delivery_after': delivery_after,
+        'return_before': return_before,
+        'status': status,
+        'sort_by': sort_by,
+        'columns': columns,
+        'rows_per_page': rows_per_page,
+        'color': color,
+        'feedback_status': feedback_status,
+        'page': page
+      }
+
 
       if keywords:
         keyword_filter = Q(activity__name__icontains=keywords) | Q(other_activity_name__icontains=keywords)
@@ -1337,7 +1371,7 @@ def reservationsSearch(request):
 
       sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
 
-      reservations = paginate(request, reservations, sort_order, rows_per_page)
+      reservations = paginate(request, reservations, sort_order, rows_per_page, page)
 
       context = {'reservations': reservations, 'tag': 'reservations', 'columns': columns}
       response_data = {}
@@ -1637,13 +1671,39 @@ def baxterBoxUsageReport(request):
       raise CustomException('You do not have the permission to view Baxter Box Report')
 
     if request.method == 'GET':
+      if request.session.get('baxter_box_usage_search', False):
+        searchForm = forms.BaxterBoxUsageSearchForm(user=request.user, initials=request.session['baxter_box_usage_search'], prefix="usage")
+      else:
+        searchForm = forms.BaxterBoxUsageSearchForm(user=request.user, initials=None, prefix="usage")
+
+      context = {'searchForm': searchForm}
+      return render(request, 'bcse_app/BaxterBoxUsageReport.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# BAXTER BOX USAGE SEARCH
+####################################
+@login_required
+def baxterBoxUsageReportSearch(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view Baxter Box Report')
+
+    if request.method == 'GET':
       reservations = models.Reservation.objects.all().exclude(status='N')
       equipment_types = models.EquipmentType.objects.all().order_by('order')
       activities = models.Activity.objects.all().order_by('name')
-      searchForm = forms.BaxterBoxUsageSearchForm(user=request.user, prefix="usage")
+
       equipment_usage = {}
       kit_usage = {}
       total_usage = {'reservations': 0, 'kits': 0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+
       for equipment_type in equipment_types:
         equipment_usage[equipment_type.id] = {'name': equipment_type.name, 'reservations': [], 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
       for activity in activities:
@@ -1658,6 +1718,16 @@ def baxterBoxUsageReport(request):
       activity = request.GET.getlist('usage-activity', '')
       equipment = request.GET.getlist('usage-equipment', '')
       status = request.GET.getlist('usage-status', '')
+
+       #set session variable
+      request.session['baxter_box_usage_search'] = {
+        'from_date': from_date,
+        'to_date': to_date,
+        'work_place': work_place,
+        'activity': activity,
+        'equipment': equipment,
+        'status': status
+      }
 
       if from_date:
         from_date = datetime.datetime.strptime(from_date, '%B %d, %Y')
@@ -1754,15 +1824,11 @@ def baxterBoxUsageReport(request):
           del kit_usage[activity_id]
 
 
-      if request.is_ajax():
-        response_data = {}
-        response_data['success'] = True
-        context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date}
-        response_data['html'] = render_to_string('bcse_app/BaxterBoxUsageTableView.html', context, request)
-        return http.HttpResponse(json.dumps(response_data), content_type="application/json")
-      else:
-        context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'total_usage': total_usage, 'searchForm': searchForm, 'from_date': from_date, 'to_date': to_date}
-        return render(request, 'bcse_app/BaxterBoxUsageReport.html', context)
+      response_data = {}
+      response_data['success'] = True
+      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date}
+      response_data['html'] = render_to_string('bcse_app/BaxterBoxUsageTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET'])
 
@@ -2703,16 +2769,28 @@ def studentProgramsBaseQuery(request):
 # VIEW WORKSHOPS
 ################################################
 def workshops(request, flag='list'):
-  searchForm = forms.WorkshopsSearchForm(user=request.user, audience='teacher', prefix="workshop_search")
-  context = {'searchForm': searchForm, 'flag': flag}
+  if request.session.get('workshops_search', False):
+    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=request.session['workshops_search'], audience='teacher', prefix="workshop_search")
+    page = request.session['workshops_search']['page']
+  else:
+    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=None, audience='teacher', prefix="workshop_search")
+    page = 1
+
+  context = {'searchForm': searchForm, 'flag': flag, 'page': page}
   return render(request, 'bcse_app/WorkshopsBaseView.html', context)
 
 ################################################
 # VIEW STUDENT PROGRAMS
 ################################################
 def studentPrograms(request, flag='list'):
-  searchForm = forms.WorkshopsSearchForm(user=request.user, audience='student', prefix="workshop_search")
-  context = {'searchForm': searchForm, 'flag': flag}
+  if request.session.get('student_programs_search', False):
+    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=request.session['student_programs_search'], audience='student', prefix="workshop_search")
+    page = request.session['student_programs_search']['page']
+  else:
+    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=None, audience='student', prefix="workshop_search")
+    page = 1
+
+  context = {'searchForm': searchForm, 'flag': flag, 'page': page}
 
   return render(request, 'bcse_app/StudentProgramsBaseView.html', context)
 ################################################
@@ -2748,6 +2826,25 @@ def workshopsSearch(request, flag='list', audience='teacher'):
     workshop_category = request.GET.get('workshop_search-workshop_category', '')
     status = request.GET.get('workshop_search-status', '')
     sort_by = request.GET.get('workshop_search-sort_by', '')
+    rows_per_page = request.GET.get('workshop_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+    page = request.GET.get('page', '')
+
+    #set session variable
+    workshop_search_vars = {
+      'keywords': keywords,
+      'starts_after': starts_after,
+      'ends_before': ends_before,
+      'registration_open': registration_open,
+      'workshop_category': workshop_category,
+      'status': status,
+      'sort_by': sort_by,
+      'rows_per_page': rows_per_page,
+      'page': page
+    }
+    if audience == 'teacher':
+      request.session['workshops_search'] = workshop_search_vars
+    else:
+      request.session['student_programs_search'] = workshop_search_vars
 
     if keywords:
       keyword_filter = Q(name__icontains=keywords) | Q(sub_title__icontains=keywords)
@@ -2800,6 +2897,8 @@ def workshopsSearch(request, flag='list', audience='teacher'):
     if sort_by:
       if sort_by == 'title':
         order_by = 'name'
+        direction = 'asc'
+        ignorecase = 'true'
       elif sort_by == 'start_date_desc':
         order_by = 'start_date'
         direction = 'desc'
@@ -2819,11 +2918,7 @@ def workshopsSearch(request, flag='list', audience='teacher'):
 
 
     sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
-    if flag == 'list':
-      item_per_page = 10
-    else:
-      item_per_page = settings.DEFAULT_ITEMS_PER_PAGE
-    workshops = paginate(request, workshops, sort_order, item_per_page)
+    workshops = paginate(request, workshops, sort_order, rows_per_page, page)
 
     context = {'workshops': workshops, 'tag': 'workshops'}
     response_data = {}
@@ -2888,7 +2983,6 @@ def workshopRegistrationSetting(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-
 ##########################################################
 # LIST OF SINGLE WORKSHOP REGISTRANTS
 ##########################################################
@@ -2904,108 +2998,142 @@ def workshopRegistrants(request, id=''):
         workshop = models.Workshop.objects.get(id=id)
         workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
 
-        searchForm = forms.WorkshopRegistrantsSearchForm(user=request.user, prefix="registrant_search")
-
-        query_filter = Q()
-        email_filter = None
-        first_name_filter = None
-        last_name_filter = None
-        user_role_filter = None
-        work_place_filter = None
-        registration_status_filter = None
-        subscribed_filter = None
-        photo_release_filter = None
-
-        email = request.GET.get('registrant_search-email', '')
-        first_name = request.GET.get('registrant_search-first_name', '')
-        last_name = request.GET.get('registrant_search-last_name', '')
-        user_role = request.GET.get('registrant_search-user_role', '')
-        work_place = request.GET.get('registrant_search-work_place', '')
-        registration_status = request.GET.getlist('registrant_search-registration_status', '')
-        subscribed = request.GET.get('registrant_search-subscribed', '')
-        photo_release_complete = request.GET.get('registrant_search-photo_release_complete', '')
-        sort_by = request.GET.get('registrant_search-sort_by', '')
-        rows_per_page = request.GET.get('registrant_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
-
-
-        if email:
-          email_filter = Q(user__user__email__icontains=email)
-          query_filter = query_filter & email_filter
-
-        if first_name:
-          first_name_filter = Q(user__user__first_name__icontains=first_name)
-          query_filter = query_filter & first_name_filter
-        if last_name:
-          last_name_filter = Q(user__user__last_name__icontains=last_name)
-          query_filter = query_filter & last_name_filter
-
-        if user_role:
-          user_role_filter = Q(user__user_role=user_role)
-          query_filter = query_filter & user_role_filter
-
-        if work_place:
-          work_place_filter = Q(user__work_place=work_place)
-          query_filter = query_filter & work_place_filter
-
-        if subscribed:
-          if subscribed == 'Y':
-            subscribed_filter = Q(user__subscribe=True)
-          else:
-            subscribed_filter = Q(user__subscribe=False)
-
-          query_filter = query_filter & subscribed_filter
-
-        if photo_release_complete:
-          if photo_release_complete == 'Y':
-            photo_release_filter = Q(user__photo_release_complete=True)
-          else:
-            photo_release_filter = Q(user__photo_release_complete=False)
-
-          query_filter = query_filter & photo_release_filter
-
-        if registration_status:
-          registration_status_filter = Q(status__in=registration_status)
-          query_filter = query_filter & registration_status_filter
-
-        registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=id)
-        registrations = registrations.filter(query_filter)
-
-        direction = request.GET.get('direction') or 'asc'
-        ignorecase = request.GET.get('ignorecase') or 'false'
-
-        if sort_by:
-          if sort_by == 'email':
-            order_by = 'user__user__email'
-          elif sort_by == 'first_name':
-            order_by = 'user__user__first_name'
-          elif sort_by == 'last_name':
-            order_by = 'user__user__last_name'
-          elif sort_by == 'created_date_desc':
-            order_by = 'created_date'
-            direction = 'desc'
-          elif sort_by == 'created_date_asc':
-            order_by = 'created_date'
-            direction = 'asc'
+        if request.session.get('workshop_%s_registrants_search'%id, False):
+          searchForm = forms.WorkshopRegistrantsSearchForm(user=request.user, initials=request.session['workshop_%s_registrants_search'%id], prefix="registrant_search")
+          page = request.session['workshop_%s_registrants_search'%id]['page']
         else:
-          order_by = 'created_date'
+          searchForm = forms.WorkshopRegistrantsSearchForm(user=request.user, initials=None, prefix="registrant_search")
+          page = 1
 
-        sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
-
-        registrations = paginate(request, registrations, sort_order, rows_per_page)
-
-        if request.is_ajax():
-          context = {'workshop': workshop, 'registrations': registrations}
-          response_data = {}
-          response_data['success'] = True
-          response_data['html'] = render_to_string('bcse_app/WorkshopRegistrantsTableView.html', context, request)
-          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
-        else:
-          context = {'workshop': workshop, 'registrations': registrations, 'searchForm': searchForm}
-          return render(request, 'bcse_app/WorkshopRegistrants.html', context)
-
-
+        context = {'workshop': workshop,'searchForm': searchForm, 'page': page}
+        return render(request, 'bcse_app/WorkshopRegistrants.html', context)
       else:
         raise models.Workshop.DoesNotExist
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Workshop.DoesNotExist:
+    messages.error(request, 'Workshop not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# SEARCH SINGLE WORKSHOP REGISTRANTS
+##########################################################
+def workshopRegistrantsSearch(request, id=''):
+  try:
+    if request.method == 'GET':
+
+      workshop = models.Workshop.objects.get(id=id)
+
+      query_filter = Q()
+      email_filter = None
+      first_name_filter = None
+      last_name_filter = None
+      user_role_filter = None
+      work_place_filter = None
+      registration_status_filter = None
+      subscribed_filter = None
+      photo_release_filter = None
+
+      email = request.GET.get('registrant_search-email', '')
+      first_name = request.GET.get('registrant_search-first_name', '')
+      last_name = request.GET.get('registrant_search-last_name', '')
+      user_role = request.GET.get('registrant_search-user_role', '')
+      work_place = request.GET.get('registrant_search-work_place', '')
+      registration_status = request.GET.getlist('registrant_search-registration_status', '')
+      subscribed = request.GET.get('registrant_search-subscribed', '')
+      photo_release_complete = request.GET.get('registrant_search-photo_release_complete', '')
+      sort_by = request.GET.get('registrant_search-sort_by', '')
+      rows_per_page = request.GET.get('registrant_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page' '')
+
+      request.session['workshop_%s_registrants_search'%id] = {
+        'email': email,
+        'first_name': first_name,
+        'last_name': last_name,
+        'user_role': user_role,
+        'work_place': work_place,
+        'registration_status': registration_status,
+        'subscribed': subscribed,
+        'photo_release_complete': photo_release_complete,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if email:
+        email_filter = Q(user__user__email__icontains=email)
+        query_filter = query_filter & email_filter
+
+      if first_name:
+        first_name_filter = Q(user__user__first_name__icontains=first_name)
+        query_filter = query_filter & first_name_filter
+      if last_name:
+        last_name_filter = Q(user__user__last_name__icontains=last_name)
+        query_filter = query_filter & last_name_filter
+
+      if user_role:
+        user_role_filter = Q(user__user_role=user_role)
+        query_filter = query_filter & user_role_filter
+
+      if work_place:
+        work_place_filter = Q(user__work_place=work_place)
+        query_filter = query_filter & work_place_filter
+
+      if subscribed:
+        if subscribed == 'Y':
+          subscribed_filter = Q(user__subscribe=True)
+        else:
+          subscribed_filter = Q(user__subscribe=False)
+
+        query_filter = query_filter & subscribed_filter
+
+      if photo_release_complete:
+        if photo_release_complete == 'Y':
+          photo_release_filter = Q(user__photo_release_complete=True)
+        else:
+          photo_release_filter = Q(user__photo_release_complete=False)
+
+        query_filter = query_filter & photo_release_filter
+
+      if registration_status:
+        registration_status_filter = Q(status__in=registration_status)
+        query_filter = query_filter & registration_status_filter
+
+      registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=id)
+      registrations = registrations.filter(query_filter)
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      if sort_by:
+        if sort_by == 'email':
+          order_by = 'user__user__email'
+        elif sort_by == 'first_name':
+          order_by = 'user__user__first_name'
+        elif sort_by == 'last_name':
+          order_by = 'user__user__last_name'
+        elif sort_by == 'created_date_desc':
+          order_by = 'created_date'
+          direction = 'desc'
+        elif sort_by == 'created_date_asc':
+          order_by = 'created_date'
+          direction = 'asc'
+      else:
+        order_by = 'created_date'
+
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+      registrations = paginate(request, registrations, sort_order, rows_per_page, page)
+
+      context = {'workshop': workshop, 'registrations': registrations}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/WorkshopRegistrantsTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET'])
 
@@ -3021,11 +3149,33 @@ def workshopRegistrants(request, id=''):
 ##########################################################
 def workshopsRegistrants(request):
   try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in  ['A', 'S'] :
+      raise CustomException('You do not have the permission to view workshop registrants')
+
+    if request.session.get('workshops_registrants_search', False):
+      searchForm = forms.WorkshopsRegistrantsSearchForm(user=request.user, initials=request.session['workshops_registrants_search'], prefix="registrants_search")
+      page = request.session['workshops_registrants_search']['page']
+    else:
+      searchForm = forms.WorkshopsRegistrantsSearchForm(user=request.user, initials=None, prefix="registrants_search")
+      page = 1
+
+    context = {'searchForm': searchForm, 'page': page}
+    return render(request, 'bcse_app/WorkshopsRegistrants.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# SEARCH REGISTRANTS ACROSS ALL WORKSHOPS
+##########################################################
+def workshopsRegistrantsSearch(request):
+  try:
 
     if request.user.is_anonymous or request.user.userProfile.user_role not in  ['A', 'S'] :
       raise CustomException('You do not have the permission to view workshop registrants')
 
-    searchForm = forms.WorkshopsRegistrantsSearchForm(user=request.user, prefix="registrants_search")
     if request.method == 'GET':
 
       query_filter = Q()
@@ -3039,9 +3189,20 @@ def workshopsRegistrants(request):
       year = request.GET.get('registrants_search-year', '')
       status = request.GET.getlist('registrants_search-status', '')
       sort_by = request.GET.get('registrants_search-sort_by', '')
+      rows_per_page = request.GET.get('registrants_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+      request.session['workshops_registrants_search'] = {
+        'workshop_category': workshop_category,
+        'workshop': workshop,
+        'year': year,
+        'status': status,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
 
       if workshop_category:
-        print(workshop_category)
         workshop_category_filter = Q(workshop_registration_setting__workshop__workshop_category__id__in=workshop_category)
         query_filter = query_filter & workshop_category_filter
       if workshop:
@@ -3054,9 +3215,7 @@ def workshopsRegistrants(request):
         status_filter  = Q(status__in=status)
         query_filter = query_filter & status_filter
 
-      print(query_filter)
       registrations = models.Registration.objects.all().filter(query_filter).distinct()
-      print(registrations.count())
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
@@ -3066,23 +3225,21 @@ def workshopsRegistrants(request):
         if sort_by == 'title':
           sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
         elif sort_by == 'year':
-          sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date__year', 'direction': 'asc', 'ignorecase': 'true'})
+          sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date__year', 'direction': 'asc', 'ignorecase': 'false'})
         elif sort_by == 'status':
           sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
 
       sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
 
-      registrations = paginate(request, registrations, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+      registrations = paginate(request, registrations, sort_order, rows_per_page, page)
 
-    if request.is_ajax():
       context = {'registrations': registrations}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkshopsRegistrantsTableView.html', context, request)
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
-    else:
-      context = {'registrations': registrations, 'searchForm': searchForm}
-      return render(request, 'bcse_app/WorkshopsRegistrants.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
 
   except CustomException as ce:
     messages.error(request, ce)
@@ -3728,16 +3885,14 @@ def users(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view users')
 
-    users = models.UserProfile.objects.all()
-    order_by = 'user__email'
-    direction = request.GET.get('direction') or 'asc'
-    ignorecase = request.GET.get('ignorecase') or 'false'
-    sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
-    users = paginate(request, users, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+    if request.session.get('users_search', False):
+      searchForm = forms.UsersSearchForm(user=request.user, initials=request.session['users_search'], prefix="user_search")
+      page = request.session['users_search']['page']
+    else:
+      searchForm = forms.UsersSearchForm(user=request.user, initials=None, prefix="user_search")
+      page = 1
 
-    searchForm = forms.UsersSearchForm(user=request.user, prefix="user_search")
-
-    context = {'users': users, 'searchForm': searchForm}
+    context = {'searchForm': searchForm, 'page': page}
     return render(request, 'bcse_app/Users.html', context)
 
   except CustomException as ce:
@@ -3782,7 +3937,25 @@ def usersSearch(request):
       sort_by = request.GET.get('user_search-sort_by', '')
       columns = request.GET.getlist('user_search-columns', '')
       rows_per_page = request.GET.get('user_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
 
+      #set session variable
+      request.session['users_search'] = {
+        'email': email,
+        'first_name': first_name,
+        'last_name': last_name,
+        'user_role': user_role,
+        'work_place': work_place,
+        'joined_after': joined_after,
+        'joined_before': joined_before,
+        'status': status,
+        'subscribed': subscribed,
+        'photo_release_complete': photo_release_complete,
+        'sort_by': sort_by,
+        'columns': columns,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
 
       if email:
         email_filter = Q(user__email__icontains=email)
@@ -3850,8 +4023,6 @@ def usersSearch(request):
       if status_filter:
         query_filter = query_filter & status_filter
 
-
-
       users = models.UserProfile.objects.all().filter(query_filter)
 
       direction = request.GET.get('direction') or 'asc'
@@ -3873,17 +4044,14 @@ def usersSearch(request):
       else:
         order_by = 'user__email'
 
-
-
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
 
-      users = paginate(request, users, sort_order, rows_per_page)
+      users = paginate(request, users, sort_order, rows_per_page, page)
 
       context = {'users': users, 'columns': columns}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/UsersTableView.html', context, request)
-
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET'])
@@ -3892,6 +4060,22 @@ def usersSearch(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+####################################################
+# CLEAR search FILTER
+####################################################
+@login_required
+def clearSearch(request, session_var=''):
+
+  try:
+    if session_var in request.session:
+      del request.session[session_var]
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # EXPORT USERS ON AN EXCEL DOC
@@ -4058,16 +4242,14 @@ def workPlaces(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view work places')
 
-    work_places = models.WorkPlace.objects.all()
-    order_by = 'name'
-    direction = request.GET.get('direction') or 'asc'
-    ignorecase = request.GET.get('ignorecase') or 'true'
-    sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
-    work_places = paginate(request, work_places, sort_order, settings.DEFAULT_ITEMS_PER_PAGE)
+    if request.session.get('workplaces_search', False):
+      searchForm = forms.WorkPlacesSearchForm(user=request.user, initials=request.session['workplaces_search'], prefix="work_place_search")
+      page = request.session['workplaces_search']['page']
+    else:
+      searchForm = forms.WorkPlacesSearchForm(user=request.user, initials=None, prefix="work_place_search")
+      page = 1
 
-    searchForm = forms.WorkPlacesSearchForm(user=request.user, prefix="work_place_search")
-
-    context = {'work_places': work_places, 'searchForm': searchForm}
+    context = {'searchForm': searchForm, 'page': page}
     return render(request, 'bcse_app/WorkPlaces.html', context)
 
   except CustomException as ce:
@@ -4108,6 +4290,25 @@ def workPlacesSearch(request):
       sort_by = request.GET.get('work_place_search-sort_by', '')
       columns = request.GET.getlist('work_place_search-columns', '')
       rows_per_page = request.GET.get('work_place_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+
+      #set session variable
+      request.session['workplaces_search'] = {
+        'name': name,
+        'work_place_type': work_place_type,
+        'district_number': district_number,
+        'street_address_1': street_address_1,
+        'street_address_2': street_address_2,
+        'city': city,
+        'state': state,
+        'zip_code': zip_code,
+        'status': status,
+        'sort_by': sort_by,
+        'columns': columns,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
 
       if name:
         name_filter = Q(name__icontains=name)
@@ -4171,9 +4372,8 @@ def workPlacesSearch(request):
       else:
         order_by = 'name'
 
-
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
-      work_places = paginate(request, work_places, sort_order, rows_per_page)
+      work_places = paginate(request, work_places, sort_order, rows_per_page, page)
 
       context = {'work_places': work_places, 'columns': columns}
       response_data = {}
@@ -5490,7 +5690,7 @@ def surveySubmissionDelete(request, id='', submission_uuid=''):
 ########################################################################
 # PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER
 ########################################################################
-def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAGE):
+def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAGE, page=1):
 
   ordering_list = []
 
@@ -5515,7 +5715,6 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
     queryset = queryset.order_by(*ordering_list)
 
   paginator = Paginator(queryset, count)
-  page = request.GET.get('page')
   try:
     object_list = paginator.page(page)
   except PageNotAnInteger:

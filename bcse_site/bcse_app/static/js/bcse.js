@@ -44,6 +44,7 @@ $(function (){
         $('#spinner').hide();
         if(data['success'] = true) {
           $(result_container).html(data['html']);
+
           if(form_id == 'workshop_filter_form') {
             bindRegistrationSubmit();
           }
@@ -79,6 +80,7 @@ $(function (){
 
   $('form.filter_form #clear').on('click', function(e){
     $('form.filter_form')[0].reset();
+
     var autocomplete_elements = $('form.filter_form :input[data-autocomplete-light-function=select2]');
     var select2_elements = $('form.filter_form .select2');
     if($(autocomplete_elements).length) {
