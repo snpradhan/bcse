@@ -312,8 +312,6 @@
                 </li>
                 {% if user.userProfile.user_role in 'AS' %}
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}" href="#">Update Delivery Address</a></li>
-                  <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationAssignedColorEdit' reservation.id %}" href="#">Update Color</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
