@@ -388,13 +388,21 @@
 
         $('.form-group.kit_info').hide();
 
-        $('button#reservationSubmit').click(function(e){
-          var dates_valid = validateDates();
-          if (dates_valid) {
-            $('select#id_equipment_types_to option').prop('selected', true);
-            $('form#reservationForm').submit();
-          }
-        });
+        bindReservationSubmit();
+
+        function bindReservationSubmit(){
+          $('button#reservationSubmit').on('click', function(e){
+            $(this).off('click');
+            var dates_valid = validateDates();
+            if (dates_valid) {
+              $('select#id_equipment_types_to option').prop('selected', true);
+              $('form#reservationForm').submit();
+            }
+            else{
+              bindReservationSubmit();
+            }
+          });
+        }
 
         $('button#clear_dates').click(function(e){
           e.preventDefault();
