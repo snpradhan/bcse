@@ -28,6 +28,9 @@
         {% if 'KT' in columns or tag == 'profile' %}
           <th> Kit </th>
         {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
+          <th> Inventory </th>
+        {% endif %}
         {% if 'EQ' in columns or tag == 'profile' %}
           <th> Equipment </th>
         {% endif %}
@@ -94,6 +97,9 @@
         {% endif %}
         {% if 'KT' in columns or tag == 'profile' %}
           <td style="background-color: #767676; color: white;"> Kit </td>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
+          <td style="background-color: #767676; color: white;"> Inventory </td>
         {% endif %}
         {% if 'EQ' in columns or tag == 'profile' %}
           <td style="background-color: #767676; color: white;"> Equipment </td>
@@ -183,6 +189,9 @@
                 {% endif %}
               {% endif %}
             </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
+            <td>{{reservation.activity.inventory|default_if_none:""|safe}}</td>
           {% endif %}
           {% if 'EQ' in columns or tag == 'profile' %}
             <td>
