@@ -1556,33 +1556,33 @@ def checkAvailabilityForAdmin(request, equipment_types, selected_month):
   return equipment_availability_matrix
 
 
-####################################
-# UPDATE ASSIGNED RESERVATION COLOR
-####################################
+###################################################
+# UPDATE ASSIGNED RESERVATION COLOR AND STATUS
+###################################################
 @login_required
-def reservationAssignedColorEdit(request, reservation_id):
+def reservationUpdate(request, reservation_id):
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to update reservation color')
 
     reservation = models.Reservation.objects.get(id=reservation_id)
     if request.method == 'GET':
-      form = forms.ReservationAssignedColorForm(instance=reservation)
+      form = forms.ReservationUpdateForm(instance=reservation)
       context = {'form': form, 'reservation_id': reservation_id}
-      return render(request, 'bcse_app/ReservationAssignedColorModal.html', context)
+      return render(request, 'bcse_app/ReservationUpdateModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.ReservationAssignedColorForm(data, instance=reservation)
+      form = forms.ReservationUpdateForm(data, instance=reservation)
       response_data = {}
       if form.is_valid():
         form.save()
         response_data['success'] = True
-        messages.success(request, 'Reservation color updated for id %s' % reservation_id)
+        messages.success(request, 'Reservation %s updated' % reservation_id)
       else:
         print(form.errors)
         response_data['success'] = False
         context = {'form': form, 'reservation_id': reservation_id}
-        response_data['html'] = render_to_string('bcse_app/ReservationAssignedColorModal.html', context, request)
+        response_data['html'] = render_to_string('bcse_app/ReservationUpdateModal.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 

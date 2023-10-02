@@ -589,17 +589,18 @@ class ReservationForm(ModelForm):
     return valid
 
 
-####################################
-# Reservation Assigned Color Form
-####################################
-class ReservationAssignedColorForm(ModelForm):
+##########################################################
+# Reservation Update Form
+# For to update select few fields in a reservation
+##########################################################
+class ReservationUpdateForm(ModelForm):
 
   class Meta:
     model = models.Reservation
-    fields = ['color']
+    fields = ['color', 'status']
 
   def __init__(self, *args, **kwargs):
-    super(ReservationAssignedColorForm, self).__init__(*args, **kwargs)
+    super(ReservationUpdateForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
