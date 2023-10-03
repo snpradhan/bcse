@@ -600,7 +600,7 @@ def activityView(request, id=''):
 
       if request.is_ajax():
         context = {'activity': activity}
-        if 'reservation' in request.META.get('HTTP_REFERER'):
+        if 'reservation' in request.META.get('HTTP_REFERER') and 'edit' in request.META.get('HTTP_REFERER'):
           response_data = {}
           response_data['success'] = True
           response_data['kit_name'] = activity.kit_name
