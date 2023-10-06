@@ -578,8 +578,8 @@ class ReservationForm(ModelForm):
         self.add_error('more_num_of_classes', 'Please provide the number of classes more than 4')
         valid = False
 
-    if num_of_students is not None and int(num_of_students) <= 0:
-      self.add_error('num_of_students', 'Please provide the total # of students more than 0')
+    if num_of_students is not None and int(num_of_students) < 0:
+      self.add_error('num_of_students', 'Please enter 0 or more for the total # of students')
       valid = False
 
     for x in self.errors:
