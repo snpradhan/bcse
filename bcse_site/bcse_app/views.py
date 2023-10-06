@@ -4065,7 +4065,6 @@ def usersSearch(request):
 ####################################################
 # CLEAR search FILTER
 ####################################################
-@login_required
 def clearSearch(request, session_var=''):
 
   try:
