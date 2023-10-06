@@ -463,7 +463,7 @@ class EquipmentForm(ModelForm):
 class EquipmentAvailabilityForm (forms.Form):
 
   equipment_types = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
-  selected_month = forms.DateField(required=True, initial=datetime.datetime.now(), label=u'Month/Year', widget=forms.widgets.DateInput(format="%B %Y"))
+  selected_month = forms.DateField(required=True, initial=datetime.date.today, label=u'Month/Year', widget=forms.widgets.DateInput(format="%B %Y"))
 
   def __init__(self, *args, **kwargs):
     super(EquipmentAvailabilityForm, self).__init__(*args, **kwargs)
