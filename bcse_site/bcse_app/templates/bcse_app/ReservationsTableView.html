@@ -333,8 +333,9 @@
                       </a>
                     </li>
                   {% endif %}
-                  <li><hr class="dropdown-divider"></li>
+
                   {% if reservation.status not in 'UD' %}
+                    <li><hr class="dropdown-divider"></li>
                     <li>
                       <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" href="#">
                         {% if reservation.email_sent %}
@@ -345,18 +346,8 @@
                         Confirmation Email
                       </a>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
                   {% endif %}
-                  <li>
-                    {% if reservation.status in 'IO' %}
-                      <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be deleted">Delete</a>
-                    {% else %}
-                      <a class="dropdown-item delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}"
-                      data-title="the reservation id <strong>{{reservation.id}}</strong>">
-                        Delete
-                      </a>
-                    {% endif %}
-                  </li>
+
                   {% if reservation.status != 'D' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
