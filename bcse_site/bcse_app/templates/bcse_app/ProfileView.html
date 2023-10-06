@@ -35,7 +35,7 @@
     </div>
     {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
     <div class="mb-1">
-      <label>Phone Release Complete:</label>
+      <label>Photo Release Complete:</label>
       <div>{{userProfile.photo_release_complete|yesno:"Yes,No"}}</div>
     </div>
     {% endif %}
