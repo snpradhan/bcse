@@ -211,6 +211,11 @@ def get_reservation_feedback(context, reservation_id):
     return None
 
 @register.simple_tag(takes_context=True)
+def get_submission_connected_entity(context, submission_id):
+  request = context.get('request')
+  return views.get_submission_connected_entity(submission_id)
+
+@register.simple_tag(takes_context=True)
 def get_reservation_activity(context, reservation_id):
   request = context.get('request')
   reservation = models.Reservation.objects.get(id=reservation_id)

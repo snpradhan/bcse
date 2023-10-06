@@ -8,6 +8,16 @@
         <th> User ID </th>
         <th> Email </th>
         <th> Full Name </th>
+        <th> Work Place </th>
+        <th>
+          {%  if survey.survey_type == 'B' %}
+            Activity
+          {% elif survey.survey_type == 'W' %}
+            Workshop
+          {% else %}
+            Connected Entity
+          {% endif %}
+        </th>
         <th> Created Date </th>
         <th> Status </th>
         <th> Action </th>
@@ -20,6 +30,21 @@
         <td>{{submission.user.id|default_if_none:""}}</td>
         <td>{{submission.user.user.email|default_if_none:""}}</td>
         <td>{{submission.user.user.get_full_name|default_if_none:""}}</td>
+        <td>{{submission.user.work_place|default_if_none:""}}</td>
+        <td>
+          {% get_submission_connected_entity submission.UUID as survey_entity %}
+          {% if survey_entity %}
+            {% if survey_entity.entity_type == 'Reservation' %}
+              {% if survey_entity.entity.activity %}
+                {{survey_entity.entity.activity.name}}
+              {% elif survey_entity.entity.other_activity %}
+                {{survey_entity.entity.other_activity_name}}
+              {% endif %}
+            {% elif survey_entity.entity_type == 'Workshop' %}
+              {{survey_entity.entity.name}}
+            {% endif %}
+          {% endif %}
+        </td>
         <td>{{submission.created_date|date}}</td>
         <td>{{submission.get_status_display}}</td> 
         <td>

@@ -5192,6 +5192,27 @@ def surveyCopy(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
+# GET ASSOCIATED ENTITY FOR SURVEY SUBMISSION
+##########################################################
+def get_submission_connected_entity(submission_id):
+  connected_entity = {}
+  reservation_feedback = models.ReservationFeedback.objects.all().filter(feedback__UUID=submission_id)
+  if reservation_feedback.count():
+    reservation = models.Reservation.objects.get(id=reservation_feedback[0].reservation.id)
+    connected_entity['entity_type'] = 'Reservation'
+    connected_entity['entity'] = reservation
+    return connected_entity
+  else:
+    workshop_application = models.WorkshopApplication.objects.all().filter(application__UUID=submission_id)
+    if workshop_application:
+      workshop = models.Workshop.objects.get(id=workshop_application[0].registration.workshop_registration_setting.workshop.id)
+      connected_entity['entity_type'] = 'Workshop'
+      connected_entity['entity'] = workshop
+      return connected_entity
+
+  return None
+
+##########################################################
 # VIEW SURVEY SUBMISSIONS
 ##########################################################
 @login_required
@@ -5252,8 +5273,13 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
       date_time_format = xlwt.XFStyle()
       date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
 
-      columns = ['User ID', 'Email', 'Full Name', 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
-      font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
+      connected_entity_type = 'Connected Entity'
+      if survey.survey_type == 'B':
+        connected_entity_type = 'Activity'
+      elif survey.survey_type == 'W':
+        connected_entity_type = 'Workshop'
+      columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
+      font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
 
       ws = wb.add_sheet('Survey Submissions')
       row_num = 0
@@ -5262,10 +5288,23 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
         ws.write(row_num, col_num, columns[col_num], bold_font_style)
 
       for submission in surveySubmissions:
+        connected_entity = get_submission_connected_entity(submission.UUID)
+        connected_entity_name = ''
+        if connected_entity:
+          if survey.survey_type == 'B':
+            if connected_entity['entity'].activity:
+              connected_entity_name = connected_entity['entity'].activity.name
+            elif connected_entity['entity'].other_activity:
+              connected_entity_name = connected_entity['entity'].other_activity_name
+          elif survey.survey_type == 'W':
+            connected_entity_name = connected_entity['entity'].name
+
         for survey_response in submission.survey_response.all():
           row = [submission.user.id if submission.user else '',
                  submission.user.user.email if submission.user else '',
                  submission.user.user.get_full_name() if submission.user else '',
+                 submission.user.work_place.name if submission.user.work_place else '',
+                 connected_entity_name,
                  submission.survey.id,
                  submission.survey.name,
                  str(submission.UUID),
