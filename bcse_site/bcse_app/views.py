@@ -600,18 +600,19 @@ def activityView(request, id=''):
 
       if request.is_ajax():
         context = {'activity': activity}
-        if 'reservation' in request.META.get('HTTP_REFERER') and 'edit' in request.META.get('HTTP_REFERER'):
-          response_data = {}
-          response_data['success'] = True
-          response_data['kit_name'] = activity.kit_name
-          response_data['materials_equipment'] = activity.materials_equipment
-          response_data['manuals_resources'] = activity.manuals_resources
-          response_data['equipment_mapping'] = list(activity.equipment_mapping.all().values_list('name', flat=True))
-          response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
-          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
-        else:
-          context = {'title': activity.kit_name, 'kit': activity, 'type': 'activity'}
-          return render(request, 'bcse_app/BaxterBoxKitModal.html', context)
+        if 'reservation' in request.META.get('HTTP_REFERER'):
+          if 'edit' in request.META.get('HTTP_REFERER') or 'new' in request.META.get('HTTP_REFERER'):
+            response_data = {}
+            response_data['success'] = True
+            response_data['kit_name'] = activity.kit_name
+            response_data['materials_equipment'] = activity.materials_equipment
+            response_data['manuals_resources'] = activity.manuals_resources
+            response_data['equipment_mapping'] = list(activity.equipment_mapping.all().values_list('name', flat=True))
+            response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
+            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+        context = {'title': activity.kit_name, 'kit': activity, 'type': 'activity'}
+        return render(request, 'bcse_app/BaxterBoxKitModal.html', context)
       else:
         context = {'activity': activity}
         return render(request, 'bcse_app/ActivityBaseView.html', context)
