@@ -51,6 +51,7 @@ urlpatterns = [
     path('userProfile/<int:id>/delete', views.userProfileDelete, name='userProfileDelete'),
     path('adminConfiguration/', views.adminConfiguration, name='adminConfiguration'),
     path('adminConfiguration/activity/<int:id>/edit', views.activityEdit, name='activityEdit'),
+    path('adminConfiguration/activity/<int:id>/update', views.activityUpdate, name='activityUpdate'),
     path('adminConfiguration/activity/<int:id>/delete', views.activityDelete, name='activityDelete'),
     path('adminConfiguration/activity/new', views.activityEdit, name='activityNew'),
     path('adminConfiguration/activities/', views.activities, name='activities'),

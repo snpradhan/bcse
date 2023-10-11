@@ -585,6 +585,45 @@ def activityEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+###################################################
+# UPDATE ACTIVITY
+###################################################
+@login_required
+def activityUpdate(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to update activity')
+
+    activity = models.Activity.objects.get(id=id)
+    if request.method == 'GET':
+      form = forms.ActivityUpdateForm(instance=activity)
+      context = {'form': form, 'activity': activity}
+      return render(request, 'bcse_app/ActivityUpdateModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ActivityUpdateForm(data, instance=activity)
+      response_data = {}
+      if form.is_valid():
+        form.save()
+        response_data['success'] = True
+        messages.success(request, 'Activity %s updated' % id)
+      else:
+        print(form.errors)
+        response_data['success'] = False
+        context = {'form': form, 'activity': activity}
+        response_data['html'] = render_to_string('bcse_app/ActivityUpdateModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Activity.DoesNotExist as e:
+    messages.error(request, 'Activity does not exists')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ####################################
 # VIEW ACTIVITY
 ####################################

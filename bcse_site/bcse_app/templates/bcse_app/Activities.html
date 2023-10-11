@@ -51,6 +51,10 @@
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityUpdate' activity.id %}">Update Inventory</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
                     <a class="dropdown-item delete action" data-href="{% url 'bcse:activityDelete' activity.id %}"
                     data-title="the activity <strong>{{activity.name}}</strong>">
                       Delete

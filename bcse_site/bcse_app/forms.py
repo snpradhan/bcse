@@ -351,6 +351,23 @@ class ActivityForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 
+##########################################################
+# Activity Update Form
+# to update select few fields in a activity
+##########################################################
+class ActivityUpdateForm(ModelForm):
+
+  class Meta:
+    model = models.Activity
+    fields = ['inventory']
+
+  def __init__(self, *args, **kwargs):
+    super(ActivityUpdateForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
 ####################################
 # Baxter Box Category Form
 ####################################
