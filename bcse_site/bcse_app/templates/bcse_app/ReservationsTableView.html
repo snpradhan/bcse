@@ -29,7 +29,7 @@
           <th> Kit </th>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
-          <th> Inventory </th>
+          <th> Kit Inventory </th>
         {% endif %}
         {% if 'EQ' in columns or tag == 'profile' %}
           <th> Equipment </th>
@@ -99,7 +99,7 @@
           <td style="background-color: #767676; color: white;"> Kit </td>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
-          <td style="background-color: #767676; color: white;"> Inventory </td>
+          <td style="background-color: #767676; color: white;"> Kit Inventory </td>
         {% endif %}
         {% if 'EQ' in columns or tag == 'profile' %}
           <td style="background-color: #767676; color: white;"> Equipment </td>
@@ -315,6 +315,12 @@
                 {% if user.userProfile.user_role in 'AS' %}
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Update Color/Status</a></li>
+                  {% if reservation.activity %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:activityUpdate' reservation.activity.id %}">Update Kit Inventory</a>
+                    </li>
+                  {% endif %}
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
                   {% get_reservation_feedback reservation.id as reservation_feedback %}

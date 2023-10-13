@@ -344,6 +344,7 @@ class ActivityForm(ModelForm):
     self.fields['materials_equipment'].label = 'Materials/Equipment'
     self.fields['manuals_resources'].label = 'Instruction Manuals/Resources'
     self.fields['tags'].label = 'Tags/Categories'
+    self.fields['inventory'].label = 'Kit Inventory'
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
@@ -363,6 +364,7 @@ class ActivityUpdateForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(ActivityUpdateForm, self).__init__(*args, **kwargs)
+    self.fields['inventory'].label = 'Kit Inventory'
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
