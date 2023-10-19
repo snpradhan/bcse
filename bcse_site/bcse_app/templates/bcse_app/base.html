@@ -104,7 +104,12 @@
                 <li class="nav-item {% navactive request 'bcse:home' %}">
                   <a class="nav-link" aria-current="page" href="{% url 'bcse:home' %}">Home</a>
                 </li>
-                <li class="nav-item dropdown {% navactive request 'bcse:workshops' 'list' %} {% navactive request 'bcse:workshops' 'table' %}">
+                <li class="nav-item dropdown {% navactive request 'bcse:workshops' 'list' %}
+                                             {% navactive request 'bcse:workshops' 'table' %}
+                                             {% navactive request 'bcse:workshops' 'teacher' %}
+                                             {% navactive request 'bcse:workshopsRegistrants' %}
+                                             {% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}
+                                             {% navactive request 'bcse:standalonePageAliasView' 'ret' %}">
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">Professional Learning</a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:workshops' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
@@ -114,6 +119,11 @@
                       <li class="{% navactive request 'bcse:workshops' 'table' %}">
                         <a class="dropdown-item" href="{% url 'bcse:workshops' 'table' %}">My Workshops</a>
                       </li>
+                      {% if user.userProfile|is_teacher_leader %}
+                        <li class="{% navactive request 'bcse:workshops' 'teacher' %}">
+                          <a class="dropdown-item" href="{% url 'bcse:workshops' 'teacher' %}">My Lead Workshops</a>
+                        </li>
+                      {% endif %}
                     {% endif %}
                     {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
                       <li class="{% navactive request 'bcse:workshopsRegistrants' %}">

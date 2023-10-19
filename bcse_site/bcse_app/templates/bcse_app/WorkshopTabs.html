@@ -1,3 +1,4 @@
+{% load bcse_extras %}
 {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
@@ -42,7 +43,17 @@
       </li>
     {% endif %}
   </ul>
-
+{% elif user.is_authenticated and user.userProfile.user_role in 'TP' and workshop.id and workshop|is_workshop_teacher_leader:user.userProfile %}
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:workshopView' workshop.id %}">View</a></label>
+    </li>
+    {% if workshop.enable_registration and workshop.registration_setting %}
+      <li class="nav-item">
+        <label><a class="nav-link {% if tab == 'registrants' %}active{% endif %}" href="{% url 'bcse:workshopRegistrants' workshop.id %}">Registrants</a></label>
+      </li>
+    {% endif %}
+  </ul>
 {% endif %}
 
 

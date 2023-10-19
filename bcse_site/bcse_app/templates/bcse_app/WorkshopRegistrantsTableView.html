@@ -17,69 +17,85 @@
     </tbody>
     <thead>
       <tr class='noExl'>
-        <th> Registration ID</th>
-        <th> User ID </th>
+        {% if user.userProfile.user_role in 'AS' %}
+          <th> Registration ID</th>
+          <th> User ID </th>
+        {% endif %}
         <th> Email </th>
         <th> Full Name </th>
         <th> Work Place </th>
-        <th> Subscribed?</th>
-        <th> Photo Release Complete?</th>
+        {% if user.userProfile.user_role in 'AS' %}
+          <th> Subscribed?</th>
+          <th> Photo Release Complete?</th>
+        {% endif %}
         <th> Created Date </th>
         <th> Registration Status </th>
-        <th > Action </th>
+        {% if user.userProfile.user_role in 'AS' %}
+          <th > Action </th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
       <tr style="display:none;">
-        <td style="background-color: #767676; color: white;"> Registration ID</td>
-        <td style="background-color: #767676; color: white;"> User ID </td>
+        {% if user.userProfile.user_role in 'AS' %}
+          <td style="background-color: #767676; color: white;"> Registration ID</td>
+          <td style="background-color: #767676; color: white;"> User ID </td>
+        {% endif %}
         <td style="background-color: #767676; color: white;"> Email </td>
         <td style="background-color: #767676; color: white;"> Full Name </td>
         <td style="background-color: #767676; color: white;"> Work Place </td>
-        <td style="background-color: #767676; color: white;"> Subscribed?</td>
-        <td style="background-color: #767676; color: white;"> Photo Release Complete?</td>
+        {% if user.userProfile.user_role in 'AS' %}
+          <td style="background-color: #767676; color: white;"> Subscribed?</td>
+          <td style="background-color: #767676; color: white;"> Photo Release Complete?</td>
+        {% endif %}
         <td style="background-color: #767676; color: white;"> Created Date </td>
         <td style="background-color: #767676; color: white;"> Status </td>
       </tr>
       {% for registrant in registrations %}
         <tr>
-          <td> {{registrant.id}}</td>
-          <td> {{registrant.user.id}}</td>
+          {% if user.userProfile.user_role in 'AS' %}
+            <td> {{registrant.id}}</td>
+            <td> {{registrant.user.id}}</td>
+          {% endif %}
           <td> {{registrant.user.user.email}} </td>
           <td> {{registrant.user.user.get_full_name}}</td>
           <td> {{registrant.user.work_place|default_if_none:""}}</td>
-          <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>
-          <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>
+          {% if user.userProfile.user_role in 'AS' %}
+            <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>
+            <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>
+          {% endif %}
           <td> {{registrant.created_date|date:"F j, Y g:i a" }}</td>
           <td> {{registrant.get_status_display}} </td>
-          <td class="noExl">
-            <div class="btn-group">
-              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Action
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <a class="dropdown-item registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' workshop.id registrant.id %}" href="#">Edit</a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registrant.id %}"
-                  data-title="the registration for <strong>{{registrant.user.user.get_full_name}}</strong>">
-                    Delete
-                  </a>
-                </li>
-                {% get_registrant_application registrant.id as application %}
-                {% if application %}
+          {% if user.userProfile.user_role in 'AS' %}
+            <td class="noExl">
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' workshop.id registrant.id %}" href="#">Edit</a>
+                  </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' application.survey.id application.UUID %}" href="#">
-                      View Application
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' workshop.id registrant.id %}"
+                    data-title="the registration for <strong>{{registrant.user.user.get_full_name}}</strong>">
+                      Delete
                     </a>
-                </li>
-                {% endif %}
-              </ul>
-            </div>
-          </td>
+                  </li>
+                  {% get_registrant_application registrant.id as application %}
+                  {% if application %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' application.survey.id application.UUID %}" href="#">
+                        View Application
+                      </a>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+            </td>
+          {% endif %}
         </tr>
       {% endfor %}
     </tbody>

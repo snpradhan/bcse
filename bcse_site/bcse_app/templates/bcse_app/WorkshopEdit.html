@@ -26,7 +26,6 @@
           <div class="form-group mb-3">
             <label for="id_{{form.teacher_leaders.name}}" class="form-label">
               {{form.teacher_leaders.label|title}}
-              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.teacher_leaders.help_text}}"></i>
             </label>
             <div>{{form.teacher_leaders}}</div>
             <div class="error">{{ form.teacher_leaders.errors }}</div>
@@ -184,6 +183,12 @@
           $('#id_teacher_leader').closest('.form-group').hide();
           $('#id_enable_registration').closest('.form-group').hide();
           $('#id_meetup_link').closest('.form-group').hide();
+        }
+      });
+      $('select.select2').select2({
+        placeholder: {
+          id: '-1', // the value of the option
+          text: '---------'
         }
       });
 

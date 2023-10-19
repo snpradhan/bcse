@@ -26,13 +26,13 @@
         {% for teacher_leader in teacher_leaders %}
           <tr>
             <td> {{teacher_leader.id}}</td>
-            <td> {{teacher_leader.first_name}} {{teacher_leader.last_name}} </td>
+            <td> {{teacher_leader.teacher.user.get_full_name}} </td>
             <td>
-              {% if teacher_leader.image %}
-                <img class="icon" src="{{teacher_leader.image.url}}"/>
+              {% if teacher_leader.teacher.image %}
+                <img class="icon" src="{{teacher_leader.teacher.image.url}}"/>
               {% endif %}
             </td>
-            <td> {{teacher_leader.school}} </td>
+            <td> {{teacher_leader.teacher.work_place}} </td>
             <td class="wysiwyg_content"> {{teacher_leader.bio|safe}} </td>
             <td> {{teacher_leader.highlight|yesno:"Yes,No"}} </td>
             <td> {{teacher_leader.created_date|date:"F j, Y g:i A"}}</td>
@@ -44,7 +44,11 @@
                 </button>
                 <ul class="dropdown-menu">
                   <li>
-                    <a class="dropdown-item" href="{% url 'bcse:teacherLeaderEdit' teacher_leader.id %}">Edit</a>
+                    <a class="dropdown-item" href="{% url 'bcse:teacherLeaderEdit' teacher_leader.id %}">Edit Teacher Leader Profile</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' teacher_leader.teacher.id %}" href="#">Edit User Profile</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>

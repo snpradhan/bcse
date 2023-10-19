@@ -225,3 +225,20 @@ def get_reservation_activity(context, reservation_id):
     return reservation.other_activity
   else:
     return None
+
+@register.filter
+def is_teacher_leader(userProfile):
+  teacher_leader = models.TeacherLeader.objects.all().filter(teacher=userProfile, status='A')
+  if teacher_leader.count() > 0:
+    return True
+  else:
+    return False
+
+@register.filter
+def is_workshop_teacher_leader(workshop, userProfile):
+
+  teacher_leader = models.TeacherLeader.objects.all().filter(teacher=userProfile, status='A', id__in=workshop.teacher_leaders.all())
+  if teacher_leader.count() > 0:
+    return True
+  else:
+    return False

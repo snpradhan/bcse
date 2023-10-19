@@ -47,11 +47,13 @@
          <div id="teacher_leaders" onclick="location.href='/about/teacherLeaders'">
             {% for teacher in teacher_leaders %}
                <div class="teacher_leader">
-                  <img src="{{teacher.image.url}}" class="circle staff">
+                  {% if teacher.teacher.image %}
+                     <img src="{{teacher.teacher.image.url}}" class="circle staff">
+                  {% endif %}
                   <br><br>
                   <div class="details">
-                    <h3 class="center purple">{{teacher.first_name}} {{teacher.last_name}}</h3>
-                    <h4 class="center">{{teacher.school}}</h4>
+                    <h3 class="center purple">{{teacher.teacher.user.get_full_name}}</h3>
+                    <h4 class="center">{{teacher.teacher.work_place}}</h4>
                   </div>
                </div>
             {% endfor %}

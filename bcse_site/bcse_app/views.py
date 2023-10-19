@@ -102,8 +102,8 @@ def aboutTeam(request):
   return render(request, 'bcse_app/AboutTeam.html', context)
 
 def aboutTeacherLeaders(request):
-  teachers = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
-  context = {'teachers': teachers}
+  teacherLeaders = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
+  context = {'teacherLeaders': teacherLeaders}
   return render(request, 'bcse_app/AboutTeacherLeaders.html', context)
 
 def contactUs(request):
@@ -2234,6 +2234,7 @@ def workshopEdit(request, id=''):
 
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
+      print(workshop.teacher_leaders)
       if workshop.enable_registration:
         workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
     else:
@@ -2360,7 +2361,9 @@ def workshopView(request, id=''):
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
       if workshop.status != 'A' or workshop.workshop_category.status != 'A':
-        if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+        if request.user.is_anonymous:
+          raise CustomException('You do not have the permission to view this workshop')
+        elif request.user.userProfile.user_role not in ['A', 'S'] and models.TeacherLeader.objects.all().filter(teacher=request.user.userProfile, id__in=workshop.teacher_leaders.all()).count() == 0:
           raise CustomException('You do not have the permission to view this workshop')
 
       registration = workshopRegistration(request, workshop.id)
@@ -2787,6 +2790,8 @@ def workshopsBaseQuery(request, flag='list', user_id=''):
     elif request.user.userProfile.user_role not in ['A', 'S']:
       if flag =='list':
         workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
+      elif flag == 'teacher':
+        workshops = models.Workshop.objects.all().filter(teacher_leaders__teacher=request.user.userProfile)
       else:
         workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user=request.user.userProfile), ~Q(registration_setting__workshop_registrants__status='N'))
     else:
@@ -2960,7 +2965,7 @@ def workshopsSearch(request, flag='list', audience='teacher'):
     sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
     workshops = paginate(request, workshops, sort_order, rows_per_page, page)
 
-    context = {'workshops': workshops, 'tag': 'workshops'}
+    context = {'workshops': workshops, 'tag': 'workshops', 'flag': flag}
     response_data = {}
     response_data['success'] = True
     if audience == 'teacher':
@@ -3029,13 +3034,16 @@ def workshopRegistrationSetting(request, id=''):
 def workshopRegistrants(request, id=''):
   try:
 
-    if request.user.is_anonymous or request.user.userProfile.user_role not in  ['A', 'S'] :
+    if request.user.is_anonymous:
       raise CustomException('You do not have the permission to view workshop registrants')
 
     if request.method == 'GET':
-
       if '' != id:
         workshop = models.Workshop.objects.get(id=id)
+        if request.user.userProfile.user_role not in  ['A', 'S']:
+          if models.TeacherLeader.objects.all().filter(teacher=request.user.userProfile, id__in=workshop.teacher_leaders.all()).count() == 0:
+            raise CustomException('You do not have the permission to view workshop registrants')
+
         workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
 
         if request.session.get('workshop_%s_registrants_search'%id, False):
@@ -6090,6 +6098,19 @@ def termsOfUse(request):
 class UserAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
     qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
+    if self.q:
+      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
+
+    return qs
+
+
+#####################################################
+# TEACHER LEADER AUTOCOMPLETE
+#####################################################
+class TeacherLeaderAutocomplete(autocomplete.Select2QuerySetView):
+  def get_queryset(self):
+    existing_teacher_leaders = models.TeacherLeader.objects.all().values_list('teacher', flat=True)
+    qs = models.UserProfile.objects.all().filter(user__is_active=True, user_role__in=['T', 'P']).exclude(id__in=existing_teacher_leaders).order_by('user__last_name', 'user__first_name')
     if self.q:
       qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
 

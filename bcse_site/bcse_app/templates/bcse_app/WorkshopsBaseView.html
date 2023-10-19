@@ -8,6 +8,8 @@
        <h1 class="center">
         {% if user.is_authenticated and user.userProfile.user_role in 'TP' and flag == 'table' %}
           My Workshops
+        {% elif user.is_authenticated and user.userProfile.user_role in 'TP' and flag == 'teacher' %}
+          My Lead Workshops
         {% else %}
           Workshops
         {% endif %}

@@ -736,6 +736,8 @@ class WorkshopForm(ModelForm):
           field.widget.attrs['class'] = 'form-control datepicker'
         elif field_name in ['start_time', 'end_time']:
           field.widget.attrs['class'] = 'form-control timepicker'
+        elif field_name in ['teacher_leaders']:
+          field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
       else:
@@ -871,6 +873,8 @@ class TeacherLeaderForm(ModelForm):
     exclude = ('created_date', 'modified_date')
     widgets = {
       'image': widgets.FileInput,
+      'teacher': autocomplete.ModelSelect2(url='teacher-leader-autocomplete', attrs={'data-placeholder': 'Start typing the name of the teacher ...',})
+
     }
 
   def __init__(self, *args, **kwargs):

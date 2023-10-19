@@ -332,7 +332,7 @@ class WorkshopCategory(models.Model):
 
 class Workshop (models.Model):
   workshop_category = models.ForeignKey(WorkshopCategory, null=False, related_name="workshop", on_delete=models.CASCADE)
-  teacher_leaders = models.ManyToManyField('TeacherLeader', null=True, blank=True, related_name="workshops", help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  teacher_leaders = models.ManyToManyField('TeacherLeader', null=True, blank=True, related_name="workshops")
   name = models.CharField(null=False, max_length=256, help_text='Name of Workshop')
   sub_title = models.CharField(null=True, blank=True, max_length=256)
   summary = RichTextField(null=True, blank=True)
@@ -359,10 +359,7 @@ class Workshop (models.Model):
 
 
 class TeacherLeader(models.Model):
-  first_name = models.CharField(null=False, max_length=256, help_text='First name of the teacher')
-  last_name = models.CharField(null=False, max_length=256, help_text='Last name of the teacher')
-  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of the teacher leader')
-  school = models.ForeignKey(WorkPlace, null=True, on_delete=models.SET_NULL)
+  teacher = models.ForeignKey(UserProfile, null=False, blank=False, on_delete=models.CASCADE)
   bio = RichTextField(null=True, blank=True)
   highlight = models.BooleanField(default=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
@@ -370,10 +367,10 @@ class TeacherLeader(models.Model):
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
-      ordering = ['last_name', 'first_name']
+      ordering = ['teacher__user__last_name', 'teacher__user__first_name']
 
   def __str__(self):
-      return '%s %s' % (self.first_name, self.last_name)
+      return '%s %s' % (self.teacher.user.first_name, self.teacher.user.last_name)
 
 
 class WorkshopRegistrationSetting(models.Model):

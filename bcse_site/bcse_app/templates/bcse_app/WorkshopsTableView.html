@@ -31,9 +31,11 @@
             <th> Modified Date </th>
             <th> Status </th>
           {% else %}
-            <th> Registration Status </th>
+            {% if flag != 'teacher' %}
+              <th> Registration Status </th>
+            {% endif %}
           {% endif %}
-            <th> Actions </th>
+          <th> Actions </th>
         {% endif %}
       </tr>
     </thead>
@@ -102,6 +104,10 @@
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
+                      <a class="dropdown-item" href="{% url 'bcse:workshopRegistrants' workshop.id %}" href="#">View Registrants</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
                       <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
                     </li>
                   </ul>
@@ -114,34 +120,49 @@
                 <!-- For User Profile page -->
                 {% get_user_registration workshop.id userProfile.id as registration %}
               {% endif %}
-              <td>{{registration.get_status_display}}</td>
-              <td width="15%">
-                {% if workshop.status == 'A'%}
+              {% if flag != 'teacher' %}
+                <td>{{registration.get_status_display}}</td>
+                <td width="15%">
+                  {% if workshop.status == 'A'%}
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Action
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
+                        {% if current_date < workshop.start_date|date:'Y-m-d' %}
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <a class="dropdown-item cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.id %}"
+                            data-title="your registration for <strong>{{workshop.name}}</strong>">
+                              Cancel Registration
+                            </a>
+                          </li>
+                        {% endif %}
+                        {% if workshop.meetup_link %}
+                          {% if not workshop.enable_registration or registration and registration.status in 'RC' %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{workshop.meetup_link}}" target="_blank">Join</a></li>
+                          {% endif %}
+                        {% endif %}
+                      </ul>
+                    </div>
+                  {% endif %}
+                </td>
+              {% else %}
+                <td>
                   <div class="btn-group">
                     <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                       Action
                     </button>
                     <ul class="dropdown-menu">
                       <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
-                      {% if current_date < workshop.start_date|date:'Y-m-d' %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                          <a class="dropdown-item cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.id %}"
-                          data-title="your registration for <strong>{{workshop.name}}</strong>">
-                            Cancel Registration
-                          </a>
-                        </li>
-                      {% endif %}
-                      {% if workshop.meetup_link %}
-                        {% if not workshop.enable_registration or registration and registration.status in 'RC' %}
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item" href="{{workshop.meetup_link}}" target="_blank">Join</a></li>
-                        {% endif %}
-                      {% endif %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'bcse:workshopRegistrants' workshop.id %}" href="#">View Registrants</a></li>
                     </ul>
                   </div>
-                {% endif %}
-              </td>
+                </td>
+              {% endif %}
             {% endif %}
           {% endif %}
         </tr>

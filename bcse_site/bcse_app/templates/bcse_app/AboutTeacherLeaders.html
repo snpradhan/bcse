@@ -8,17 +8,19 @@
    <div class="about_us container">
       <div class="team">
         <h1>Our Teacher Leaders</h1>
-        {% for teacher in teachers %}
+        {% for teacherLeader in teacherLeaders %}
         <div class="row member">
           <div class="col-md-2 picture">
-            <img src="{{teacher.image.url}}" class="circle staff">
+            {% if teacherLeader.teacher.image %}
+              <img src="{{teacherLeader.teacher.image.url}}" class="circle staff">
+            {% endif %}
           </div>
           <div class="col-md-10">
             <div class="intro">
-              <h2>{{teacher.first_name}} {{teacher.last_name}}</h2>
-              <h3>{{teacher.school}}</h3>             
+              <h2>{{teacherLeader.teacher.user.get_full_name}}</h2>
+              <h3>{{teacherLeader.teacher.work_place}}</h3>
             </div>
-            <div class="wysiwyg_content">{{teacher.bio|safe}}</div>
+            <div class="wysiwyg_content">{{teacherLeader.bio|safe}}</div>
           </div>
         </div>
         {% endfor %}

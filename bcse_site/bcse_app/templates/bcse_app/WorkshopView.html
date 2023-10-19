@@ -6,8 +6,10 @@
   {{block.super}}
   <div class="content">
     <div class="workshop_container container">
-      {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-        <h1 class="center"> {{workshop.name}} </h1>
+      {% if user.is_authenticated %}
+        {% if user.userProfile.user_role in 'AS' or workshop|is_workshop_teacher_leader:user.userProfile %}
+          <h1 class="center"> {{workshop.name}} </h1>
+        {% endif %}
       {% endif %}
 
       {% include "bcse_app/WorkshopTabs.html" with tab='view' %}
@@ -76,13 +78,13 @@
           {% for teacher_leader in workshop.teacher_leaders.all %}
           <div class="teacher_leader_info">
             <div class="teacher_leader_image">
-              {% if teacher_leader.image %}
-                <img src="{{teacher_leader.image.url}}"/>
+              {% if teacher_leader.teacher.image %}
+                <img src="{{teacher_leader.teacher.image.url}}"/>
               {% endif %}
             </div>
             <div class="teacher_leader_details">
-              <h4>{{teacher_leader.first_name}} {{teacher_leader.last_name}}</h4>
-              <h4>{{teacher_leader.school.name}}</h4>
+              <h4>{{teacher_leader.teacher.user.get_full_name}}</h4>
+              <h4>{{teacher_leader.teacher.work_place.name}}</h4>
               <div class="wysiwyg_content">{{teacher_leader.bio|safe}}</div>
             </div>
           </div>
