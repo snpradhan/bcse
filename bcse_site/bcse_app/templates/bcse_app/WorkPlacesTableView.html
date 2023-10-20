@@ -1,7 +1,7 @@
 {% load bcse_extras %}
 
 {% if work_places %}
-  {% include "bcse_app/Pagination.html" with model=work_places %}
+  {% include "bcse_app/Pagination.html" with model=work_places location='top' %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
@@ -137,7 +137,7 @@
       {% endfor %}
     </tbody>
   </table>
-  {% include "bcse_app/Pagination.html" with model=work_places %}
+  {% include "bcse_app/Pagination.html" with model=work_places location='bottom' %}
 {% else %}
   <div class="warning center">No work places matching your search criteria found</div>
 {% endif %}

@@ -154,8 +154,8 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
 
 USER_TABLE_COLUMN_CHOICES = (
   ('ID', 'User ID'),
-  ('EM', 'Email'),
   ('FN', 'Full Name'),
+  ('EM', 'Email'),
   ('RL', 'Role'),
   ('WP', 'Work Place'),
   ('JD', 'Joined Date'),

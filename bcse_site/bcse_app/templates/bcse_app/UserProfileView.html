@@ -7,9 +7,13 @@
   <br>
   <hr>
   <br>
-  {% include "bcse_app/WorkshopsTableView.html" with tag='profile' userProfile=userProfile %}
+  <div class="static search_results">
+    {% include "bcse_app/WorkshopsTableView.html" with tag='profile' userProfile=userProfile %}
+  </div>
   <br>
   <hr>
   <br>
-  {% include "bcse_app/ReservationsTableView.html" with tag='profile'%}
+  <div class="static search_results">
+    {% include "bcse_app/ReservationsTableView.html" with tag='profile'%}
+  </div>
 {% endblock %}

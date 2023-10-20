@@ -619,6 +619,24 @@ body {
     div.search_results {
       width: 100%;
       overflow-x: scroll;
+      max-height: 700px;
+      background-color: white;
+
+      th {
+        position: sticky;
+        top: 50;
+        background-color: #767676 !important;
+        z-index: 99;
+      }
+      &.static {
+        th {
+          position: sticky;
+          top: 0 !important;
+          background-color: #767676 !important;
+          z-index: 99;
+        }
+      }
+
     }
 
     #slides {
@@ -735,7 +753,14 @@ body {
       font-weight: 700;
       display: flex;
       justify-content: space-between;
-      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      z-index: 9;
+
+      &.top {
+        position: sticky;
+        top: 0;
+        background-color:  white;
+      }
 
       .counter {
 

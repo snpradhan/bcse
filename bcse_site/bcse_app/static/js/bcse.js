@@ -139,6 +139,11 @@ $(function (){
     return new bootstrap.Tooltip(tooltipTriggerEl)
   });
 
+  $(window).on('resize', function(){
+    paginationPadding();
+  });
+
+
   bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();
@@ -323,6 +328,15 @@ function bindPagination(){
     $('form.filter_form input#page').val(page);
     $('form.filter_form').submit();
   });
+
+  paginationPadding();
+
+}
+
+function paginationPadding() {
+  var delta = $('table.table').width() - $('div.paginate').width();
+  $('div.paginate').width($('table.table').width());
+  $('div.paginate').css('padding-right', delta);
 }
 
 function bindCalendarNavigation() {

@@ -2,18 +2,18 @@
 
 {% if users %}
   {% with online_users=request.online_now_ids %}
-  {% include "bcse_app/Pagination.html" with model=users %}
+  {% include "bcse_app/Pagination.html" with model=users location='top' %}
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
         {% if 'ID' in columns %}
           <th> User ID</th>
         {% endif %}
-        {% if 'EM' in columns %}
-          <th> Email </th>
-        {% endif %}
         {% if 'FN' in columns %}
           <th> Full Name </th>
+        {% endif %}
+        {% if 'EM' in columns %}
+          <th> Email </th>
         {% endif %}
         {% if 'PN' in columns %}
           <th> Phone Number </th>
@@ -60,11 +60,11 @@
           {% if 'ID' in columns %}
             <td> {{user_profile.id}}</td>
           {% endif %}
-          {% if 'EM' in columns %}
-            <td> {{user_profile.user.email}} </td>
-          {% endif %}
           {% if 'FN' in columns %}
             <td> {{user_profile.user.get_full_name}} </td>
+          {% endif %}
+          {% if 'EM' in columns %}
+            <td> {{user_profile.user.email}} </td>
           {% endif %}
           {% if 'PN' in columns %}
             <td> {{user_profile.phone_number|default_if_none:""}} </td>
@@ -108,7 +108,7 @@
               {% endif %}
             </td>
           {% endif %}
-          
+
           <td>
             <div class="btn-group">
               <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -136,7 +136,7 @@
       {% endfor %}
     </tbody>
   </table>
-  {% include "bcse_app/Pagination.html" with model=users %}
+  {% include "bcse_app/Pagination.html" with model=users location='bottom' %}
   {% endwith %}
 {% else %}
   <div class="warning center">No users matching your search criteria found</div>

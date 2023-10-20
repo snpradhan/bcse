@@ -1,5 +1,5 @@
 {% load bcse_extras %}
-<div class="paginate">
+<div class="paginate {{location}}">
   <div class="counter">
     Showing {{model.paginator|get_page_start_index:model.number}} to {{model.paginator|get_page_end_index:model.number}} of {{model.paginator.count}} entries.
   </div>

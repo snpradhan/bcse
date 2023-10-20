@@ -6,7 +6,7 @@
 {% now 'Y-m-d' as current_date %}
 {% if workshops %}
   {% if tag == 'workshops' %}
-    {% include "bcse_app/Pagination.html" with model=workshops %}
+    {% include "bcse_app/Pagination.html" with model=workshops location='top' %}
   {% endif %}
   <table class="table table-bordered table-striped">
     <thead>
@@ -170,7 +170,7 @@
     </tbody>
   </table>
   {% if tag == 'workshops' %}
-    {% include "bcse_app/Pagination.html" with model=workshops %}
+    {% include "bcse_app/Pagination.html" with model=workshops location='bottom' %}
   {% endif %}
 {% else %}
   {% if tag == 'workshops' %}

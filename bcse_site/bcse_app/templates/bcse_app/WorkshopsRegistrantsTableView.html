@@ -1,5 +1,5 @@
 {% load bcse_extras %}
-{% include "bcse_app/Pagination.html" with model=registrations %}
+{% include "bcse_app/Pagination.html" with model=registrations location='top' %}
 <table class="table table-bordered table-striped" id="workshop_registrants">
   <thead>
     <tr class='noExl'>
@@ -67,4 +67,4 @@
     {% endfor %}
   </tbody>
 </table>
-{% include "bcse_app/Pagination.html" with model=registrations %}
+{% include "bcse_app/Pagination.html" with model=registrations location='bottom'%}

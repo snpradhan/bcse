@@ -5,7 +5,7 @@
 {% endif %}
 {% if reservations %}
   {% if tag == 'reservations' %}
-    {% include "bcse_app/Pagination.html" with model=reservations %}
+    {% include "bcse_app/Pagination.html" with model=reservations location='top' %}
   {% endif %}
   <table class="table table-bordered table-striped" id="baxter_box_reservations">
     <thead>
@@ -383,7 +383,7 @@
     </tbody>
   </table>
   {% if tag == 'reservations' %}
-    {% include "bcse_app/Pagination.html" with model=reservations %}
+    {% include "bcse_app/Pagination.html" with model=reservations location='bottom'%}
   {% endif %}
 {% else %}
   {% if tag == 'reservations' %}
