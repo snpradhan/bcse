@@ -44,7 +44,7 @@
           </div>
         {% endif %}
       </div>
-      <div class="filter_container">
+      <div class="filter_container" style="display: none;">
         <form method="get" action="{% url 'bcse:baxterBoxSearch' %}" id="baxter_box_filter_form" class="filter_form">
           {% csrf_token %}
           <div class="form-group right" id="filter_toggle">
