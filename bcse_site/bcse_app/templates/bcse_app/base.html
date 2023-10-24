@@ -121,7 +121,7 @@
                       </li>
                       {% if user.userProfile|is_teacher_leader %}
                         <li class="{% navactive request 'bcse:workshops' 'teacher' %}">
-                          <a class="dropdown-item" href="{% url 'bcse:workshops' 'teacher' %}">My Lead Workshops</a>
+                          <a class="dropdown-item" href="{% url 'bcse:workshops' 'teacher' %}">My Workshop Registrants</a>
                         </li>
                       {% endif %}
                     {% endif %}
