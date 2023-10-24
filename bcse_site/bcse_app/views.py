@@ -1392,8 +1392,10 @@ def reservationsSearch(request):
 
         elif sort_by == 'delivery_date_asc':
           sort_order.append({'order_by': 'delivery_date', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
         elif sort_by == 'delivery_date_desc':
           sort_order.append({'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'return_date', 'direction': 'desc', 'ignorecase': 'false'})
         elif sort_by == 'return_date_asc':
           sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
         elif sort_by == 'return_date_desc':
