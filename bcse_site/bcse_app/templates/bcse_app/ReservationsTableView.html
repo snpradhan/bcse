@@ -283,7 +283,15 @@
               <td>{{reservation.email_sent|yesno:"Yes,No"}}</td>
             {% endif %}
             {% if 'FS' in columns %}
-              <td>{{reservation.get_feedback_status_display|default:""}}</td>
+              <td>
+                {{reservation.get_feedback_status_display|default:""}}
+                {% if reservation.feedback_email_count %}
+                  <hr>
+                  Email sent {{reservation.feedback_email_count}} time{{reservation.feedback_email_count|pluralize}}
+                  <hr>
+                  Last email sent {{reservation.feedback_email_date|date:"F j, Y"}}
+                {% endif %}
+              </td>
             {% endif %}
           {% endif %}
           {% if 'ST' in columns or tag == 'profile' %}

@@ -165,6 +165,12 @@
                       <div class="reservation_email">
                         <div>
                           {{reservation.get_feedback_status_display|default:""}}
+                          {% if reservation.feedback_email_count %}
+                            <br>
+                            Email sent {{reservation.feedback_email_count}} time{{reservation.feedback_email_count|pluralize}}
+                            <br>
+                            Last email sent {{reservation.feedback_email_date|date:"F j, Y"}}
+                          {% endif %}
                         </div>
                         <div>
                           {% if reservation.status == 'I' %}

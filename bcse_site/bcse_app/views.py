@@ -5926,8 +5926,11 @@ def reservationFeedbackEmailSend(request, id):
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
-    if success and reservation.feedback_status is None:
-      reservation.feedback_status = 'E'
+    if success:
+      if reservation.feedback_status is None:
+        reservation.feedback_status = 'E'
+      reservation.feedback_email_count = reservation.feedback_email_count + 1
+      reservation.feedback_email_date = datetime.datetime.now()
       reservation.save()
 
     if request.is_ajax():

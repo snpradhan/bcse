@@ -502,7 +502,7 @@ class ReservationForm(ModelForm):
  
   class Meta:
     model = models.Reservation
-    exclude = ('equipment', 'feedback_status', 'created_by', 'created_date', 'modified_date')
+    exclude = ('equipment', 'feedback_status', 'feedback_email_count', 'feedback_email_date', 'created_by', 'created_date', 'modified_date')
     widgets = {
       'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
       'notes': forms.Textarea(attrs={'rows':3}),
