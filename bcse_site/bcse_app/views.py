@@ -26,6 +26,7 @@ from mailchimp_marketing import Client
 from mailchimp_marketing.api_client import ApiClientError
 import hashlib
 from django.db.models import Q, F, Max
+from django.db.models import Case, Value, When
 from django.core.mail import EmailMessage
 import pyexcel
 import boto3
@@ -1377,6 +1378,8 @@ def reservationsSearch(request):
       reservations = reservations.distinct()
 
       reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=Q(~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile))))
+      reservations = reservations.annotate(primary_date=Case(When(status='O', then=('return_date')), When(status__in=['N', 'I', 'R', 'U'], then=('delivery_date'))))
+      reservations = reservations.annotate(secondary_date=Case(When(status='O', then=('delivery_date')), When(status__in=['N', 'I', 'R', 'U'], then=('return_date'))))
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
@@ -1410,8 +1413,9 @@ def reservationsSearch(request):
           sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
         elif sort_by == 'new_messages':
           sort_order.append({'order_by': 'new_messages', 'direction': 'desc', 'ignorecase': 'false'})
-
-      sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
+      else:
+        sort_order.append({'order_by': 'primary_date', 'direction': 'desc', 'ignorecase': 'false'})
+        sort_order.append({'order_by': 'secondary_date', 'direction': 'desc', 'ignorecase': 'false'})
 
       reservations = paginate(request, reservations, sort_order, rows_per_page, page)
 
@@ -5793,10 +5797,11 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
       if ignorecase == 'true':
         ordering = Lower(ordering)
         if direction == 'desc':
-          ordering = ordering.desc()
+          ordering = ordering.desc(nulls_last=True)
       else:
         if direction == 'desc':
-          ordering = '-{}'.format(ordering)
+          #ordering = '-{}'.format(ordering)
+          ordering = F(ordering).desc(nulls_last=True)
 
       ordering_list.append(ordering)
 

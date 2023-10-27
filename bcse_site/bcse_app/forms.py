@@ -1085,7 +1085,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('return_date_asc', 'Return Date (Asc)'),
                                                        ('created_date_desc', 'Created Date (Desc)'),
                                                        ('created_date_asc', 'Created Date (Asc)'),
-                                                       ('status', 'Status')), initial='delivery_date_desc')
+                                                       ('status', 'Status')))
   columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
   color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().order_by('name'))
@@ -1116,6 +1116,9 @@ class ReservationsSearchForm(forms.Form):
 
       if field_name in ['equipment', 'status', 'columns', 'color']:
         field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
+      if field_name == 'sort_by':
+        field.help_text = 'The default sort is (Delivery Date followed by Return date) in descending order for Unconfirmed/Confirmed/Checked In/Cancelled reservations and (Return Date) in descending order for Checked Out reservations.'
+
 
       if initials:
         if field_name in initials:
