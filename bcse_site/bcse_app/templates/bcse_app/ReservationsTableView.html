@@ -196,16 +196,18 @@
             <td>{{reservation.activity.inventory|default_if_none:""|safe}}</td>
           {% endif %}
           {% if 'EQ' in columns or tag == 'profile' %}
-            <td>
+            <td class="equipment">
               <ul>
                 {% for equipment in reservation.equipment.all %}
                   <li>
                     {% if user.is_authenticated %}
-                      {% if user.userProfile.user_role in 'AS' and tag == 'reservations' %}
-                        {{equipment.name}}
-                      {% else %}
-                        {{equipment.equipment_type}}
-                      {% endif %}
+                      <a class="modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment.equipment_type.id %}" href="#">
+                        {% if user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+                          {{equipment.name}}
+                        {% else %}
+                          {{equipment.equipment_type}}
+                        {% endif %}
+                      </a>
                     {% endif %}
                   </li>
                 {% endfor %}
