@@ -687,6 +687,26 @@ class BaxterBoxBlackoutDateForm(ModelForm):
 
     return valid
 
+
+class BaxterBoxBlackoutMessageForm(ModelForm):
+  class Meta:
+    model = models.BaxterBoxBlackoutMessage
+    fields = ['message', 'status']
+    widgets = {
+      'message': forms.Textarea(attrs={'rows':3}),
+    }
+
+  def __init__(self, *args, **kwargs):
+
+    super(BaxterBoxBlackoutMessageForm, self).__init__(*args, **kwargs)
+
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
 class ReservationColorForm(ModelForm):
   class Meta:
     model = models.ReservationColor

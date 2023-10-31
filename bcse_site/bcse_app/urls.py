@@ -72,6 +72,7 @@ urlpatterns = [
     path('adminConfiguration/baxter_box/blackout_date/new', views.blackoutDateEdit, name='blackoutDateNew'),
     path('adminConfiguration/baxter_box/blackout_date/<int:id>/delete', views.blackoutDateDelete, name='blackoutDateDelete'),
     path('adminConfiguration/baxter_box/blackout_dates/', views.blackoutDates, name='blackoutDates'),
+    path('adminConfiguration/baxter_box/blackout_message/edit', views.blackoutMessageEdit, name='blackoutMessageEdit'),
 
     path('adminConfiguration/baxter_box/baxterBoxCategories/', views.baxterBoxCategories, name='baxterBoxCategories'),
     path('adminConfiguration/baxter_box/baxterBoxSubCategories/', views.baxterBoxSubCategories, name='baxterBoxSubCategories'),

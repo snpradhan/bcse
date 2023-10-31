@@ -560,6 +560,22 @@ class BaxterBoxBlackoutDate(models.Model):
   class Meta:
       ordering = ['start_date', 'end_date']
 
+class BaxterBoxBlackoutMessage(models.Model):
+  message = models.CharField(null=False, blank=False, max_length=2048)
+  status = models.CharField(default='I',  max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  def save(self, *args, **kwargs):
+    self.pk = 1
+    super(BaxterBoxBlackoutMessage, self).save(*args, **kwargs)
+
+  @classmethod
+  def load(cls):
+    obj, created = cls.objects.get_or_create(pk=1)
+    return obj
+
+
 class ReservationColor(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Color')
   color = models.CharField(null=False, max_length=8, unique=True, help_text='Hex code of the Color')

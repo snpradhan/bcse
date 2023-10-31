@@ -1,0 +1,77 @@
+
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3 class="left"> Edit Blackout Message </h3>
+      {% else %}
+        <h3 class="left"> Create Blackout Message  </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="blackoutMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" action="{% url 'bcse:blackoutMessageEdit' %}" id="formBlackoutMessage">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.message.name}}" class="form-label"> {{form.message.label}}</label>
+          <div class="input-group">
+            {{form.message}}
+          </div>
+          <div class="error">{{ form.message.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
+          <div class="input-group">
+            {{form.status}}
+          </div>
+          <div class="error">{{ form.end_date.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success blackout_date_save">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+    $('#formBlackoutMessage').submit(function(e){
+      e.preventDefault();
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#general').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          alert("Something went wrong.");
+        }
+      });
+    });
+
+  });
+</script>
+
+

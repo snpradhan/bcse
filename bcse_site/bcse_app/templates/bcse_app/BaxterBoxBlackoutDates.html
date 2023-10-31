@@ -3,17 +3,20 @@
 {% load base_extras %}
 
 {% block configuration %}
-  <h1> Baxter Box Blackout Dates </h1>
+  <h1> Baxter Box Blackout Settings </h1>
   <div class="button-row">
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#blackout_date" data-href="{% url 'bcse:blackoutDateNew' %}" href="#">Create Blackout Date</a>
+    {% if not blackout_message %}
+      <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:blackoutMessageEdit' %}" href="#">Create Blackout Message</a>
+    {% endif %}
   </div>
   <div class="search_results static">
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
           <th> ID</th>
-          <th> Start Date </th>
-          <th> End Date </th>
+          <th> Blackout Start Date </th>
+          <th> Blackout End Date </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -51,4 +54,42 @@
       </tbody>
     </table>
   </div>
+  {% if blackout_message %}
+    <div class="search_results static">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th> ID</th>
+            <th> Blackout Message</th>
+            <th> Status </th>
+            <th> Created Date</th>
+            <th> Modified Date </th>
+            <th> Action </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td> {{blackout_message.id}}</td>
+            <td> {{blackout_message.message|default_if_none:""}}</td>
+            <td> {{blackout_message.get_status_display}} </td>
+            <td> {{blackout_message.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{blackout_message.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group dropup">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:blackoutMessageEdit' %}" href="#">Edit</a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
 {% endblock %}

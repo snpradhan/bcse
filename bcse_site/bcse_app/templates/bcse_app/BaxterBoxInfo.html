@@ -18,7 +18,7 @@
           <label><a class="btn signin" href="?next={% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a></label>
         {% endif %}
 
-        {% if blackout_dates %}
+        {% if blackout_message %}
 
           <br><br>
           <div class="warning">
@@ -28,7 +28,7 @@
                 <li>{{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} </li>
               {% endfor %}
             </ul-->
-            {% for blackout_date in blackout_dates %}
+            <!--{% for blackout_date in blackout_dates %}
               {% if blackout_date.start_date|is_future %}
                 {% with available_until=blackout_date.start_date|add_days_to_date:-1%}
                 <p>Delivery and pickup are available until {{available_until|date:"F j, Y"}} for this school year. <br> Reservations for the 23-24 school year will become available later in summer.</p>
@@ -40,7 +40,8 @@
                 {% endif %}
                 {% endwith %}
               {% endif %}
-            {% endfor %}
+            {% endfor %}-->
+            {{blackout_message.message}}
           </div>
         {% endif %}
       </div>
