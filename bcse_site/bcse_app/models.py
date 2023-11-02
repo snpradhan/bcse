@@ -497,7 +497,7 @@ class Reservation(models.Model):
   status = models.CharField(default='U', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   email_sent = models.BooleanField(default=False)
   feedback_status = models.CharField(null=True, max_length=1, choices=RESERVATION_FEEDBACK_STATUS_CHOICES)
-  feedback_email_count = models.IntegerField(null=False, blank=False)
+  feedback_email_count = models.IntegerField(null=True, blank=True)
   feedback_email_date = models.DateField(null=True, blank=True)
   created_by = models.ForeignKey(UserProfile, default=1, on_delete=models.SET_DEFAULT)
   created_date = models.DateTimeField(auto_now_add=True)
