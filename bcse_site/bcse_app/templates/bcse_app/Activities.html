@@ -15,6 +15,7 @@
           <th> Name </th>
           <th> Kit Name </th>
           <th> Kit Inventory </th>
+          <th> Inventory Notes </th>
           <th> Status </th>
           <th> Tags </th>
           <th> Created Date</th>
@@ -24,11 +25,16 @@
       </thead>
       <tbody>
         {% for activity in activities %}
-          <tr>
+          {% if activity.color %}
+            <tr style="background-color: {{activity.color.color}};" title="{{activity.color.description}}">
+          {% else %}
+            <tr>
+          {% endif %}
             <td> {{activity.id}}</td>
             <td> {{activity.name}} </td>
             <td> {{activity.kit_name}} </td>
             <td> {{activity.inventory|default_if_none:""|safe}} </td>
+             <td> {{activity.notes|default_if_none:""|safe}} </td>
             <td> {{activity.get_status_display}} </td>
             <td> {% for tag in activity.tags.all %}
                   {{tag}} <br>
@@ -51,7 +57,7 @@
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityUpdate' activity.id %}">Update Kit Inventory</a>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityUpdate' activity.id %}">Quick Update</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>

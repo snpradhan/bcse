@@ -2,9 +2,9 @@
   <div class="modal-content">
     <div class="modal-header">
       {% if form.instance.id %}
-        <h3 class="left"> Edit Reservation Color </h3>
+        <h3 class="left"> Edit Reservation/Kit Color </h3>
       {% else %}
-        <h3 class="left"> Create Reservation Color  </h3>
+        <h3 class="left"> Create Reservation/Kit Color  </h3>
       {% endif %}
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
@@ -49,6 +49,17 @@
             {{form.description}}
           </div>
           <div class="error">{{ form.description.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.target.name}}" class="form-label"> {{form.target.label}}
+            {% if form.target.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div class="input-group">
+            {{form.target}}
+          </div>
+          <div class="error">{{ form.target.errors }}</div>
         </div>
       </div>
       <div class="modal-footer">

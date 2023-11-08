@@ -136,6 +136,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('AC', 'Activity'),
   ('KT', 'Kit'),
   ('IV', 'Inventory'),
+  ('IN', 'Inventory Notes'),
   ('EQ', 'Equipment'),
   ('CC', 'Comment Count'),
   ('DD', 'Delivery Date'),
@@ -189,6 +190,13 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('CD', 'Created Date'),
   ('MD', 'Modified Date'),
 )
+
+COLOR_TARGET_CHOICES = (
+  ('R', 'Reservation'),
+  ('K', 'Activity Kit'),
+  ('B', 'Both'),
+)
+
 
 TABLE_ROWS_PER_PAGE_CHOICES = (
   (25, '25'),
@@ -434,8 +442,10 @@ class Activity(models.Model):
   manuals_resources = RichTextField(null=True, blank=True, config_name='resource_url_ckeditor', help_text='Enter a list of urls for instruction manuals and resoruces')
   kit_name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable Kit')
   inventory = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Consumable Kit inventory')
+  notes = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Inventory notes')
   equipment_mapping = models.ManyToManyField(EquipmentType, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Consumable Kit')
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -579,7 +589,8 @@ class BaxterBoxBlackoutMessage(models.Model):
 class ReservationColor(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Color')
   color = models.CharField(null=False, max_length=8, unique=True, help_text='Hex code of the Color')
-  description = models.CharField(null=False, blank=False, max_length=512, help_text='Describe the types of reservations this color will be applied to')
+  description = models.CharField(null=False, blank=False, max_length=512, help_text='Describe the types of reservations/kit this color will be applied to')
+  target = models.CharField(default='R', max_length=1, choices=COLOR_TARGET_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

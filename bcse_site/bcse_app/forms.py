@@ -336,7 +336,7 @@ class ActivityForm(ModelForm):
     widgets = {
       'image': widgets.FileInput,
       'inventory': forms.Textarea(attrs={'rows':2}),
-
+      'notes': forms.Textarea(attrs={'rows':2}),
     }
 
   def __init__(self, *args, **kwargs):
@@ -345,6 +345,9 @@ class ActivityForm(ModelForm):
     self.fields['manuals_resources'].label = 'Instruction Manuals/Resources'
     self.fields['tags'].label = 'Tags/Categories'
     self.fields['inventory'].label = 'Kit Inventory'
+    self.fields['notes'].label = 'Inventory Notes'
+    self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
+    self.fields['color'].label = 'Inventory Color'
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
@@ -360,11 +363,19 @@ class ActivityUpdateForm(ModelForm):
 
   class Meta:
     model = models.Activity
-    fields = ['inventory']
+    fields = ['inventory', 'notes', 'color']
+    widgets = {
+      'inventory': forms.Textarea(attrs={'rows':1}),
+      'notes': forms.Textarea(attrs={'rows':1}),
+    }
 
   def __init__(self, *args, **kwargs):
     super(ActivityUpdateForm, self).__init__(*args, **kwargs)
     self.fields['inventory'].label = 'Kit Inventory'
+    self.fields['notes'].label = 'Inventory Notes'
+    self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
+    self.fields['color'].label = 'Inventory Color'
+
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
@@ -569,6 +580,7 @@ class ReservationForm(ModelForm):
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
       self.fields['activity'].queryset = models.Activity.objects.all()
+      self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()
@@ -620,6 +632,8 @@ class ReservationUpdateForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(ReservationUpdateForm, self).__init__(*args, **kwargs)
+
+    self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
@@ -710,7 +724,7 @@ class BaxterBoxBlackoutMessageForm(ModelForm):
 class ReservationColorForm(ModelForm):
   class Meta:
     model = models.ReservationColor
-    fields = ['name', 'color', 'description']
+    fields = ['name', 'color', 'description', 'target']
     widgets = {
         'color': TextInput(attrs={'type': 'color'}),
     }
@@ -1108,7 +1122,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('status', 'Status')))
   columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
-  color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().order_by('name'))
+  color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().filter(target__in=['R', 'B']).order_by('name'))
 
 
   def __init__(self, *args, **kwargs):

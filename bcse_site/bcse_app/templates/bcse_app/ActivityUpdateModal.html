@@ -1,4 +1,4 @@
-<div class="modal-dialog modal-md">
+<div class="modal-dialog modal-lg">
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="left">Update Activity {{activity.name}}</h3>
@@ -18,13 +18,33 @@
       <div class="modal-body">
         <div class="form-group mb-3">
           <label for="id_{{form.inventory.name}}">
-            {{ form.inventory.label }}
+            {{ form.inventory.label|title }}
             {% if form.inventory.field.required %}
               (<span class="required">*</span>)
             {% endif %}
           </label>
           <div>{{form.inventory}}</div>
           <div class="error">{{ form.inventory.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.notes.name}}">
+            {{ form.notes.label|title }}
+            {% if form.notes.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.notes}}</div>
+          <div class="error">{{ form.notes.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.color.name}}">
+            {{ form.color.label }}
+            {% if form.color.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.color}}</div>
+          <div class="error">{{ form.color.errors }}</div>
         </div>
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
@@ -47,6 +67,8 @@
       var formData = new FormData(this);
       var inventory = CKEDITOR.instances.id_inventory.getData();
       formData.append('inventory', inventory);
+      var notes = CKEDITOR.instances.id_notes.getData();
+      formData.append('notes', notes);
 
       $.ajax({
         type: $(this).attr('method'),
@@ -68,7 +90,7 @@
             window.parent.location.reload();
           }
           else{
-            $('#profile').html(data['html']);
+            $('#kit').html(data['html']);
           }
         },
         error: function(){

@@ -31,6 +31,9 @@
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
           <th> Kit Inventory </th>
         {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
+          <th> Inventory Notes</th>
+        {% endif %}
         {% if 'EQ' in columns or tag == 'profile' %}
           <th> Equipment </th>
         {% endif %}
@@ -100,6 +103,9 @@
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
           <td style="background-color: #767676; color: white;"> Kit Inventory </td>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
+          <td style="background-color: #767676; color: white;">Inventory Notes</td>
         {% endif %}
         {% if 'EQ' in columns or tag == 'profile' %}
           <td style="background-color: #767676; color: white;"> Equipment </td>
@@ -194,6 +200,9 @@
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
             <td>{{reservation.activity.inventory|default_if_none:""|safe}}</td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
+            <td>{{reservation.activity.notes|default_if_none:""|safe}}</td>
           {% endif %}
           {% if 'EQ' in columns or tag == 'profile' %}
             <td class="equipment">
@@ -331,7 +340,7 @@
                   {% if reservation.activity %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:activityUpdate' reservation.activity.id %}">Update Kit Inventory</a>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityUpdate' reservation.activity.id %}">Update Kit Inventory</a>
                     </li>
                   {% endif %}
                   <li><hr class="dropdown-divider"></li>

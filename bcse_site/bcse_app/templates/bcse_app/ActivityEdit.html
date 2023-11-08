@@ -50,6 +50,16 @@
         <div class="error">{{ form.inventory.errors }}</div>
       </div>
       <div class="form-group mb-3">
+        <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label|title}}</label>
+        <div>{{form.notes}}</div>
+        <div class="error">{{ form.notes.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.color.name}}" class="form-label"> {{form.color.label|title}}</label>
+        <div>{{form.color}}</div>
+        <div class="error">{{ form.color.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
         <label for="id_{{form.tags.name}}" class="form-label"> {{form.tags.label|title}}
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.tags.help_text}}"></i>
         </label>

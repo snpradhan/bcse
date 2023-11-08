@@ -3,9 +3,9 @@
 {% load base_extras %}
 
 {% block configuration %}
-  <h1> Reservation Colors </h1>
+  <h1> Reservation/Kit Colors </h1>
   <div class="button-row">
-    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationColorNew' %}" href="#">Create Reservation Color</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationColorNew' %}" href="#">Create Reservation/Kit Color</a>
   </div>
   <div class="search_results static">
     <table class="table table-bordered table-striped">
@@ -16,6 +16,7 @@
           <th> Hex </th>
           <th> Color </th>
           <th> Description </th>
+          <th> Target </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -29,6 +30,7 @@
             <td> {{color.color|upper}} </td>
             <td> <div class="color" style="background-color: {{color.color}};"></div></td>
             <td> {{color.description}} </td>
+            <td> {{color.get_target_display}} </td>
             <td> {{color.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{color.modified_date|date:"F j, Y g:i A"}} </td>
             <td>
