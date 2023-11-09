@@ -137,8 +137,23 @@ body {
     list-style-position: inside;
   }
   ul.nav-tabs {
+    gap: 0.25em;
+
     li.nav-item.right {
       margin-left: auto;
+    }
+
+    .nav-link {
+      color: white;
+      background-color: @nu-mid-purple;
+      border-color: #dee2e6 #dee2e6 #fff;
+      cursor: pointer;
+    }
+    .nav-link {
+      border-bottom: 0px;
+    }
+    .nav-link.active {
+      border-top: 3px solid @nu-mid-purple;
     }
   }
 
