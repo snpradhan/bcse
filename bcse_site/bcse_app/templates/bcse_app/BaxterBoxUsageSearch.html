@@ -34,6 +34,11 @@
             <div class="error">{{ searchForm.work_place.errors }}</div>
           </div>
           <div class="form-group">
+            <label for="id_{{searchForm.user.name}}" class="form-label"> {{searchForm.user.label|title}}</label>
+            <div>{{searchForm.user}}</div>
+            <div class="error">{{ searchForm.user.errors }}</div>
+          </div>
+          <div class="form-group">
             <label for="id_{{searchForm.activity.name}}" class="form-label"> {{searchForm.activity.label|title}}
               <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.activity.help_text}}"></i>
             </label>

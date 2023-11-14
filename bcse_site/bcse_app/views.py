@@ -1809,6 +1809,7 @@ def baxterBoxUsageReportSearch(request):
       from_date = request.GET.get('usage-from_date', '')
       to_date = request.GET.get('usage-to_date', '')
       work_place = request.GET.get('usage-work_place', '')
+      user = request.GET.get('usage-user', '')
       activity = request.GET.getlist('usage-activity', '')
       equipment = request.GET.getlist('usage-equipment', '')
       status = request.GET.getlist('usage-status', '')
@@ -1818,6 +1819,7 @@ def baxterBoxUsageReportSearch(request):
         'from_date': from_date,
         'to_date': to_date,
         'work_place': work_place,
+        'user': user,
         'activity': activity,
         'equipment': equipment,
         'status': status
@@ -1833,6 +1835,10 @@ def baxterBoxUsageReportSearch(request):
 
       if work_place:
         query_filter = query_filter & Q(user__work_place=work_place)
+        filter_selected = True
+
+      if user:
+        query_filter = query_filter & Q(user=user)
         filter_selected = True
 
       if activity:
