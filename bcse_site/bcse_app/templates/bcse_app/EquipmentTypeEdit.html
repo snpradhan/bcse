@@ -29,6 +29,11 @@
         <div class="error">{{ form.description.errors }}</div>
       </div>
       <div class="form-group mb-3">
+        <label for="id_{{form.unit_cost.name}}" class="form-label"> {{form.unit_cost.label|title}} ($)</label>
+        <div>{{form.unit_cost}}</div>
+        <div class="error">{{ form.unit_cost.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
         <label for="id_{{form.tags.name}}" class="form-label"> {{form.tags.label|title}}
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.tags.help_text}}"></i>
         </label>

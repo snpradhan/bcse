@@ -620,7 +620,7 @@ def activityEdit(request, id=''):
         return shortcuts.redirect('bcse:activityEdit', id=savedActivity.id)
       else:
         print(form.errors)
-        message.error(request, "Activity could not be saved. Check the errors below.")
+        messages.error(request, "Activity could not be saved. Check the errors below.")
         context = {'form': form, 'categories': categories}
         return render(request, 'bcse_app/ActivityEdit.html', context)
 
@@ -775,7 +775,7 @@ def equipmentTypeEdit(request, id=''):
         return shortcuts.redirect('bcse:equipmentTypeEdit', id=savedEquipmentType.id)
       else:
         print(form.errors)
-        message.error(request, "Equipment Type could not be saved. Check the errors below.")
+        messages.error(request, "Equipment Type could not be saved. Check the errors below.")
         context = {'form': form}
         return render(request, 'bcse_app/EquipmentTypeEdit.html', context)
 
@@ -1796,12 +1796,13 @@ def baxterBoxUsageReportSearch(request):
 
       equipment_usage = {}
       kit_usage = {}
-      total_usage = {'reservations': 0, 'kits': 0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+      total_usage = {'reservations': 0, 'total_equipment_cost': 0.0, 'kits': 0, 'total_kit_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
 
       for equipment_type in equipment_types:
-        equipment_usage[equipment_type.id] = {'name': equipment_type.name, 'reservations': [], 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+        print(equipment_type.name, equipment_type.unit_cost)
+        equipment_usage[equipment_type.id] = {'name': equipment_type.name, 'unit_cost': equipment_type.unit_cost,'reservations': [], 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
       for activity in activities:
-        kit_usage[activity.id] = {'name': activity.kit_name, 'count': 0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+        kit_usage[activity.id] = {'name': activity.kit_name, 'unit_cost': activity.kit_unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
 
       query_filter = Q()
       filter_selected = False
@@ -1881,11 +1882,15 @@ def baxterBoxUsageReportSearch(request):
 
             equipment_usage[equipment.equipment_type.id]['classes'] += reservation_classes
             equipment_usage[equipment.equipment_type.id]['students'] += reservation_students
+            if equipment.equipment_type.unit_cost:
+              total_usage['total_equipment_cost'] += equipment.equipment_type.unit_cost
 
         if reservation.activity:
           if not reservation.activity_kit_not_needed:
             kit_usage[reservation.activity.id]['count'] += reservation_classes
             total_usage['kits'] += reservation_classes
+            if reservation.activity.kit_unit_cost:
+              total_usage['total_kit_cost'] += reservation.activity.kit_unit_cost * reservation_classes
 
           kit_usage[reservation.activity.id]['classes'] += reservation_classes
           kit_usage[reservation.activity.id]['students'] += reservation_students

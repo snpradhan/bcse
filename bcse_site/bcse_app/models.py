@@ -26,6 +26,7 @@ import uuid
 import requests
 from requests.structures import CaseInsensitiveDict
 import urllib.parse
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 
@@ -295,6 +296,7 @@ class EquipmentType(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of Equipment Type')
   short_name = models.CharField(null=True, blank=True, max_length=256, help_text='Short name for displaying on the calendar')
   description = RichTextField(null=True, blank=True)
+  unit_cost = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0)], help_text='Unit cost for the equipment')
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment type')
   tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   order = models.IntegerField(null=False, blank=False)
@@ -441,6 +443,7 @@ class Activity(models.Model):
   materials_equipment = RichTextField(null=True, blank=True, help_text='Enter a list of materials the Baxter Center provides, equipment the users can borrow and materials the user has to arrange themselves')
   manuals_resources = RichTextField(null=True, blank=True, config_name='resource_url_ckeditor', help_text='Enter a list of urls for instruction manuals and resoruces')
   kit_name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable Kit')
+  kit_unit_cost = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0)], help_text='Unit cost for the kit')
   inventory = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Consumable Kit inventory')
   notes = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Inventory notes')
   equipment_mapping = models.ManyToManyField(EquipmentType, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')

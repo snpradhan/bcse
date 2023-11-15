@@ -363,7 +363,7 @@ class ActivityUpdateForm(ModelForm):
 
   class Meta:
     model = models.Activity
-    fields = ['inventory', 'notes', 'color']
+    fields = ['inventory', 'kit_unit_cost', 'notes', 'color']
     widgets = {
       'inventory': forms.Textarea(attrs={'rows':1}),
       'notes': forms.Textarea(attrs={'rows':1}),

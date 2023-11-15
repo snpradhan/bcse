@@ -2,17 +2,17 @@
 <table class="table table-bordered table-striped" id="baxter_box_usage_report">
   <thead>
     <tr class="noExl">
-      <th colspan="2">From</th>
+      <th colspan="4">From</th>
       <th colspan="4">To</th>
     </tr>
   </thead>
   <tbody>
     <tr style="display:none;">
-      <td colspan="2" style="background-color: #767676; color: white;">From</td>
+      <td colspan="4" style="background-color: #767676; color: white;">From</td>
       <td colspan="4" style="background-color: #767676; color: white;">To</td>
     </tr>
     <tr>
-      <td colspan="2">
+      <td colspan="4">
         {% if from_date %}
           {{from_date|date:"F j, Y"}}
         {% else %}
@@ -27,14 +27,16 @@
         {% endif %}
       </td>
       <tr>
-        <td colspan="6"></td>
+        <td colspan="8"></td>
       </tr>
     </tr>
   </tbody>
   <thead>
     <tr class="noExl">
       <th> Equipment</th>
+      <th> Unit Cost ($)</th>
       <th> # of Reservation </th>
+      <th> Total Cost ($)</th>
       <th> # of Unique Teachers </th>
       <th> # of Unique Schools </th>
       <th> # of Classes </th>
@@ -43,8 +45,10 @@
   </thead>
   <tbody>
     <tr style="display:none;">
-      <td style="background-color: #767676; color: white;"> Equipment Usage</td>
+      <td style="background-color: #767676; color: white;"> Equipment</td>
+      <td style="background-color: #767676; color: white;"> Unit Cost ($)</td>
       <td style="background-color: #767676; color: white;"> # of Reservation </td>
+      <td style="background-color: #767676; color: white;"> Total Cost ($)</td>
       <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
       <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
       <th style="background-color: #767676; color: white;"> # of Classes </th>
@@ -53,7 +57,13 @@
     {% for id, equipment in equipment_usage.items %}
       <tr>
         <td>{{equipment.name}}</td>
+        <td>{{equipment.unit_cost|default_if_none:""}}</td>
         <td>{{equipment.reservations|length}}</td>
+        <td>
+            {% if equipment.reservations|length > 0 and equipment.unit_cost > 0 %}
+              {{equipment.reservations|length|multiply:equipment.unit_cost}}
+            {% endif %}
+        </td>
         <td>{{equipment.teachers|length}}</td>
         <td>{{equipment.schools|length}}</td>
         <td>{{equipment.classes}}</td>
@@ -67,7 +77,9 @@
   <thead>
     <tr class="noExl">
       <th> Consumable Kit</th>
+      <th> Unit Cost ($)</th>
       <th> Usage Count </th>
+      <th> Total Cost ($)</th>
       <th> # of Unique Teachers </th>
       <th> # of Unique Schools </th>
       <th> # of Classes </th>
@@ -77,7 +89,9 @@
   <tbody>
     <tr style="display:none;">
       <td style="background-color: #767676; color: white;"> Consumable Kit</td>
+      <td style="background-color: #767676; color: white;"> Unit Cost ($)</td>
       <td style="background-color: #767676; color: white;"> Usage Count </td>
+      <td style="background-color: #767676; color: white;"> Total Cost ($)</td>
       <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
       <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
       <th style="background-color: #767676; color: white;"> # of Classes </th>
@@ -86,7 +100,13 @@
     {% for id, kit in kit_usage.items %}
       <tr>
         <td>{{kit.name}}</td>
+        <td>{{kit.unit_cost|default_if_none:""}}</td>
         <td>{{kit.count}}</td>
+        <td>
+          {% if kit.count > 0 and kit.unit_cost > 0 %}
+            {{kit.count|multiply:kit.unit_cost}}
+          {% endif %}
+        </td>
         <td>{{kit.teachers|length}}</td>
         <td>{{kit.schools|length}}</td>
         <td>{{kit.classes}}</td>
@@ -94,13 +114,15 @@
       </tr>
     {% endfor %}
     <tr>
-      <td colspan="4"></td>
+      <td colspan="8"></td>
     </tr>
   </tbody>
   <thead>
     <tr class="noExl">
       <th> Total # of Reservations </th>
+      <th> Total Equipment Cost ($)</th>
       <th> Total # of Kits Used </th>
+      <th> Total Kit Cost ($)</th>
       <th> Total # of Unique Teachers </th>
       <th> Total # of Unique Schools </th>
       <th> Total # of Classes </th>
@@ -110,7 +132,9 @@
   <tbody>
     <tr style="display:none;">
       <td style="background-color: #767676; color: white;"> Total # of Reservations</td>
+      <td style="background-color: #767676; color: white;"> Total Equipment Cost </td>
       <td style="background-color: #767676; color: white;"> Total # of Kits Used</td>
+      <td style="background-color: #767676; color: white;"> Total Kit Cost </td>
       <td style="background-color: #767676; color: white;"> Total # of Unique Teachers </td>
       <td style="background-color: #767676; color: white;"> Total # of Unique Schools </td>
       <th style="background-color: #767676; color: white;"> Total # of Classes </th>
@@ -118,7 +142,9 @@
     </tr>
     <tr>
       <td>{{total_usage.reservations}}</td>
+      <td>{{total_usage.total_equipment_cost}}</td>
       <td>{{total_usage.kits}}</td>
+      <td>{{total_usage.total_kit_cost}}</td>
       <td>{{total_usage.teachers|length}}</td>
       <td>{{total_usage.schools|length}}</td>
       <td>{{total_usage.classes}}</td>

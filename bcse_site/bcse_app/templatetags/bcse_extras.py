@@ -242,3 +242,7 @@ def is_workshop_teacher_leader(workshop, userProfile):
     return True
   else:
     return False
+
+@register.filter
+def multiply(a, b):
+  return a*b

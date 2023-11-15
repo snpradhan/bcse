@@ -27,6 +27,16 @@
           <div class="error">{{ form.inventory.errors }}</div>
         </div>
         <div class="form-group mb-3">
+          <label for="id_{{form.kit_unit_cost.name}}">
+            {{ form.kit_unit_cost.label|title }}  ($)
+            {% if form.kit_unit_cost.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.kit_unit_cost}}</div>
+          <div class="error">{{ form.kit_unit_cost.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
           <label for="id_{{form.notes.name}}">
             {{ form.notes.label|title }}
             {% if form.notes.field.required %}

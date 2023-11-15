@@ -15,6 +15,7 @@
           <th> Name </th>
           <th> Kit Name </th>
           <th> Kit Inventory </th>
+          <th> Kit Unit Cost ($) </th>
           <th> Inventory Notes </th>
           <th> Status </th>
           <th> Tags </th>
@@ -34,6 +35,7 @@
             <td> {{activity.name}} </td>
             <td> {{activity.kit_name}} </td>
             <td> {{activity.inventory|default_if_none:""|safe}} </td>
+            <td> {{activity.kit_unit_cost|default_if_none:""}} </td>
              <td> {{activity.notes|default_if_none:""|safe}} </td>
             <td> {{activity.get_status_display}} </td>
             <td> {% for tag in activity.tags.all %}
