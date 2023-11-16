@@ -121,6 +121,11 @@
           </div>
           {% endif %}
         </div>
+        <div class="form-group md-3">
+          <label for="id_{{userProfileForm.dietary_preference.name}}" class="form-label"> {{userProfileForm.dietary_preference.label|title}}</label>
+          <div>{{userProfileForm.dietary_preference}}</div>
+          <div class="error">{{ userProfileForm.dietary_preference.errors }}</div>
+        </div>
 
         {% if userProfileForm.validation_code %}
         <div class="form-group mb-3">
@@ -132,7 +137,6 @@
           <div class="error">{{ userProfileForm.validation_code.errors }}</div>
         </div>
         {% endif %}
-
 
         <div class="form-group mb-3">
           {{userForm.is_active}}

@@ -50,6 +50,10 @@
       </div>
     {% endif %}
     <div class="mb-1">
+      <label>Dietary Preference:</label>
+      <div>{{userProfile.get_dietary_preference_display}}</div>
+    </div>
+    <div class="mb-1">
       <label>Profile Last Updated:</label>
       <div>{{userProfile.modified_date|date:"F j, Y g:i A" }}</div>
     </div>
