@@ -144,7 +144,7 @@
                {% if user.userProfile.user_role in 'AS' %}
                 <label>The restrictions below apply only to non-admins.</label>
                {% endif %}
-               <ul>
+               <!--ul>
                   {% if reservation_settings.reservation_delivery_days %}
                     <li>Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.</li>
                   {% endif %}
@@ -153,7 +153,7 @@
                   {% endif %}
                   <li>Reservations dates need to be between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.</li>
                   <li>Reservations need to be for a minimum of {{reservation_settings.reservation_min_days}} days and can be for a maximum of  {{reservation_settings.reservation_max_days}} days at a time.</li>
-                  <!--{% if reservation_settings.reservation_blackout_dates %}
+                  <{% if reservation_settings.reservation_blackout_dates %}
                     <li>Delivery and Pickup are not available on the following dates:
                       <ul>
                         {% for blackout_date in reservation_settings.reservation_blackout_dates %}
@@ -161,10 +161,17 @@
                         {% endfor %}
                       </ul>
                     </li>
-                  {% endif %}-->
+                  {% endif %}>
                   {% if reservation_settings.blackout_message %}
                     <li>{{reservation_settings.blackout_message.message}}</li>
                   {% endif %}
+               </ul-->
+               <ul>
+                {% if reservation_settings.reservation_rule_messages %}
+                  {% for rule_message in reservation_settings.reservation_rule_messages %}
+                    <li>{{rule_message.message}}</li>
+                  {% endfor %}
+                {% endif %}
                </ul>
             </div>
             <div class="form-group mb-4">

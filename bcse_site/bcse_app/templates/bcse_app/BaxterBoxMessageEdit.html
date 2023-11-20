@@ -3,20 +3,20 @@
   <div class="modal-content">
     <div class="modal-header">
       {% if form.instance.id %}
-        <h3 class="left"> Edit Blackout Message </h3>
+        <h3 class="left"> Edit Baxter Box Message </h3>
       {% else %}
-        <h3 class="left"> Create Blackout Message  </h3>
+        <h3 class="left"> Create Baxter Box Message  </h3>
       {% endif %}
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
-    <div id="blackoutMsg" class="msg">
+    <div id="baxterBoxMsg" class="msg">
       <ul class="errorlist">
         {% for message in messages %}
         <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
         {% endfor %}
       </ul>
     </div>
-    <form class="form" method="post" action="{% url 'bcse:blackoutMessageEdit' %}" id="formBlackoutMessage">
+    <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:baxterBoxMessageEdit' form.instance.id %}{% else %} {% url 'bcse:baxterBoxMessageNew' %}{% endif %}" id="formBaxterBoxMessage">
       {% csrf_token %}
       <div class="modal-body">
         <div class="form-group mb-3">
@@ -27,11 +27,18 @@
           <div class="error">{{ form.message.errors }}</div>
         </div>
         <div class="form-group mb-3">
+          <label for="id_{{form.message_type.name}}" class="form-label"> {{form.message_type.label}}</label>
+          <div class="input-group">
+            {{form.message_type}}
+          </div>
+          <div class="error">{{ form.message_type.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
           <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
           <div class="input-group">
             {{form.status}}
           </div>
-          <div class="error">{{ form.end_date.errors }}</div>
+          <div class="error">{{ form.status.errors }}</div>
         </div>
       </div>
       <div class="modal-footer">
@@ -46,7 +53,7 @@
 </div>
 <script type="text/javascript">
   $(function (){
-    $('#formBlackoutMessage').submit(function(e){
+    $('#formBaxterBoxMessage').submit(function(e){
       e.preventDefault();
 
       $.ajax({

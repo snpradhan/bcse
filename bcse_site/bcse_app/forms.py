@@ -702,17 +702,17 @@ class BaxterBoxBlackoutDateForm(ModelForm):
     return valid
 
 
-class BaxterBoxBlackoutMessageForm(ModelForm):
+class BaxterBoxMessageForm(ModelForm):
   class Meta:
-    model = models.BaxterBoxBlackoutMessage
-    fields = ['message', 'status']
+    model = models.BaxterBoxMessage
+    fields = ['message', 'status', 'message_type' ]
     widgets = {
       'message': forms.Textarea(attrs={'rows':3}),
     }
 
   def __init__(self, *args, **kwargs):
 
-    super(BaxterBoxBlackoutMessageForm, self).__init__(*args, **kwargs)
+    super(BaxterBoxMessageForm, self).__init__(*args, **kwargs)
 
 
     for field_name, field in list(self.fields.items()):

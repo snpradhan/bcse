@@ -3,15 +3,41 @@
 {% load base_extras %}
 
 {% block configuration %}
-  <h1> Baxter Box Blackout Settings </h1>
+  <h1> Baxter Box Settings </h1>
   <div class="button-row">
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#blackout_date" data-href="{% url 'bcse:blackoutDateNew' %}" href="#">Create Blackout Date</a>
     {% if not blackout_message %}
-      <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:blackoutMessageEdit' %}" href="#">Create Blackout Message</a>
+      <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxMessageNew' %}" href="#">Create Baxter Box Message</a>
     {% endif %}
   </div>
   <div class="search_results static">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped caption-top">
+      <caption>Reservation Date Rules  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="These date rules are configured in code and cannot be modified here.  Please ask the developer to update these rules. You can, however, configure the messages around these dates below under Baxter Box Messages."></i></caption>
+      <thead>
+        <tr>
+          <th> Baxter Box Delivery Days</th>
+          <th> Baxter Box Pickup Days</th>
+          <th> Reservation Min Advance Days</th>
+          <th> Reservation Max Advance Days</th>
+          <th> Reservation Min Days </th>
+          <th> Reservation Max Days </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{reservation_settings.reservation_delivery_days|get_days_of_week}}</td>
+          <td>{{reservation_settings.reservation_return_days|get_days_of_week}}</td>
+          <td>{{reservation_settings.reservation_min_advance_days}}</td>
+          <td>{{reservation_settings.reservation_max_advance_days}}</td>
+          <td>{{reservation_settings.reservation_min_days}} </td>
+          <td>{{reservation_settings.reservation_max_days}} </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="search_results static">
+    <table class="table table-bordered table-striped caption-top">
+      <caption>Blackout Dates</caption>
       <thead>
         <tr>
           <th> ID</th>
@@ -54,13 +80,15 @@
       </tbody>
     </table>
   </div>
-  {% if blackout_message %}
+  {% if baxterbox_messages %}
     <div class="search_results static">
-      <table class="table table-bordered table-striped">
+      <table class="table table-bordered table-striped caption-top">
+        <caption>Baxter Box Messages <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="You may craft blackout messages and date rule message here"></i></caption>
         <thead>
           <tr>
             <th> ID</th>
-            <th> Blackout Message</th>
+            <th> Message</th>
+            <th> Message Type</th>
             <th> Status </th>
             <th> Created Date</th>
             <th> Modified Date </th>
@@ -68,12 +96,14 @@
           </tr>
         </thead>
         <tbody>
+          {% for baxterbox_message in baxterbox_messages %}
           <tr>
-            <td> {{blackout_message.id}}</td>
-            <td> {{blackout_message.message|default_if_none:""}}</td>
-            <td> {{blackout_message.get_status_display}} </td>
-            <td> {{blackout_message.created_date|date:"F j, Y g:i A"}}</td>
-            <td> {{blackout_message.modified_date|date:"F j, Y g:i A"}} </td>
+            <td> {{baxterbox_message.id}}</td>
+            <td> {{baxterbox_message.message|default_if_none:""}}</td>
+            <td> {{baxterbox_message.get_message_type_display}} </td>
+            <td> {{baxterbox_message.get_status_display}} </td>
+            <td> {{baxterbox_message.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{baxterbox_message.modified_date|date:"F j, Y g:i A"}} </td>
             <td>
               <div class="btn-group dropup">
                 <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -81,12 +111,13 @@
                 </button>
                 <ul class="dropdown-menu">
                   <li>
-                    <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:blackoutMessageEdit' %}" href="#">Edit</a>
+                    <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxMessageEdit' baxterbox_message.id %}" href="#">Edit</a>
                   </li>
                 </ul>
               </div>
             </td>
           </tr>
+          {% endfor %}
 
         </tbody>
       </table>

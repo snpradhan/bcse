@@ -198,6 +198,10 @@ COLOR_TARGET_CHOICES = (
   ('B', 'Both'),
 )
 
+BAXTER_BOX_MESSAGE_TYPE_CHOICES = (
+  ('B', 'Blackout Message'),
+  ('D', 'Date Rule'),
+)
 
 TABLE_ROWS_PER_PAGE_CHOICES = (
   (25, '25'),
@@ -573,20 +577,15 @@ class BaxterBoxBlackoutDate(models.Model):
   class Meta:
       ordering = ['start_date', 'end_date']
 
-class BaxterBoxBlackoutMessage(models.Model):
+class BaxterBoxMessage(models.Model):
   message = models.CharField(null=False, blank=False, max_length=2048)
+  message_type = models.CharField(default='B',  max_length=1, choices=BAXTER_BOX_MESSAGE_TYPE_CHOICES)
   status = models.CharField(default='I',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
-  def save(self, *args, **kwargs):
-    self.pk = 1
-    super(BaxterBoxBlackoutMessage, self).save(*args, **kwargs)
-
-  @classmethod
-  def load(cls):
-    obj, created = cls.objects.get_or_create(pk=1)
-    return obj
+  class Meta:
+      ordering = ['message_type']
 
 
 class ReservationColor(models.Model):

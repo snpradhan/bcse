@@ -118,7 +118,7 @@ def baxterBoxInfo(request):
   try:
     current_date = datetime.datetime.now().date()
     #blackout_dates = models.BaxterBoxBlackoutDate.objects.all().filter(Q(start_date__gte=current_date) | Q(end_date__gte=current_date))
-    blackout_message = models.BaxterBoxBlackoutMessage.objects.all().filter(status='A').first()
+    blackout_messages = models.BaxterBoxMessage.objects.all().filter(status='A', message_type='B')
 
     activities = models.Activity.objects.all().filter(status='A').distinct()
     equipment_types = models.EquipmentType.objects.all().filter(status='A').distinct().order_by('order')
@@ -127,7 +127,7 @@ def baxterBoxInfo(request):
     else:
       searchForm = forms.BaxterBoxSearchForm(initials=None)
 
-    context = {'activities': activities, 'equipment_types': equipment_types, 'blackout_message': blackout_message, 'searchForm': searchForm}
+    context = {'activities': activities, 'equipment_types': equipment_types, 'blackout_messages': blackout_messages, 'searchForm': searchForm}
     return render(request, 'bcse_app/BaxterBoxInfo.html', context)
 
   except CustomException as ce:
@@ -174,18 +174,25 @@ def baxterBoxSearch(request):
 # LIST OF BLACKOUT DATES
 ##########################################################
 @login_required
-def blackoutDates(request):
+def baxterBoxSettings(request):
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view blackout dates')
 
     blackout_dates = models.BaxterBoxBlackoutDate.objects.all()
-    blackout_messages = models.BaxterBoxBlackoutMessage.objects.all()
-    blackout_message = None
-    if blackout_messages.count() == 1:
-      blackout_message = blackout_messages.first()
-    context = {'blackout_dates': blackout_dates, 'blackout_message': blackout_message}
-    return render(request, 'bcse_app/BaxterBoxBlackoutDates.html', context)
+    baxterbox_messages = models.BaxterBoxMessage.objects.all()
+    reservation_settings = {}
+    reservation_settings['reservation_delivery_days'] = settings.BAXTER_BOX_DELIVERY_DAYS
+    reservation_settings['reservation_return_days'] = settings.BAXTER_BOX_RETURN_DAYS
+    reservation_settings['reservation_min_days'] = settings.BAXTER_BOX_MIN_RESERVATION_DAYS
+    reservation_settings['reservation_max_days'] = settings.BAXTER_BOX_MAX_RESERVATION_DAYS
+    reservation_settings['reservation_min_advance_days'] = settings.BAXTER_BOX_MIN_ADVANCE_RESERVATION_DAYS
+    reservation_settings['reservation_max_advance_days'] = settings.BAXTER_BOX_MAX_ADVANCE_RESERVATION_DAYS
+    reservation_settings['reservation_reminder_days'] = settings.BAXTER_BOX_RESERVATION_REMINDER_DAYS
+
+
+    context = {'blackout_dates': blackout_dates, 'baxterbox_messages': baxterbox_messages, 'reservation_settings': reservation_settings}
+    return render(request, 'bcse_app/BaxterBoxSettings.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
@@ -262,37 +269,43 @@ def blackoutDateDelete(request, id=''):
 # EDIT BLACKOUT MESSAGE
 ##########################################################
 @login_required
-def blackoutMessageEdit(request):
+def baxterBoxMessageEdit(request, id=''):
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to edit blackout message')
+      raise CustomException('You do not have the permission to edit baxter box message')
 
-    blackout_message = models.BaxterBoxBlackoutMessage.load()
+    if ''!= id:
+      baxterbox_message = models.BaxterBoxMessage.objects.get(id=id)
+    else:
+      baxterbox_message = models.BaxterBoxMessage()
 
     if request.method == 'GET':
-      form = forms.BaxterBoxBlackoutMessageForm(instance=blackout_message)
+      form = forms.BaxterBoxMessageForm(instance=baxterbox_message)
       context = {'form': form}
-      return render(request, 'bcse_app/BaxterBoxBlackoutMessageEdit.html', context)
+      return render(request, 'bcse_app/BaxterBoxMessageEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.BaxterBoxBlackoutMessageForm(data, instance=blackout_message)
+      form = forms.BaxterBoxMessageForm(data, instance=baxterbox_message)
       response_data = {}
       if form.is_valid():
-        savedBaxterBoxBlackoutMessage = form.save()
-        messages.success(request, "Blackout message saved")
+        savedBaxterBoxMessage = form.save()
+        messages.success(request, "Baxter Box message saved")
         response_data['success'] = True
       else:
         print(form.errors)
-        messages.error(request, "Blackout message could not be saved. Check the errors below.")
+        messages.error(request, "Baxter Box message could not be saved. Check the errors below.")
         context = {'form': form}
         response_data['success'] = False
-        response_data['html'] = render_to_string('bcse_app/BaxterBoxBlackoutMessageEdit.html', context, request)
+        response_data['html'] = render_to_string('bcse_app/BaxterBoxMessageEdit.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
 
+  except models.BaxterBoxMessage.DoesNotExist:
+    messages.success(request, "Baxter Box message not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -1020,9 +1033,9 @@ def reservationEdit(request, id=''):
       for blackout_date in blackout_dates:
         reservation_settings['reservation_blackout_timestamps'].append([time.mktime(blackout_date.start_date.timetuple()), time.mktime(blackout_date.end_date.timetuple())])
 
-    blackout_message = models.BaxterBoxBlackoutMessage.objects.all().filter(status='A').first()
-    if blackout_message:
-      reservation_settings['blackout_message'] = blackout_message
+    reservation_rule_messages = models.BaxterBoxMessage.objects.all().filter(status='A').order_by('-message_type')
+    if reservation_rule_messages:
+      reservation_settings['reservation_rule_messages'] = reservation_rule_messages
 
     if request.method == 'GET':
       if request.user.userProfile.user_role in ['T', 'P']:

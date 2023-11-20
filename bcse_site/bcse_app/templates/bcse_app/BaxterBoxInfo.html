@@ -18,8 +18,7 @@
           <label><a class="btn signin" href="?next={% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a></label>
         {% endif %}
 
-        {% if blackout_message %}
-
+        {% if blackout_messages %}
           <br><br>
           <div class="warning">
             <!--p>Delivery and Pickup are not available on the following dates:</p>
@@ -41,7 +40,9 @@
                 {% endwith %}
               {% endif %}
             {% endfor %}-->
-            {{blackout_message.message}}
+            {% for blackout_message in blackout_messages %}
+              {{blackout_message.message}}<br>
+            {% endfor %}
           </div>
         {% endif %}
       </div>
