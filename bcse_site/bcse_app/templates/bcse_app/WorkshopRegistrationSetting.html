@@ -79,6 +79,13 @@
               <div class="error">{{ form.close_time.errors }}</div>
             </div>
           </div>
+
+          <div class="form-group mb-3">
+            <label for="id_{{form.isbe_link.name}}" class="form-label"> {{form.isbe_link.label}}</label>
+            <div>{{form.isbe_link}}</div>
+            <div class="error">{{ form.isbe_link.errors }}</div>
+          </div>
+
           <div class="form-group mb-3">
             <label for="id_{{form.confirmation_message.name}}" class="form-label"> {{form.confirmation_message.label|title}}</label>
             <div>{{form.confirmation_message}}</div>
@@ -104,11 +111,13 @@
           $('#id_enable_waitlist').prop('checked', true).closest('.form-group').show();
           $('#id_enable_waitlist').trigger('change');
           $('#id_application').val("").closest('.form-group').hide();
+          $('#id_isbe_link').closest('.form-group').show();
         }
         else{
           $('#id_capacity').val("").closest('.form-group').hide();
           $('#id_enable_waitlist').prop('checked', false).closest('.form-group').hide();
           $('#id_waitlist_capacity').val("").closest('.form-group').hide();
+          $('#id_isbe_link').val("").closest('.form-group').hide();
           if($(this).val() == 'A') {
             $('#id_application').closest('.form-group').show();
           }

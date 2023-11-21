@@ -407,6 +407,7 @@ class WorkshopRegistrationSetting(models.Model):
   close_date = models.DateField(null=True, blank=True, help_text="The date registration is closed. Leave blank if registration is always open")
   close_time = models.TimeField(null=True, blank=True)
   registrants = models.ManyToManyField(UserProfile, through='Registration', null=True, blank=True)
+  isbe_link = models.URLField(null=True, blank=True)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

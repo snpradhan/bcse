@@ -810,6 +810,9 @@ class WorkshopRegistrationSettingForm(ModelForm):
                 field.queryset = models.Survey.objects.all().filter(id=self.instance.application.id) | models.Survey.objects.all().filter(survey_type='W', status='A', registration_setting__isnull=True)
             else:
               field.queryset = models.Survey.objects.all().filter(survey_type='W', status='A', registration_setting__isnull=True)
+          elif field_name == 'isbe_link':
+            field.label = 'ISBE Link'
+
       else:
         field.widget.attrs['class'] = 'form-check-input'
       field.widget.attrs['aria-describedby'] = field.label
@@ -835,6 +838,25 @@ class WorkshopRegistrationForm(ModelForm):
     #if not self.instance.id:
     #  registered_users = models.Registration.objects.all().filter(workshop_registration_setting=self.instance.workshop_registration_setting).values_list('user', flat=True)
     #  self.fields['user'].queryset = models.UserProfile.objects.all().exclude(id__in=registered_users)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
+# Workshop Registration Questionnaire Form
+####################################
+class WorkshopRegistrationQuestionnaireForm(ModelForm):
+
+  class Meta:
+    model = models.UserProfile
+    fields = ['dietary_preference']
+
+  def __init__(self, *args, **kwargs):
+
+    super(WorkshopRegistrationQuestionnaireForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
