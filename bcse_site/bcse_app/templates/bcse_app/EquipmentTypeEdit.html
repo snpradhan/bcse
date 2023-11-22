@@ -62,7 +62,7 @@
       </div>
       <div class="form-group mb-3 right">
         {% if form.instance.id %}
-          <button class="btn btn-danger delete action" data-href="{% url 'bcse:equipmentTypeDelete' form.instance.id %}" data-title="the equipment type <strong>{{form.instance.name}}</strong>">
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:equipmentTypeDelete' form.instance.id %}" data-title="the equipment type <strong>{{form.instance.name}}</strong>">
             Delete
           </button>
         {% endif %}

@@ -70,10 +70,10 @@
       
       <div class="form-group mb-3 right">
         {% if form.instance.id %}
-          <button class="btn btn-danger delete action" data-href="{% url 'bcse:standalonePageDelete' form.instance.id %}" data-title="the Standalone Page <strong>{{form.instance.title}}</strong>">
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:standalonePageDelete' form.instance.id %}" data-title="the Standalone Page <strong>{{form.instance.title}}</strong>">
             Delete
           </button>
-          <button class="btn action preview" data-href="{% url 'bcse:standalonePageIdView' form.instance.id %}">
+          <button type="button" class="btn action preview" data-href="{% url 'bcse:standalonePageIdView' form.instance.id %}">
             Preview
           </button>
         {% endif %}

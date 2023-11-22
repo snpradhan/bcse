@@ -38,7 +38,7 @@
       
       <div class="form-group mb-3 right">
         {% if form.instance.id %}
-          <button class="btn btn-danger delete action" data-href="{% url 'bcse:teacherLeaderDelete' form.instance.id %}" data-title="the teacher leader <strong>{{form.instance.first_name}} {{form.instance.last_name}}</strong>">
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:teacherLeaderDelete' form.instance.id %}" data-title="the teacher leader <strong>{{form.instance.first_name}} {{form.instance.last_name}}</strong>">
             Delete
           </button>
         {% endif %}

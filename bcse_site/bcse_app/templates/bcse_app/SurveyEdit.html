@@ -37,7 +37,7 @@
       
       <div class="form-group mb-3 right">
         {% if form.instance.id %}
-          <button class="btn btn-danger delete action" data-href="{% url 'bcse:surveyDelete' form.instance.id %}" data-title="the survey <strong>{{form.instance.name}}</strong> {% if form.instance.survey_instance %}This survey has {{form.instance.survey_instance.count }} user submission.{% endif %}">
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:surveyDelete' form.instance.id %}" data-title="the survey <strong>{{form.instance.name}}</strong> {% if form.instance.survey_instance %}This survey has {{form.instance.survey_instance.count }} user submission.{% endif %}">
             Delete
           </button>
         {% endif %}

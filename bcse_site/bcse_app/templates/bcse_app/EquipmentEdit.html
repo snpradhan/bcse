@@ -32,7 +32,7 @@
       </div>
       <div class="form-group mb-3 right">
         {% if form.instance.id %}
-          <button class="btn btn-danger delete action" data-href="{% url 'bcse:equipmentDelete' form.instance.id %}" data-title="the equipment <strong>{{form.instance.name}}</strong>">
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:equipmentDelete' form.instance.id %}" data-title="the equipment <strong>{{form.instance.name}}</strong>">
             Delete
           </button>
         {% endif %}

@@ -94,7 +94,7 @@
       
       <div class="form-group mb-3 right">
         {% if form.instance.id %}
-          <button class="btn btn-danger delete action" data-href="{% url 'bcse:registrationEmailMessageDelete' form.instance.id %}"
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:registrationEmailMessageDelete' form.instance.id %}"
                   data-title="registration email message for status <strong>{{form.instance.get_registration_status_display}}</strong>">
             Delete
           </button>
