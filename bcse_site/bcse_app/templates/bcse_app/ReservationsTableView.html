@@ -356,7 +356,7 @@
                   {% elif reservation.status == 'I' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" href="#">
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
                         Send Feedback Email
                       </a>
                     </li>
@@ -365,7 +365,7 @@
                   {% if reservation.status not in 'UD' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" href="#">
+                      <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" data-title="confirmation" href="#">
                         {% if reservation.email_sent %}
                           Resend
                         {% else %}

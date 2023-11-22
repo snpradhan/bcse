@@ -259,25 +259,46 @@ function bindUseAjax() {
   $('.useAjax').on('click', function(e){
     e.preventDefault()
     var url = $(this).data('href');
-    $.ajax({
-      type: 'GET',
-      url: url,
-      success: function(data){
-        if (data['success'] = true) {
-          if (data['message']) {
-            displayInfoDialog('Reservation Email', data['message'], true);
-          }
-          else {
-            location.reload();
-          }
+    var title = $(this).data('title');
+
+    bootbox.confirm({
+      title: 'Confirm',
+      message: "<p>Do you want to send reservation "+title+" email?</p>",
+      buttons: {
+        confirm: {
+            label: 'Confirm',
+            className: 'btn btn-small'
+        },
+        cancel: {
+            label: 'Cancel',
+            className: 'btn btn-small btn-danger'
         }
-        else {
-          displayErrorDialog();
-        }
-        return false;
       },
-      error: function(xhr, ajaxOptions, thrownError){
-        displayErrorDialog();
+      closeButton: false,
+      callback: function(result){
+        if (result == true) {
+          $.ajax({
+            type: 'GET',
+            url: url,
+            success: function(data){
+              if (data['success'] = true) {
+                if (data['message']) {
+                  displayInfoDialog('Reservation Email', data['message'], true);
+                }
+                else {
+                  location.reload();
+                }
+              }
+              else {
+                displayErrorDialog();
+              }
+              return false;
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+              displayErrorDialog();
+            },
+          });
+        }
       },
     });
   });
