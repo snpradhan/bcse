@@ -1,0 +1,11 @@
+{% if registration and registration.form %}
+  {% if registration.current_status == None or registration.current_status == 'N' %}
+    {% if user.userProfile.user_role in 'TP' %}
+      {% if workshop.registration_setting.registration_type == 'R' %}
+       <div class="form-group mb-3 center workshop_registration_questionnaire">
+         <a class="btn modal-open registration_questionnaire_link" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationQuestionnaire' workshop.id %}" href="#">Register</a>
+        </div>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endif %}

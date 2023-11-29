@@ -169,6 +169,7 @@ function bindRegistrationSubmit(){
         if (data['success'] = true) {
           if (data['html']) {
             $(workshop_registration_container).html(data['html']);
+
             if (data['admin_message']) {
               bootbox.alert({
                 title: 'Registration Confirmation',
@@ -179,6 +180,11 @@ function bindRegistrationSubmit(){
             bindRegistrationSubmit();
             bindDeleteAction();
             bindCancelAction();
+            bindWarningAction();
+            bindModalOpen();
+            bindUseAjax();
+
+
           }
           else {
             displayErrorDialog();

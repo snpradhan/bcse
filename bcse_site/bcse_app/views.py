@@ -2805,6 +2805,54 @@ def workshopRegistrationCancel(request, workshop_id='', id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ################################################
+# WORKSHOP REGISTRATION QUESTIONNAIRE
+################################################
+def workshopRegistrationQuestionnaire(request, workshop_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['T', 'P']:
+      raise CustomException('You do not have the permission to submit registration questionnaire')
+
+    if '' != workshop_id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      if not workshop.enable_registration:
+        raise CustomException('Workshop registration is not enabled')
+      elif not workshop.registration_setting or workshop.registration_setting.registration_type != 'R':
+        raise CustomException('Workshop registration questionnaire is not available for this workshop')
+    else:
+      raise models.Workshop.DoesNotExist
+
+    if request.method == 'GET':
+      form = forms.WorkshopRegistrationQuestionnaireForm(instance=request.user.userProfile)
+      context = {'form': form, 'workshop': workshop, 'photo_release_url': settings.PHOTO_RELEASE_URL}
+      return render(request, 'bcse_app/WorkshopRegistrationQuestionnaireModal.html', context)
+
+    elif request.method == 'POST':
+      response_data = {}
+      data = request.POST.copy()
+      form = forms.WorkshopRegistrationQuestionnaireForm(data, instance=request.user.userProfile)
+      if form.is_valid():
+        savedQuestionnaire = form.save()
+        messages.success(request, "Registration questionnaire saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, 'Registration questionnaire could not be saved')
+        context = {'form': form, 'workshop': workshop, 'photo_release_url': settings.PHOTO_RELEASE_URL}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/WorkshopRegistrationQuestionnaireModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################
 # GET WORKSHOP REGISTRATION MESSAGE TO DISPLAY
 ################################################
 def workshopRegistrationMessage(workshop_registration):

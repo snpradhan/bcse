@@ -1,0 +1,85 @@
+
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Registration Questionnaire</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="registrationMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form method="POST" action="{% url 'bcse:workshopRegistrationQuestionnaire' workshop.id %}" id="formWorkshopRegistrationQuestionnaire">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.dietary_preference.name}}" class="form-label">
+            {{form.dietary_preference.label}}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.dietary_preference.help_text}}"></i>
+          </label>
+          <div>{{form.dietary_preference}}</div>
+        </div>
+        {% if workshop.registration_setting.isbe_link %}
+          <div class="form-group mb-3">
+            <label class="form-label"> ISBE Link </label>
+            <div><a href="{{workshop.registration_setting.isbe_link}}" target="_blank">{{workshop.registration_setting.isbe_link}}</a></div>
+          </div>
+        {% endif %}
+        {% if not user.userProfile.photo_release_complete %}
+          <div class="form-group mb-3">
+            <label class="form-label"> Photo Release URL </label>
+            <div><a href="{{photo_release_url}}" target="_blank">{{photo_release_url}}</a></div>
+          </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+    $('#formWorkshopRegistrationQuestionnaire').submit(function(e){
+      e.preventDefault();
+
+      var registration_button = '#workshop_'+'{{workshop.id}}'+'_registration_submit';
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        success: function(data, status) {
+          console.log(data);
+          if(data['success'] == true){
+            $('#general').modal('hide');
+            $('.registration_questionnaire_link').hide();
+            $(registration_button).trigger('click');
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+
+

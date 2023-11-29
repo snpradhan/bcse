@@ -44,7 +44,7 @@
             <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
           {% else %}
             {% if workshop.registration_setting.registration_type == 'R' %}
-              <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+              <button hidden class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
                 Register
               </button>
             {% else %}
@@ -61,6 +61,7 @@
           {% endif %}
         </div>
       </form>
+
     {% endif %}
   {% endif %}
 {% endif %}
