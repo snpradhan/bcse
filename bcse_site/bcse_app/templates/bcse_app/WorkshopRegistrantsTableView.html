@@ -64,7 +64,7 @@
           {% if user.userProfile.user_role in 'AS' %}
             <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>
             <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>
-            <td> {{registrant.user.get_dietary_preference_display|default_if_none:""}}</td>
+            <td> {{registrant.user.dietary_preference|default_if_none:""}}</td>
           {% endif %}
           <td> {{registrant.created_date|date:"F j, Y g:i a" }}</td>
           <td> {{registrant.get_status_display}} </td>

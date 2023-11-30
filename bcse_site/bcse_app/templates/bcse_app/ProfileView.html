@@ -51,7 +51,7 @@
     {% endif %}
     <div class="mb-1">
       <label>Dietary Preference:</label>
-      <div>{{userProfile.get_dietary_preference_display}}</div>
+      <div>{{userProfile.dietary_preference|default_if_none:""}}</div>
     </div>
     <div class="mb-1">
       <label>Profile Last Updated:</label>

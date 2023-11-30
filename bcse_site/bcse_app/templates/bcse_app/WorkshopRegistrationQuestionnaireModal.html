@@ -35,6 +35,9 @@
             <div><a href="{{photo_release_url}}" target="_blank">{{photo_release_url}}</a></div>
           </div>
         {% endif %}
+        <div class="form-group" id="spinner">
+          <img src="/static/img/page-loader.gif" class="icon"/>
+        </div>
       </div>
       <div class="modal-footer">
         <div class="form-group buttons">
@@ -62,6 +65,12 @@
         cache:false,
         contentType: false,
         processData: false,
+        beforeSend: function(){
+          $('#formWorkshopRegistrationQuestionnaire #spinner').show();
+        },
+        complete: function(){
+          $('#formWorkshopRegistrationQuestionnaire #spinner').hide();
+        },
         success: function(data, status) {
           console.log(data);
           if(data['success'] == true){

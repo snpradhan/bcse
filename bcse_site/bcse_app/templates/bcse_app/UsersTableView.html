@@ -36,6 +36,9 @@
         {% if 'PC' in columns %}
           <th> Photo Release <br> Complete? </th>
         {% endif %}
+        {% if 'DP' in columns %}
+          <th> Dietary Preference </th>
+        {% endif %}
         {% if 'IH' in columns %}
           <th> Instagram Handle</th>
         {% endif %}
@@ -86,6 +89,9 @@
           {% endif %}
           {% if 'PC' in columns %}
             <td> {{user_profile.photo_release_complete|yesno:"Yes,No"}} </td>
+          {% endif %}
+          {% if 'DP' in columns %}
+            <td> {{user_profile.dietary_preference|default_if_none:""}} </td>
           {% endif %}
           {% if 'IH' in columns %}
             <td> {{user_profile.instagram_handle|default_if_none:""}} </td>

@@ -169,6 +169,7 @@ USER_TABLE_COLUMN_CHOICES = (
   ('TH', 'Twitter Handle'),
   ('SC', 'Subscribed'),
   ('PC', 'Photo Release Complete'),
+  ('DP', 'Dietary Preference'),
   ('ST', 'Status'),
 )
 
@@ -208,13 +209,6 @@ TABLE_ROWS_PER_PAGE_CHOICES = (
   (50, '50'),
   (75, '75'),
   (100, '100')
-)
-
-DIETARY_PREFERENCE_CHOICES = (
-  ('V', 'Veg'),
-  ('N', 'Non_veg'),
-  ('D', 'Dairy-Free'),
-  ('G', 'Gluten-Free'),
 )
 
 YES_NO_CHOICES = (
@@ -294,7 +288,7 @@ class UserProfile(models.Model):
   instagram_handle = models.CharField(null=True, blank=True, max_length=20)
   subscribe =  models.BooleanField(default=False)
   photo_release_complete = models.BooleanField(default=False)
-  dietary_preference = models.CharField(null=True, blank=True, max_length=1, choices=DIETARY_PREFERENCE_CHOICES, help_text="Your dietary preference will be saved in your profile")
+  dietary_preference = models.CharField(null=True, blank=True, max_length=256, help_text="Your dietary preference will be saved in your profile")
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
