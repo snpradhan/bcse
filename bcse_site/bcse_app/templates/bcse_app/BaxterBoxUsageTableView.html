@@ -57,11 +57,11 @@
     {% for id, equipment in equipment_usage.items %}
       <tr>
         <td>{{equipment.name}}</td>
-        <td>{{equipment.unit_cost|default_if_none:""}}</td>
+        <td>{{equipment.unit_cost|floatformat:2|default_if_none:""}}</td>
         <td>{{equipment.reservations|length}}</td>
         <td>
             {% if equipment.reservations|length > 0 and equipment.unit_cost > 0 %}
-              {{equipment.reservations|length|multiply:equipment.unit_cost}}
+              {{equipment.reservations|length|multiply:equipment.unit_cost|floatformat:2}}
             {% endif %}
         </td>
         <td>{{equipment.teachers|length}}</td>
@@ -100,11 +100,11 @@
     {% for id, kit in kit_usage.items %}
       <tr>
         <td>{{kit.name}}</td>
-        <td>{{kit.unit_cost|default_if_none:""}}</td>
+        <td>{{kit.unit_cost|floatformat:2|default_if_none:""}}</td>
         <td>{{kit.count}}</td>
         <td>
           {% if kit.count > 0 and kit.unit_cost > 0 %}
-            {{kit.count|multiply:kit.unit_cost}}
+            {{kit.count|multiply:kit.unit_cost|floatformat:2}}
           {% endif %}
         </td>
         <td>{{kit.teachers|length}}</td>
@@ -142,9 +142,9 @@
     </tr>
     <tr>
       <td>{{total_usage.reservations}}</td>
-      <td>{{total_usage.total_equipment_cost}}</td>
+      <td>{{total_usage.total_equipment_cost|floatformat:2}}</td>
       <td>{{total_usage.kits}}</td>
-      <td>{{total_usage.total_kit_cost}}</td>
+      <td>{{total_usage.total_kit_cost|floatformat:2}}</td>
       <td>{{total_usage.teachers|length}}</td>
       <td>{{total_usage.schools|length}}</td>
       <td>{{total_usage.classes}}</td>
