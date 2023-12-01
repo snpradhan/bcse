@@ -6,7 +6,7 @@
   {{block.super}}
   <div class="content">
    <div class="about_us container">
-      <div class="partners">
+    <div class="partners">
       <h1>Our Partnership</h1>
       {% for partner in partners %}
       <div class="row partner">
@@ -23,6 +23,29 @@
           </div>
         </div>
       </div>
+      {% endfor %}
+    </div>
+
+    <h2 class="center">Additional Collaborators</h2>
+    <div class="collaborators">
+      {% for collaborator in collaborators %}
+        <div class="collaborator">
+          {% if collaborator.url %}
+            <a href="{{collaborator.url}}" target="_blank">
+              {% if collaborator.image and collaborator.image.url %}
+                <img src="{{collaborator.image.url}}">
+              {% else %}
+                {{collaborator.name}}
+              {% endif %}
+            </a>
+          {% else %}
+            {% if collaborator.image and collaborator.image.url %}
+              <img src="{{collaborator.image.url}}">
+            {% else %}
+              {{collaborator.name}}
+            {% endif %}
+          {% endif %}
+        </div>
       {% endfor %}
     </div>
   </div>

@@ -1552,23 +1552,15 @@ body {
 
       div.collaborators {
         margin: 3em 0;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1em;
         div.collaborator {
-          margin-top: 1em;
-          margin-bottom: 2.5em;
-          display: flex;
-          align-items: center;
+          flex: 0 0 24%;
           text-align: center;
           img {
             max-height: 15em;
-          }
-        }
-        @media (max-width: 991px) {
-          div.collaborator {
-            display: block;
-            img {
-              max-width: 30em;
-              margin-bottom: 3em;
-            }
           }
         }
       }

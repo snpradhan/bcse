@@ -89,13 +89,9 @@ def aboutCenters(request):
 
 def aboutPartners(request):
   partners = models.Partner.objects.all().filter(status='A').order_by('order')
-  context = {'partners': partners}
-  return render(request, 'bcse_app/AboutPartners.html', context)
-
-def aboutCollaborators(request):
   collaborators = models.Collaborator.objects.all().filter(status='A').order_by('order')
-  context = {'collaborators': collaborators}
-  return render(request, 'bcse_app/AboutCollaborators.html', context)
+  context = {'partners': partners, 'collaborators': collaborators}
+  return render(request, 'bcse_app/AboutPartners.html', context)
 
 def aboutTeam(request):
   members = models.Team.objects.all().filter(status='A').order_by('order')
