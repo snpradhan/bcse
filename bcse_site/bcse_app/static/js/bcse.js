@@ -143,6 +143,8 @@ $(function (){
     paginationPadding();
   });
 
+  $('.about_us .partner .description p').addClass('callout wysiwyg_content');
+
 
   bindPagination();
   bindRegistrationSubmit();

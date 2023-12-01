@@ -13,7 +13,7 @@
         <tr>
           <th> ID</th>
           <th> Name </th>
-          <th> Blurb </th>
+          <th> Description </th>
           <th> URL </th>
           <th> Order </th>
           <th> Status </th>
@@ -27,7 +27,7 @@
           <tr>
             <td> {{partner.id}}</td>
             <td> {{partner.name}} </td>
-            <td> {{partner.blurb}} </td>
+            <td> {{partner.description|safe|truncatechars:100}} </td>
             <td> {{partner.url}} </td>
             <td> {{partner.order}} </td>
             <td> {{partner.get_status_display}} </td>

@@ -17,8 +17,7 @@
         <div class="col-md-9">
           <div class="description">
             <div>
-              <h2>{{partner.blurb}}</h2>
-              <p class="callout wysiwyg_content">{{partner.description}}</p>
+              {{partner.description|safe}}
             </div>
           </div>
         </div>

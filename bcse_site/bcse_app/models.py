@@ -625,7 +625,6 @@ class Team(models.Model):
 
 class Partner(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Partner')
-  blurb = models.CharField(null=False, max_length=1024, help_text='Short callout blurb')
   description = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of this partner')
   url = models.URLField(null=False, blank=False)

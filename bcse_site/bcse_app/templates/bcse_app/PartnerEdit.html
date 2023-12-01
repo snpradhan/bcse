@@ -17,6 +17,7 @@
     </div>
     <form class="form" method="post" enctype="multipart/form-data" action="{% if form.instance.id %}{% url 'bcse:partnerEdit' form.instance.id %} {% else %} {% url 'bcse:partnerNew' %}{% endif %}" id="formPartner">
       {% csrf_token %}
+      {{form.media}}
       {{form.management_form}}
       <div class="modal-body">
         <div class="form-group mb-3">
@@ -28,16 +29,6 @@
           </label>
           <div>{{form.name}}</div>
           <div class="error">{{ form.name.errors }}</div>
-        </div>
-        <div class="form-group mb-3">
-          <label for="id_{{form.blurb.name}}">
-            {{ form.blurb.label }}
-            {% if form.blurb.field.required %}
-            (<span class="required">*</span>)
-            {% endif %}
-          </label>
-          <div>{{form.blurb}}</div>
-          <div class="error">{{ form.blurb.errors }}</div>
         </div>
         <div class="form-group mb-3">
           <label for="id_{{form.description.name}}">
@@ -111,6 +102,8 @@
     $('#formPartner').submit(function(e){
       e.preventDefault();
       var formData = new FormData(this);
+      var description = CKEDITOR.instances.id_description.getData();
+      formData.append('description', description);
       $.ajax({
         type: $(this).attr('method'),
         url: this.action,
