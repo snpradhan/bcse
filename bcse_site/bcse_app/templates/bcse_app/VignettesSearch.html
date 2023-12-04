@@ -1,0 +1,49 @@
+<div class="filter_container">
+  <form method="get" action="{% url 'bcse:vignettesSearch' flag %}" id="vignette_filter_form" class="filter_form">
+    {% csrf_token %}
+    {{searchForm.media}}
+    <div class="form-group right" id="filter_toggle">
+      <label style="display:none;">Show Filters <span class="fa fa-plus-circle"></span></label>
+      <label>Hide Filters <span class="fa fa-minus-circle"></span></label>
+    </div>
+
+    <div id="filter_content">
+      <div id="filter_fields">
+        <div class="form-group">
+          <label for="id_{{searchForm.title.name}}" class="form-label"> {{searchForm.title.label|title}}</label>
+          <div>{{searchForm.title}}</div>
+          <div class="error">{{ searchForm.title.errors }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_{{searchForm.blurb.name}}" class="form-label"> {{searchForm.blurb.label|title}}</label>
+          <div>{{searchForm.blurb}}</div>
+          <div class="error">{{ searchForm.blurb.errors }}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_{{searchForm.featured.name}}" class="form-label">{{searchForm.featured.label|title}} </label>
+          <div>{{searchForm.featured}}</div>
+          <div class="error">{{ searchForm.featured.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.status.name}}" class="form-label">
+            {{searchForm.status.label|title}}
+          </label>
+          <div>{{searchForm.status}}</div>
+          <div class="error">{{ searchForm.status.errors }}</div>
+        </div>
+        <div class="form-group">
+          <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+          <div>{{searchForm.rows_per_page}}</div>
+          <div class="error">{{ searchForm.rows_per_page.errors }}</div>
+        </div>
+      </div>
+      <input type="hidden" name="page" id="page" value="{{page}}"/>
+      <div class="form-group right" id="filter_buttons">
+        <a class="btn" type="button" href="{% url 'bcse:clearSearch' 'vignettes_search' %}">Clear Filter</a>
+      </div>
+    </div>
+
+  </form>
+</div>

@@ -190,7 +190,9 @@
                 window.parent.location.href = data['redirect_url'];
               }
               else {
-                window.parent.location.href = '/';
+                var redirect_url = window.parent.location.href.split('?')[0];
+                window.parent.location.href = redirect_url;
+                //window.parent.location.href = '/';
               }
             }
             else{
@@ -218,7 +220,7 @@
                 className: 'btn btn-small'
             }
           },
-          closeButton: false,
+          closeButton: true,
           callback: function(result){
             if (result == true) {
               $(modal).modal('hide');

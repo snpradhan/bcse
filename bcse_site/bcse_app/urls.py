@@ -159,6 +159,16 @@ urlpatterns = [
     path('adminConfiguration/survey/<int:survey_id>/surveyComponent/<int:id>/edit', views.surveyComponentEdit, name='surveyComponentEdit'),
     path('adminConfiguration/survey/<int:survey_id>/surveyComponent/<int:id>/delete', views.surveyComponentDelete, name='surveyComponentDelete'),
     path('adminConfiguration/survey/<int:survey_id>/surveyComponent/new', views.surveyComponentEdit, name='surveyComponentNew'),
+
+    path('adminConfiguration/vignette/<int:id>/edit', views.vignetteEdit, name='vignetteEdit'),
+    path('adminConfiguration/vignette/<int:id>/delete', views.vignetteDelete, name='vignetteDelete'),
+    path('adminConfiguration/vignette/<int:id>/copy', views.vignetteCopy, name='vignetteCopy'),
+    path('adminConfiguration/vignette/new', views.vignetteEdit, name='vignetteNew'),
+    path('vignette/<int:id>/view/', views.vignetteView, name='vignetteView'),
+    path('vignettes/search/<str:flag>', views.vignettesSearch, name='vignettesSearch'),
+    path('vignettes/<str:flag>', views.vignettes, name='vignettes'),
+    path('vignettes/', views.vignettes, name='vignettes'),
+
     path('survey/<int:survey_id>/submission/<uuid:submission_uuid>/page/<int:page_num>', views.surveySubmission, name='surveySubmission'),
     path('survey/<int:survey_id>/submission/new', views.surveySubmission, name='surveySubmissionNew'),
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
@@ -172,6 +182,7 @@ urlpatterns = [
     path('about/contact', views.contactUs, name='contactUs'),
     path('about/terms', views.termsOfUse, name='termsOfUse'),
     path('about/teacherLeaders', views.aboutTeacherLeaders, name='aboutTeacherLeaders'),
+    path('about/leadershipopportunity', views.teacherLeadershipOpportunity, name='teacherLeadershipOpportunity'),
     path('subscribe', views.subscribe, name='subscribe'),
 
 

@@ -113,6 +113,8 @@
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">For Teachers</a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:workshops' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
+                    <li class="{% navactive request 'bcse:vignettes' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:vignettes' 'list' %}">Vignettes/Stories</a></li>
+                    <li class="{% navactive request 'bcse:teacherLeadershipOpportunity' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunity' %}">Teacher Leadership Opportunity</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></li>
                      <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}

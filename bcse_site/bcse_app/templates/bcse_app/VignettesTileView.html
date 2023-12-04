@@ -1,0 +1,25 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% if vignettes %}
+  <div class="tiles">
+    {% for vignette in vignettes %}
+      <div class="tile modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:vignetteView' vignette.id %}">
+        <div class="image">
+          {% if vignette.image and vignette.image.url %}
+            <img class="preview" src="{{vignette.image.url}}">
+          {% else %}
+            <img class="preview" src="{% staticfile 'img/supplies.png' %}">
+          {% endif %}
+        </div>
+        <div class="title">
+          <h5 class="center">{{vignette.title}}</h5>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+<div class="tiles">
+  <div class="warning center">No vignette matching your search criteria found</div>
+</div>
+{% endif %}

@@ -69,7 +69,7 @@ class NextParameterMiddleware(MiddlewareMixin):
       target = '#signin'
     elif redirect_url.find('signup') == 1:
       target = '#signup'
-    elif redirect_url.find('survey') == 1:
+    elif redirect_url.find('survey') == 1 or redirect_url.find('vignette') == 1:
       target = '#general'
 
     if request.user.is_authenticated and redirect_url.find('signin') == 1 and redirect_url.find('survey') > 1:

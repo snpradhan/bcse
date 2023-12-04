@@ -1,0 +1,28 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Vignettes </h1>
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:vignetteNew' %}" href="#">Create Vignette</a>
+    <div id="vignettes_view">
+      {% if flag == 'list' %}
+        <a class="btn" href="{% url 'bcse:vignettes' 'table' %}" role="button">Switch to Table View</a>
+      {% else %}
+        <a class="btn" href="{% url 'bcse:vignettes' 'list' %}" role="button">Switch to List View</a>
+      {% endif %}
+    </div>
+  </div>
+  {% include "bcse_app/VignettesSearch.html" %}
+  <div class="form-group" id="spinner">
+    <img src="/static/img/page-loader.gif" class="icon"/>
+  </div>
+  <div class="vignettes search_results">
+  </div>
+  <script type="text/javascript">
+    $(function (){
+      $('form#vignette_filter_form').submit();
+    });
+  </script>
+{% endblock %}

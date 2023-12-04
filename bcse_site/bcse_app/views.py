@@ -5966,6 +5966,273 @@ def surveySubmissionDelete(request, id='', submission_uuid=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# VIGNETTES
+####################################
+def vignettes(request, flag=''):
+  try:
+    if '' == flag:
+      flag = 'list'
+
+    if flag == 'table':
+      if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+        raise CustomException('You do not have the permission to view vignettes')
+
+    if request.session.get('vignettes_search', False):
+      searchForm = forms.VignettesSearchForm(user=request.user, initials=request.session['vignettes_search'], prefix="vignette_search")
+      page = request.session['vignettes_search']['page']
+    else:
+      searchForm = forms.VignettesSearchForm(user=request.user, initials=None, prefix="vignette_search")
+      page = 1
+
+    context = {'searchForm': searchForm, 'page': page, 'flag': flag}
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      return render(request, 'bcse_app/VignettesPublicView.html', context)
+    else:
+      return render(request, 'bcse_app/VignettesBaseView.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################################
+# FILTER VIGNETTE LIST BASED ON FILTER CRITERIA
+####################################################
+def vignettesSearch(request, flag=''):
+
+  try:
+    if flag == 'table':
+      if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+        raise CustomException('You do not have the permission to search vignettes')
+
+    if request.method == 'GET':
+
+      query_filter = Q()
+      title_filter = None
+      blurb_filter = None
+      featured_filter = None
+      status_filter = None
+
+      title = request.GET.get('vignette_search-title', '')
+      blurb = request.GET.get('vignette_search-blurb', '')
+      featured = request.GET.get('vignette_search-featured', '')
+      status = request.GET.get('vignette_search-status', '')
+      rows_per_page = request.GET.get('vignette_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+      #set session variable
+      request.session['vignette_search'] = {
+        'title': title,
+        'blurb': blurb,
+        'featured': featured,
+        'status': status,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if title:
+        title_filter = Q(title__icontains=title)
+        query_filter = title_filter
+
+      if blurb:
+        blurb_filter = Q(blurb__icontains=blurb)
+        query_filter = query_filter & blurb_filter
+
+      if featured:
+        if featured == 'Y':
+          featured_filter = Q(featured=True)
+        elif featured == 'N':
+          featured_filter = Q(featured=False)
+
+        query_filter = query_filter & featured_filter
+
+      if status:
+        status_filter = Q(status=status)
+        query_filter = query_filter & status_filter
+      elif request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+        status_filter = Q(status='A')
+        query_filter = query_filter & status_filter
+
+      vignettes = models.Vignette.objects.all().filter(query_filter)
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      order_by = 'title'
+
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+      vignettes = paginate(request, vignettes, sort_order, rows_per_page, page)
+
+      context = {'vignettes': vignettes}
+      print(vignettes)
+      response_data = {}
+      response_data['success'] = True
+      if flag == 'table':
+        response_data['html'] = render_to_string('bcse_app/VignettesTableView.html', context, request)
+      else:
+        response_data['html'] = render_to_string('bcse_app/VignettesTileView.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# EDIT VIGNETTE
+##########################################################
+@login_required
+def vignetteEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit vignette')
+
+    if '' != id:
+      vignette = models.Vignette.objects.get(id=id)
+    else:
+      vignette = models.Vignette()
+
+    if request.method == 'GET':
+      form = forms.VignetteForm(instance=vignette)
+      context = {'form': form}
+      return render(request, 'bcse_app/VignetteEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.VignetteForm(data, files=request.FILES, instance=vignette)
+      response_data = {}
+      if form.is_valid():
+        savedVignette = form.save()
+        messages.success(request, "Vignette saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/VignetteEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# DELETE VIGNETTE
+##########################################################
+@login_required
+def vignetteDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete vignette')
+    if '' != id:
+      vignette = models.Vignette.objects.get(id=id)
+      vignette.delete()
+      messages.success(request, "Vignette deleted")
+
+    return shortcuts.redirect('bcse:vignettes')
+
+  except models.Vignette.DoesNotExist:
+    messages.success(request, "Vignette not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+#########################################################
+# VIEW VIGNETTE
+##########################################################
+def vignetteView(request, id=''):
+
+  try:
+    if '' != id:
+      vignette = models.Vignette.objects.get(id=id)
+      context = {'vignette': vignette}
+      return render(request, 'bcse_app/VignetteViewModal.html', context)
+    else:
+      raise models.Vignette.DoesNotExist
+
+  except models.Vignette.DoesNotExist:
+    messages.success(request, "Vignette not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# CLONE VIGNETTE
+####################################
+def vignetteCopy(request, id=''):
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to copy this vignette')
+    if '' != id:
+      vignette = models.Vignette.objects.get(id=id)
+      title = vignette.title
+      vignette.pk = None
+      vignette.id = None
+      vignette.image = None
+      vignette.save()
+
+      original_vignette = models.Vignette.objects.get(id=id)
+      vignette.title = 'Copy of ' + title
+      vignette.created_date = datetime.datetime.now()
+      vignette.modified_date = datetime.datetime.now()
+
+      if original_vignette.image:
+        try:
+          source = original_vignette.image
+          filecontent = ContentFile(source.file.read())
+          filename = os.path.split(source.file.name)[-1]
+          filename_array = filename.split('.')
+          new_filename = filename_array[0] + '-' + str(vignette.id) + '.' + filename_array[1]
+          vignette.image.save(new_filename, filecontent)
+          vignette.save()
+          source.file.close()
+          original_vignette.image.save(filename, filecontent)
+          original_vignette.save()
+        except IOError as e:
+          vignette.save()
+      else:
+        vignette.save()
+
+      messages.success(request, "Vignette copied")
+      return shortcuts.redirect('bcse:vignetteEdit', id=vignette.id)
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+  except models.Vignette.DoesNotExist:
+    messages.success(request, "Vignette not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def teacherLeadershipOpportunity(request):
+
+  try:
+    vignettes = models.Vignette.objects.all().filter(status='A', featured=True)
+    context = {'vignettes': vignettes}
+    return render(request, 'bcse_app/TeacherLeadershipOpportunity.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ########################################################################
 # PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER
 ########################################################################

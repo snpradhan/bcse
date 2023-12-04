@@ -1118,6 +1118,31 @@ class SurveySubmissionForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
 
+
+####################################
+# Vignette Form
+####################################
+class VignetteForm(ModelForm):
+
+  class Meta:
+    model = models.Vignette
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.FileInput,
+      'attachment': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(VignetteForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'featured':
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+      field.widget.attrs['placeholder'] = field.help_text
+
 ####################################
 # Reservations Search Form
 ####################################
@@ -1407,3 +1432,30 @@ class WorkshopRegistrantsSearchForm(forms.Form):
       if initials:
         if field_name in initials:
           field.initial = initials[field_name]
+
+##################################################
+# Vignettes Search Form
+##################################################
+class VignettesSearchForm(forms.Form):
+  title = forms.CharField(required=False, max_length=256, label=u'Title')
+  blurb = forms.CharField(required=False, max_length=256, label=u'Blurb')
+  featured = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
+    super(VignettesSearchForm, self).__init__(*args, **kwargs)
+
+    if user.is_anonymous or user.userProfile.user_role in ['T', 'P']:
+      self.fields.pop('featured')
+      self.fields.pop('status')
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+

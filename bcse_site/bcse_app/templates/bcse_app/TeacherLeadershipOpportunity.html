@@ -1,0 +1,43 @@
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="container">
+      <h1>Teacher Leadership Opportunities with The Baxter Center</h1>
+      <p class="callout">The Baxter Center for Science Education works to provide a variety of leadership opportunities for local educators. From bringing teachers to Northwestern to conduct research and develop lessons through our Research Experience for Teachers (RET) program to providing tools for teachers to develop their own workshops, we want to partner with educators in finding joy as leaders within their schools, districts, and communities. </p>
+
+      <p class="callout">Here are some examples of what Teacher Leadership with the BCSE can look like:</p>
+      <ul class="callout">
+        <li>Apply to be a part of our Research Experience for Teachers program</li>
+        <li>Lead a session at the Baxter Symposium</li>
+        <li>Work with the Baxter Center to develop an evening or weekend workshop </li>
+        <li>Co-facilitate a workshop with one of our existing teacher leaders</li>
+        <li>Organize a subject-specific meet-up with support from the Baxter Center</li>
+        <li>Host a Baxter Center workshop in your space </li>
+        <li>Try out labs or develop supporting materials for the Baxter Box program, and share back with your department</li>
+      </ul>
+
+      <div class="vignettes search_results">
+        {% include "bcse_app/VignettesTileView.html" %}
+      </div>
+
+      <p class="callout">We especially welcome ideas that link to the Baxter Center’s mission and priorities. These are reflected in the picture that follows; you can also read more on the About Us page.</p>
+
+      <p class="callout"><strong>Want to get involved? Tell us more about your ideas!</strong></p>
+      <div class="center">
+        <a class="btn" href="?next=/signin/?next=/?next=/survey/3/submission/new">Fill out this Survey</a>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      $(function(){
+
+      });
+    </script>
+  </div>
+
+{% endblock %}

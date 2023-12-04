@@ -1,0 +1,142 @@
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3 class="left"> {{form.instance.title}} </h3>
+      {% else %}
+        <h3 class="left"> Create Vignette </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="vignetteMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" enctype="multipart/form-data" action="{% if form.instance.id %}{% url 'bcse:vignetteEdit' form.instance.id %} {% else %} {% url 'bcse:vignetteNew' %}{% endif %}" id="formVignette">
+      {% csrf_token %}
+      {{form.media}}
+      {{form.management_form}}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.title.name}}" class="form-label">
+            {{ form.title.label }}
+            {% if form.title.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.title}}</div>
+          <div class="error">{{ form.title.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.blurb.name}}" class="form-label">
+            {{ form.blurb.label }}
+            {% if form.blurb.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.blurb}}</div>
+          <div class="error">{{ form.blurb.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.image.name}}" class="form-label">
+            {{ form.image.label }}
+            {% if form.image.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          {% if form.instance.id and form.instance.image.url %}
+            <div class="image_preview">
+              <img src="{{form.instance.image.url}}" class="icon" alt="">
+            </div>
+          {% endif %}
+          <div>{{form.image}}</div>
+          <div class="error">{{ form.image.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.attachment.name}}" class="form-label">
+            {{ form.attachment.label }}
+            {% if form.attachment.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          {% if form.instance.id and form.instance.attachment.url %}
+            <div class="attachment_preview">
+              <a href="{{form.instance.attachment.url}}" target="_blank"><i class="fas fa-file-pdf"></i></a>
+            </div>
+          {% endif %}
+          <div>{{form.attachment}}</div>
+          <div class="error">{{ form.attachment.errors }}</div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.featured.name}}" class="form-label">
+            {{ form.featured.label }}
+            {% if form.featured.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.featured}}</div>
+          <div class="error">{{ form.featured.errors }}</div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.status.name}}" class="form-label">
+            {{ form.status.label }}
+            {% if form.status.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.status}}</div>
+          <div class="error">{{ form.status.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success vignette_save">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+
+    $('#formVignette').submit(function(e){
+      e.preventDefault();
+      var formData = new FormData(this);
+      var blurb = CKEDITOR.instances.id_blurb.getData();
+      formData.append('blurb', blurb);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#general').modal('toggle');
+            window.parent.location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+

@@ -1,0 +1,75 @@
+{% load bcse_extras %}
+
+{% if vignettes %}
+  {% include "bcse_app/Pagination.html" with model=vignettes location='top' %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Blurb</th>
+        <th>Image</th>
+        <th>Attachment</th>
+        <th>Featured?</th>
+        <th>Status</th>
+        <th>Created Date</th>
+        <th>Modified Date</th>
+        <th> Action </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for vignette in vignettes %}
+        <tr>
+          <td>{{vignette.id}}</td>
+          <td>{{vignette.title}}</td>
+          <td>{{vignette.blurb|safe}}</td>
+          <td>
+            {% if vignette.image and vignette.image.url %}
+              <img class="icon" src="{{vignette.image.url}}"/>
+            {% endif %}
+          </td>
+          <td>
+            {% if vignette.attachment and vignette.attachment.url %}
+              <a href="{{vignette.attachment.url}}" target="_blank"><i class="fas fa-file-pdf"></i></a>
+            {% endif %}
+          </td>
+          <td>{{vignette.featured|yesno}}</td>
+          <td>{{vignette.get_status_display}}</td>
+          <td>{{vignette.created_date|date:"F j, Y g:i A"}}</td>
+          <td>{{vignette.modified_date|date:"F j, Y g:i A"}}</td>
+
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:vignetteView' vignette.id %}" href="#">View</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:vignetteEdit' vignette.id %}" href="#">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                  <a class="dropdown-item copy action" href="{% url 'bcse:vignetteCopy' vignette.id %}">
+                    Clone
+                  </a>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:vignetteDelete' vignette.id %}"
+                  data-title="the vignette <strong>{{vignette.title}}</strong>">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=vignettes location='bottom' %}
+{% else %}
+  <div class="warning center">No vignettes matching your search criteria found</div>
+{% endif %}

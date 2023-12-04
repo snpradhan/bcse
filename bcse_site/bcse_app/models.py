@@ -26,7 +26,7 @@ import uuid
 import requests
 from requests.structures import CaseInsensitiveDict
 import urllib.parse
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
 
 # Create your models here.
 
@@ -247,6 +247,13 @@ def upload_file_to(instance, filename):
     file_path = 'homepage'
   elif isinstance(instance, Collaborator):
     file_path = 'collaborator'
+  elif isinstance(instance, SurveyResponse):
+    file_path = 'surveyResponse'
+  elif isinstance(instance, Vignette):
+    if(filename_ext.lower() == 'pdf'):
+      file_path = 'vignette/attachment'
+    else:
+      file_path = 'vignette/image'
 
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
@@ -699,7 +706,7 @@ class SurveyResponse(models.Model):
   submission = models.ForeignKey(SurveySubmission, related_name='survey_response', on_delete=models.CASCADE)
   survey_component = models.ForeignKey(SurveyComponent, related_name='survey_response', on_delete=models.CASCADE)
   response = models.TextField(null=True, blank=True)
-  responseFile = models.FileField(null=True, blank=True)
+  responseFile = models.FileField(upload_to=upload_file_to, null=True, blank=True)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -741,6 +748,22 @@ class StandalonePage(models.Model):
   def __str__(self):
       return '%s' % (self.title)
 
+
+class Vignette(models.Model):
+  title = models.CharField(null=False, max_length=256, help_text='Vignette title')
+  blurb = RichTextField(null=True, blank=True)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this vignette')
+  attachment = models.FileField(upload_to=upload_file_to, blank=True, null=True, validators=[FileExtensionValidator(allowed_extensions=["pdf"])])
+  featured =  models.BooleanField(default=False, help_text='If marked featured, will be displayed on the Teacher Leadership Opportunity page')
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['-id']
+
+  def __str__(self):
+      return '%s' % (self.title)
 
 # signal to check if registration status has changed
 # and then send an email to the registrant

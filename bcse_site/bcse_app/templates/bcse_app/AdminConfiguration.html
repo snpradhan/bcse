@@ -137,6 +137,10 @@
             <li class="nav-item {% if 'survey' in request.path or  'surveys' in request.path %} active {% endif %}">
               <a class="nav-link" href="{% url 'bcse:surveys' %}">Surveys</a>
             </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="nav-item {% if 'vignette' in request.path or  'vignettes' in request.path %} active {% endif %}">
+              <a class="nav-link" href="{% url 'bcse:vignettes' 'table' %}">Vignettes</a>
+            </li>
           </ul>
         </div>
       </div>
