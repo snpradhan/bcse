@@ -29,6 +29,19 @@
         <div>{{form.resource_url}}</div>
         <div class="error">{{ form.resource_url.errors }}</div>
       </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.email_confirmation.name}}" class="form-label">
+          {{form.email_confirmation.label|title}}
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.email_confirmation.help_text}}"></i>
+        </label>
+        <div>{{form.email_confirmation}}</div>
+        <div class="error">{{ form.email_confirmation.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.email_confirmation_message.name}}" class="form-label"> {{form.email_confirmation_message.label|title}}</label>
+        <div>{{form.email_confirmation_message}}</div>
+        <div class="error">{{ form.email_confirmation_message.errors }}</div>
+      </div>
        <div class="form-group mb-3">
         <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
         <div>{{form.status}}</div>
@@ -97,6 +110,27 @@
         </table>
       {% endif %}
     {% endif %}
-
   </div>
+
+  <script type="text/javascript">
+    $(function (){
+      $('#id_email_confirmation_message').closest('.form-group').hide();
+
+      $('#id_email_confirmation').on('change', function(){
+        if($(this).is(':checked')){
+          $('#id_email_confirmation_message').closest('.form-group').show();
+          $('#id_email_confirmation_message').prop('required', true);
+        }
+        else{
+          $('#id_email_confirmation_message').val("");
+          $('#id_email_confirmation_message').prop('required', false);
+          $('#id_email_confirmation_message').closest('.form-group').hide();
+        }
+      });
+
+      $('#id_email_confirmation').trigger('change');
+
+
+    });
+  </script>
 {% endblock %}

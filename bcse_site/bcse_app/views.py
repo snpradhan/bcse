@@ -5432,66 +5432,8 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
         response['Content-Disposition'] = 'attachment; filename="survey_%s_submission_%s.xls"'% (survey.id, submission_uuid)
       else:
         response['Content-Disposition'] = 'attachment; filename="survey_%s_submissions.xls"'%survey.id
-      wb = xlwt.Workbook(encoding='utf-8')
-      bold_font_style = xlwt.XFStyle()
-      bold_font_style.font.bold = True
-      font_style = xlwt.XFStyle()
-      font_style.alignment.wrap = 1
-      date_format = xlwt.XFStyle()
-      date_format.num_format_str = 'mm/dd/yyyy'
-      date_time_format = xlwt.XFStyle()
-      date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
 
-      connected_entity_type = 'Connected Entity'
-      if survey.survey_type == 'B':
-        connected_entity_type = 'Activity'
-      elif survey.survey_type == 'W':
-        connected_entity_type = 'Workshop'
-      columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
-      font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
-
-      ws = wb.add_sheet('Survey Submissions')
-      row_num = 0
-      #write the headers
-      for col_num in range(len(columns)):
-        ws.write(row_num, col_num, columns[col_num], bold_font_style)
-
-      for submission in surveySubmissions:
-        connected_entity = get_submission_connected_entity(submission.UUID)
-        connected_entity_name = ''
-        if connected_entity:
-          if survey.survey_type == 'B':
-            if connected_entity['entity'].activity:
-              connected_entity_name = connected_entity['entity'].activity.name
-            elif connected_entity['entity'].other_activity:
-              connected_entity_name = connected_entity['entity'].other_activity_name
-          elif survey.survey_type == 'W':
-            connected_entity_name = connected_entity['entity'].name
-
-        for survey_response in submission.survey_response.all():
-          row = [submission.user.id if submission.user else '',
-                 submission.user.user.email if submission.user else '',
-                 submission.user.user.get_full_name() if submission.user else '',
-                 submission.user.work_place.name if submission.user.work_place else '',
-                 connected_entity_name,
-                 submission.survey.id,
-                 submission.survey.name,
-                 str(submission.UUID),
-                 submission.ip_address,
-                 survey_response.survey_component.page,
-                 survey_response.survey_component.order,
-                 survey_response.survey_component.get_component_type_display(),
-                 remove_html_tags(request, smart_str(survey_response.survey_component.content)),
-                 survey_response.survey_component.options,
-                 'Yes' if survey_response.survey_component.is_required else 'No',
-                 survey_response.response,
-                 survey_response.created_date.replace(tzinfo=None),
-                 submission.get_status_display()
-               ]
-          row_num += 1
-          for col_num in range(len(row)):
-            ws.write(row_num, col_num, row[col_num], font_styles[col_num])
-
+      wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
       wb.save(response)
       return response
 
@@ -5503,6 +5445,73 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+#########################################
+# GENERATE EXCEL WITH SURVEY RESPONSES
+########################################
+def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
+
+  wb = xlwt.Workbook(encoding='utf-8')
+  bold_font_style = xlwt.XFStyle()
+  bold_font_style.font.bold = True
+  font_style = xlwt.XFStyle()
+  font_style.alignment.wrap = 1
+  date_format = xlwt.XFStyle()
+  date_format.num_format_str = 'mm/dd/yyyy'
+  date_time_format = xlwt.XFStyle()
+  date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
+
+  connected_entity_type = 'Connected Entity'
+  if survey.survey_type == 'B':
+    connected_entity_type = 'Activity'
+  elif survey.survey_type == 'W':
+    connected_entity_type = 'Workshop'
+  columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
+  font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
+
+  ws = wb.add_sheet('Survey Submissions')
+  row_num = 0
+  #write the headers
+  for col_num in range(len(columns)):
+    ws.write(row_num, col_num, columns[col_num], bold_font_style)
+
+  for submission in surveySubmissions:
+    connected_entity = get_submission_connected_entity(submission.UUID)
+    connected_entity_name = ''
+    if connected_entity:
+      if survey.survey_type == 'B':
+        if connected_entity['entity'].activity:
+          connected_entity_name = connected_entity['entity'].activity.name
+        elif connected_entity['entity'].other_activity:
+          connected_entity_name = connected_entity['entity'].other_activity_name
+      elif survey.survey_type == 'W':
+        connected_entity_name = connected_entity['entity'].name
+
+    for survey_response in submission.survey_response.all():
+      row = [submission.user.id if submission.user else '',
+             submission.user.user.email if submission.user else '',
+             submission.user.user.get_full_name() if submission.user else '',
+             submission.user.work_place.name if submission.user and submission.user.work_place else '',
+             connected_entity_name,
+             submission.survey.id,
+             submission.survey.name,
+             str(submission.UUID),
+             submission.ip_address,
+             survey_response.survey_component.page,
+             survey_response.survey_component.order,
+             survey_response.survey_component.get_component_type_display(),
+             remove_html_tags(request, smart_str(survey_response.survey_component.content)),
+             survey_response.survey_component.options,
+             'Yes' if survey_response.survey_component.is_required else 'No',
+             survey_response.response,
+             survey_response.created_date.replace(tzinfo=None),
+             submission.get_status_display()
+           ]
+      row_num += 1
+      for col_num in range(len(row)):
+        ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+  return wb
 
 ##########################################################
 # EDIT SURVEY COMPONENT
@@ -5706,7 +5715,8 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
             response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
             return http.HttpResponse(json.dumps(response_data), content_type="application/json")
           else:
-            print('done')
+            ### survey submission
+            print('clicking Submit')
             submission.status = 'S'
             submission.save()
             #workshop application
@@ -5733,6 +5743,40 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
             #other surveys
             else:
               messages.success(request, 'The survey has been submitted')
+
+            #check if email confirmation needs to be sent to the respondant
+            if survey.email_confirmation and survey.email_confirmation_message:
+              respondant_email = None
+              #check if email address is available
+              if user and user.user.email:
+                #user is logged in, so email is available in their profile
+                respondant_email = user.user.email
+              else:
+                #check if email is part of the survey response
+                email_responses = models.SurveyResponse.objects.all().filter(submission=submission, survey_component__component_type='EM')
+                if email_responses:
+                  respondant_email = email_responses.first().response
+
+              if respondant_email:
+                filename = "/tmp/survey_%s_submission_%s.xls"% (survey.id, submission.UUID)
+                surveySubmissions = models.SurveySubmission.objects.all().filter(UUID=submission.UUID)
+                wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
+                wb.save(filename)
+
+                subject = 'Survey %s submission confirmation' % survey.name
+
+                current_site = Site.objects.get_current()
+                domain = current_site.domain
+                if domain != 'bcse.northwestern.edu':
+                  subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+                body = survey.email_confirmation_message
+                email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [respondant_email])
+                email.attach_file(filename, 'application/ms-excel')
+
+                email.content_subtype = "html"
+                email.send(fail_silently=True)
+
             if request.is_ajax():
               response_data = {}
               response_data['success'] = True
@@ -6275,7 +6319,6 @@ class WorkplaceAutocomplete(autocomplete.Select2QuerySetView):
 ################################
 # REMOVE HTML TAGS FROM STRING
 ################################
-@login_required
 def remove_html_tags(request, text):
   html_re = re.compile(r'<[^>]+>')
   text_re = html_re.sub('', text)

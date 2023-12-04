@@ -659,6 +659,8 @@ class Survey(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Survey')
   survey_type = models.CharField(max_length=1, choices=SURVEY_TYPE_CHOICES)
   resource_url = models.URLField(null=True, blank=True)
+  email_confirmation =  models.BooleanField(default=False, help_text='Email confirmation is only sent if the user is logged in while filling out the survey or there is in email field component in the survey.')
+  email_confirmation_message = models.CharField(null=True, blank=True, max_length=256, help_text='Confirmation message to send via email')
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
