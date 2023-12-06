@@ -1061,7 +1061,7 @@ class SurveyForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       if field_name == 'email_confirmation':
         field.widget.attrs['class'] = 'form-check-input'
-        field.label = 'Send Email Confirmation to Respondant'
+        field.label = 'Send Email Confirmation to Respondent'
       else:
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text

@@ -5451,6 +5451,12 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
 ########################################
 def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
 
+  is_admin = None
+  if not request.user.is_anonymous and request.user.userProfile.user_role in ['A', 'S']:
+    is_admin = True
+  else:
+    is_admin = False
+
   wb = xlwt.Workbook(encoding='utf-8')
   bold_font_style = xlwt.XFStyle()
   bold_font_style.font.bold = True
@@ -5466,8 +5472,15 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
     connected_entity_type = 'Activity'
   elif survey.survey_type == 'W':
     connected_entity_type = 'Workshop'
-  columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
-  font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
+
+  #include all columns for admins
+  if is_admin:
+    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
+    font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
+  else:
+    columns = ['Page #', 'Question #', 'Content', 'Response']
+    font_styles = [font_style, font_style,font_style,font_style]
+
 
   ws = wb.add_sheet('Survey Submissions')
   row_num = 0
@@ -5487,26 +5500,39 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
       elif survey.survey_type == 'W':
         connected_entity_name = connected_entity['entity'].name
 
-    for survey_response in submission.survey_response.all():
-      row = [submission.user.id if submission.user else '',
-             submission.user.user.email if submission.user else '',
-             submission.user.user.get_full_name() if submission.user else '',
-             submission.user.work_place.name if submission.user and submission.user.work_place else '',
-             connected_entity_name,
-             submission.survey.id,
-             submission.survey.name,
-             str(submission.UUID),
-             submission.ip_address,
-             survey_response.survey_component.page,
-             survey_response.survey_component.order,
-             survey_response.survey_component.get_component_type_display(),
-             remove_html_tags(request, smart_str(survey_response.survey_component.content)),
-             survey_response.survey_component.options,
-             'Yes' if survey_response.survey_component.is_required else 'No',
-             survey_response.response,
-             survey_response.created_date.replace(tzinfo=None),
-             submission.get_status_display()
-           ]
+    for survey_response in submission.survey_response.all().order_by('survey_component__page', 'survey_component__order'):
+      response = ''
+      if survey_response.response:
+        response = survey_response.response
+      elif survey_response.responseFile:
+        response = survey_response.responseFile.url
+
+      if is_admin:
+        row = [submission.user.id if submission.user else '',
+               submission.user.user.email if submission.user else '',
+               submission.user.user.get_full_name() if submission.user else '',
+               submission.user.work_place.name if submission.user and submission.user.work_place else '',
+               connected_entity_name,
+               submission.survey.id,
+               submission.survey.name,
+               str(submission.UUID),
+               submission.ip_address,
+               survey_response.survey_component.page,
+               survey_response.survey_component.order,
+               survey_response.survey_component.get_component_type_display(),
+               remove_html_tags(request, smart_str(survey_response.survey_component.content)),
+               survey_response.survey_component.options,
+               'Yes' if survey_response.survey_component.is_required else 'No',
+               response,
+               survey_response.created_date.replace(tzinfo=None),
+               submission.get_status_display()
+             ]
+      else:
+        row = [survey_response.survey_component.page,
+               survey_response.survey_component.order,
+               remove_html_tags(request, smart_str(survey_response.survey_component.content)),
+               response
+             ]
       row_num += 1
       for col_num in range(len(row)):
         ws.write(row_num, col_num, row[col_num], font_styles[col_num])
