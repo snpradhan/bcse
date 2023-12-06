@@ -23,16 +23,16 @@
           </label>
           <div>{{form.dietary_preference}}</div>
         </div>
-        {% if workshop.registration_setting.isbe_link %}
-          <div class="form-group mb-3">
-            <label class="form-label"> ISBE Link </label>
-            <div><a href="{{workshop.registration_setting.isbe_link}}" target="_blank">{{workshop.registration_setting.isbe_link}}</a></div>
-          </div>
-        {% endif %}
         {% if not user.userProfile.photo_release_complete %}
           <div class="form-group mb-3">
-            <label class="form-label"> Photo Release URL </label>
+            <label class="form-label"> We do not have a photo release on file for you. Please click here to complete it before attending this event. </label>
             <div><a href="{{photo_release_url}}" target="_blank">{{photo_release_url}}</a></div>
+          </div>
+        {% endif %}
+        {% if workshop.registration_setting.isbe_link %}
+          <div class="form-group mb-3">
+            <label class="form-label"> Professional Development hours will be awarded in PD+. You will only be able to access the PD+ registration link prior to the start of the event. Please complete the form in this link prior to attending this event. </label>
+            <div><a href="{{workshop.registration_setting.isbe_link}}" target="_blank">{{workshop.registration_setting.isbe_link}}</a></div>
           </div>
         {% endif %}
         <div class="form-group" id="spinner">

@@ -889,6 +889,7 @@ def replace_workshop_tokens(text, workshop, registration):
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
   replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')
   replaced_text = replaced_text.replace('[isbe_url]', workshop.registration_setting.isbe_link or '')
+
   replaced_text = replaced_text.replace('[photo_release_url]', settings.PHOTO_RELEASE_URL or '')
 
   return replaced_text
