@@ -1841,7 +1841,8 @@ def baxterBoxUsageReportSearch(request):
 
       if to_date:
         to_date = datetime.datetime.strptime(to_date, '%B %d, %Y')
-        query_filter = query_filter & Q(return_date__lte=to_date)
+        query_filter = query_filter & Q(delivery_date__lte=to_date)
+        query_filter = query_filter & Q(Q(return_date__lte=to_date) | Q(return_date__isnull=True))
 
       if work_place:
         query_filter = query_filter & Q(user__work_place=work_place)
