@@ -72,6 +72,11 @@ class NextParameterMiddleware(MiddlewareMixin):
     elif redirect_url.find('survey') == 1:
       target = '#general'
 
+    if request.user.is_authenticated and redirect_url.find('signin') == 1 and redirect_url.find('survey') > 1:
+      redirect_url = redirect_url.replace('/signin/?next=/?next=', '')
+      target = '#general'
+
+
     if target and redirect_url:
       request.target = target
       request.redirect_url = redirect_url
