@@ -11,15 +11,19 @@
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th> ID</th>
-          <th> Name </th>
-          <th> Type </th>
-          <th> Status </th>
-          <th> Submission URL</th>
-          <th> # of Submissions</th>
-          <th> Created Date</th>
-          <th> Modified Date </th>
-          <th> Action </th>
+          <th rowspan="2"> ID</th>
+          <th rowspan="2"> Name </th>
+          <th rowspan="2"> Type </th>
+          <th rowspan="2"> Status </th>
+          <th colspan="2" width="30%"> Submission URL</th>
+          <th rowspan="2"> # of Submissions</th>
+          <th rowspan="2"> Created Date</th>
+          <th rowspan="2"> Modified Date </th>
+          <th rowspan="2"> Action </th>
+        </tr>
+        <tr>
+          <th>With Login</th>
+          <th>Without Login</th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +33,30 @@
             <td> {{survey.name}} </td>
             <td> {{survey.get_survey_type_display}} </td>
             <td> {{survey.get_status_display}} </td>
-            <td> https://{{domain}}/survey/{{survey.id}}/submission/new</td>
+            <td>
+              {% if survey.survey_type == 'A' or survey.survey_type == 'C' %}
+                https://{{domain}}/?next=signin/?next=/?next=/survey/{{survey.id}}/submission/new
+              {% elif survey.survey_type == 'W' %}
+                /survey/{{survey.id}}/submission/new?workshop_id=[id]
+              {% elif survey.survey_type == 'B' %}
+                https://{{domain}}/?next=/signin/?next=/?next=/survey/{{survey.id}}/submission/new?reservation_id=[id]
+              {% else %}
+                https://{{domain}}/?next=/signin/?next=/?next=/survey/{{survey.id}}/submission/new
+              {% endif %}
+            </td>
+            <td>
+              {% if survey.survey_type == 'A' %}
+                Login is required for this survey
+              {% elif survey.survey_type == 'C' %}
+                https://{{domain}}/?next=/survey/{{survey.id}}/submission/new
+              {% elif survey.survey_type == 'W' %}
+                Login is required for this survey
+              {% elif survey.survey_type == 'B' %}
+                Login is required for this survey
+              {% else %}
+                https://{{domain}}/?next=/survey/{{survey.id}}/submission/new
+              {% endif %}
+            </td>
             <td>{{survey.survey_submission.count}}</td>
             <td> {{survey.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{survey.modified_date|date:"F j, Y g:i A"}} </td>
