@@ -1079,11 +1079,11 @@ class SurveyComponentForm(ModelForm):
     super(SurveyComponentForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      if field_name == 'is_required':
+      if field_name in ['is_required', 'display_other_option']:
         field.widget.attrs['class'] = 'form-check-input'
       else:
-
         field.widget.attrs['class'] = 'form-control'
+
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################

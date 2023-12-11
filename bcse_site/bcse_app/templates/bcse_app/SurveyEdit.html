@@ -83,7 +83,16 @@
                 <td>{{surveyComponent.order}}</td>
                 <td>{{surveyComponent.get_component_type_display}}</td>
                 <td>{{surveyComponent.content|safe}}</td>
-                <td>{{surveyComponent.options}}</td>
+                <td>
+                  <ul>
+                    {% for option in surveyComponent.options|splitlines %}
+                      <li>{{option}}</li>
+                    {% endfor %}
+                    {% if surveyComponent.display_other_option and surveyComponent.other_option_label %}
+                      <li>{{surveyComponent.other_option_label}}</li>
+                    {% endif %}
+                  </ul>
+                </td>
                 <td>{{surveyComponent.is_required|yesno:"Yes,No"}}</td>
                 <td>
                   <div class="btn-group">

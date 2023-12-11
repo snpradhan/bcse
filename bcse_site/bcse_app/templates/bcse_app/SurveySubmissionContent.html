@@ -100,9 +100,28 @@
           <td>{{response.survey_component.order}}</td>
           <td>{{response.survey_component.get_component_type_display}}</td>
           <td>{{response.survey_component.content|safe}}</td>
-          <td>{{response.survey_component.options|default_if_none:"N/A"}}</td>
+          <td>
+            <ul>
+              {% for option in response.survey_component.options|splitlines %}
+                <li>{{option}}</li>
+              {% endfor %}
+              {% if response.survey_component.display_other_option and response.survey_component.other_option_label %}
+                <li>{{response.survey_component.other_option_label}}</li>
+              {% endif %}
+            </ul>
+          </td>
           <td>{{response.survey_component.is_required|yesno:"Yes,No"}}</td>
-          <td>{{response.response}}</td>
+          <td>
+            {% if response.survey_component.component_type == 'MS' and response.response|split:","|length > 1 %}
+              <ul>
+                {% for resp in response.response|split:"," %}
+                  <li>{{resp}}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              {{response.response}}
+            {% endif %}
+          </td>
           <td>{{response.created_date|date}}</td>
         </tr>
       {% endfor %}

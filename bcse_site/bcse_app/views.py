@@ -5291,33 +5291,6 @@ def surveyEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-##########################################################
-# PREVIEW SURVEY
-##########################################################
-@login_required
-def surveyPreview(request, id='', page_num=''):
-
-  try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to preview survey')
-    survey = models.Survey.objects.get(id=id)
-    surveyComponents = models.SurveyComponent.objects.all().filter(survey=survey, page=page_num).order_by('order')
-    total_pages = models.SurveyComponent.objects.all().filter(survey=survey).aggregate(Max('page'))['page__max']
-
-    context = {'survey': survey, 'surveyComponents': surveyComponents, 'page_num': page_num, 'total_pages': total_pages}
-    messages.warning(request, "This is only a preview.  You cannot submit responses here.")
-    return render(request, 'bcse_app/SurveyPreview.html', context)
-
-  except models.Survey.DoesNotExist:
-    messages.success(request, "Survey not found")
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-  except models.SurveySubmission.DoesNotExist:
-    messages.success(request, "Survey submission not found")
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-  except CustomException as ce:
-    messages.error(request, ce)
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 
 ####################################
 # CLONE SURVEY
@@ -5509,6 +5482,11 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
         response = survey_response.responseFile.url
 
       if is_admin:
+        options = survey_response.survey_component.options
+        if survey_response.survey_component.display_other_option and survey_response.survey_component.other_option_label:
+          options += '\n'
+          options += survey_response.survey_component.other_option_label
+
         row = [submission.user.id if submission.user else '',
                submission.user.user.email if submission.user else '',
                submission.user.user.get_full_name() if submission.user else '',
@@ -5522,7 +5500,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
                survey_response.survey_component.order,
                survey_response.survey_component.get_component_type_display(),
                remove_html_tags(request, smart_str(survey_response.survey_component.content)),
-               survey_response.survey_component.options,
+               options,
                'Yes' if survey_response.survey_component.is_required else 'No',
                response,
                survey_response.created_date.replace(tzinfo=None),

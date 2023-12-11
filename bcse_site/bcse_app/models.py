@@ -685,6 +685,8 @@ class SurveyComponent(models.Model):
   component_type = models.CharField(null=False, max_length=2, choices=SURVEY_COMPONENT_TYPE_CHOICES, default='IN')
   content = RichTextField(null=True, blank=True)
   options = models.TextField(null=True, blank=True)
+  display_other_option = models.BooleanField(default=False)
+  other_option_label = models.CharField(null=True, blank=True, max_length=256)
   is_required = models.BooleanField(default=False)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

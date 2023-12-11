@@ -71,7 +71,7 @@
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <a class="dropdown-item" href="{% url 'bcse:surveyPreview' survey.id 1 %}">Preview</a>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}" href="#">Preview</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>

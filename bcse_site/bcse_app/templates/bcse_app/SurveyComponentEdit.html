@@ -41,7 +41,7 @@
           <div class="error">{{ form.order.errors }}</div>
         </div>
         <div class="form-group mb-3">
-          <label for="id_{{form.context_type.name}}">
+          <label for="id_{{form.component_type.name}}">
             {{ form.component_type.label }}
             {% if form.component_type.field.required %}
             (<span class="required">*</span>)
@@ -51,7 +51,7 @@
           <div class="error">{{ form.component_type.errors }}</div>
         </div>
         <div class="form-group mb-3">
-          <label for="id_{{form.context.name}}">
+          <label for="id_{{form.content.name}}">
             {{ form.content.label }}
             {% if form.content.field.required %}
             (<span class="required">*</span>)
@@ -69,6 +69,26 @@
           </label>
           <div>{{form.options}}</div>
           <div class="error">{{ form.options.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.display_other_option.name}}">
+            {{ form.display_other_option.label|title }}
+            {% if form.display_other_option.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.display_other_option}}</div>
+          <div class="error">{{ form.display_other_option.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.other_option_label.name}}">
+            {{ form.other_option_label.label|title }}
+            {% if form.other_option_label.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.other_option_label}}</div>
+          <div class="error">{{ form.other_option_label.errors }}</div>
         </div>
         <div class="form-group mb-3">
           <label for="id_{{form.is_required.name}}">
@@ -93,6 +113,48 @@
 </div>
 <script type="text/javascript">
   $(function (){
+
+    $('input#id_display_other_option').on('change', function(){
+      if($(this).is(':checked')) {
+        $('input#id_other_option_label').closest('.form-group').show();
+        $('input#id_other_option_label').prop('required', true);
+      }
+      else {
+        $('input#id_other_option_label').val('');
+        $('input#id_other_option_label').prop('required', false);
+        $('input#id_other_option_label').closest('.form-group').hide();
+      }
+    });
+
+    $('select#id_component_type').on('change', function(e){
+      if($(this).val() == 'IN') {
+        $('input#id_is_required').prop('checked', false);
+        $('input#id_is_required').closest('.form-group').hide();
+      }
+      else {
+        $('input#id_is_required').closest('.form-group').show();
+      }
+      if(['DD', 'MS', 'MC'].includes($(this).val())) {
+        $('textarea#id_options').prop('required', true);
+        $('textarea#id_options').closest('.form-group').show();
+        if(['DD', 'MC'].includes($(this).val())) {
+          $('input#id_display_other_option').closest('.form-group').show();
+        }
+        else {
+          $('input#id_display_other_option').prop('checked', false).trigger('change');
+          $('input#id_display_other_option').closest('.form-group').hide();
+        }
+      }
+      else {
+        $('textarea#id_options').val('');
+        $('textarea#id_options').prop('required', false);
+        $('textarea#id_options').closest('.form-group').hide()
+        $('input#id_display_other_option').prop('checked', false).trigger('change');
+        $('input#id_display_other_option').closest('.form-group').hide();
+      }
+    });
+
+
 
     $('#formSurveyComponent').submit(function(e){
       e.preventDefault();
@@ -124,6 +186,9 @@
         }
       });
     });
+
+    $('select#id_component_type').trigger('change');
+    $('input#id_display_other_option').trigger('change');
 
   });
 </script>

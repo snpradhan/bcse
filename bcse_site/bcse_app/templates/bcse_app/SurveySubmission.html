@@ -25,7 +25,7 @@
         {% endfor %}
       </ul>
     </div>
-    <form method="post" enctype="multipart/form-data" id="formSurvey" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}{% if reservation_id %}?reservation_id={{reservation_id}}{% endif %}">
+    <form method="post" enctype="multipart/form-data" id="formSurvey" class="survey_form" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}{% if reservation_id %}?reservation_id={{reservation_id}}{% endif %}">
       {% csrf_token %}
       {{formset.management_form}}
       <div class="modal-body">
@@ -34,12 +34,14 @@
               <div class="survey_component form-group mb-3">
                 <div class="context {% if form.instance.survey_component.component_type != 'IN' %} question_label {% endif %}">
                   {{form.id}}
-                  {% if form.instance.survey_component.component_type != 'IN' %}
-                    <label>{{form.instance.survey_component.content|inline_style|strip_html}}</label>
-                    {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}
-                  {% else %}
-                    {{form.instance.survey_component.content|inline_style|safe}}
-                  {% endif %}
+                  <label>
+                    {% if form.instance.survey_component.component_type != 'IN' %}
+                      {{form.instance.survey_component.content|inline_style|strip_html|safe}}
+                      {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}
+                    {% else %}
+                      {{form.instance.survey_component.content|inline_style|safe}}
+                    {% endif %}
+                  </label>
                 </div>
                 {% if form.instance.survey_component.component_type != 'IN' %}
                   <div class="response">
@@ -47,40 +49,77 @@
                       <textarea placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}>{{form.response.value}}</textarea>
                     {% elif form.instance.survey_component.component_type == 'TF' %}
                       <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>
-                    {% elif form.instance.survey_component.component_type == 'DD' %}
-                      <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" {% if form.instance.survey_component.is_required %}required{% endif %}>
-                        <option value="">--------</option>
-                        {% for option in form.instance.survey_component.options|splitlines%}
-                          {% if option|slugify == form.response.value|slugify %}
-                            <option value="{{option}}" selected>{{option}}</option>
-                          {% else %}
-                            <option value="{{option}}">{{option}}</option>
+                    {% elif form.instance.survey_component.component_type == 'DD' or form.instance.survey_component.component_type == 'MC' or form.instance.survey_component.component_type == 'MS' %}
+
+                      {% with options=form.instance.survey_component.options|splitlines display_other_option=form.instance.survey_component.display_other_option other_option_label=form.instance.survey_component.other_option_label %}
+
+                      {% if form.instance.survey_component.component_type == 'DD' %}
+                        <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" {% if form.instance.survey_component.is_required %}required{% endif %}>
+                          <option value="">--------</option>
+                          {% for option in options%}
+                            {% if option|slugify == form.response.value|slugify %}
+                              <option value="{{option}}" selected>{{option}}</option>
+                            {% else %}
+                              <option value="{{option}}">{{option}}</option>
+                            {% endif %}
+                          {% endfor %}
+                          {% if display_other_option and other_option_label %}
+                            {% if not form.response.value or form.response.value|is_in:options %}
+                              <option value="{{other_option_label}}" class="other">{{other_option_label}}</option>
+                            {% else %}
+                              <option value="{{other_option_label}}" class="other" selected>{{other_option_label}}</option>
+                            {% endif %}
                           {% endif %}
-                        {% endfor %}
-                      </select>
-                    {% elif form.instance.survey_component.component_type == 'MC' %}
-                      <div>
-                        {% for option in form.instance.survey_component.options|splitlines%}
-                          {% if option|slugify == form.response.value|slugify %}
-                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}<br>
+                        </select>
+                        {% if display_other_option and other_option_label %}
+                          {% if not form.response.value or form.response.value|is_in:options %}
+                            <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
                           {% else %}
-                            <input type="radio" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}<br>
+                             <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
                           {% endif %}
-                        {% endfor %}
-                      </div>
-                    {% elif form.instance.survey_component.component_type == 'MS' %}
-                      <div>
-                        <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
-                        {% with chosen=form.response.value|split:',' %}
-                        {% for option in form.instance.survey_component.options|splitlines%}
-                          {% if option|is_in:chosen %}
-                            <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}" checked/>  {{option}}<br>
-                          {% else %}
-                            <input type="checkbox" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}"/>  {{option}}<br>
+                        {% endif %}
+                      {% elif form.instance.survey_component.component_type == 'MC' %}
+                        <div>
+                          {% for option in options%}
+                            {% if option|slugify == form.response.value|slugify %}
+                              <input type="radio" class="form-check-input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}
+                            {% else %}
+                              <input type="radio" class="form-check-input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}
+                            {% endif %}
+                            {% if not forloop.last %}
+                              <br>
+                            {% endif %}
+                          {% endfor %}
+                          {% if display_other_option and other_option_label %}
+                            <br>
+                            {% if not form.response.value or form.response.value|is_in:options %}
+                              <input type="radio" class="form-check-input other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{other_option_label}}"  {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{other_option_label}}
+                              <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
+                            {% else %}
+                              <input type="radio" class="form-check-input other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{other_option_label}}" checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{other_option_label}}
+                              <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                            {% endif %}
                           {% endif %}
-                        {% endfor %}
-                        {% endwith %}
-                      </div>
+                        </div>
+                      {% elif form.instance.survey_component.component_type == 'MS' %}
+                        <div>
+                          <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                          {% with chosen=form.response.value|split:',' %}
+                          {% for option in options %}
+                            {% if option|is_in:chosen %}
+                              <input type="checkbox" class="form-check-input" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}" checked/>  {{option}}
+                            {% else %}
+                              <input type="checkbox" class="form-check-input" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}"/>  {{option}}
+                            {% endif %}
+                            {% if not forloop.last %}
+                              <br>
+                            {% endif %}
+                          {% endfor %}
+                          {% endwith %}
+                        </div>
+                      {% endif %}
+                      {% endwith %}
+
                     {% elif form.instance.survey_component.component_type == 'FI' %}
                       <div>
                         <label>Upload files that are less than 10MB in size.</label>
@@ -88,15 +127,15 @@
                       </div>
                     {% elif form.instance.survey_component.component_type == 'DT' %}
                       <div>
-                        <input type="date" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if sform.instance.survey_component.is_required %}required{% endif %}/>
+                        <input type="date" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if sform.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
                       </div>
                     {% elif form.instance.survey_component.component_type == 'EM' %}
                       <div>
-                        <input type="email" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %}/>
+                        <input type="email" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}" />
                       </div>
                     {% elif form.instance.survey_component.component_type == 'UL' %}
                       <div>
-                        <input type="url" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %}/>
+                        <input type="url" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
                       </div>
                     {% endif %}
                   </div>
@@ -140,10 +179,14 @@
 
   <script type="text/javascript">
     $(function (){
-      $("#formSurvey input:checkbox").change(function(){
+      $("#formSurvey input:checkbox").on('change', function(){
         var selectedValues = $("input[id="+$(this).attr('id')+"]:checked").map(function() {return this.value;}).get().join(',')
         var hiddenVar = $(this).prevAll('input:hidden');
         $(hiddenVar).val(selectedValues);
+      });
+
+      $("#formSurvey input[id$='cbo'].other").change(function(){
+        $(this).prev('input:checkbox').trigger('change');
       });
 
       $('#submit_bottom_with_download').on('click', function(e){
@@ -229,7 +272,35 @@
         });
       });
 
+      $('select').on('change', function(e){
+        var show = $(this).find(":selected").hasClass('other');
+        toggleOtherElement($(this), show);
+      });
 
+      $('input[type="checkbox"].other').on('change', function(e){
+        var show = $(this).is(':checked');
+        toggleOtherElement($(this), show);
+      });
+
+      $('input[type="radio"]').on('change', function(e){
+        var show = $(this).is(':checked') && $(this).hasClass('other');
+        toggleOtherElement($(this), show);
+      });
+
+      function toggleOtherElement(element, show) {
+        if(show) {
+          $(element).nextAll('input[type="text"].other').attr('disabled', false);
+          $(element).nextAll('input[type="text"].other').show();
+        }
+        else{
+          console.log('is not checked');
+          $(element).nextAll('input[type="text"].other').val('');
+          $(element).nextAll('input[type="text"].other').attr('disabled', true);
+          $(element).nextAll('input[type="text"].other').hide();
+        }
+      }
+
+      $('select, input[type="checkbox"].other, input[type="radio"].other').trigger('change');
 
     });
   </script>

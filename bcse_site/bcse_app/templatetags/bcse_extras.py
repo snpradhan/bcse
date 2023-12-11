@@ -158,6 +158,19 @@ def is_in(var, obj):
     return var in obj
 
 @register.filter
+def is_subset(set1, set2):
+    return set(set1).issubset(set(set2))
+
+@register.filter
+def find_other_option(chosen, options):
+  other_option = ''
+  for choice in chosen:
+    if choice not in options:
+      other_option = choice
+      break
+  return other_option
+
+@register.filter
 def iterate(value):
   return list(range(1, value+1))
 
