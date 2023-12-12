@@ -2270,7 +2270,7 @@ def workshopCategories(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view workshop categories')
 
-    workshop_categories = models.WorkshopCategory.objects.all().order_by('audience', 'name')
+    workshop_categories = models.WorkshopCategory.objects.all().order_by('name')
     context = {'workshop_categories': workshop_categories}
     return render(request, 'bcse_app/WorkshopCategories.html', context)
 
@@ -2288,7 +2288,7 @@ def getWorkshopCategoryDetails(request, id=''):
       raise CustomException('You do not have the permission to view workshop category')
 
     workshop_category = models.WorkshopCategory.objects.get(id=id)
-    response_data = {'success': True, 'name': workshop_category.name, 'workshop_type': workshop_category.workshop_type, 'audience': workshop_category.audience, 'description': workshop_category.description}
+    response_data = {'success': True, 'name': workshop_category.name, 'workshop_type': workshop_category.workshop_type, 'description': workshop_category.description}
   except CustomException as ce:
     response_data = {'success': False}
   except models.WorkshopCategory.DoesNotExist as e:
@@ -2408,7 +2408,6 @@ def workshopDelete(request, id=''):
 
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
-      audience = workshop.workshop_category.audience
       if hasattr(workshop, 'registration_setting') and workshop.registration_setting.registrants.all().count() > 0:
         messages.error(request, "This workshop cannot be deleted as it has existing registrants.")
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -2416,10 +2415,7 @@ def workshopDelete(request, id=''):
         workshop.delete()
         messages.success(request, "Workshop deleted")
 
-    if audience == 'T':
-      return shortcuts.redirect('bcse:workshops', flag='table')
-    else:
-      return shortcuts.redirect('bcse:studentPrograms', flag='table')
+    return shortcuts.redirect('bcse:workshops', flag='table')
 
   except models.Workshop.DoesNotExist:
     messages.success(request, "Workshop not found")
@@ -2922,45 +2918,24 @@ def workshopsBaseQuery(request, flag='list', user_id=''):
   else:
     workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
 
-  workshops = workshops.filter(workshop_category__audience='T').order_by('start_date', 'start_time')
+  workshops = workshops.order_by('start_date', 'start_time')
   return workshops
 
-def studentProgramsBaseQuery(request):
-  if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
-    student_programs = models.Workshop.objects.all().filter(workshop_category__audience='S')
-  else:
-    student_programs = models.Workshop.objects.all().filter(status='A', workshop_category__status='A', workshop_category__audience='S')
-
-  student_programs = student_programs.order_by('start_date', 'start_time')
-  return student_programs
 ################################################
 # VIEW WORKSHOPS
 ################################################
 def workshops(request, flag='list'):
   if request.session.get('workshops_search', False):
-    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=request.session['workshops_search'], audience='teacher', prefix="workshop_search")
+    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=request.session['workshops_search'], prefix="workshop_search")
     page = request.session['workshops_search']['page']
   else:
-    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=None, audience='teacher', prefix="workshop_search")
+    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=None, prefix="workshop_search")
     page = 1
 
   context = {'searchForm': searchForm, 'flag': flag, 'page': page}
   return render(request, 'bcse_app/WorkshopsBaseView.html', context)
 
-################################################
-# VIEW STUDENT PROGRAMS
-################################################
-def studentPrograms(request, flag='list'):
-  if request.session.get('student_programs_search', False):
-    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=request.session['student_programs_search'], audience='student', prefix="workshop_search")
-    page = request.session['student_programs_search']['page']
-  else:
-    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=None, audience='student', prefix="workshop_search")
-    page = 1
 
-  context = {'searchForm': searchForm, 'flag': flag, 'page': page}
-
-  return render(request, 'bcse_app/StudentProgramsBaseView.html', context)
 ################################################
 # UTILITY FUNCITON TO GET A LIST OF WORKSHOPS
 ################################################
@@ -2971,11 +2946,8 @@ def workshopsList(request, flag, id=''):
 ##########################################################
 # FILTER WORKSHOP BASE QUERY BASED ON FILTER CRITERIA
 ##########################################################
-def workshopsSearch(request, flag='list', audience='teacher'):
-  if audience == 'teacher':
-    workshops = workshopsBaseQuery(request, flag)
-  else:
-    workshops = studentProgramsBaseQuery(request)
+def workshopsSearch(request, flag='list'):
+  workshops = workshopsBaseQuery(request, flag)
 
   if request.method == 'GET':
 
@@ -3009,10 +2981,7 @@ def workshopsSearch(request, flag='list', audience='teacher'):
       'rows_per_page': rows_per_page,
       'page': page
     }
-    if audience == 'teacher':
-      request.session['workshops_search'] = workshop_search_vars
-    else:
-      request.session['student_programs_search'] = workshop_search_vars
+    request.session['workshops_search'] = workshop_search_vars
 
     if keywords:
       keyword_filter = Q(name__icontains=keywords) | Q(sub_title__icontains=keywords)
@@ -3091,16 +3060,10 @@ def workshopsSearch(request, flag='list', audience='teacher'):
     context = {'workshops': workshops, 'tag': 'workshops', 'flag': flag}
     response_data = {}
     response_data['success'] = True
-    if audience == 'teacher':
-      if flag == 'list':
-        response_data['html'] = render_to_string('bcse_app/WorkshopsListView.html', context, request)
-      else:
-        response_data['html'] = render_to_string('bcse_app/WorkshopsTableView.html', context, request)
+    if flag == 'list':
+      response_data['html'] = render_to_string('bcse_app/WorkshopsListView.html', context, request)
     else:
-      if flag == 'list':
-        response_data['html'] = render_to_string('bcse_app/StudentProgramsListView.html', context, request)
-      else:
-        response_data['html'] = render_to_string('bcse_app/StudentProgramsTableView.html', context, request)
+      response_data['html'] = render_to_string('bcse_app/WorkshopsTableView.html', context, request)
 
     return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 

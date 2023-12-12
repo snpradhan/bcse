@@ -2,11 +2,7 @@
 {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-      {% if workshop.id and workshop.workshop_category.audience == 'S' %}
-        <label><a class="nav-link" aria-current="page" href="{% url 'bcse:studentPrograms' 'table' %}">Back to Student Programs</a></label>
-      {% else %}
-        <label><a class="nav-link" aria-current="page" href="{% url 'bcse:workshops' 'table' %}">Back to Workshops</a></label>
-      {% endif %}
+      <label><a class="nav-link" aria-current="page" href="{% url 'bcse:workshops' 'table' %}">Back to Workshops</a></label>
     </li>
     {% if workshop.id %}
       <li class="nav-item">

@@ -739,8 +739,6 @@ class ReservationColorForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 
-
-
 class WorkshopForm(ModelForm):
 
   class Meta:
@@ -754,15 +752,7 @@ class WorkshopForm(ModelForm):
   def __init__(self, *args, **kwargs):
     super(WorkshopForm, self).__init__(*args, **kwargs)
 
-    workshop_category_choices = {}
-    for category in models.WorkshopCategory.objects.all().filter(status='A').order_by('audience', 'name'):
-      audience = category.get_audience_display()
-      if audience not in  workshop_category_choices:
-        workshop_category_choices[audience] = {category.id: category.name}
-      else:
-         workshop_category_choices[audience][category.id] = category.name
-
-    self.fields['workshop_category'].choices = (('', '---------'),)+tuple([(k1, tuple((k2, v2) for k2, v2 in v1.items())) for k1, v1 in workshop_category_choices.items()])
+    self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A').order_by('name')
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['enable_registration']:
@@ -1230,17 +1220,11 @@ class WorkshopsSearchForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
-    audience = kwargs.pop('audience')
     initials = kwargs.pop('initials')
     super(WorkshopsSearchForm, self).__init__(*args, **kwargs)
 
 
-    if audience == 'teacher':
-      self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A', audience='T').order_by('name')
-    else:
-     self.fields['workshop_category'].label = 'Program Category'
-     self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A', audience='S').order_by('name')
-     self.fields.pop('registration_open')
+    self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A').order_by('name')
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('status')
@@ -1264,8 +1248,8 @@ class WorkshopsSearchForm(forms.Form):
 ####################################
 class WorkshopsRegistrantsSearchForm(forms.Form):
 
-  workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().filter(audience='T').order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
-  workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().filter(workshop_category__audience='T').order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
+  workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
+  workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
   year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
   status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('year', 'Year'), ('status', 'Status')))

@@ -58,10 +58,6 @@ WORKSHOP_TYPE_CHOICES = (
   ('V', 'Virtual'),
   ('H', 'Hybrid')
 )
-WORKSHOP_AUDIENCE_CHOICES = (
-  ('T', 'Teachers'),
-  ('S', 'Students')
-)
 
 WORKSHOP_REGISTRATION_TYPE_CHOICES = (
   ('R', 'Register'),
@@ -342,7 +338,6 @@ class WorkshopCategory(models.Model):
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Workshop Category')
   description = RichTextField(null=True, blank=True)
   workshop_type = models.CharField(null=False, max_length=1, choices=WORKSHOP_TYPE_CHOICES)
-  audience = models.CharField(default='T', max_length=1, choices=WORKSHOP_AUDIENCE_CHOICES)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
