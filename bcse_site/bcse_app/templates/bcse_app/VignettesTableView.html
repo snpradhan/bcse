@@ -52,9 +52,11 @@
                   <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:vignetteEdit' vignette.id %}" href="#">Edit</a>
                 </li>
                 <li><hr class="dropdown-divider"></li>
-                  <a class="dropdown-item copy action" href="{% url 'bcse:vignetteCopy' vignette.id %}">
+                <li>
+                  <a class="dropdown-item copy action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:vignetteCopy' vignette.id %}" href="#">
                     Clone
                   </a>
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <a class="dropdown-item delete action" data-href="{% url 'bcse:vignetteDelete' vignette.id %}"
