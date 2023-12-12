@@ -34,14 +34,12 @@
               <div class="survey_component form-group mb-3">
                 <div class="context {% if form.instance.survey_component.component_type != 'IN' %} question_label {% endif %}">
                   {{form.id}}
-                  <label>
-                    {% if form.instance.survey_component.component_type != 'IN' %}
-                      {{form.instance.survey_component.content|inline_style|strip_html|safe}}
-                      {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}
-                    {% else %}
-                      {{form.instance.survey_component.content|inline_style|safe}}
-                    {% endif %}
-                  </label>
+                  {% if form.instance.survey_component.component_type != 'IN' %}
+                    <label>{{form.instance.survey_component.content|inline_style|strip_html|safe}}
+                    {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}</label>
+                  {% else %}
+                    {{form.instance.survey_component.content|inline_style|safe}}
+                  {% endif %}
                 </div>
                 {% if form.instance.survey_component.component_type != 'IN' %}
                   <div class="response">

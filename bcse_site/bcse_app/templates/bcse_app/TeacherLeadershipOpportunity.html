@@ -6,19 +6,19 @@
 {% block content %}
   {{block.super}}
   <div class="content">
-    <div class="container">
+    <div class="teacher_opportunity container">
       <h1>Teacher Leadership Opportunities with The Baxter Center</h1>
       <p class="callout">The Baxter Center for Science Education works to provide a variety of leadership opportunities for local educators. From bringing teachers to Northwestern to conduct research and develop lessons through our Research Experience for Teachers (RET) program to providing tools for teachers to develop their own workshops, we want to partner with educators in finding joy as leaders within their schools, districts, and communities. </p>
 
       <p class="callout">Here are some examples of what Teacher Leadership with the BCSE can look like:</p>
       <ul class="callout">
-        <li>Apply to be a part of our Research Experience for Teachers program</li>
-        <li>Lead a session at the Baxter Symposium</li>
+        <li>Apply to be a part of our <a target="_blank" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a> program</li>
+        <li>Lead a session at the <a target="_blank" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></li>
         <li>Work with the Baxter Center to develop an evening or weekend workshop </li>
-        <li>Co-facilitate a workshop with one of our existing teacher leaders</li>
+        <li>Co-facilitate a workshop with one of our existing <a target="_blank" href="{% url 'bcse:aboutTeacherLeaders' %}">teacher leaders</a></li>
         <li>Organize a subject-specific meet-up with support from the Baxter Center</li>
-        <li>Host a Baxter Center workshop in your space </li>
-        <li>Try out labs or develop supporting materials for the Baxter Box program, and share back with your department</li>
+        <li>Host a <a target="_blank" href="{% url 'bcse:workshops' 'list' %}">Baxter Center workshops</a> in your space </li>
+        <li>Try out labs or develop supporting materials for the <a target="_blank" href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box program</a>, and share back with your department</li>
       </ul>
 
       <div class="vignettes search_results">
@@ -29,7 +29,7 @@
 
       <p class="callout"><strong>Want to get involved? Tell us more about your ideas!</strong></p>
       <div class="center">
-        <a class="btn" href="?next=/signin/?next=/?next=/survey/3/submission/new">Fill out this Survey</a>
+        <a class="btn" href="?next=/signin/?next=/?next=/survey/8/submission/new">Fill out this Survey</a>
       </div>
     </div>
 
