@@ -112,7 +112,11 @@
           </td>
           <td>{{response.survey_component.is_required|yesno:"Yes,No"}}</td>
           <td>
-            {% if response.survey_component.component_type == 'MS' and response.response|split:","|length > 1 %}
+            {% if response.survey_component.component_type == 'FI' %}
+              {% if response.responseFile %}
+                <a target="_blank" href="{{response.responseFile.url}}">Uploaded File</a>
+              {% endif %}
+            {% elif response.survey_component.component_type == 'MS' and response.response|split:","|length > 1 %}
               <ul>
                 {% for resp in response.response|split:"," %}
                   <li>{{resp}}</li>
