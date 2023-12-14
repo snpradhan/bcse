@@ -6123,7 +6123,10 @@ def reservationFeedbackEmailSend(request, id):
     if success:
       if reservation.feedback_status is None:
         reservation.feedback_status = 'E'
-      reservation.feedback_email_count = reservation.feedback_email_count + 1
+      if reservation.feedback_email_count:
+        reservation.feedback_email_count = reservation.feedback_email_count + 1
+      else:
+        reservation.feedback_email_count = 1
       reservation.feedback_email_date = datetime.datetime.now()
       reservation.save()
 
