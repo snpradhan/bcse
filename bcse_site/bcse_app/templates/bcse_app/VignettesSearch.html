@@ -1,4 +1,4 @@
-<div class="filter_container">
+<div class="filter_container" {% if user.is_anonymous or user.userProfile.user_role in 'TP' %}style="display:none;" {% endif %}>
   <form method="get" action="{% url 'bcse:vignettesSearch' flag %}" id="vignette_filter_form" class="filter_form">
     {% csrf_token %}
     {{searchForm.media}}
@@ -44,6 +44,6 @@
         <a class="btn" type="button" href="{% url 'bcse:clearSearch' 'vignettes_search' %}">Clear Filter</a>
       </div>
     </div>
-
   </form>
 </div>
+
