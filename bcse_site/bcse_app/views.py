@@ -79,10 +79,6 @@ def aboutBCSE(request):
   context = {'collaborators': collaborators}
   return render(request, 'bcse_app/AboutBCSE.html', context)
 
-def aboutCaseStudy(request):
-  context = {}
-  return render(request, 'bcse_app/AboutCaseStudy.html', context)
-
 def aboutCenters(request):
   context = {}
   return render(request, 'bcse_app/AboutCenters.html', context)
@@ -146,7 +142,7 @@ def baxterBoxSearch(request):
         request.session['baxter_box_search']['category_'+str(category.id)] = sub_categories
         if sub_categories:
           activities = activities.filter(tags__id__in=sub_categories)
-          equipment_types = equipment_types.filter(tags__id__in=sub_categories)
+          #equipment_types = equipment_types.filter(tags__id__in=sub_categories)
 
       response_data = {}
       response_data['success'] = True
@@ -6152,12 +6148,12 @@ def vignetteCopy(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-def teacherLeadershipOpportunity(request):
+def teacherLeadershipOpportunities(request):
 
   try:
     vignettes = models.Vignette.objects.all().filter(status='A', featured=True)
     context = {'vignettes': vignettes}
-    return render(request, 'bcse_app/TeacherLeadershipOpportunity.html', context)
+    return render(request, 'bcse_app/TeacherLeadershipOpportunities.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)

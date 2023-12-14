@@ -46,6 +46,14 @@
           </div>
         {% endif %}
       </div>
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <label><a class="nav-link" aria-current="page" id="activities_tab">Activities</a></label>
+        </li>
+        <li class="nav-item">
+          <label><a class="nav-link" aria-current="page" id="equipment_tab">Lab Equipment</a></label>
+        </li>
+      </ul>
       <div class="filter_container">
         <form method="get" action="{% url 'bcse:baxterBoxSearch' %}" id="baxter_box_filter_form" class="filter_form">
           {% csrf_token %}
@@ -71,15 +79,6 @@
           </div>
         </form>
       </div>
-
-      <ul class="nav nav-tabs mb-3">
-        <li class="nav-item">
-          <label><a class="nav-link" aria-current="page" id="activities_tab">Activities</a></label>
-        </li>
-        <li class="nav-item">
-          <label><a class="nav-link" aria-current="page" id="equipment_tab">Lab Equipment</a></label>
-        </li>
-      </ul>
       <div class="form-group" id="spinner">
         <img src="/static/img/page-loader.gif" class="icon"/>
       </div>
@@ -108,13 +107,15 @@
             $(this).addClass('active');
             $('.tiles.activity_tiles').show();
             $('input#current_tab').val('activities_tab')
+            $('.filter_container').show();
           });
           $('a#equipment_tab').on('click', function(e){
             $('a.nav-link').removeClass('active');
             $('.tiles').hide();
             $(this).addClass('active');
             $('.tiles.equipment_tiles').show();
-            $('input#current_tab').val('equipment_tab')
+            $('input#current_tab').val('equipment_tab');
+            $('.filter_container').hide();
           });
           $('a#activities_tab').trigger('click');
 

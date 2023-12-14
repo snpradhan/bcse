@@ -175,11 +175,10 @@ urlpatterns = [
     path('about/centers', views.aboutCenters, name='aboutCenters'),
     path('about/partners', views.aboutPartners, name='aboutPartners'),
     path('about/team', views.aboutTeam, name='aboutTeam'),
-    path('about/case_study', views.aboutCaseStudy, name='aboutCaseStudy'),
     path('about/contact', views.contactUs, name='contactUs'),
     path('about/terms', views.termsOfUse, name='termsOfUse'),
     path('about/teacherLeaders', views.aboutTeacherLeaders, name='aboutTeacherLeaders'),
-    path('about/leadershipopportunity', views.teacherLeadershipOpportunity, name='teacherLeadershipOpportunity'),
+    path('about/leadershipopportunities', views.teacherLeadershipOpportunities, name='teacherLeadershipOpportunities'),
     path('subscribe', views.subscribe, name='subscribe'),
 
 
