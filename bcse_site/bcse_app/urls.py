@@ -171,7 +171,6 @@ urlpatterns = [
     path('survey/<int:survey_id>/submission/new', views.surveySubmission, name='surveySubmissionNew'),
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
     path('baxter_box/search/', views.baxterBoxSearch, name='baxterBoxSearch'),
-    path('baxter_box/support/', views.classroomSupport, name='classroomSupport'),
     path('about/bcse', views.aboutBCSE, name='aboutBCSE'),
     path('about/centers', views.aboutCenters, name='aboutCenters'),
     path('about/partners', views.aboutPartners, name='aboutPartners'),

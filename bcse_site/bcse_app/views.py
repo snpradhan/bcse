@@ -388,17 +388,6 @@ def reservationColorDelete(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# CLASSROOM SUPPORT
-####################################
-def classroomSupport(request):
-  try:
-    context = {}
-    return render(request, 'bcse_app/ClassroomSupport.html', context)
-
-  except CustomException as ce:
-    messages.error(request, ce)
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-####################################
 # USER LOGIN
 ####################################
 def userSignin(request, user_email=''):
