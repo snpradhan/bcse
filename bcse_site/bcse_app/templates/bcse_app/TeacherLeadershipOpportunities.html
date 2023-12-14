@@ -20,16 +20,20 @@
         <li>Host a <a target="_blank" href="{% url 'bcse:workshops' 'list' %}">Baxter Center workshops</a> in your space </li>
         <li>Try out labs or develop supporting materials for the <a target="_blank" href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box program</a>, and share back with your department</li>
       </ul>
+      <br><br>
 
-      <div class="vignettes search_results">
-        {% include "bcse_app/VignettesTileView.html" %}
-      </div>
-
-      <p class="callout">We especially welcome ideas that link to the Baxter Center’s mission and priorities. These are reflected in the picture that follows; you can also read more on the About Us page.</p>
-
-      <p class="callout"><strong>Want to get involved? Tell us more about your ideas!</strong></p>
+      {% if vignettes %}
+        <p class="callout">Read more about how teachers have worked with the Baxter Center by clicking on a story below:</p>
+        <div class="vignettes search_results">
+          {% include "bcse_app/VignettesTileView.html" %}
+        </div>
+        <br><br>
+      {% endif %}
+      <p class="callout">We especially welcome ideas that link to the Baxter Center’s mission and priorities. These are reflected in the picture that follows; you can also read more on the <a href="{% url 'bcse:aboutBCSE' %}">About Us</a> page.</p>
+      <br><br>
       <div class="center">
-        <a class="btn" href="?next=/signin/?next=/?next=/survey/8/submission/new">Fill out this Survey</a>
+        <p class="callout center"><strong>Want to get involved?</strong> Tell us more about your ideas by completing the interest survey below!</p>
+        <a class="btn" href="?next=/signin/?next=/?next=/survey/8/submission/new">Interest Survey</a>
       </div>
     </div>
 
