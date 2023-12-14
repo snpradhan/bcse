@@ -114,7 +114,7 @@
                     <li class="{% navactive request 'bcse:workshops' 'list' %} {% navactive request 'bcse:workshops' 'table' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
-                    <li class="{% navactive request 'bcse:teacherLeadershipOpportunity' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunity' %}"> Leadership Opportunity</a></li>
+                    <li class="{% navactive request 'bcse:teacherLeadershipOpportunities' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
                       <li class="{% navactive request 'bcse:workshops' 'table' %}">
                         <a class="dropdown-item" href="{% url 'bcse:workshops' 'table' %}">My Workshops</a>
@@ -139,7 +139,7 @@
                                              {% navactive request 'bcse:baxterBoxUsageReport' %}">
                   {% with new_message_count=user.userProfile|get_all_reservations_new_message_count %}
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">
-                    For Classroom
+                    For Classrooms
                     {% if new_message_count %}
                       <span class="badge rounded-pill bg-danger">{{new_message_count}}</span>
                     {% endif %}
@@ -149,7 +149,7 @@
                       <a class="dropdown-item" href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box Program</a>
                     </li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'lab_grant' %}">
-                      <a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Baxter Center Lab Grant</a>
+                      <a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Lab Grants</a>
                     </li>
                     {% if user.is_authenticated %}
                       <li class="{% navactive request 'bcse:reservations' %}">
@@ -182,7 +182,6 @@
                 </li>
                 <li class="nav-item dropdown {% navactive request 'bcse:aboutBCSE' %}
                                              {% navactive request 'bcse:aboutPartners' %}
-                                             {% navactive request 'bcse:aboutCaseStudy' %}
                                              {% navactive request 'bcse:aboutTeacherLeaders' %}
                                              {% navactive request 'bcse:aboutTeam' %}
                                              {% navactive request 'bcse:contactUs' %}
@@ -198,10 +197,7 @@
                       <a class="dropdown-item" href="{% url 'bcse:aboutPartners' %}">Our Partnership</a>
                     </li>
                     <li class="{% navactive request 'bcse:vignettes' 'list' %} {% navactive request 'bcse:vignettes' 'table' %}">
-                      <a class="dropdown-item" href="{% url 'bcse:vignettes' 'list' %}">Our Stories</a>
-                    </li>
-                    <li class="{% navactive request 'bcse:aboutCaseStudy' %}">
-                      <a class="dropdown-item" href="{% url 'bcse:aboutCaseStudy' %}">Case Study and Partnership Toolkit</a>
+                      <a class="dropdown-item" href="{% url 'bcse:vignettes' 'list' %}">Our Stories and Impact</a>
                     </li>
                     <li class="{% navactive request 'bcse:aboutTeacherLeaders' %}">
                       <a class="dropdown-item" href="{% url 'bcse:aboutTeacherLeaders' %}">Our Teacher Leaders</a>
