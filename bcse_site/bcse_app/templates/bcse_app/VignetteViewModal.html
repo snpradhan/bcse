@@ -10,8 +10,9 @@
       {% endif %}
 
       <div class="wysiwyg_content">{{vignette.blurb|safe}}</div>
-
-      <a class="btn" href="{{vignette.attachment.url}}">Attachment Download</a>
+      <div class="center">
+        <a class="btn" target="_blank" href="{{vignette.attachment.url}}">Learn More</a>
+      </div>
     </div>
   </div>
 </div>
