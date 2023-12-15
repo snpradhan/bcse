@@ -11,17 +11,9 @@
       <div>
         <p class="callout">Some blub about this repository of vignettes</p>
       </div>
-      {% include "bcse_app/VignettesSearch.html" %}
-      <div class="form-group" id="spinner">
-        <img src="/static/img/page-loader.gif" class="icon"/>
-      </div>
       <div class="vignettes search_results">
+        {% include "bcse_app/VignettesTileView.html" %}
       </div>
     </div>
   </div>
-  <script type="text/javascript">
-    $(function() {
-      $('form#vignette_filter_form').submit();
-    });
-  </script>
 {% endblock %}

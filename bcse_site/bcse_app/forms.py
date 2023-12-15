@@ -1229,6 +1229,8 @@ class WorkshopsSearchForm(forms.Form):
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('status')
       self.fields['sort_by'].initial = 'start_date_asc'
+      #setting rows_per_age to 0 will return all the rows without paging
+      self.fields['rows_per_page'].initial = 0
 
     for field_name, field in self.fields.items():
       if field_name in ['starts_after', 'ends_before']:

@@ -632,7 +632,7 @@ body {
       }
     }
 
-    div.search_results {
+    div.search_results:not(.list) {
       width: 100%;
       overflow-x: scroll;
       max-height: 1000px;
@@ -640,7 +640,7 @@ body {
 
       th {
         position: sticky;
-        top: 50;
+        top: 0;
         background-color: #767676 !important;
         z-index: 99;
       }

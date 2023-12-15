@@ -5906,17 +5906,23 @@ def vignettes(request, flag=''):
       if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
         raise CustomException('You do not have the permission to view vignettes')
 
-    if request.session.get('vignettes_search', False):
-      searchForm = forms.VignettesSearchForm(user=request.user, initials=request.session['vignettes_search'], prefix="vignette_search")
-      page = request.session['vignettes_search']['page']
-    else:
-      searchForm = forms.VignettesSearchForm(user=request.user, initials=None, prefix="vignette_search")
-      page = 1
-
-    context = {'searchForm': searchForm, 'page': page, 'flag': flag}
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+
+      vignettes = models.Vignette.objects.all().filter(status='A')
+      context = {'vignettes': vignettes}
       return render(request, 'bcse_app/VignettesPublicView.html', context)
+
     else:
+
+      if request.session.get('vignettes_search', False):
+        searchForm = forms.VignettesSearchForm(user=request.user, initials=request.session['vignettes_search'], prefix="vignette_search")
+        page = request.session['vignettes_search']['page']
+      else:
+        searchForm = forms.VignettesSearchForm(user=request.user, initials=None, prefix="vignette_search")
+        page = 1
+
+      context = {'searchForm': searchForm, 'page': page, 'flag': flag}
+
       return render(request, 'bcse_app/VignettesBaseView.html', context)
 
   except CustomException as ce:
@@ -5994,7 +6000,6 @@ def vignettesSearch(request, flag=''):
       vignettes = paginate(request, vignettes, sort_order, rows_per_page, page)
 
       context = {'vignettes': vignettes}
-      print(vignettes)
       response_data = {}
       response_data['success'] = True
       if flag == 'table':
@@ -6187,7 +6192,13 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
 
     queryset = queryset.order_by(*ordering_list)
 
-  paginator = Paginator(queryset, count)
+  if int(count) > 0:
+    paginator = Paginator(queryset, count)
+  elif queryset.count() > 0:
+    paginator = Paginator(queryset, queryset.count())
+  else:
+    paginator = Paginator(queryset, settings.DEFAULT_ITEMS_PER_PAGE)
+
   try:
     object_list = paginator.page(page)
   except PageNotAnInteger:
@@ -6198,6 +6209,7 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
     object_list = paginator.page(paginator.num_pages)
 
   return object_list
+
 
 #######################################
 # UPDATE MAILING LIST SUBSCRIPTION

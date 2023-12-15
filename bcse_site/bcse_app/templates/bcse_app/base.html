@@ -111,7 +111,11 @@
                                              {% navactive request 'bcse:standalonePageAliasView' 'ret' %}">
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">For Teachers</a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li class="{% navactive request 'bcse:workshops' 'list' %} {% navactive request 'bcse:workshops' 'table' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
+                    {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                      <li class="{% navactive request 'bcse:workshops' 'list' %} {% navactive request 'bcse:workshops' 'table' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
+                    {% else %}
+                      <li class="{% navactive request 'bcse:workshops' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
+                    {% endif %}
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
                     <li class="{% navactive request 'bcse:teacherLeadershipOpportunities' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></li>
