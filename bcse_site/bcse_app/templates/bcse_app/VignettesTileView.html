@@ -18,8 +18,8 @@
       </div>
     {% endfor %}
   </div>
-{% else %}
-<div class="tiles">
-  <div class="warning center">No vignette matching your search criteria found</div>
-</div>
+{% elif audience != 'public' %}
+  <div class="tiles">
+    <div class="warning center">No vignette matching your search criteria found</div>
+  </div>
 {% endif %}
