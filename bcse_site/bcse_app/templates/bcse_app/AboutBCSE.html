@@ -19,13 +19,13 @@
           <p>Created by the incredible team at Digife, watch the Gold-winning video that tells the story of how our history drives our future.</p-->
        </div>
        <div class="row videos">
-          <div class="video_container">
+          <!--div class="video_container">
              <div class="video"><iframe id="banner_video" src="https://www.youtube.com/embed/PkvHmuVbVsY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
              <div class="video_caption">
                 <h4 class="center bold">What is the Baxter Center? </h4>
                 <p>Need it faster? Learn the basics in three minutes.</p>
              </div>
-          </div>
+          </div-->
           <div class="video_container">
              <div class="video"><iframe id="banner_video" src="https://www.youtube.com/embed/pBTVbrIAGI4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
              <div class="video_caption">
@@ -40,13 +40,14 @@
                 <p>Learn how we bring together diverse partners to support quality science education for all.</p>
              </div>
           </div>
+          <div class="video_container video_credits">
+             <h4 class="bold">Videos created by</h4>
+             <a href="https://www.digife.com" target="_blank">
+               <img class="icon" src="{% staticfile 'img/logos/digife.png' %}">
+             </a>
+          </div>
        </div>
-       <div class="video_credits">
-          <h4 class="bold">Videos created by</h4>
-          <a href="https://www.digife.com" target="_blank">
-          <img class="icon" src="{% staticfile 'img/logos/digife.png' %}">
-          </a>
-       </div>
+
        <div class="para">
           <img class="curve right" src="{% staticfile 'img/about_2.png' %}">
           <p class="callout"><b>The Baxter Center for Science Education</b> (BCSE) is a collaborative partnership between Lindblom Math &amp; Science Academy (LMSA), Round Lake High School, the Office of Community Education Partnerships (OCEP) at Northwestern University, and Baxter International Foundation. The Baxter Center builds impactful student experiences and teacher professional development programs to promote student success in STEM education and career pathways. The Baxter Center strives to promote equity in STEM education by catalyzing partnerships and developing programs that meet the specific needs of communities in Chicago and the greater region.
@@ -73,13 +74,11 @@
        </div>
        <div class="para">
           <h2>Our reach</h2>
-          <p class="callout">Since 2009 we have hosted over <b>127</b> workshops and trained <b>2198</b> teachers from <b>340</b> schools in CPS and the greater Chicagoland area, reaching over <b>164,000</b> students. </p>
+          <p class="callout">Since 2009 we have hosted over <b>229</b> workshops and trained <b>3,659</b> teachers from <b>402</b> schools in CPS and the greater Chicagoland area, reaching over <b>240,000</b> students. </p>
           {% include "bcse_app/Outreach.html" %}
        </div>
        <div class="para">
-          <p class="callout">Our program grows every year. In 2009, we began with one biotechnology workshop for 20 teachers. In 2019, we offered <b>27</b> life science workshops for <b>406</b> teachers from <b>91</b> different schools.</p>
-          <img class="full center" src="{% staticfile 'img/baxter_history.png' %}">
-          <div class="para">
+            <div class="para">
              <h2>What sets us apart</h2>
              <p class="callout">We provide comprehensive services to support science education in the classroom. We have learned that to affect real change, you can’t just do teacher PD, you can’t just give away equipment, and you can’t just visit the classroom. To be successful, you have to do all three as a living, responsive, flexible program built on strong relationships with teachers and schools, adjusting to their evolving needs.</p>
              <p class="callout"> Teachers value their relationship with our program, and they come back for additional training and deeper learning. <b>37%</b> of our teachers attend two or more of our workshops, and over <b>14%</b> attend four or more.</p>
