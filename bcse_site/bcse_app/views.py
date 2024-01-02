@@ -131,7 +131,6 @@ def baxterBoxSearch(request):
   try:
     if request.method == 'GET':
       activities = models.Activity.objects.all().filter(status='A').distinct()
-      equipment_types = models.EquipmentType.objects.all().filter(status='A').distinct().order_by('order')
       categories = models.BaxterBoxCategory.objects.all().filter(status='A')
 
       #set session variable
@@ -142,16 +141,13 @@ def baxterBoxSearch(request):
         request.session['baxter_box_search']['category_'+str(category.id)] = sub_categories
         if sub_categories:
           activities = activities.filter(tags__id__in=sub_categories)
-          #equipment_types = equipment_types.filter(tags__id__in=sub_categories)
 
       response_data = {}
       response_data['success'] = True
       context = {'activities': activities}
       activities_html = render_to_string('bcse_app/ActivityTiles.html', context, request)
-      context = {'equipment_types': equipment_types}
-      equipment_html = render_to_string('bcse_app/EquipmentTiles.html', context, request)
 
-      response_data['html'] = activities_html + equipment_html
+      response_data['html'] = activities_html
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 

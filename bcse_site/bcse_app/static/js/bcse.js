@@ -391,8 +391,14 @@ function bindBaxterBoxTabs() {
   if ($('input#current_tab').val() == 'activities_tab') {
     $('a#activities_tab').trigger('click');
   }
-  else {
+  else if ($('input#current_tab').val() == 'equipment_tab') {
     $('a#equipment_tab').trigger('click');
+  }
+  else if ($('input#current_tab').val() == 'community_tab') {
+    $('a#community_tab').trigger('click');
+  }
+  else {
+    $('a#faq_tab').trigger('click');
   }
 }
 
