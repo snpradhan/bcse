@@ -8,8 +8,9 @@
   <div class="content">
     <div class="teacher_opportunity container">
       <h1>Teacher Leadership Opportunities with The Baxter Center</h1>
-      <p class="callout">The Baxter Center for Science Education works to provide a variety of leadership opportunities for local educators. From bringing teachers to Northwestern to conduct research and develop lessons through our Research Experience for Teachers (RET) program to providing tools for teachers to develop their own workshops, we want to partner with educators in finding joy as leaders within their schools, districts, and communities. </p>
+      <p class="callout">The Baxter Center for Science Education works to provide a variety of leadership opportunities for local educators. From bringing teachers to Northwestern to conduct research and develop lessons through our Research Experience for Teachers (RET) program to providing tools for teachers to develop their own workshops, we want to partner with educators in finding joy as leaders within their schools, districts, and communities. We also welcome ideas from teachers that link to the Baxter Center’s mission and priorities. You can read more about the BCSE’s mission on the <a href="{% url 'bcse:aboutBCSE' %}">About Us</a> page.</p>
 
+      <img class="curve right" src="{% staticfile 'img/maryclark.jpeg' %}">
       <p class="callout">Here are some examples of what Teacher Leadership with the BCSE can look like:</p>
       <ul class="callout">
         <li>Apply to be a part of our <a target="_blank" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a> program</li>
@@ -17,19 +18,18 @@
         <li>Work with the Baxter Center to develop an evening or weekend workshop </li>
         <li>Co-facilitate a workshop with one of our existing <a target="_blank" href="{% url 'bcse:aboutTeacherLeaders' %}">teacher leaders</a></li>
         <li>Organize a subject-specific meet-up with support from the Baxter Center</li>
-        <li>Host a <a target="_blank" href="{% url 'bcse:workshops' 'list' %}">Baxter Center workshops</a> in your space </li>
+        <li>Host a <a target="_blank" href="{% url 'bcse:workshops' 'list' %}">Baxter Center workshop</a> in your space </li>
         <li>Try out labs or develop supporting materials for the <a target="_blank" href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box program</a></li>
       </ul>
       <br><br>
 
       {% if vignettes %}
-        <p class="callout">Read more about how teachers have worked with the Baxter Center by clicking on a story below:</p>
-        <div class="vignettes search_results">
+        <p class="callout">Click on a story below to read more about how teachers have worked with the Baxter Center.</p>
+        <div class="vignettes search_results list">
           {% include "bcse_app/VignettesTileView.html" %}
         </div>
         <br><br>
       {% endif %}
-      <p class="callout">We especially welcome ideas that link to the Baxter Center’s mission and priorities. You can read more on the <a href="{% url 'bcse:aboutBCSE' %}">About Us</a> page.</p>
       <br><br>
       <div class="center">
         <p class="callout center"><strong>Want to get involved?</strong> Tell us more about your ideas by completing the interest survey below!</p>
