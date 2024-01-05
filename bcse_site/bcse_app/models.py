@@ -751,7 +751,7 @@ class Vignette(models.Model):
   title = models.CharField(null=False, max_length=256, help_text='Vignette title')
   blurb = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this vignette')
-  attachment = models.FileField(upload_to=upload_file_to, blank=True, null=True, validators=[FileExtensionValidator(allowed_extensions=["pdf"])])
+  external_link = models.URLField(null=True, blank=True, max_length=2048)
   featured =  models.BooleanField(default=False, help_text='If marked featured, will be displayed on the Teacher Leadership Opportunity page')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)

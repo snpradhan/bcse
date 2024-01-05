@@ -9,7 +9,7 @@
         <th>Title</th>
         <th>Blurb</th>
         <th>Image</th>
-        <th>Attachment</th>
+        <th>External Link</th>
         <th>Featured?</th>
         <th>Status</th>
         <th>Created Date</th>
@@ -29,8 +29,8 @@
             {% endif %}
           </td>
           <td>
-            {% if vignette.attachment and vignette.attachment.url %}
-              <a href="{{vignette.attachment.url}}" target="_blank"><i class="fas fa-file-pdf"></i></a>
+            {% if vignette.external_link %}
+              <a href="{{vignette.external_link}}" target="_blank">Learn More</a>
             {% endif %}
           </td>
           <td>{{vignette.featured|yesno}}</td>

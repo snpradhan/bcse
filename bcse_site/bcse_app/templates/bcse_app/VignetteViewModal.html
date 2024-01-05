@@ -10,9 +10,11 @@
       {% endif %}
 
       <div class="wysiwyg_content">{{vignette.blurb|safe}}</div>
-      <div class="center">
-        <a class="btn" target="_blank" href="{{vignette.attachment.url}}">Learn More</a>
-      </div>
+      {% if vignette.external_link %}
+        <div class="center">
+          <a class="btn" target="_blank" href="{{vignette.external_link}}">Learn More</a>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
