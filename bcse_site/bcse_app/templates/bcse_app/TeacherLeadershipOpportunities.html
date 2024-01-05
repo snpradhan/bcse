@@ -21,16 +21,13 @@
         <li>Host a <a target="_blank" href="{% url 'bcse:workshops' 'list' %}">Baxter Center workshop</a> in your space </li>
         <li>Try out labs or develop supporting materials for the <a target="_blank" href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box program</a></li>
       </ul>
-      <br><br>
-
       {% if vignettes %}
         <p class="callout">Click on a story below to read more about how teachers have worked with the Baxter Center.</p>
         <div class="vignettes search_results list">
           {% include "bcse_app/VignettesTileView.html" %}
         </div>
-        <br><br>
+        <br>
       {% endif %}
-      <br><br>
       <div class="center">
         <p class="callout center"><strong>Want to get involved?</strong> Tell us more about your ideas by completing the interest survey below!</p>
         <a class="btn" href="?next=/signin/?next=/?next=/survey/5/submission/new">Interest Survey</a>
