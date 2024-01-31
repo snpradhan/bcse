@@ -683,6 +683,7 @@ def activityView(request, id=''):
             response_data['manuals_resources'] = activity.manuals_resources
             response_data['equipment_mapping'] = list(activity.equipment_mapping.all().values_list('name', flat=True))
             response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
+            response_data['equipment_options'] = load_equipment_options(request, activity.id)
             return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
         context = {'title': activity.kit_name, 'kit': activity, 'type': 'activity'}
@@ -6481,6 +6482,33 @@ def create_registration(request, email, workshop_id, registration_status=None):
 
   except models.Workshop.DoesNotExist as e:
     messages.error(request, 'Workshop not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def load_equipment_options(request, activity_id=''):
+  try:
+    if request.method == 'GET':
+      if '' != activity_id:
+        activity = models.Activity.objects.get(id=activity_id)
+        equipment = activity.equipment_mapping.all().filter(status='A', equipment__status='A').distinct().order_by('order')
+      else:
+        equipment = models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')
+      context = {'equipment': equipment}
+      html = render_to_string('bcse_app/EquipmentDropdownOptions.html', context, request)
+      if '' != activity_id:
+        return html
+      else:
+        response_data = {}
+        response_data['success'] = True
+        response_data['html'] = html
+        return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Activity.DoesNotExist as e:
+    messages.error(request, 'Activity not found')
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)

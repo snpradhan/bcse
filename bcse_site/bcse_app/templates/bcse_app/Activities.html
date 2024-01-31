@@ -19,6 +19,7 @@
           <th> Kit Unit Cost ($) </th>
           <th> Status </th>
           <th> Tags </th>
+          <th> Mapped Equipment</th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -38,9 +39,24 @@
             <td> {{activity.notes|default_if_none:""|safe}} </td>
             <td> {{activity.kit_unit_cost|default_if_none:""}} </td>
             <td> {{activity.get_status_display}} </td>
-            <td> {% for tag in activity.tags.all %}
-                  {{tag}} <br>
-                 {% endfor %}
+            <td>
+              <ul>
+                {% for category, subcategories in activity.tags.all|get_tag_dictionary %}
+                  <li>{{category}} </li>
+                  <ul>
+                    {% for subcategory in subcategories %}
+                      <li>{{subcategory}} </li>
+                    {% endfor %}
+                  </ul>
+                {% endfor %}
+              </ul>
+            </td>
+            <td>
+              <ul>
+                {% for equipment in activity.equipment_mapping.all %}
+                  <li>{{equipment}}</li>
+                {% endfor %}
+              </ul>
             </td>
             <td> {{activity.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{activity.modified_date|date:"F j, Y g:i A"}} </td>

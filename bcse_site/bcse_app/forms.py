@@ -508,9 +508,10 @@ class EquipmentAvailabilityForm (forms.Form):
 
 
 class ReservationForm(ModelForm):
-  equipment_types = forms.ModelMultipleChoiceField(required=False,
-                                  queryset=models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order'), widget=FilteredSelectMultiple("", is_stacked=False))
- 
+  equipment_types = forms.MultipleChoiceField(required=False,
+                                  choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.SelectMultiple())
+
+
   class Meta:
     model = models.Reservation
     exclude = ('equipment', 'feedback_status', 'feedback_email_count', 'feedback_email_date', 'created_by', 'created_date', 'modified_date')
@@ -539,6 +540,8 @@ class ReservationForm(ModelForm):
             field.widget.attrs['class'] = 'form-control datepicker reservation_return_date reservation_date'
             field.widget.attrs['title'] = 'Click here to open a calender popup to select return date'
           field.widget.attrs['readonly'] = True
+        elif field_name in ['equipment_types']:
+          field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
       else:
@@ -1183,6 +1186,8 @@ class ReservationsSearchForm(forms.Form):
     for field_name, field in self.fields.items():
       if field_name in ['delivery_after', 'return_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
+      elif field_name in ['equipment']:
+        field.widget.attrs['class'] = 'form-control select2'
       else:
         field.widget.attrs['class'] = 'form-control'
 

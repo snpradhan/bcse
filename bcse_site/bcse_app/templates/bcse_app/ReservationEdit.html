@@ -271,7 +271,10 @@
 
   <script type="text/javascript">
     $(function (){
+
       window.onload = function() {
+
+        //load reservation settings
         var reservation_delivery_days = {{reservation_settings.reservation_delivery_days}};
         var reservation_return_days = {{reservation_settings.reservation_return_days}};
         var reservation_min_advance_days = {{reservation_settings.reservation_min_advance_days}};
@@ -289,61 +292,67 @@
         var min_reservation_unixdate = current_timestamp + reservation_min_advance_days * 24 * 60 * 60;
         var max_reservation_unixdate = current_timestamp + reservation_max_advance_days * 24 * 60 * 60;
 
-        //date restrictions for non admins
-        if(!["A", "S"].includes(user_role)) {
-          $('.datepicker.reservation_delivery_date').datepicker({
-            dateFormat: "MM dd, yy",
-            changeMonth: true,
-            changeYear: true,
-            beforeShowDay: function(d) {
-              //convert javascript day to python day
-              var day = d.getDay() - 1;
-              var unixtime = Math.floor(d.getTime() / 1000);
-              if (unixtime < current_timestamp || unixtime < min_reservation_unixdate || unixtime > max_reservation_unixdate) {
-                return [false]
-              }
-              else {
-                var is_blackout_date = false;
-                for (index in reservation_blackout_timestamps) {
-                  if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
-                    is_blackout_date = true;
-                    break;
-                  }
-                }
-                if (is_blackout_date) {
+
+        /* Set date restriction based on user role */
+        function bindDateRestrictions() {
+          //date restrictions for non admins
+          if(!["A", "S"].includes(user_role)) {
+            $('.datepicker.reservation_delivery_date').datepicker({
+              dateFormat: "MM dd, yy",
+              changeMonth: true,
+              changeYear: true,
+              beforeShowDay: function(d) {
+                //convert javascript day to python day
+                var day = d.getDay() - 1;
+                var unixtime = Math.floor(d.getTime() / 1000);
+                if (unixtime < current_timestamp || unixtime < min_reservation_unixdate || unixtime > max_reservation_unixdate) {
                   return [false]
                 }
-                return [reservation_delivery_days.includes(day)];
+                else {
+                  var is_blackout_date = false;
+                  for (index in reservation_blackout_timestamps) {
+                    if (reservation_blackout_timestamps[index][0] <= unixtime && unixtime <= reservation_blackout_timestamps[index][1]) {
+                      is_blackout_date = true;
+                      break;
+                    }
+                  }
+                  if (is_blackout_date) {
+                    return [false]
+                  }
+                  return [reservation_delivery_days.includes(day)];
+                }
               }
+            });
+            if($('input#id_delivery_date').datepicker('getDate') == null) {
+              $('.datepicker.reservation_return_date').attr('disabled', true);
             }
-          });
-          if($('input#id_delivery_date').datepicker('getDate') == null) {
-            $('.datepicker.reservation_return_date').attr('disabled', true);
-          }
-          else{
-            setReturnDatePicker();
-          }
-          $('.datepicker.reservation_return_date').on('click', function(){
-            if($('input#id_delivery_date').datepicker('getDate') == null){
-              displayWarningDialog('Please select the Delivery Date first.');
-            }
-          });
-
-          $('.datepicker.reservation_delivery_date').on('change', function(){
-            if($(this).val()){
+            else{
               setReturnDatePicker();
             }
-          });
+            $('.datepicker.reservation_return_date').on('click', function(){
+              if($('input#id_delivery_date').datepicker('getDate') == null){
+                displayWarningDialog('Please select the Delivery Date first.');
+              }
+            });
 
-        }
-        else {
-          $('.datepicker.reservation_date').datepicker({
-            dateFormat: "MM dd, yy",
-            changeMonth: true,
-            changeYear: true
-          });
+            $('.datepicker.reservation_delivery_date').on('change', function(){
+              if($(this).val()){
+                setReturnDatePicker();
+              }
+            });
+
+          }
+          //no date restriction for admins
+          else {
+            $('.datepicker.reservation_date').datepicker({
+              dateFormat: "MM dd, yy",
+              changeMonth: true,
+              changeYear: true
+            });
+          }
         }
 
+        /* Enable return dates based on selected delivery date */
         function setReturnDatePicker() {
           var delivery_unixtime = Math.floor($('input#id_delivery_date').datepicker('getDate').getTime() / 1000);
           var min_return_unixtime = delivery_unixtime + reservation_min_days * 24 * 60 * 60;
@@ -378,20 +387,12 @@
           });
         }
 
-        //toggleCheckAvailability();
-        //hide other activity name field
-        $('input#id_other_activity_name').closest('form-group').hide();
-
-        $('.form-group.kit_info').hide();
-
-        bindReservationSubmit();
-
         function bindReservationSubmit(){
           $('button#reservationSubmit').on('click', function(e){
             $(this).off('click');
             var dates_valid = validateDates();
             if (dates_valid) {
-              $('select#id_equipment_types_to option').prop('selected', true);
+              //$('select#id_equipment_types_to option').prop('selected', true);
               $('form#reservationForm').submit();
             }
             else{
@@ -400,143 +401,184 @@
           });
         }
 
-        $('button#clear_dates').click(function(e){
-          e.preventDefault();
-          $('.reservation_date').datepicker('setDate', null);
-        });
+        function bindClearDates() {
+          $('button#clear_dates').click(function(e){
+            e.preventDefault();
+            $('.reservation_date').datepicker('setDate', null);
+          });
+        }
 
-        //"Check Availibility" button is clicked
-        $('button#check_availability').click(function(e){
-          e.preventDefault();
-          var dates_valid = validateDates();
-          //get availability calendar only if dates are valid
-          if (dates_valid) {
-            $('select#id_equipment_types_to option').prop('selected', true);
+        function bindCheckAvailability() {
+          //"Check Availibility" button is clicked
+          $('button#check_availability').click(function(e){
+            e.preventDefault();
+            var dates_valid = validateDates();
+            //get availability calendar only if dates are valid
+            if (dates_valid) {
+              //$('select#id_equipment_types_to option').prop('selected', true);
 
-            data = $('form#reservationForm').serialize();
-            var url ='';
-            if('{{form.instance.id}}' != 'None') {
-              url = '/availability/{{form.instance.id}}';
-            }
-            else {
-              url = '/availability/new';
-            }
+              data = $('form#reservationForm').serialize();
+              var url ='';
+              if('{{form.instance.id}}' != 'None') {
+                url = '/availability/{{form.instance.id}}';
+              }
+              else {
+                url = '/availability/new';
+              }
 
-            $.ajax({
-              type: 'POST',
-              url: url,
-              data: data,
-              beforeSend: function(){
-                $('div.availability_calendar_container').html('<div class="availability_calendar center"><h3>Checking Availability</h3><img src="/static/img/page-loader.gif" class="icon"/></div>');
-              },
-              complete: function(){
-                $('select#id_equipment_types_to option').prop('selected', false);
-              },
-              success: function(data){
-                console.log(data);
-                if (data['success'] = true) {
-                  if (data['html']) {
-                    $('div.availability_calendar_container').html(data['html']);
-                    if(data['message']) {
-                      bootbox.alert({title: "Availability",
-                                  message: data['message'],
-                                  closeButton: false
-                      });
+              $.ajax({
+                type: 'POST',
+                url: url,
+                data: data,
+                beforeSend: function(){
+                  $('div.availability_calendar_container').html('<div class="availability_calendar center"><h3>Checking Availability</h3><img src="/static/img/page-loader.gif" class="icon"/></div>');
+                },
+                complete: function(){
+                  //$('select#id_equipment_types_to option').prop('selected', false);
+                },
+                success: function(data){
+                  console.log(data);
+                  if (data['success'] = true) {
+                    if (data['html']) {
+                      $('div.availability_calendar_container').html(data['html']);
+                      if(data['message']) {
+                        bootbox.alert({title: "Availability",
+                                    message: data['message'],
+                                    closeButton: false
+                        });
+                      }
+                    }
+                    else {
+                      displayErrorDialog();
                     }
                   }
                   else {
                     displayErrorDialog();
                   }
-                }
-                else {
+                  return false;
+                },
+                error: function(xhr, ajaxOptions, thrownError){
                   displayErrorDialog();
-                }
-                return false;
-              },
-              error: function(xhr, ajaxOptions, thrownError){
-                displayErrorDialog();
-              },
-            });
-          }
-        });
+                },
+              });
+            }
+          });
+        }
 
-        //Activity changed
-        $('select#id_activity').on('change', function(e){
-          //Activity is selected from dropdown
-          if($(this).val()) {
-            var url = '/activity/'+$(this).val()+'/view';
-            $.ajax({
-              type: 'GET',
-              url: url,
-              beforeSend: function(){
+        function bindActivityChange() {
+          //Activity changed
+          $('select#id_activity').on('change', function(e){
+            //get preselected equipment
+            var selected_equipment = $('select#id_equipment_types').val();
+            //Activity is selected from dropdown
+            if($(this).val()) {
+              var url = '/activity/'+$(this).val()+'/view';
+              $.ajax({
+                type: 'GET',
+                url: url,
+                beforeSend: function(){
+                  $('div.activity_container div.activity.general').hide();
+                  $('div.activity_container div.activity.specific').remove();
+                  $('div.form-group.equipment_info').html('');
+                  $('div.form-group.equipment_info').hide()
+                },
+                complete: function(){
+
+                },
+                success: function(data){
+                  if (data['success'] = true) {
+                    if (data['html']) {
+                      $('div.activity_container div.activity.general').after(data['html']);
+                      $('div.form-group.kit_info span.kit_name').html(data['kit_name']);
+                      if(data['materials_equipment']) {
+                        $('div.form-group.equipment_info').html(data['materials_equipment']);
+                        $('div.form-group.equipment_info').show();
+                      }
+                    }
+                    //filter equipment options to the ones mapped to the selected activity
+                    if(data['equipment_options']) {
+                      $('select#id_equipment_types').html(data['equipment_options']);
+                      $('select#id_equipment_types').val(selected_equipment);
+                      bindEquipmentSelection();
+                    }
+                    else {
+                      displayErrorDialog();
+                    }
+                  }
+                  else {
+                    displayErrorDialog();
+                  }
+                  return false;
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                  displayErrorDialog();
+                },
+              });
+              //display number of class and kit not needed fields
+              $('select#id_num_of_classes').prop('required', true);
+              $('select#id_num_of_classes').closest('.col').find('label>span').show();
+              $('select#id_num_of_classes').trigger('change');
+              $('input#id_activity_kit_not_needed').closest('.form-group').show();
+            }
+            //Activity is unselected
+            else {
+              //reset equipment options to all equipment
+              var url = '/load_equipment_options/';
+              $.ajax({
+                type: 'GET',
+                url: url,
+                success: function(data){
+                  console.log(data);
+                  if (data['success'] = true) {
+                    if(data['html']) {
+                      $('select#id_equipment_types').html(data['html']);
+                      $('select#id_equipment_types').val(selected_equipment);
+                      bindEquipmentSelection();
+                    }
+                    else {
+                      displayErrorDialog();
+                    }
+                  }
+                  else {
+                    displayErrorDialog();
+                  }
+                  return false;
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                  displayErrorDialog();
+                },
+              });
+
+              $('div.form-group.equipment_info').html('');
+              $('div.form-group.equipment_info').hide();
+              if($('input#id_other_activity').is(':checked')) {
                 $('div.activity_container div.activity.general').hide();
-                $('div.activity_container div.activity.specific').remove();
-                $('div.form-group.equipment_info').html('');
-                $('div.form-group.equipment_info').hide()
-              },
-              complete: function(){
-
-              },
-              success: function(data){
-                console.log(data);
-                if (data['success'] = true) {
-                  if (data['html']) {
-                    $('div.activity_container div.activity.general').after(data['html']);
-                    $('div.form-group.kit_info span.kit_name').html(data['kit_name']);
-                    if(data['materials_equipment']) {
-                      $('div.form-group.equipment_info').html(data['materials_equipment']);
-                      $('div.form-group.equipment_info').show();
-                    }
-
-                  }
-                  else {
-                    displayErrorDialog();
-                  }
-                }
-                else {
-                  displayErrorDialog();
-                }
-                return false;
-              },
-              error: function(xhr, ajaxOptions, thrownError){
-                displayErrorDialog();
-              },
-            });
-            //display number of class and kit not needed fields
-            $('select#id_num_of_classes').prop('required', true);
-            $('select#id_num_of_classes').closest('.col').find('label>span').show();
+              }
+              else {
+                $('div.activity_container div.activity.general').show();
+              }
+              $('div.activity_container div.activity.specific').remove();
+              //hide kit not need fields
+              $('select#id_num_of_classes').prop('required', false);
+              $('select#id_num_of_classes').closest('.col').find('label>span').hide();
+              $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
+              $('div.form-group.kit_info span.kit_name').html('');
+              $('div.form-group.kit_info span.num_of_classes').html('');
+              $('div.form-group.kit_info').hide();
+            }
             $('select#id_num_of_classes').trigger('change');
-            $('input#id_activity_kit_not_needed').closest('.form-group').show();
-          }
-          //Activity is unselected
-          else {
-            $('div.form-group.equipment_info').html('');
-            $('div.form-group.equipment_info').hide();
-            if($('input#id_other_activity').is(':checked')) {
-              $('div.activity_container div.activity.general').hide();
-            }
-            else {
-              $('div.activity_container div.activity.general').show();
-            }
-            $('div.activity_container div.activity.specific').remove();
-            //hide kit not need fields
-            $('select#id_num_of_classes').prop('required', false);
-            $('select#id_num_of_classes').closest('.col').find('label>span').hide();
-            $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
-            $('div.form-group.kit_info span.kit_name').html('');
-            $('div.form-group.kit_info span.num_of_classes').html('');
-            $('div.form-group.kit_info').hide();
-          }
-          $('select#id_num_of_classes').trigger('change');
-          $('input#id_more_num_of_classes').trigger('change');
-        });
+            $('input#id_more_num_of_classes').trigger('change');
+            clearCalendar();
+            bindReservationSubmit();
+          });
+        }
 
         //enable "Check Availability" button only if equipment is selected and delivery and return dates are provided
         function toggleCheckAvailability() {
           if($('input#id_equipment_not_needed').is(':checked')){
             $('button#check_availability').prop('disabled', true);
           }
-          else if($('select#id_equipment_types_to option').length && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
+          else if($('select#id_equipment_types').select2().val() && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
             $('button#check_availability').prop('disabled', false);
           }
           else{
@@ -544,10 +586,15 @@
           }
         }
 
+        /* Clear the calendar container */
+        function clearCalendar() {
+          $('div.availability_calendar_container').html('');
+        }
+
         //validate delivery and return dates
         function validateDates() {
           var equipment_not_needed = $('input#id_equipment_not_needed').is(':checked');
-          var equipment_selected = $('select#id_equipment_types_to option').length;
+          var equipment_selected = $('select#id_equipment_types').select2().val();
 
           var delivery_date = $('input#id_delivery_date').datepicker('getDate');
           var return_date = $('input#id_return_date').datepicker('getDate');
@@ -625,130 +672,161 @@
           return true;
         }
 
-        $('input#id_delivery_date, input#id_return_date').on('change', function(){
-          toggleCheckAvailability();
-        });
-        $('.selector-add, .selector-remove, .selector-clearall, .selector-chooseall').on('click', function(){
-          toggleCheckAvailability();
+        function bindDatesChange() {
+          $('input#id_delivery_date, input#id_return_date').on('change', function(){
+            toggleCheckAvailability();
+          });
+        }
 
-          if($('select#id_equipment_types_to option').length){
-            $('input#id_return_date').prop('required', true);
-            $('input#id_return_date').closest('.col').find('span.required').show();
-          }
-          //equipment unselected
-          else{
-            $('input#id_return_date').prop('required', false);
-            $('input#id_return_date').closest('.col').find('span.required').hide();
-          }
-        });
+        function bindOtherActivityChange() {
+          //when other_activity checkbox is checked/unchecked
+          $('input#id_other_activity').on('change', function(e) {
+            //other activity checkbox checked
+            if($(this).is(':checked')){
+              $('select#id_activity').val('').trigger('change');
+              $('select#id_activity').prop('disabled', true);
+              $('select#id_activity').prop('required', false);
+              $('input#id_other_activity_name').prop('required', true);
+              $('input#id_other_activity_name').closest('.form-group').show();
+              $('div.activity_container div.activity.general').hide();
+              $('div.activity_container div.activity.specific').remove();
+            }
+            //other activity checkbox unchecked
+            else{
+              $('select#id_activity').prop('disabled', false);
+              $('select#id_activity').prop('required', true);
+              $('input#id_other_activity_name').prop('required', false);
+              $('input#id_other_activity_name').closest('.form-group').hide();
+              $('div.activity_container div.activity.general').show();
+              $('div.activity_container div.activity.specific').remove();
+            }
+          });
+        }
 
-        //when other_activity checkbox is checked/unchecked
-        $('input#id_other_activity').on('change', function(e) {
-          //other activity checkbox checked
-          if($(this).is(':checked')){
-            $('select#id_activity').val('').trigger('change');
-            $('select#id_activity').prop('disabled', true);
-            $('select#id_activity').prop('required', false);
-            $('input#id_other_activity_name').prop('required', true);
-            $('input#id_other_activity_name').closest('.form-group').show();
-            $('div.activity_container div.activity.general').hide();
-            $('div.activity_container div.activity.specific').remove();
-          }
-          //other activity checkbox unchecked
-          else{
-            $('select#id_activity').prop('disabled', false);
-            $('select#id_activity').prop('required', true);
-            $('input#id_other_activity_name').prop('required', false);
-            $('input#id_other_activity_name').closest('.form-group').hide();
-            $('div.activity_container div.activity.general').show();
-            $('div.activity_container div.activity.specific').remove();
-          }
-        })
+        function bindEquipmentNotNeeded() {
+          //when "I already have all the equipment" checkbox is checked/unchecked
+          $('input#id_equipment_not_needed').on('change', function(e) {
+            //checkbox checked
+            if($(this).is(':checked')){
+              //reset equipment selection
+              $('select#id_equipment_types').val(null).trigger('change');
+              //$('a.selector-remove').trigger("click");
+              $('select#id_equipment_types').prop('required', false);
+              $('select#id_equipment_types').prop('disabled', true);
+              $('select#id_equipment_types').closest('.form-group').hide();
+              //reset and disable return date
+              $('input#id_return_date').val('');
+              $('input#id_return_date').prop('disabled', true);
+              $('input#id_return_date').closest('.col').hide();
+              $('input#id_return_date').closest('.col').find('span.required').hide();
+              clearCalendar();
+            }
+            //checkbox unchecked
+            else{
+              $('select#id_equipment_types').prop('required', true);
+              $('select#id_equipment_types').prop('disabled', false);
+              $('select#id_equipment_types').closest('.form-group').show();
+              $('input#id_return_date').prop('disabled', false);
+              $('input#id_return_date').closest('.col').show();
+              $('input#id_return_date').closest('.col').find('span.required').show();
+            }
+            toggleCheckAvailability();
+          });
+        }
 
-        //when "I already have all the equipment" checkbox is checked/unchecked
-        $('input#id_equipment_not_needed').on('change', function(e) {
-          //checkbox checked
-          if($(this).is(':checked')){
-            //reset equipment selection
-            $('select#id_equipment_types_to option').attr('selected', true);
-            $('a.selector-remove').trigger("click");
-            $('select#id_equipment_types_to').prop('required', false);
-            $('select#id_equipment_types_to').prop('disabled', true);
-            $('select#id_equipment_types_to').closest('.form-group').hide();
-            //reset and disable return date
-            $('input#id_return_date').val('');
-            $('input#id_return_date').prop('disabled', true);
-            $('input#id_return_date').closest('.col').hide();
-            $('input#id_return_date').closest('.col').find('span.required').hide();
-          }
-          //checkbox unchecked
-          else{
-            $('select#id_equipment_types_to').prop('required', true);
-            $('select#id_equipment_types_to').prop('disabled', false);
-            $('select#id_equipment_types_to').closest('.form-group').show();
-            $('input#id_return_date').prop('disabled', false);
-            $('input#id_return_date').closest('.col').show();
-            $('input#id_return_date').closest('.col').find('span.required').show();
-          }
-        });
-
-        //number of classes changed
-        $('select#id_num_of_classes').on('change', function(e){
-          //if num of classes is more than 4, reset to 4
-          if($(this).val() == '5'){
-            if(!["A", "S"].includes(user_role)) {
-              bootbox.alert({title: "Warning",
-                        message: 'Maximum of 4 kits allowed. Many kits can be stretched over multiple classes. Email us with your questions bcse@northwestern.edu!',
-                        closeButton: false
-                      });
-              $(this).val('4');
+        function bindNumOfClasses() {
+          //number of classes changed
+          $('select#id_num_of_classes').on('change', function(e){
+            //if num of classes is more than 4, reset to 4
+            if($(this).val() == '5'){
+              if(!["A", "S"].includes(user_role)) {
+                bootbox.alert({title: "Warning",
+                          message: 'Maximum of 4 kits allowed. Many kits can be stretched over multiple classes. Email us with your questions bcse@northwestern.edu!',
+                          closeButton: false
+                        });
+                $(this).val('4');
+              }
+              else {
+                $('input#id_more_num_of_classes').prop('required', true);
+                $('input#id_more_num_of_classes').closest('.col').show();
+              }
             }
             else {
-              $('input#id_more_num_of_classes').prop('required', true);
-              $('input#id_more_num_of_classes').closest('.col').show();
+              $('input#id_more_num_of_classes').prop('required', false);
+              $('input#id_more_num_of_classes').val('');
+              $('input#id_more_num_of_classes').closest('.col').hide();
             }
-          }
-          else {
-            $('input#id_more_num_of_classes').prop('required', false);
-            $('input#id_more_num_of_classes').val('');
-            $('input#id_more_num_of_classes').closest('.col').hide();
-          }
-          //if num of classes is selected, display kit info
-          if($(this).val() && $(this).val() != '5' && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
-            $('div.form-group.kit_info span.num_of_classes').html($(this).val());
-            $('div.form-group.kit_info').show();
-          }
-          else {
-            $('div.form-group.kit_info').hide();
-          }
-        });
+            //if num of classes is selected, display kit info
+            if($(this).val() && $(this).val() != '5' && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
+              $('div.form-group.kit_info span.num_of_classes').html($(this).val());
+              $('div.form-group.kit_info').show();
+            }
+            else {
+              $('div.form-group.kit_info').hide();
+            }
+          });
+        }
 
-        $('input#id_more_num_of_classes').on('change', function(e){
-          if($(this).val() && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
-            $('div.form-group.kit_info span.num_of_classes').html($(this).val());
-            $('div.form-group.kit_info').show();
-          }
-        });
+        function bindMoreNumOfClasses() {
+          $('input#id_more_num_of_classes').on('change', function(e){
+            if($(this).val() && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
+              $('div.form-group.kit_info span.num_of_classes').html($(this).val());
+              $('div.form-group.kit_info').show();
+            }
+          });
+        }
 
-        //"I already have all the kits" checkbox checked/unchecked
-        $('input#id_activity_kit_not_needed').on('change', function(e){
-          //checkbox checked
-          if($(this).is(':checked')){
-            $('div.form-group.kit_info span.kit_name').html('');
-            $('div.form-group.kit_info span.num_of_classes').html('');
-            $('div.form-group.kit_info').hide();
-          }
-          //checkbox unchecked
-          else{
-            $('select#id_activity').trigger('change');
-          }
-        });
+        function bindKitNotNeeded() {
+          //"I already have all the kits" checkbox checked/unchecked
+          $('input#id_activity_kit_not_needed').on('change', function(e){
+            //checkbox checked
+            if($(this).is(':checked')){
+              $('div.form-group.kit_info span.kit_name').html('');
+              $('div.form-group.kit_info span.num_of_classes').html('');
+              $('div.form-group.kit_info').hide();
+            }
+            //checkbox unchecked
+            else{
+              $('select#id_activity').trigger('change');
+            }
+          });
+        }
+
+        function bindEquipmentSelection() {
+          $('select.select2#id_equipment_types').select2({
+            placeholder: {
+              id: '-1', // the value of the option
+              text: '---------'
+            }
+          }).on('change', function(){
+            toggleCheckAvailability();
+          });
+        }
+
+        function init() {
+          //hide other activity name field
+          $('input#id_other_activity_name').closest('form-group').hide();
+          $('.form-group.kit_info').hide();
+          $('input#id_other_activity').trigger('change');
+          $('select#id_activity').trigger('change');
+          $('input#id_equipment_not_needed').trigger('change');
+          $('select#id_num_of_classes').trigger('change');
+          $('input#id_more_num_of_classes').trigger('change');
+        }
+
+        bindDateRestrictions();
+        bindCheckAvailability();
         toggleCheckAvailability();
-        $('input#id_other_activity').trigger('change');
-        $('select#id_activity').trigger('change');
-        $('input#id_equipment_not_needed').trigger('change');
-        $('select#id_num_of_classes').trigger('change');
-        $('input#id_more_num_of_classes').trigger('change');
+        bindKitNotNeeded();
+        bindMoreNumOfClasses();
+        bindNumOfClasses();
+        bindEquipmentNotNeeded();
+        bindOtherActivityChange();
+        bindDatesChange();
+        bindActivityChange();
+        bindReservationSubmit();
+        bindClearDates();
+        init();
       }
     });
   </script>

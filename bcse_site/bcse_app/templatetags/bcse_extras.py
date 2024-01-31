@@ -259,3 +259,13 @@ def is_workshop_teacher_leader(workshop, userProfile):
 @register.filter
 def multiply(a, b):
   return a*b
+
+@register.filter
+def get_tag_dictionary(tags):
+  tag_dictionary = {}
+  for tag in tags:
+    if tag.category.name in tag_dictionary:
+      tag_dictionary[tag.category.name].append(tag.name)
+    else:
+      tag_dictionary[tag.category.name] = [tag.name]
+  return tag_dictionary.items()

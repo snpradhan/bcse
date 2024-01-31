@@ -145,13 +145,13 @@ $(function (){
 
   $('.about_us .partner .description p').addClass('callout wysiwyg_content');
 
-
   bindPagination();
   bindRegistrationSubmit();
   bindDeleteAction();
   bindCancelAction();
   bindWarningAction();
   bindUseAjax();
+  bindSelect2();
 
 });
 
@@ -420,5 +420,14 @@ function auto_submit_search(form) {
   timeout = setTimeout(function(){
     $(form).submit();
   }, 800);
+}
+
+function bindSelect2() {
+  $('select.select2').select2({
+    placeholder: {
+      id: '-1', // the value of the option
+      text: '---------'
+    }
+  });
 }
 
