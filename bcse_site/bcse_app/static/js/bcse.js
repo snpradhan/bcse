@@ -423,7 +423,7 @@ function auto_submit_search(form) {
 }
 
 function bindSelect2() {
-  $('select.select2').select2({
+  $('select.select2:not(#id_equipment_types)').select2({
     placeholder: {
       id: '-1', // the value of the option
       text: '---------'

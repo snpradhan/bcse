@@ -6487,14 +6487,21 @@ def create_registration(request, email, workshop_id, registration_status=None):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+#####################################################
+# LOAD MAPPED EQUIPMENT FOR THE SELECTED ACTIVITY
+#####################################################
 def load_equipment_options(request, activity_id=''):
   try:
     if request.method == 'GET':
-      if '' != activity_id:
+      if request.user.is_anonymous:
+        raise CustomException('You do not have the permission load equipment')
+
+      if request.user.userProfile.user_role in ['T', 'P'] and '' != activity_id:
         activity = models.Activity.objects.get(id=activity_id)
         equipment = activity.equipment_mapping.all().filter(status='A', equipment__status='A').distinct().order_by('order')
       else:
         equipment = models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')
+
       context = {'equipment': equipment}
       html = render_to_string('bcse_app/EquipmentDropdownOptions.html', context, request)
       if '' != activity_id:

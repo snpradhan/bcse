@@ -495,11 +495,12 @@
                         $('div.form-group.equipment_info').show();
                       }
                     }
-                    //filter equipment options to the ones mapped to the selected activity
+                    //for non-admins, filter equipment options to the ones mapped to the selected activity
                     if(data['equipment_options']) {
                       $('select#id_equipment_types').html(data['equipment_options']);
-                      $('select#id_equipment_types').val(selected_equipment);
-                      bindEquipmentSelection();
+                      if(selected_equipment) {
+                        $('select#id_equipment_types').val(selected_equipment);
+                      }
                     }
                     else {
                       displayErrorDialog();
@@ -522,18 +523,18 @@
             }
             //Activity is unselected
             else {
-              //reset equipment options to all equipment
+              //for non-admins, reset equipment options to all equipment
               var url = '/load_equipment_options/';
               $.ajax({
                 type: 'GET',
                 url: url,
                 success: function(data){
-                  console.log(data);
                   if (data['success'] = true) {
                     if(data['html']) {
                       $('select#id_equipment_types').html(data['html']);
-                      $('select#id_equipment_types').val(selected_equipment);
-                      bindEquipmentSelection();
+                      if(selected_equipment) {
+                        $('select#id_equipment_types').val(selected_equipment);
+                      }
                     }
                     else {
                       displayErrorDialog();
@@ -566,9 +567,11 @@
               $('div.form-group.kit_info span.num_of_classes').html('');
               $('div.form-group.kit_info').hide();
             }
+
             $('select#id_num_of_classes').trigger('change');
             $('input#id_more_num_of_classes').trigger('change');
             clearCalendar();
+            bindEquipmentSelection();
             bindReservationSubmit();
           });
         }
@@ -578,7 +581,7 @@
           if($('input#id_equipment_not_needed').is(':checked')){
             $('button#check_availability').prop('disabled', true);
           }
-          else if($('select#id_equipment_types').select2().val() && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
+          else if($('select#id_equipment_types').val() && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
             $('button#check_availability').prop('disabled', false);
           }
           else{
@@ -594,7 +597,7 @@
         //validate delivery and return dates
         function validateDates() {
           var equipment_not_needed = $('input#id_equipment_not_needed').is(':checked');
-          var equipment_selected = $('select#id_equipment_types').select2().val();
+          var equipment_selected = $('select#id_equipment_types').val();
 
           var delivery_date = $('input#id_delivery_date').datepicker('getDate');
           var return_date = $('input#id_return_date').datepicker('getDate');
