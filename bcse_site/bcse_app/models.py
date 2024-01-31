@@ -697,6 +697,7 @@ class SurveySubmission(models.Model):
   user = models.ForeignKey(UserProfile, blank=True, null=True, related_name='user_survey', on_delete=models.CASCADE)
   ip_address = models.GenericIPAddressField()
   status = models.CharField(default='I',  max_length=1, choices=SURVEY_SUBMISSION_STATUS_CHOICES)
+  admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

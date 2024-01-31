@@ -5394,8 +5394,8 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
 
   #include all columns for admins
   if is_admin:
-    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status']
-    font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style]
+    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status', 'Admin Notes']
+    font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style, font_style]
   else:
     columns = ['Page #', 'Question #', 'Content', 'Response']
     font_styles = [font_style, font_style,font_style,font_style]
@@ -5449,7 +5449,8 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
                'Yes' if survey_response.survey_component.is_required else 'No',
                response,
                survey_response.created_date.replace(tzinfo=None),
-               submission.get_status_display()
+               submission.get_status_display(),
+               submission.admin_notes
              ]
       else:
         row = [survey_response.survey_component.page,

@@ -25,6 +25,7 @@
               Connected Entity
             {% endif %}
           </th>
+          <th> Admin Notes </th>
           <th> Created Date </th>
           <th> Status </th>
           <th> Action </th>
@@ -54,6 +55,7 @@
                 {% endif %}
               {% endif %}
             </td>
+            <td>{{submission.admin_notes|default_if_none:""}}</td>
             <td>{{submission.created_date|date}}</td>
             <td>{{submission.get_status_display}}</td>
             <td>

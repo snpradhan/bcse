@@ -1102,7 +1102,10 @@ class SurveySubmissionForm(ModelForm):
 
   class Meta:
     model = models.SurveySubmission
-    fields = ['status']
+    fields = ['status', 'admin_notes']
+    widgets = {
+      'admin_notes': forms.Textarea(attrs={'rows':3}),
+    }
 
   def __init__(self, *args, **kwargs):
     super(SurveySubmissionForm, self).__init__(*args, **kwargs)
