@@ -1,5 +1,5 @@
 from django import template
-from bcse_app import models, views
+from bcse_app import models, views, utils
 from django.contrib import messages
 import datetime
 from django.db.models import Q
@@ -142,8 +142,7 @@ def inline_style(html_string):
 
 @register.filter
 def strip_html(html_string):
-  clean = re.compile('<.*?>')
-  return re.sub(clean, '', html_string)
+  return utils.strip_html(html_string)
 
 @register.filter(name='split')
 def split(value, arg):
@@ -262,10 +261,4 @@ def multiply(a, b):
 
 @register.filter
 def get_tag_dictionary(tags):
-  tag_dictionary = {}
-  for tag in tags:
-    if tag.category.name in tag_dictionary:
-      tag_dictionary[tag.category.name].append(tag.name)
-    else:
-      tag_dictionary[tag.category.name] = [tag.name]
-  return tag_dictionary.items()
+  return utils.get_tag_dictionary(tags)

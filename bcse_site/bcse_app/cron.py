@@ -1,4 +1,4 @@
-from bcse_app import models
+from bcse_app import models, utils
 from datetime import datetime, timedelta
 from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
@@ -174,5 +174,123 @@ def export_reservations():
   print('end reservations export', datetime.today())
 
 
+####################################
+# Export Activities to Excel
+####################################
+def export_activities():
+  print('start activities export', datetime.today())
 
+  activities = models.Activity.objects.all().order_by('name')
+
+  wb = xlwt.Workbook(encoding='utf-8')
+
+  activites_colors = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
+  color_index = 8
+  color_map = {}
+  for color in activites_colors:
+    xlwt.add_palette_colour(color.name, color_index)
+    rgb = ImageColor.getrgb(color.color)
+    wb.set_colour_RGB(color_index, rgb[0], rgb[1], rgb[2])
+    color_map[color.color] = color_index
+    color_index += 1
+
+  borders = xlwt.Borders()
+  borders.left = xlwt.Borders.THIN
+  borders.right = xlwt.Borders.THIN
+  borders.top = xlwt.Borders.THIN
+  borders.bottom = xlwt.Borders.THIN
+
+  bold_font_style = xlwt.XFStyle()
+  bold_font_style.font.bold = True
+  bold_font_style.borders = borders
+  font_style = xlwt.XFStyle()
+  font_style.alignment.wrap = 1
+  font_style.borders = borders
+  date_format = xlwt.XFStyle()
+  date_format.num_format_str = 'mm/dd/yyyy'
+  date_format.borders = borders
+
+  columns = ['ID', 'Name', 'Description', 'Materials/Equipment', 'Manuals/Resources', 'Kit Name', 'Kit Unit Cost', 'Inventory', 'Admin Notes', 'Equipment Mapping', 'Tags', 'Image', 'Status', 'Modified Date', 'Created Date']
+  font_styles = [font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_format]
+
+  ws = wb.add_sheet('Activities')
+  row_num = 0
+  #write the headers
+  header_style = copy.deepcopy(bold_font_style)
+  header_style.font.colour_index = xlwt.Style.colour_map['ivory']
+  header_style.font.height = 240
+  pattern = xlwt.Pattern()
+  pattern.pattern = pattern.SOLID_PATTERN
+  pattern.pattern_fore_colour = xlwt.Style.colour_map['gray50']
+  header_style.pattern = pattern
+  for col_num in range(len(columns)):
+    ws.write(row_num, col_num, columns[col_num], header_style)
+
+  equipment_mapping = ''
+  tags = ''
+
+  for activity in activities:
+
+    equipment_mapping = ''
+    tags = ''
+
+    for category, subcategories in utils.get_tag_dictionary(activity.tags.all()):
+      tags += '• ' + category +'\n'
+      for subcategory in subcategories:
+        tags += '  • ' + subcategory +'\n'
+
+    for equipment in activity.equipment_mapping.all():
+      equipment_mapping += '• ' + equipment.name + '\n'
+
+    row = [activity.id,
+           activity.name,
+           utils.strip_html(activity.description) if activity.description else ' ',
+           utils.strip_html(activity.materials_equipment) if activity.materials_equipment else ' ',
+           utils.strip_html(activity.manuals_resources) if activity.manuals_resources else ' ',
+           activity.kit_name,
+           activity.kit_unit_cost,
+           utils.strip_html(activity.inventory) if activity.inventory else ' ',
+           utils.strip_html(activity.notes) if activity.notes else ' ',
+           equipment_mapping,
+           tags,
+           activity.image.url if activity.image else ' ',
+           activity.get_status_display(),
+           activity.modified_date.replace(tzinfo=None),
+           activity.created_date.replace(tzinfo=None)
+          ]
+
+    row_num += 1
+    for col_num in range(len(row)):
+      if activity.color:
+        style = copy.deepcopy(font_styles[col_num])
+        pattern = xlwt.Pattern()
+        pattern.pattern = pattern.SOLID_PATTERN
+        pattern.pattern_fore_colour = color_map[activity.color.color]
+        style.pattern = pattern
+        ws.write(row_num, col_num, row[col_num], style)
+      else:
+        ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+  ws = wb.add_sheet('Export Details')
+  ws.write(0, 0, 'Exported Date', bold_font_style)
+  date_format.num_format_str = 'mm/dd/yyyy h:mm:ss AM/PM'
+  ws.write(0, 1, datetime.today(), date_format)
+  ws.write(1, 0, 'Activity Count', bold_font_style)
+  ws.write(1, 1, row_num, font_style)
+
+
+  cmd = 'rm /tmp/activities.xls'
+  subprocess.call(cmd, shell=True)
+
+  wb.save('/tmp/activities.xls')
+
+  print('exporting %s activities' % activities.count())
+
+  cmd = 's3cmd --access_key=%s --secret_key=%s -s put %s s3://%s/export/activities.xls' % (settings.AWS_ACCESS_KEY_ID,
+                                                                     settings.AWS_SECRET_ACCESS_KEY,
+                                                                     '/tmp/activities.xls',
+                                                                     settings.AWS_STORAGE_BUCKET_NAME)
+  subprocess.call(cmd, shell=True)
+
+  print('end activities export', datetime.today())
 

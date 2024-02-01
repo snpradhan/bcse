@@ -2,6 +2,7 @@
 import os
 from datetime import datetime, timedelta, date
 from calendar import HTMLCalendar
+import re
 
 def get_filename(filename):
   now = datetime.now()
@@ -174,3 +175,17 @@ class AdminCalendar(HTMLCalendar):
       cal += f'{self.formatweek(week, availability_matrix)}\n'
     cal += f'</table>'
     return cal
+
+
+def get_tag_dictionary(tags):
+  tag_dictionary = {}
+  for tag in tags:
+    if tag.category.name in tag_dictionary:
+      tag_dictionary[tag.category.name].append(tag.name)
+    else:
+      tag_dictionary[tag.category.name] = [tag.name]
+  return tag_dictionary.items()
+
+def strip_html(html_string):
+  clean = re.compile('<.*?>')
+  return re.sub(clean, '', html_string)
