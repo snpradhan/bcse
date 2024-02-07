@@ -509,7 +509,7 @@ class EquipmentAvailabilityForm (forms.Form):
 
 class ReservationForm(ModelForm):
   equipment_types = forms.MultipleChoiceField(required=False,
-                                  choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.SelectMultiple())
+                                  choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.CheckboxSelectMultiple())
 
 
   class Meta:
@@ -540,8 +540,6 @@ class ReservationForm(ModelForm):
             field.widget.attrs['class'] = 'form-control datepicker reservation_return_date reservation_date'
             field.widget.attrs['title'] = 'Click here to open a calender popup to select return date'
           field.widget.attrs['readonly'] = True
-        elif field_name in ['equipment_types']:
-          field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
       else:

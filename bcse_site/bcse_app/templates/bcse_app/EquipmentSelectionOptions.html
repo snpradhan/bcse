@@ -1,0 +1,8 @@
+{% for equip in equipment %}
+  <div>
+    <label for="id_equipment_types_{{forloop.counter0}}">
+      <input type="checkbox" name="equipment_types" value="{{equip.id}}" class="form-check-input" aria-describedby="None" placeholder="" id="id_equipment_types_{{forloop.counter0}}">
+      {{equip.name}}
+    </label>
+  </div>
+{% endfor %}

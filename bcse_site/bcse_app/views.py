@@ -6504,7 +6504,7 @@ def load_equipment_options(request, activity_id=''):
         equipment = models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')
 
       context = {'equipment': equipment}
-      html = render_to_string('bcse_app/EquipmentDropdownOptions.html', context, request)
+      html = render_to_string('bcse_app/EquipmentSelectionOptions.html', context, request)
       if '' != activity_id:
         return html
       else:

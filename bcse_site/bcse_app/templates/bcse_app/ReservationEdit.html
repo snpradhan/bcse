@@ -117,8 +117,10 @@
                   (<span class="required">*</span>)
                 {% endif %}
               </label>
-              <div>
-                {{form.equipment_types}}
+              <div id="id_{{form.equipment_types.name}}">
+                {% for equipment_type in form.equipment_types %}
+                  <div> {{equipment_type}} </div>
+                {% endfor %}
               </div>
               <div class="error">{{ form.equipment_types.errors }}</div>
             </div>
@@ -465,11 +467,19 @@
           });
         }
 
+        function getSelectedEquipment() {
+          var selectedEquipment = [];
+          $('#id_equipment_types input:checked').each(function(){
+            selectedEquipment.push($(this).val());
+          })
+          return selectedEquipment;
+        }
+
         function bindActivityChange() {
           //Activity changed
           $('select#id_activity').on('change', function(e){
             //get preselected equipment
-            var selected_equipment = $('select#id_equipment_types').val();
+            var selected_equipment = getSelectedEquipment();
             //Activity is selected from dropdown
             if($(this).val()) {
               var url = '/activity/'+$(this).val()+'/view';
@@ -497,9 +507,10 @@
                     }
                     //for non-admins, filter equipment options to the ones mapped to the selected activity
                     if(data['equipment_options']) {
-                      $('select#id_equipment_types').html(data['equipment_options']);
+                      $('#id_equipment_types').html(data['equipment_options']);
                       if(selected_equipment) {
-                        $('select#id_equipment_types').val(selected_equipment);
+                        $('#id_equipment_types input[name="equipment_types"]').val(selected_equipment);
+                        bindEquipmentSelection();
                       }
                     }
                     else {
@@ -531,9 +542,10 @@
                 success: function(data){
                   if (data['success'] = true) {
                     if(data['html']) {
-                      $('select#id_equipment_types').html(data['html']);
+                      $('#id_equipment_types').html(data['html']);
                       if(selected_equipment) {
-                        $('select#id_equipment_types').val(selected_equipment);
+                        $('#id_equipment_types input[name="equipment_types"]').val(selected_equipment);
+                        bindEquipmentSelection();
                       }
                     }
                     else {
@@ -571,7 +583,6 @@
             $('select#id_num_of_classes').trigger('change');
             $('input#id_more_num_of_classes').trigger('change');
             clearCalendar();
-            bindEquipmentSelection();
             bindReservationSubmit();
           });
         }
@@ -581,7 +592,8 @@
           if($('input#id_equipment_not_needed').is(':checked')){
             $('button#check_availability').prop('disabled', true);
           }
-          else if($('select#id_equipment_types').val() && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
+          else if(getSelectedEquipment().length > 0 && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
+
             $('button#check_availability').prop('disabled', false);
           }
           else{
@@ -597,7 +609,7 @@
         //validate delivery and return dates
         function validateDates() {
           var equipment_not_needed = $('input#id_equipment_not_needed').is(':checked');
-          var equipment_selected = $('select#id_equipment_types').val();
+          var equipment_selected = getSelectedEquipment();
 
           var delivery_date = $('input#id_delivery_date').datepicker('getDate');
           var return_date = $('input#id_return_date').datepicker('getDate');
@@ -712,11 +724,8 @@
             //checkbox checked
             if($(this).is(':checked')){
               //reset equipment selection
-              $('select#id_equipment_types').val(null).trigger('change');
-              //$('a.selector-remove').trigger("click");
-              $('select#id_equipment_types').prop('required', false);
-              $('select#id_equipment_types').prop('disabled', true);
-              $('select#id_equipment_types').closest('.form-group').hide();
+              $('#id_equipment_types input.form-check-input').prop("checked", false).prop('required', false).prop('disabled', true).trigger('change');
+              $('#id_equipment_types').closest('.form-group').hide();
               //reset and disable return date
               $('input#id_return_date').val('');
               $('input#id_return_date').prop('disabled', true);
@@ -726,9 +735,8 @@
             }
             //checkbox unchecked
             else{
-              $('select#id_equipment_types').prop('required', true);
-              $('select#id_equipment_types').prop('disabled', false);
-              $('select#id_equipment_types').closest('.form-group').show();
+              $('#id_equipment_types input.form-check-input').prop('required', true).prop('disabled', false);
+              $('#id_equipment_types').closest('.form-group').show();
               $('input#id_return_date').prop('disabled', false);
               $('input#id_return_date').closest('.col').show();
               $('input#id_return_date').closest('.col').find('span.required').show();
@@ -796,12 +804,7 @@
         }
 
         function bindEquipmentSelection() {
-          $('select.select2#id_equipment_types').select2({
-            placeholder: {
-              id: '-1', // the value of the option
-              text: '---------'
-            }
-          }).on('change', function(){
+          $('#id_equipment_types input.form-check-input').on('change', function(){
             toggleCheckAvailability();
           });
         }
