@@ -572,8 +572,6 @@
               }
               $('div.activity_container div.activity.specific').remove();
               //hide kit not need fields
-              $('select#id_num_of_classes').prop('required', false);
-              $('select#id_num_of_classes').closest('.col').find('label>span').hide();
               $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
               $('div.form-group.kit_info span.kit_name').html('');
               $('div.form-group.kit_info span.num_of_classes').html('');
