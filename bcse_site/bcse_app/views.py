@@ -1651,6 +1651,9 @@ def reservationUpdate(request, reservation_id):
       raise CustomException('You do not have the permission to update reservation color')
 
     reservation = models.Reservation.objects.get(id=reservation_id)
+    current_date = datetime.datetime.now().date()
+    original_status = reservation.status
+
     if request.method == 'GET':
       form = forms.ReservationUpdateForm(instance=reservation)
       context = {'form': form, 'reservation_id': reservation_id}
@@ -1660,9 +1663,12 @@ def reservationUpdate(request, reservation_id):
       form = forms.ReservationUpdateForm(data, instance=reservation)
       response_data = {}
       if form.is_valid():
-        form.save()
+        savedReservation = form.save()
         response_data['success'] = True
         messages.success(request, 'Reservation %s updated' % reservation_id)
+        if current_date <= savedReservation.delivery_date:
+          if original_status == 'U' and savedReservation.status == 'R':
+            reservationConfirmationEmailSend(request, reservation_id)
       else:
         print(form.errors)
         response_data['success'] = False
