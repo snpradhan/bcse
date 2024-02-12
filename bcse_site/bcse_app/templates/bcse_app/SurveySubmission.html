@@ -5,7 +5,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="center">
-        {% if reservation_id %}
+        {% if survey.status == 'A' and reservation_id %}
           {% get_reservation_activity reservation_id as reservation_activity %}
           {% if reservation_activity %}
             Baxter Box Feedback for {{reservation_activity}}
@@ -25,152 +25,154 @@
         {% endfor %}
       </ul>
     </div>
-    <form method="post" enctype="multipart/form-data" id="formSurvey" class="survey_form" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}{% if reservation_id %}?reservation_id={{reservation_id}}{% endif %}">
-      {% csrf_token %}
-      {{formset.management_form}}
-      <div class="modal-body">
-        {% if formset|length > 0 %}
-          {% for form in formset %}
-              <div class="survey_component form-group mb-3">
-                <div class="context {% if form.instance.survey_component.component_type != 'IN' %} question_label {% endif %}">
-                  {{form.id}}
-                  {% if form.instance.survey_component.component_type != 'IN' %}
-                    <label>{{form.instance.survey_component.content|inline_style|strip_html|safe}}
-                    {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}</label>
-                  {% else %}
-                    {{form.instance.survey_component.content|inline_style|safe}}
-                  {% endif %}
-                </div>
-                {% if form.instance.survey_component.component_type != 'IN' %}
-                  <div class="response">
-                    {% if form.instance.survey_component.component_type == 'TA' %}
-                      <textarea placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}>{{form.response.value}}</textarea>
-                    {% elif form.instance.survey_component.component_type == 'TF' %}
-                      <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>
-                    {% elif form.instance.survey_component.component_type == 'DD' or form.instance.survey_component.component_type == 'MC' or form.instance.survey_component.component_type == 'MS' %}
-
-                      {% with options=form.instance.survey_component.options|splitlines display_other_option=form.instance.survey_component.display_other_option other_option_label=form.instance.survey_component.other_option_label %}
-
-                      {% if form.instance.survey_component.component_type == 'DD' %}
-                        <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" {% if form.instance.survey_component.is_required %}required{% endif %}>
-                          <option value="">--------</option>
-                          {% for option in options%}
-                            {% if option|slugify == form.response.value|slugify %}
-                              <option value="{{option}}" selected>{{option}}</option>
-                            {% else %}
-                              <option value="{{option}}">{{option}}</option>
-                            {% endif %}
-                          {% endfor %}
-                          {% if display_other_option and other_option_label %}
-                            {% if not form.response.value or form.response.value|is_in:options %}
-                              <option value="{{other_option_label}}" class="other">{{other_option_label}}</option>
-                            {% else %}
-                              <option value="{{other_option_label}}" class="other" selected>{{other_option_label}}</option>
-                            {% endif %}
-                          {% endif %}
-                        </select>
-                        {% if display_other_option and other_option_label %}
-                          {% if not form.response.value or form.response.value|is_in:options %}
-                            <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
-                          {% else %}
-                             <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
-                          {% endif %}
-                        {% endif %}
-                      {% elif form.instance.survey_component.component_type == 'MC' %}
-                        <div>
-                          {% for option in options%}
-                            {% if option|slugify == form.response.value|slugify %}
-                              <input type="radio" class="form-check-input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}
-                            {% else %}
-                              <input type="radio" class="form-check-input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}
-                            {% endif %}
-                            {% if not forloop.last %}
-                              <br>
-                            {% endif %}
-                          {% endfor %}
-                          {% if display_other_option and other_option_label %}
-                            <br>
-                            {% if not form.response.value or form.response.value|is_in:options %}
-                              <input type="radio" class="form-check-input other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{other_option_label}}"  {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{other_option_label}}
-                              <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
-                            {% else %}
-                              <input type="radio" class="form-check-input other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{other_option_label}}" checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{other_option_label}}
-                              <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
-                            {% endif %}
-                          {% endif %}
-                        </div>
-                      {% elif form.instance.survey_component.component_type == 'MS' %}
-                        <div>
-                          <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
-                          {% with chosen=form.response.value|split:',' %}
-                          {% for option in options %}
-                            {% if option|is_in:chosen %}
-                              <input type="checkbox" class="form-check-input" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}" checked/>  {{option}}
-                            {% else %}
-                              <input type="checkbox" class="form-check-input" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}"/>  {{option}}
-                            {% endif %}
-                            {% if not forloop.last %}
-                              <br>
-                            {% endif %}
-                          {% endfor %}
-                          {% endwith %}
-                        </div>
-                      {% endif %}
-                      {% endwith %}
-
-                    {% elif form.instance.survey_component.component_type == 'FI' %}
-                      <div>
-                        {{form.responseFile}}
-                        <div class="warning">Upload files that are less than 10MB in size.</div>
-                      </div>
-                    {% elif form.instance.survey_component.component_type == 'DT' %}
-                      <div>
-                        <input type="date" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if sform.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
-                      </div>
-                    {% elif form.instance.survey_component.component_type == 'EM' %}
-                      <div>
-                        <input type="email" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}" />
-                      </div>
-                    {% elif form.instance.survey_component.component_type == 'UL' %}
-                      <div>
-                        <input type="url" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
-                      </div>
+    {% if survey.status == 'A' %}
+      <form method="post" enctype="multipart/form-data" id="formSurvey" class="survey_form" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}{% if reservation_id %}?reservation_id={{reservation_id}}{% endif %}">
+        {% csrf_token %}
+        {{formset.management_form}}
+        <div class="modal-body">
+          {% if formset|length > 0 %}
+            {% for form in formset %}
+                <div class="survey_component form-group mb-3">
+                  <div class="context {% if form.instance.survey_component.component_type != 'IN' %} question_label {% endif %}">
+                    {{form.id}}
+                    {% if form.instance.survey_component.component_type != 'IN' %}
+                      <label>{{form.instance.survey_component.content|inline_style|strip_html|safe}}
+                      {% if form.instance.survey_component.is_required %} (<span class="required">*</span>) {% endif %}</label>
+                    {% else %}
+                      {{form.instance.survey_component.content|inline_style|safe}}
                     {% endif %}
                   </div>
-                {% endif %}
-              </div>
-            {% endfor %}
-          {% endif %} 
-          <div class="form-group" id="spinner">
-            <img src="/static/img/page-loader.gif" class="icon"/>
-          </div>
-        </div>
-        <div class="modal-footer button-row">
-          <div class="form-group">
-            <input type="hidden" id="back" name="back" value="0"/>
-            {% if page_num > 1 %}
-              <button class="btn back" type="button" id="back_bottom">
-                  Back
-              </button>
+                  {% if form.instance.survey_component.component_type != 'IN' %}
+                    <div class="response">
+                      {% if form.instance.survey_component.component_type == 'TA' %}
+                        <textarea placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}>{{form.response.value}}</textarea>
+                      {% elif form.instance.survey_component.component_type == 'TF' %}
+                        <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>
+                      {% elif form.instance.survey_component.component_type == 'DD' or form.instance.survey_component.component_type == 'MC' or form.instance.survey_component.component_type == 'MS' %}
+
+                        {% with options=form.instance.survey_component.options|splitlines display_other_option=form.instance.survey_component.display_other_option other_option_label=form.instance.survey_component.other_option_label %}
+
+                        {% if form.instance.survey_component.component_type == 'DD' %}
+                          <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" {% if form.instance.survey_component.is_required %}required{% endif %}>
+                            <option value="">--------</option>
+                            {% for option in options%}
+                              {% if option|slugify == form.response.value|slugify %}
+                                <option value="{{option}}" selected>{{option}}</option>
+                              {% else %}
+                                <option value="{{option}}">{{option}}</option>
+                              {% endif %}
+                            {% endfor %}
+                            {% if display_other_option and other_option_label %}
+                              {% if not form.response.value or form.response.value|is_in:options %}
+                                <option value="{{other_option_label}}" class="other">{{other_option_label}}</option>
+                              {% else %}
+                                <option value="{{other_option_label}}" class="other" selected>{{other_option_label}}</option>
+                              {% endif %}
+                            {% endif %}
+                          </select>
+                          {% if display_other_option and other_option_label %}
+                            {% if not form.response.value or form.response.value|is_in:options %}
+                              <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
+                            {% else %}
+                               <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                            {% endif %}
+                          {% endif %}
+                        {% elif form.instance.survey_component.component_type == 'MC' %}
+                          <div>
+                            {% for option in options%}
+                              {% if option|slugify == form.response.value|slugify %}
+                                <input type="radio" class="form-check-input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}
+                              {% else %}
+                                <input type="radio" class="form-check-input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}
+                              {% endif %}
+                              {% if not forloop.last %}
+                                <br>
+                              {% endif %}
+                            {% endfor %}
+                            {% if display_other_option and other_option_label %}
+                              <br>
+                              {% if not form.response.value or form.response.value|is_in:options %}
+                                <input type="radio" class="form-check-input other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{other_option_label}}"  {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{other_option_label}}
+                                <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
+                              {% else %}
+                                <input type="radio" class="form-check-input other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{other_option_label}}" checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{other_option_label}}
+                                <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                              {% endif %}
+                            {% endif %}
+                          </div>
+                        {% elif form.instance.survey_component.component_type == 'MS' %}
+                          <div>
+                            <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                            {% with chosen=form.response.value|split:',' %}
+                            {% for option in options %}
+                              {% if option|is_in:chosen %}
+                                <input type="checkbox" class="form-check-input" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}" checked/>  {{option}}
+                              {% else %}
+                                <input type="checkbox" class="form-check-input" name="{{form.response.html_name}}_cb" id="{{form.response.auto_id}}_cb" value="{{option}}"/>  {{option}}
+                              {% endif %}
+                              {% if not forloop.last %}
+                                <br>
+                              {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                          </div>
+                        {% endif %}
+                        {% endwith %}
+
+                      {% elif form.instance.survey_component.component_type == 'FI' %}
+                        <div>
+                          {{form.responseFile}}
+                          <div class="warning">Upload files that are less than 10MB in size.</div>
+                        </div>
+                      {% elif form.instance.survey_component.component_type == 'DT' %}
+                        <div>
+                          <input type="date" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if sform.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
+                        </div>
+                      {% elif form.instance.survey_component.component_type == 'EM' %}
+                        <div>
+                          <input type="email" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}" />
+                        </div>
+                      {% elif form.instance.survey_component.component_type == 'UL' %}
+                        <div>
+                          <input type="url" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
             {% endif %}
-            {% if page_num < total_pages %}
-              <button class="btn next" type="submit" id="submit_bottom">
-                Next
-              </button>
-            {% else %}
-              {% if survey.resource_url %}
-                <button class="btn next" type="button" id="submit_bottom_with_download" data-name='{{survey.name|replace_space:"_"}}.pdf' data-href='{{survey.resource_url}}'>
-                  Submit
-                </button>
-              {% else %}
-                 <button class="btn next" type="submit" id="submit_bottom">
-                  Submit
+            <div class="form-group" id="spinner">
+              <img src="/static/img/page-loader.gif" class="icon"/>
+            </div>
+          </div>
+          <div class="modal-footer button-row">
+            <div class="form-group">
+              <input type="hidden" id="back" name="back" value="0"/>
+              {% if page_num > 1 %}
+                <button class="btn back" type="button" id="back_bottom">
+                    Back
                 </button>
               {% endif %}
-            {% endif %}
+              {% if page_num < total_pages %}
+                <button class="btn next" type="submit" id="submit_bottom">
+                  Next
+                </button>
+              {% else %}
+                {% if survey.resource_url %}
+                  <button class="btn next" type="button" id="submit_bottom_with_download" data-name='{{survey.name|replace_space:"_"}}.pdf' data-href='{{survey.resource_url}}'>
+                    Submit
+                  </button>
+                {% else %}
+                   <button class="btn next" type="submit" id="submit_bottom">
+                    Submit
+                  </button>
+                {% endif %}
+              {% endif %}
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      {% endif %}
     </div>
   </div>
 
