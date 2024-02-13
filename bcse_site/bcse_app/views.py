@@ -3634,18 +3634,20 @@ def subscribe(request):
     if request.method == 'GET':
       if request.user.is_authenticated:
         userProfile = models.UserProfile.objects.get(id=request.user.userProfile.id)
+
+        userDetails = {'email_address': userProfile.user.email.lower(), 'first_name':  userProfile.user.first_name, 'last_name':  userProfile.user.last_name}
+        if userProfile.phone_number:
+          userDetails['phone_number'] = userProfile.phone_number
+        subscription(userDetails, 'add')
+
         if userProfile.subscribe:
           messages.success(request, "You are already subscribed to our mailing list")
-          return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
-          userDetails = {'email_address': userProfile.user.email.lower(), 'first_name':  userProfile.user.first_name, 'last_name':  userProfile.user.last_name}
-          if userProfile.phone_number:
-            userDetails['phone_number'] = userProfile.phone_number
-          subscription(userDetails, 'add')
           userProfile.subscribe = True
           userProfile.save()
           messages.success(request, "You have successfully subscribed to our mailing list")
-          return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
       else:
         form = forms.SubscriptionForm(user=request.user)
         context = {'form': form}
@@ -3659,6 +3661,7 @@ def subscribe(request):
         if data.__getitem__('phone_number'):
           userDetails['phone_number'] = data.__getitem__('phone_number')
         subscription(userDetails, 'add')
+
         try:
           userProfile = models.UserProfile.objects.get(user__email=userDetails['email_address'])
           userProfile.subscribe = True
@@ -6237,23 +6240,30 @@ def subscription(userDetails, status, subscriber_hash=None):
   })
 
   try:
+    member_info = {
+      "email_address": userDetails['email_address'],
+      "merge_fields": {"FNAME": userDetails['first_name'], "LNAME": userDetails['last_name']},
+      "status": "subscribed",
+    }
+    if not subscriber_hash:
+      subscriber_hash = hashlib.md5(userDetails['email_address'].lower().encode("utf-8")).hexdigest()
+
+    try:
+      #first delete
+      #if contact does not exist, this will throw an exception
+      delete_response = mailchimp.lists.delete_list_member(list_id, subscriber_hash)
+      #print("delete response: {}".format(delete_response))
+    except ApiClientError as error:
+      print("An exception occurred: {}".format(error.text))
+      pass
+
+    # if not delete then add user back
     if status != 'delete':
-      member_info = {
-        "email_address": userDetails['email_address'],
-        "merge_fields": {"FNAME": userDetails['first_name'], "LNAME": userDetails['last_name']},
-        "status": "subscribed",
-      }
       if 'phone_number' in userDetails:
         member_info['merge_fields']['PHONE'] = userDetails['phone_number']
 
-      if status == 'add':
-        response = mailchimp.lists.add_list_member(list_id, member_info)
-      else:
-        response = mailchimp.lists.update_list_member(list_id, subscriber_hash, member_info)
-    else:
-      response = mailchimp.lists.delete_list_member(list_id, subscriber_hash)
-
-    #print("response: {}".format(response))
+      add_response = mailchimp.lists.add_list_member(list_id, member_info)
+      #print("add response: {}".format(add_response))
 
   except ApiClientError as error:
     print("An exception occurred: {}".format(error.text))
