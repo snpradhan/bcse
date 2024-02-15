@@ -5401,22 +5401,120 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
   elif survey.survey_type == 'W':
     connected_entity_type = 'Workshop'
 
-  #include all columns for admins
-  if is_admin:
-    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Survey ID', 'Survey Name', 'Submission ID', 'IP Address', 'Page #', 'Question #', 'Question Type', 'Content', 'Options', 'Is Required?', 'Response', 'Created Date', 'Survey Status', 'Admin Notes']
-    font_styles = [font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style,font_style, date_time_format, font_style, font_style]
-  else:
-    columns = ['Page #', 'Question #', 'Content', 'Response']
-    font_styles = [font_style, font_style,font_style,font_style]
-
-
   ws = wb.add_sheet('Survey Submissions')
   row_num = 0
-  #write the headers
-  for col_num in range(len(columns)):
-    ws.write(row_num, col_num, columns[col_num], bold_font_style)
 
+  ###########################################
+  # get list of questions in the survey
+  questions = []
+  for survey_component in survey.survey_component.all():
+    if survey_component.component_type != 'IN':
+      questions.append(survey_component)
+  ##########################################
+
+  #include all columns for admins
+  if is_admin:
+    #survey stats header
+    columns = ['Survey ID', 'Survey Name', 'Total Submissions', 'In-Progress', 'Submitted', 'Reviewed']
+    font_styles = [font_style,font_style,font_style,font_style,font_style, font_style]
+    #write the headers
+    for col_num in range(len(columns)):
+      ws.write(row_num, col_num, columns[col_num], bold_font_style)
+
+    #survey stats data
+    row = [survey.id,
+           survey.name,
+           surveySubmissions.count(),
+           surveySubmissions.filter(status='I').count(),
+           surveySubmissions.filter(status='S').count(),
+           surveySubmissions.filter(status='R').count()
+          ]
+    row_num += 1
+    #write stats data
+    for col_num in range(len(row)):
+      ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+    #add two empty rows
+    row_num += 3
+
+    #user info header
+    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Submission ID', 'IP Address']
+    font_styles = [font_style,font_style,font_style,font_style,font_style, font_style, font_style]
+    question_col_num = len(columns)
+
+    #question header
+    for question in questions:
+      question_label = 'Question %s.%s' % (question.page, question.order)
+      if question.is_required:
+        question_label += ' *'
+      columns.append(question_label)
+      font_styles.append(font_style)
+
+    #status header
+    columns.append('Survey Status')
+    font_styles.append(font_style)
+    columns.append('Created Date')
+    font_styles.append(date_time_format)
+    columns.append('Admin Notes')
+    font_styles.append(font_style)
+
+    #write the user info header, question header and status header
+    for col_num in range(len(columns)):
+      ws.write(row_num, col_num, columns[col_num], bold_font_style)
+
+    row_num += 1
+    col_num = question_col_num
+
+    #write question content
+    for question in questions:
+      #question content
+      ws.write(row_num, col_num, remove_html_tags(request, smart_str(question.content)), font_style)
+
+      #question type
+      ws.write(row_num+1, col_num, question.get_component_type_display(), font_style)
+
+      #question options
+      options = question.options
+      if question.display_other_option and question.other_option_label:
+        options += '\n'
+        options += question.other_option_label
+      ws.write(row_num+2, col_num, options, font_style)
+
+      col_num += 1
+
+    row_num += 2
+  ##########################################
+  #non-admin survey submission confirmation
+  else:
+    columns = []
+    font_styles = []
+    #question header
+    for question in questions:
+      question_label = 'Question %s.%s' % (question.page, question.order)
+      if question.is_required:
+        question_label += ' *'
+      columns.append(question_label)
+      font_styles.append(font_style)
+
+    #write question headers
+    for col_num in range(len(columns)):
+      ws.write(row_num, col_num, columns[col_num], bold_font_style)
+
+    row_num += 1
+    col_num = 0
+
+    #write the question content
+    for question in questions:
+      #question content
+      ws.write(row_num, col_num, remove_html_tags(request, smart_str(question.content)), font_style)
+      col_num += 1
+
+  ####################################
+  #iterate each submission
   for submission in surveySubmissions:
+    row_num += 1
+
+    #find connected entity
     connected_entity = get_submission_connected_entity(submission.UUID)
     connected_entity_name = ''
     if connected_entity:
@@ -5428,48 +5526,42 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
       elif survey.survey_type == 'W':
         connected_entity_name = connected_entity['entity'].name
 
-    for survey_response in submission.survey_response.all().order_by('survey_component__page', 'survey_component__order'):
+    # user info data for admins
+    if is_admin:
+      row = [submission.user.id if submission.user else '',
+             submission.user.user.email if submission.user else '',
+             submission.user.user.get_full_name() if submission.user else '',
+             submission.user.work_place.name if submission.user and submission.user.work_place else '',
+             connected_entity_name,
+             str(submission.UUID),
+             submission.ip_address
+           ]
+    # non-admins
+    else:
+      row = []
+
+    #responses for each submission
+    survey_responses = models.SurveyResponse.objects.all().filter(submission=submission)
+    for question in questions:
+      survey_response = survey_responses.filter(survey_component=question)
       response = ''
-      if survey_response.response:
-        response = survey_response.response
-      elif survey_response.responseFile:
-        response = survey_response.responseFile.url
+      if survey_response:
+        if survey_response.first().response:
+          response = survey_response.first().response
+        elif survey_response.first().responseFile:
+          response = survey_response.first().responseFile.url
 
-      if is_admin:
-        options = survey_response.survey_component.options
-        if survey_response.survey_component.display_other_option and survey_response.survey_component.other_option_label:
-          options += '\n'
-          options += survey_response.survey_component.other_option_label
+      row.append(response)
 
-        row = [submission.user.id if submission.user else '',
-               submission.user.user.email if submission.user else '',
-               submission.user.user.get_full_name() if submission.user else '',
-               submission.user.work_place.name if submission.user and submission.user.work_place else '',
-               connected_entity_name,
-               submission.survey.id,
-               submission.survey.name,
-               str(submission.UUID),
-               submission.ip_address,
-               survey_response.survey_component.page,
-               survey_response.survey_component.order,
-               survey_response.survey_component.get_component_type_display(),
-               remove_html_tags(request, smart_str(survey_response.survey_component.content)),
-               options,
-               'Yes' if survey_response.survey_component.is_required else 'No',
-               response,
-               survey_response.created_date.replace(tzinfo=None),
-               submission.get_status_display(),
-               submission.admin_notes
-             ]
-      else:
-        row = [survey_response.survey_component.page,
-               survey_response.survey_component.order,
-               remove_html_tags(request, smart_str(survey_response.survey_component.content)),
-               response
-             ]
-      row_num += 1
-      for col_num in range(len(row)):
-        ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+    #submission status for admins
+    if is_admin:
+      row.append(submission.get_status_display())
+      row.append(submission.created_date.replace(tzinfo=None))
+      row.append(submission.admin_notes)
+
+    #write responses
+    for col_num in range(len(row)):
+      ws.write(row_num, col_num, row[col_num], font_styles[col_num])
 
   return wb
 
