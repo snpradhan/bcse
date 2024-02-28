@@ -182,12 +182,10 @@
           <div class="form-group col-md-8">
             <label for="id_{{form.work_place.name}}">
               {{ form.work_place.label }}
-              {% if form.work_place.field.required %}
-                (<span class="required">*</span>)
-              {% endif %}
+              <span class="workplace_required">(<span class="required">*</span>)</span>
             </label>
             <div id="signup_workplace_select">{{form.work_place}}</div>
-            <div class="error">{{ form.work_place.errors }}</div>
+            <div class="error work_place_error">{{ form.work_place.errors }}</div>
           </div>
           <div class="form-group col-md-4">
             <label for="id_{{form.new_work_place_flag.name}}">
@@ -285,8 +283,8 @@
               <div>{{work_place_form.zip_code}}</div>
               <div class="error">{{ work_place_form.zip_code.errors }}</div>
             </div>
-            <div>
-              {{ work_place_form.status.as_hidden}}
+            <div style="display: none;">
+              {{work_place_form.status}}
             </div>
           </div>
         </div>
@@ -315,14 +313,18 @@
     $('input[name="new_work_place_flag"]').on('change', function(){
       if($(this).is(':checked')){
         $('select#id_work_place').prop('disabled', 'disabled');
+        $('span.workplace_required').hide();
         $('div#work_place_form').show();
         $('div#work_place_form :input').prop('disabled', false);
+        $('div.work_place_error').html('');
       }
       else {
         $('div#work_place_form').hide();
         $('div#work_place_form :input').prop('disabled', true);
+        $('span.workplace_required').show();
         $('select#id_work_place').prop('disabled', false);
       }
+
     });
     $('input[name="new_work_place_flag"]').trigger('change');
 

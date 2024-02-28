@@ -62,6 +62,7 @@ class NextParameterMiddleware(MiddlewareMixin):
 
   def process_request(self, request):
     redirect_url = request.GET.get('next', '')
+    print(redirect_url, 'in middleware')
     target = None
     if redirect_url.find('password_reset') == 1:
       target = '#password'
@@ -71,6 +72,8 @@ class NextParameterMiddleware(MiddlewareMixin):
       target = '#signup'
     elif redirect_url.find('survey') == 1 or redirect_url.find('vignette') == 1:
       target = '#general'
+    elif redirect_url.find('userProfile'):
+      target = '#profile'
 
     if request.user.is_authenticated and redirect_url.find('signin') == 1 and redirect_url.find('survey') > 1:
       redirect_url = redirect_url.replace('/signin/?next=/?next=', '')

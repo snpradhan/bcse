@@ -279,9 +279,17 @@ class WorkPlace(models.Model):
   def __str__(self):
       return '%s' % (self.name)
 
+#
+# Placeholder workplace to assign to users when the users' workplace is deleted
+#
+def get_placeholder_workplace():
+  return WorkPlace.objects.all().filter(name='Placeholder work place')[0].id
+
+
+
 class UserProfile(models.Model):
   user = models.OneToOneField(User, unique=True, null=False, related_name="userProfile", on_delete=models.CASCADE)
-  work_place = models.ForeignKey(WorkPlace, null=True, related_name="users", on_delete=models.SET_NULL)
+  work_place = models.ForeignKey(WorkPlace, null=False, blank=False, related_name="users", default=get_placeholder_workplace, on_delete=models.SET(get_placeholder_workplace))
   user_role = models.CharField(max_length=1, choices=USER_ROLE_CHOICES)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Profile image')
   validation_code = models.CharField(null=False, max_length=5)
@@ -874,7 +882,7 @@ def check_workplace_address_change(sender, instance, **kwargs):
     url = "%sgeocode/search?text=%s&apiKey=%s" % (settings.GEOAPIFY_BASE_URL, full_address, settings.GEOAPIFY_KEY)
     resp = requests.get(url, headers=headers)
     geocode = resp.json()
-    if "features" in geocode:
+    if "features" in geocode and geocode["features"] and "geometry" in geocode["features"][0] and "coordinates" in geocode["features"][0]["geometry"]:
       latlong = geocode["features"][0]["geometry"]["coordinates"]
       longitude = latlong[0]
       latitude = latlong[1]

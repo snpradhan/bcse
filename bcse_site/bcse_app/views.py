@@ -43,6 +43,7 @@ import copy
 import re
 import html
 from django.utils.encoding import smart_str
+import pytz
 
 # Create your views here.
 
@@ -397,7 +398,20 @@ def userSignin(request, user_email=''):
 
       if user.is_active:
         login(request, user)
-        messages.success(request, "You have signed in")
+
+        #if asking user to update their profile on login
+        if settings.VERIFY_PROFILE_ON_LOGIN:
+          profile_modified = user.userProfile.modified_date
+          cutoff = settings.PROFILE_UPDATE_CUTOFF
+
+          if profile_modified < cutoff:
+            if redirect_url:
+              redirect_url = '?next=/userProfile/%s/edit?next=%s' %(user.userProfile.id, redirect_url)
+            else:
+              redirect_url = '?next=/userProfile/%s/edit' % user.userProfile.id
+
+          messages.success(request, "You have signed in")
+
         response_data['success'] = True
         response_data['redirect_url'] = redirect_url
       else:
@@ -440,6 +454,7 @@ def userSignout(request):
 def userSignup(request):
 
   work_place = models.WorkPlace()
+  redirect_url = request.GET.get('next', '')
   ########### GET ###################
   if request.method == 'GET':
 
@@ -3535,8 +3550,19 @@ def userProfileEdit(request, id=''):
 
     if request.method == 'GET':
       userForm = forms.UserForm(instance=userProfile.user, user=request.user, prefix="user")
-      userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile")
+      if request.user.userProfile.user_role != 'A' and request.user.userProfile.work_place.status == 'I':
+        userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile", initial={'work_place': None})
+      else:
+        userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile")
       context = {'userProfileForm': userProfileForm, 'userForm': userForm}
+
+      #if asking user to update their profile on login
+      if settings.VERIFY_PROFILE_ON_LOGIN:
+        profile_modified = userProfile.modified_date
+        cutoff = settings.PROFILE_UPDATE_CUTOFF
+        if profile_modified < cutoff:
+          messages.warning(request, "Please confirm or update your workplace below.")
+
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
     elif request.method == 'POST':

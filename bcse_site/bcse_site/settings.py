@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from .base_settings import *
+import datetime
+import pytz
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -264,6 +266,9 @@ BAXTER_BOX_MIN_ADVANCE_RESERVATION_DAYS = 14
 BAXTER_BOX_MAX_ADVANCE_RESERVATION_DAYS = 180
 #ADVANCE RESERVATION REMINDER EMAIL 30 DAYS
 BAXTER_BOX_RESERVATION_REMINDER_DAYS = 30
+
+VERIFY_PROFILE_ON_LOGIN = True
+PROFILE_UPDATE_CUTOFF = datetime.datetime.strptime("2024-02-27 00:00", "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(TIME_ZONE))
 
 
 CRONJOBS = [

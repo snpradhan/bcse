@@ -116,6 +116,7 @@ class SignUpForm (forms.Form):
     user_role = cleaned_data.get('user_role')
     work_place = cleaned_data.get('work_place')
     new_work_place_flag = cleaned_data.get('new_work_place_flag')
+    print(new_work_place_flag, 'new workplace flag')
 
     if email is None:
       self.fields['email'].widget.attrs['class'] += ' error'
@@ -142,7 +143,7 @@ class SignUpForm (forms.Form):
       self.fields['last_name'].widget.attrs['class'] += ' error'
 
     #check fields for Teacher, Student and School Administrator
-    if work_place is None and new_work_place_flag == 'F':
+    if work_place is None and not new_work_place_flag:
       self.fields['work_place'].widget.attrs['class'] += ' error'
       self.add_error('work_place', 'Work Place is required.')
 
@@ -909,6 +910,11 @@ class WorkPlaceForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
       if field_name == 'district_number':
         field.label = 'District #'
+
+      if field_name == 'status':
+        if not self.instance.id:
+          field.initial = 'A'
+
 
 ####################################
 # Teacher Leader Form
