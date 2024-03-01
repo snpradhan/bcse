@@ -1120,6 +1120,41 @@ class SurveySubmissionForm(ModelForm):
 
 
 ####################################
+# Survey Submissions Search Form
+####################################
+class SurveySubmissionsSearchForm(forms.Form):
+  email = forms.CharField(required=False, max_length=256, label=u'Email')
+  first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
+  last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
+  user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
+  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}))
+
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.SURVEY_SUBMISSION_STATUS_CHOICES)
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('email', 'Email'),
+                                                      ('first_name', 'First Name'),
+                                                      ('last_name', 'Last Name'),
+                                                      ('created_date_desc', 'Created Date (Desc)'),
+                                                      ('created_date_asc', 'Created Date (Asc)')), initial='created_date_desc')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
+    super(SurveySubmissionsSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
+
+####################################
 # Vignette Form
 ####################################
 class VignetteForm(ModelForm):

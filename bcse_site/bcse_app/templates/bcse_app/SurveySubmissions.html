@@ -5,9 +5,35 @@
 {% block configuration %}
   <h1 class="center"> {{survey.name}} </h1>
   {% include "bcse_app/SurveyTabs.html" with tab='submissions' %}
-  <div class="search_results static">
-    {% include "bcse_app/SurveySubmissionsTableView.html" with tab='submissions' %}
+  {% include "bcse_app/SurveySubmissionsSearch.html" %}
+  <div class="form-group" id="spinner">
+    <img src="/static/img/page-loader.gif" class="icon"/>
   </div>
-      
- 
+  <table class="table table-bordered table-striped" id="survey_submissions_summary">
+    {% get_survey_submission_breakdown survey as submission_summary %}
+    <thead>
+      <tr>
+        <th colspan={{submission_summary|length|add:1}} class="center"> Submission Summary </th>
+      </tr>
+      <tr>
+        <th>Total Submissions</th>
+        {% for status, total in submission_summary.items %}
+        <th>{{status}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <td>{{survey.survey_submission.all|length}}</td>
+      {% for status, total in submission_summary.items %}
+      <td>{{total}}</td>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="search_results static">
+  </div>
+  <script type="text/javascript">
+    $(function (){
+      $('form#survey_submission_filter_form').submit();
+    });
+  </script>
 {% endblock %}

@@ -5347,7 +5347,14 @@ def surveySubmissions(request, id=''):
     surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
 
     if request.method == 'GET':
-      context = {'survey': survey, 'surveySubmissions': surveySubmissions}
+      if request.session.get('survey_submissions_search', False):
+        searchForm = forms.SurveySubmissionsSearchForm(user=request.user, initials=request.session['survey_submissions_search'], prefix="survey_submission_search")
+        page = request.session['survey_submissions_search']['page']
+      else:
+        searchForm = forms.SurveySubmissionsSearchForm(user=request.user, initials=None, prefix="survey_submission_search")
+        page = 1
+
+      context = {'survey': survey, 'searchForm': searchForm, 'page': page}
       return render(request, 'bcse_app/SurveySubmissions.html', context)
 
     return http.HttpResponseNotAllowed(['GET'])
@@ -5358,6 +5365,126 @@ def surveySubmissions(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################################
+# FILTER SURVEY SUBMISSIONS LIST BASED ON FILTER CRITERIA
+################################################################
+@login_required
+def surveySubmissionsSearch(request, id=''):
+
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to search survey submissions')
+
+    if request.method == 'GET':
+
+      survey = models.Survey.objects.get(id=id)
+
+      query_filter = Q(survey=survey)
+      email_filter = None
+      first_name_filter = None
+      last_name_filter = None
+      user_role_filter = None
+      work_place_filter = None
+      status_filter = None
+
+
+      email = request.GET.get('survey_submission_search-email', '')
+      first_name = request.GET.get('survey_submission_search-first_name', '')
+      last_name = request.GET.get('survey_submission_search-last_name', '')
+      user_role = request.GET.get('survey_submission_search-user_role', '')
+      work_place = request.GET.get('survey_submission_search-work_place', '')
+      status = request.GET.get('survey_submission_search-status', '')
+      sort_by = request.GET.get('survey_submission_search-sort_by', '')
+      rows_per_page = request.GET.get('survey_submission_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+      #set session variable
+      request.session['survey_submissions_search'] = {
+        'email': email,
+        'first_name': first_name,
+        'last_name': last_name,
+        'user_role': user_role,
+        'work_place': work_place,
+        'status': status,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if email:
+        email_filter = Q(user__user__email__icontains=email)
+
+      if first_name:
+        first_name_filter = Q(user__user__first_name__icontains=first_name)
+      if last_name:
+        last_name_filter = Q(user__user__last_name__icontains=last_name)
+
+      if user_role:
+        user_role_filter = Q(user__user_role=user_role)
+
+      if work_place:
+        work_place_filter = Q(user__work_place=work_place)
+
+      if status:
+        status_filter = Q(status=status)
+
+      if email_filter:
+        query_filter = email_filter
+      if first_name_filter:
+        query_filter = query_filter & first_name_filter
+      if last_name_filter:
+        query_filter = query_filter & last_name_filter
+      if user_role_filter:
+        query_filter = query_filter & user_role_filter
+
+      if work_place_filter:
+        query_filter = query_filter & work_place_filter
+
+      if status_filter:
+        query_filter = query_filter & status_filter
+
+      surveySubmissions = models.SurveySubmission.objects.all().filter(query_filter)
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      if sort_by:
+        if sort_by == 'email':
+          order_by = 'user__user__email'
+        elif sort_by == 'first_name':
+          order_by = 'user__user__first_name'
+        elif sort_by == 'last_name':
+          order_by = 'user__user__last_name'
+        elif sort_by == 'created_date_desc':
+          order_by = 'created_date'
+          direction = 'desc'
+        elif sort_by == 'created_date_asc':
+          order_by = 'created_date'
+          direction = 'asc'
+      else:
+        order_by = 'user__user__email'
+
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+      surveySubmissions = paginate(request, surveySubmissions, sort_order, rows_per_page, page)
+
+      context = {'survey': survey, 'surveySubmissions': surveySubmissions}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/SurveySubmissionsTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Survey.DoesNotExist as ce:
+    messages.error(request, "Survey not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 ###################################################################################
 # EXPORT SURVEY SUBMISSIONS OF ONE SURVEY OR ONE SUBMISSION ON AN EXCEL DOC
