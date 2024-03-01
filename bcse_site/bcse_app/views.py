@@ -428,8 +428,6 @@ def userSignin(request, user_email=''):
 
   elif request.method == 'GET':
     logout(request)
-    messages.warning(request, 'We have updated our website. Before you login for the first time, please reset your password using "Forgot Password" link below. \
-        Then login using your email and new password.')
     if user_email:
       form = forms.SignInForm(initial={'email': user_email})
     else:
