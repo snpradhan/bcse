@@ -7,4 +7,6 @@ class Command(BaseCommand):
         users = User.objects.all().exclude(userProfile__user_role__in=['A', 'S'])
         for user in users:
             user.email = 'user%s@email.com'% user.userProfile.id
+            user.username = 'user%s@email.com'% user.userProfile.id
+            user.set_password('user%s@email.com'% user.userProfile.id)
             user.save()
