@@ -1,0 +1,10 @@
+{% extends "bcse_app/base.html" %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="workshop_container container">
+      {% include "bcse_app/WorkshopView.html" %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,57 +1,49 @@
-{% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
 {% load base_extras %}
 
-{% block content %}
-  {{block.super}}
-  <div class="content">
-    <div class="workshop_container container">
-      <h1 class="center"> {{workshop.name}}</h1>
-      {% include "bcse_app/WorkshopTabs.html" with tab='registrants' %}
-      {% include "bcse_app/WorkshopRegistrantsSearch.html" %}
-      <table class="table table-bordered table-striped" id="registrants_summary">
-        {% get_registration_breakdown workshop.registration_setting as registration_summary %}
-        <thead>
-          <tr>
-            <th colspan={{registration_summary|length|add:1}} class="center"> Registration Summary </th>
-          </tr>
-          <tr>
-            <th>Total Registrants</th>
-            {% for status, total in registration_summary.items %}
-            <th>{{status}}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          <td>{{workshop.registration_setting.workshop_registrants.all|length}}</td>
-          {% for status, total in registration_summary.items %}
-          <td>{{total}}</td>
-          {% endfor %}
-        </tbody>
-      </table>
-      <div class="workshops_registrants search_results">
-      </div>
-      <div class="form-group right">
-        {% if user.userProfile.user_role in 'AS' %}
-          <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
-        {% endif %}
-        <button class="btn download" type="button">Download Registrants</button>
-      </div>
-    </div>
-  </div>
+<h1 class="center"> {{workshop.name}}</h1>
+{% include "bcse_app/WorkshopTabs.html" with tab='registrants' %}
+{% include "bcse_app/WorkshopRegistrantsSearch.html" %}
+<table class="table table-bordered table-striped" id="registrants_summary">
+  {% get_registration_breakdown workshop.registration_setting as registration_summary %}
+  <thead>
+    <tr>
+      <th colspan={{registration_summary|length|add:1}} class="center"> Registration Summary </th>
+    </tr>
+    <tr>
+      <th>Total Registrants</th>
+      {% for status, total in registration_summary.items %}
+      <th>{{status}}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    <td>{{workshop.registration_setting.workshop_registrants.all|length}}</td>
+    {% for status, total in registration_summary.items %}
+    <td>{{total}}</td>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="workshops_registrants search_results">
+</div>
+<div class="form-group right">
+  {% if user.userProfile.user_role in 'AS' %}
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+  {% endif %}
+  <button class="btn download" type="button">Download Registrants</button>
+</div>
 
-  <script type="text/javascript">
-    $(function (){
-      $('.filter_form').submit();
-      $('.download').on('click', function(e) {
-        $("#workshop_registrants").table2excel({
-          exclude: ".noExl",
-          name: "Workshop Registrants",
-          filename: "Workshop_Registrants", //do not include extension
-          fileext:".xls", // file extension
-          preserveColors: true, // set to true if you want background colors and font colors preserved
-        });
+<script type="text/javascript">
+  $(function (){
+    $('.filter_form').submit();
+    $('.download').on('click', function(e) {
+      $("#workshop_registrants").table2excel({
+        exclude: ".noExl",
+        name: "Workshop Registrants",
+        filename: "Workshop_Registrants", //do not include extension
+        fileext:".xls", // file extension
+        preserveColors: true, // set to true if you want background colors and font colors preserved
       });
     });
-  </script>
-{% endblock %}
+  });
+</script>

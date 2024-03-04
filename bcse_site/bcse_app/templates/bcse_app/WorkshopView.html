@@ -1,103 +1,90 @@
-{% extends "bcse_app/base.html" %}
 {% load bcse_extras %}
 {% load base_extras %}
 
-{% block content %}
-  {{block.super}}
-  <div class="content">
-    <div class="workshop_container container">
-      {% if user.is_authenticated %}
-        {% if user.userProfile.user_role in 'AS' or workshop|is_workshop_teacher_leader:user.userProfile %}
-          <h1 class="center"> {{workshop.name}} </h1>
-        {% endif %}
+{% if user.is_authenticated %}
+  {% if user.userProfile.user_role in 'AS' or workshop|is_workshop_teacher_leader:user.userProfile %}
+    <h1 class="center"> {{workshop.name}} </h1>
+  {% endif %}
+{% endif %}
+
+{% include "bcse_app/WorkshopTabs.html" with tab='view' %}
+<div class="tile workshop_tile workshop_header">
+  <div class="image">
+    {% if workshop.image %}
+      <img src="{{workshop.image.url}}">
+    {% endif %}
+  </div>
+  <div class="details">
+    <h2>{{workshop.name}}</h2>
+    <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
+  </div>
+  <div class="date_location">
+    {% if workshop.display_date %}
+      <div class="date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>{{workshop.display_date|linebreaks}}
+      </div>
+    {% elif workshop.start_date == workshop.end_date %}
+      <div class="date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        {{workshop.start_date|date}}
+      </div>
+      <div class="date">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        {{workshop.start_time|default_if_none:""}} - {{workshop.end_time|default_if_none:""}}
+      </div>
+    {% else %}
+      <div class="date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        {{workshop.start_date|date}} - {{workshop.end_date|date}}
+      </div>
+      <div class="date">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        {{workshop.start_time|default_if_none:""}} - {{workshop.end_time|default_if_none:""}}
+      </div>
+    {% endif %}
+    <div class="location">
+      <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
+    </div>
+    <div class="workshop_registration">
+      {% include "bcse_app/WorkshopRegistration.html" %}
+    </div>
+    {% include "bcse_app/WorkshopRegistrationQuestionnaireLink.html" %}
+    <!-- if meetup link is available only display the link if registration is not enabled or if enabled the user
+      is Registered or Accepted into the workshop -->
+    {% if workshop.meetup_link %}
+      {% if not workshop.enable_registration or registration and registration.instance and registration.instance.status in 'RC' %}
+        <div class="form-group mb-3 center">
+          <a class="btn" href="{{workshop.meetup_link}}" target="_blank">Join</a>
+        </div>
       {% endif %}
+    {% endif %}
+  </div>
+</div>
 
-      {% include "bcse_app/WorkshopTabs.html" with tab='view' %}
-      <div class="tile workshop_tile workshop_header">
-        <div class="image">
-          {% if workshop.image %}
-            <img src="{{workshop.image.url}}">
-          {% endif %}
-        </div>
-        <div class="details">
-          <h2>{{workshop.name}}</h2>
-          <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
-        </div>
-        <div class="date_location">
-          {% if workshop.display_date %}
-            <div class="date">
-              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>{{workshop.display_date|linebreaks}}
-            </div>
-          {% elif workshop.start_date == workshop.end_date %}
-            <div class="date">
-              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
-              {{workshop.start_date|date}}
-            </div>
-            <div class="date">
-              <i class="far fa-fw fa-clock" aria-hidden="true"></i>
-              {{workshop.start_time|default_if_none:""}} - {{workshop.end_time|default_if_none:""}}
-            </div>
-          {% else %}
-            <div class="date">
-              <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
-              {{workshop.start_date|date}} - {{workshop.end_date|date}}
-            </div>
-            <div class="date">
-              <i class="far fa-fw fa-clock" aria-hidden="true"></i>
-              {{workshop.start_time|default_if_none:""}} - {{workshop.end_time|default_if_none:""}}
-            </div>
-          {% endif %}
-          <div class="location">
-            <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i>{{workshop.location}}
-          </div>
-          <div class="workshop_registration">
-            {% include "bcse_app/WorkshopRegistration.html" %}
-          </div>
-          {% include "bcse_app/WorkshopRegistrationQuestionnaireLink.html" %}
-          <!-- if meetup link is available only display the link if registration is not enabled or if enabled the user
-            is Registered or Accepted into the workshop -->
-          {% if workshop.meetup_link %}
-            {% if not workshop.enable_registration or registration and registration.instance and registration.instance.status in 'RC' %}
-              <div class="form-group mb-3 center">
-                <a class="btn" href="{{workshop.meetup_link}}" target="_blank">Join</a>
-              </div>
-            {% endif %}
-          {% endif %}
-        </div>
-      </div>
+<div class="workshop_content wysiwyg_content">
+  {% if workshop.description %}
+    {{workshop.description|safe}}
+  {% endif %}
+</div>
 
-      <div class="workshop_content wysiwyg_content">
-        {% if workshop.description %}
-          {{workshop.description|safe}}
+<div class="workshop_teacher_leader">
+  {% if workshop.teacher_leaders.all %}
+    <hr>
+    <h3>About the Teacher{% if workshop.teacher_leaders.all.count > 1 %}s{% endif %}</h3>
+    {% for teacher_leader in workshop.teacher_leaders.all %}
+    <div class="teacher_leader_info">
+      <div class="teacher_leader_image">
+        {% if teacher_leader.teacher.image %}
+          <img src="{{teacher_leader.teacher.image.url}}"/>
         {% endif %}
       </div>
-
-      <div class="workshop_teacher_leader">
-        {% if workshop.teacher_leaders.all %}
-          <hr>
-          <h3>About the Teacher{% if workshop.teacher_leaders.all.count > 1 %}s{% endif %}</h3>
-          {% for teacher_leader in workshop.teacher_leaders.all %}
-          <div class="teacher_leader_info">
-            <div class="teacher_leader_image">
-              {% if teacher_leader.teacher.image %}
-                <img src="{{teacher_leader.teacher.image.url}}"/>
-              {% endif %}
-            </div>
-            <div class="teacher_leader_details">
-              <h4>{{teacher_leader.teacher.user.get_full_name}}</h4>
-              <h4>{{teacher_leader.teacher.work_place.name}}</h4>
-              <div class="wysiwyg_content">{{teacher_leader.bio|safe}}</div>
-            </div>
-          </div>
-          {% endfor %}
-        {% endif %}
+      <div class="teacher_leader_details">
+        <h4>{{teacher_leader.teacher.user.get_full_name}}</h4>
+        <h4>{{teacher_leader.teacher.work_place.name}}</h4>
+        <div class="wysiwyg_content">{{teacher_leader.bio|safe}}</div>
       </div>
     </div>
-  </div>
+    {% endfor %}
+  {% endif %}
+</div>
 
-  <script type="text/javascript">
-    $(function (){
-      
-    });
-  </script>
-{% endblock %}

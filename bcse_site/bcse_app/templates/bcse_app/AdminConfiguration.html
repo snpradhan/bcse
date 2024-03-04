@@ -13,8 +13,8 @@
               <a class="nav-link" href="{% url 'bcse:adminConfiguration' %}">Admin Home</a>
             </li>
             <li><hr class="dropdown-divider"></li>
-            <li class="nav-item {% if 'workshopCategories' in request.path or 'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}active{% endif %}">
-              {% if 'workshopCategories' in request.path or  'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}
+            <li class="nav-item {% if 'workshops' in request.path or  'workshop/' in request.path or 'workshopCategories' in request.path or 'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}active{% endif %}">
+              {% if 'workshops' in request.path or  'workshop/' in request.path or 'workshopCategories' in request.path or  'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}
                 <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#workshop_config" aria-controls="workshop_config">
                   Workshop Configuration
                 </a>
@@ -23,7 +23,9 @@
                   Workshop Configuration
                 </a>
               {% endif %}
-              <ul class="collapse navbar-nav {% leftnavactive request 'workshopCategories' %}
+              <ul class="collapse navbar-nav {% leftnavactive request 'workshops' %}
+                  {% leftnavactive request 'workshop' %}
+                  {% leftnavactive request 'workshopCategories' %}
                   {% leftnavactive request 'workshopCategory' %}
                   {% leftnavactive request 'registrationEmailMessages' %}
                   {% leftnavactive request 'registrationEmailMessage' %}
@@ -31,7 +33,7 @@
                   {% leftnavactive request 'teacherLeader' %}
                   {% leftnavactive request 'workshopsRegistrants' %}" id="workshop_config">
 
-                <li>
+                <li class="{% if 'workshops' in request.path or  'workshop/' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:workshops' 'table' %}">Workshops</a>
                 </li>
                 <li class="{% if 'workshopCategories' in request.path or  'workshopCategory' in request.path %} active {% endif %}">

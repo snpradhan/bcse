@@ -1,145 +1,141 @@
-{% extends "bcse_app/base.html" %}
+{% extends "bcse_app/AdminConfiguration.html" %}
 {% load bcse_extras %}
 
-{% block content %}
-  {{block.super}}
-  <div class="content">
-    <div class="workshop_container container">
-      {% if form.instance.id %}
-        <h1 class="center"> {{form.instance.name}} </h1>
-      {% else %}
-        <h1 class="center"> Create Workshop </h1>
-      {% endif %}
+{% block configuration %}
 
-      <div class="workshop_form">
-        <form method="post" enctype="multipart/form-data" id="formWorkshop">
-          {% csrf_token %}
-          {{form.media}}
+  {% if form.instance.id %}
+    <h1 class="center"> {{form.instance.name}} </h1>
+  {% else %}
+    <h1 class="center"> Create Workshop </h1>
+  {% endif %}
 
-          {% include "bcse_app/WorkshopTabs.html" with workshop=form.instance tab='edit' %}
+  <div class="workshop_form">
+    <form method="post" enctype="multipart/form-data" id="formWorkshop">
+      {% csrf_token %}
+      {{form.media}}
 
-          <div class="form-group mb-3">
-            <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}</label>
-            <div>{{form.workshop_category}}</div>
-            <div class="error">{{ form.workshop_category.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.teacher_leaders.name}}" class="form-label">
-              {{form.teacher_leaders.label|title}}
-            </label>
-            <div>{{form.teacher_leaders}}</div>
-            <div class="error">{{ form.teacher_leaders.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
-            <div>{{form.name}}</div>
-            <div class="error">{{ form.name.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.sub_title.name}}" class="form-label"> {{form.sub_title.label|title}}</label>
-            <div>{{form.sub_title}}</div>
-            <div class="error">{{ form.sub_title.errors }}</div>
-          </div>
-          <div class="form-group mb-3 row">
-            <div class="col">
-              <label for="id_{{form.start_date.name}}" class="form-label"> {{form.start_date.label|title}}</label>
-              <div class="input-group">
-                {{form.start_date}}
-                <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-              </div>
-              <div class="error">{{ form.start_date.errors }}</div>
-            </div>
-            <div class="col">
-              <label for="id_{{form.start_time.name}}" class="form-label"> {{form.start_time.label|title}}</label>
-              <div class="input-group">
-                {{form.start_time}}
-                <span class="input-group-text"><i class="fa fa-clock"></i></span>
-              </div>
-              <div class="error">{{ form.start_time.errors }}</div>
-            </div>
-          </div>
-          <div class="form-group mb-3 row">
-            <div class="col">
-              <label for="id_{{form.end_date.name}}" class="form-label"> {{form.end_date.label|title}}</label>
-              <div class="input-group">
-                {{form.end_date}}
-                <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-              </div>
-              <div class="error">{{ form.end_date.errors }}</div>
-            </div>
-            <div class="col">
-              <label for="id_{{form.end_time.name}}" class="form-label"> {{form.end_time.label|title}}</label>
-              <div class="input-group">
-                {{form.end_time}}
-                <span class="input-group-text"><i class="fa fa-clock"></i></span>
-              </div>
-              <div class="error">{{ form.end_time.errors }}</div>
-            </div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.display_date.name}}" class="form-label"> {{form.display_date.label|title}}</label>
-            <div>{{form.display_date}}</div>
-            <div class="error">{{ form.display_date.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.summary.name}}" class="form-label"> {{form.summary.label|title}}</label>
-            <div>{{form.summary}}</div>
-            <div class="error">{{ form.summary.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.description.name}}" class="form-label"> {{form.description.label|title}}</label>
-            <div>{{form.description}}</div>
-            <div class="error">{{ form.description.errors }}</div>
-          </div>
+      {% include "bcse_app/WorkshopTabs.html" with workshop=form.instance tab='edit' %}
 
-          <div class="form-group mb-3">
-            <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
-            {% if form.instance.id and form.instance.image.url %}
-              <div class="image_preview">
-                <img src="{{form.instance.image.url}}" class="icon" alt="">
-              </div>
-            {% endif %}
-            <div>{{form.image}}</div>
-            <div class="error">{{ form.image.errors }}</div>
-          </div>
-
-
-          <div class="form-group mb-3">
-            <label for="id_{{form.location.name}}" class="form-label"> {{form.location.label|title}}</label>
-            <div>{{form.location}}</div>
-            <div class="error">{{ form.location.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.enable_registration.name}}" class="form-label"> {{form.enable_registration.label|title}}</label>
-            <div>{{form.enable_registration}}</div>
-            <div class="error">{{ form.enable_registration.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.meetup_link.name}}" class="form-label"> {{form.meetup_link.label|title}}</label>
-            <div>{{form.meetup_link}}</div>
-            <div class="error">{{ form.meetup_link.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
-            <div>{{form.status}}</div>
-            <div class="error">{{ form.status.errors }}</div>
-          </div>
-
-          <div class="form-group mb-3 right">
-            {% if form.instance.id %}
-              {% if form.instance.registration_setting.registrants.all|length > 0 %}
-                <button type="button" class="btn btn-danger warn action" data-title="This workshop cannot be deleted as it has existing registrants.">Delete</button>
-              {% else %}
-                <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:workshopDelete' form.instance.id %}" data-title="the workshop <strong>{{form.instance.name}}</strong>">Delete</button>
-              {% endif %}
-            {% endif %}
-            <button class="btn" type="submit" id="submit_bottom">
-              Save
-            </button>
-          </div>
-        </form>
+      <div class="form-group mb-3">
+        <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}</label>
+        <div>{{form.workshop_category}}</div>
+        <div class="error">{{ form.workshop_category.errors }}</div>
       </div>
-    </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.teacher_leaders.name}}" class="form-label">
+          {{form.teacher_leaders.label|title}}
+        </label>
+        <div>{{form.teacher_leaders}}</div>
+        <div class="error">{{ form.teacher_leaders.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
+        <div>{{form.name}}</div>
+        <div class="error">{{ form.name.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.sub_title.name}}" class="form-label"> {{form.sub_title.label|title}}</label>
+        <div>{{form.sub_title}}</div>
+        <div class="error">{{ form.sub_title.errors }}</div>
+      </div>
+      <div class="form-group mb-3 row">
+        <div class="col">
+          <label for="id_{{form.start_date.name}}" class="form-label"> {{form.start_date.label|title}}</label>
+          <div class="input-group">
+            {{form.start_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ form.start_date.errors }}</div>
+        </div>
+        <div class="col">
+          <label for="id_{{form.start_time.name}}" class="form-label"> {{form.start_time.label|title}}</label>
+          <div class="input-group">
+            {{form.start_time}}
+            <span class="input-group-text"><i class="fa fa-clock"></i></span>
+          </div>
+          <div class="error">{{ form.start_time.errors }}</div>
+        </div>
+      </div>
+      <div class="form-group mb-3 row">
+        <div class="col">
+          <label for="id_{{form.end_date.name}}" class="form-label"> {{form.end_date.label|title}}</label>
+          <div class="input-group">
+            {{form.end_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ form.end_date.errors }}</div>
+        </div>
+        <div class="col">
+          <label for="id_{{form.end_time.name}}" class="form-label"> {{form.end_time.label|title}}</label>
+          <div class="input-group">
+            {{form.end_time}}
+            <span class="input-group-text"><i class="fa fa-clock"></i></span>
+          </div>
+          <div class="error">{{ form.end_time.errors }}</div>
+        </div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.display_date.name}}" class="form-label"> {{form.display_date.label|title}}</label>
+        <div>{{form.display_date}}</div>
+        <div class="error">{{ form.display_date.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.summary.name}}" class="form-label"> {{form.summary.label|title}}</label>
+        <div>{{form.summary}}</div>
+        <div class="error">{{ form.summary.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.description.name}}" class="form-label"> {{form.description.label|title}}</label>
+        <div>{{form.description}}</div>
+        <div class="error">{{ form.description.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
+        {% if form.instance.id and form.instance.image.url %}
+          <div class="image_preview">
+            <img src="{{form.instance.image.url}}" class="icon" alt="">
+          </div>
+        {% endif %}
+        <div>{{form.image}}</div>
+        <div class="error">{{ form.image.errors }}</div>
+      </div>
+
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.location.name}}" class="form-label"> {{form.location.label|title}}</label>
+        <div>{{form.location}}</div>
+        <div class="error">{{ form.location.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.enable_registration.name}}" class="form-label"> {{form.enable_registration.label|title}}</label>
+        <div>{{form.enable_registration}}</div>
+        <div class="error">{{ form.enable_registration.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.meetup_link.name}}" class="form-label"> {{form.meetup_link.label|title}}</label>
+        <div>{{form.meetup_link}}</div>
+        <div class="error">{{ form.meetup_link.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
+        <div>{{form.status}}</div>
+        <div class="error">{{ form.status.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3 right">
+        {% if form.instance.id %}
+          {% if form.instance.registration_setting.registrants.all|length > 0 %}
+            <button type="button" class="btn btn-danger warn action" data-title="This workshop cannot be deleted as it has existing registrants.">Delete</button>
+          {% else %}
+            <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:workshopDelete' form.instance.id %}" data-title="the workshop <strong>{{form.instance.name}}</strong>">Delete</button>
+          {% endif %}
+        {% endif %}
+        <button class="btn" type="submit" id="submit_bottom">
+          Save
+        </button>
+      </div>
+    </form>
   </div>
 
   <script type="text/javascript">

@@ -2442,7 +2442,10 @@ def workshopView(request, id=''):
 
       context = {'workshop': workshop, 'registration': registration}
 
-      return render(request, 'bcse_app/WorkshopView.html', context)
+      if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+        return render(request, 'bcse_app/WorkshopAdminView.html', context)
+      else:
+        return render(request, 'bcse_app/WorkshopPublicView.html', context)
     else:
       raise models.Workshop.DoesNotExist
 
@@ -2934,7 +2937,10 @@ def workshops(request, flag='list'):
     page = 1
 
   context = {'searchForm': searchForm, 'flag': flag, 'page': page}
-  return render(request, 'bcse_app/WorkshopsBaseView.html', context)
+  if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+    return render(request, 'bcse_app/WorkshopsAdminBaseView.html', context)
+  else:
+    return render(request, 'bcse_app/WorkshopsPublicBaseView.html', context)
 
 
 ################################################
@@ -3141,7 +3147,11 @@ def workshopRegistrants(request, id=''):
           page = 1
 
         context = {'workshop': workshop,'searchForm': searchForm, 'page': page}
-        return render(request, 'bcse_app/WorkshopRegistrants.html', context)
+        if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+          return render(request, 'bcse_app/WorkshopAdminRegistrants.html', context)
+        else:
+          return render(request, 'bcse_app/WorkshopTeacherLeaderRegistrants.html', context)
+
       else:
         raise models.Workshop.DoesNotExist
 

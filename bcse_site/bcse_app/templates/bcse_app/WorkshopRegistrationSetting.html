@@ -1,106 +1,101 @@
-{% extends "bcse_app/base.html" %}
+{% extends "bcse_app/AdminConfiguration.html" %}
 {% load bcse_extras %}
 
-{% block content %}
-  {{block.super}}
-  <div class="content">
-    <div class="workshop_container container">
-      <h1 class="center"> {{workshop.name}}</h1>
-      <div class="workshop_form">
-        <form method="post" enctype="multipart/form-data" id="formWorkshopRegistrationSetting">
-          {% csrf_token %}
-          {{form.management_form}}
-          {% include "bcse_app/WorkshopTabs.html" with tab='registration_setting' %}
+{% block configuration %}
 
-          <div>{{form.workshop.as_hidden}}</div>
-          <div>{{form.registrants.as_hidden}}</div>
+  <h1 class="center"> {{workshop.name}}</h1>
+  <div class="workshop_form">
+    <form method="post" enctype="multipart/form-data" id="formWorkshopRegistrationSetting">
+      {% csrf_token %}
+      {{form.management_form}}
+      {% include "bcse_app/WorkshopTabs.html" with tab='registration_setting' %}
 
-          <div class="form-group mb-3">
-            <label for="id_{{form.registration_type.name}}" class="form-label"> {{form.registration_type.label|title}}</label>
-            <div>{{form.registration_type}}</div>
-            <div class="error">{{ form.registration_type.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.application.name}}" class="form-label"> {{form.application.label|title}}</label>
-            <div>{{form.application}}</div>
-            {% if form.instance.id and form.instance.application.survey_submission.all|length %}
-              {{form.application.as_hidden}}
-            {% endif %}
-            <div class="error">{{ form.application.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.capacity.name}}" class="form-label"> {{form.capacity.label|title}}</label>
-            <div>{{form.capacity}}</div>
-            <div class="error">{{ form.capacity.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.enable_waitlist.name}}" class="form-label"> {{form.enable_waitlist.label|title}}</label>
-            <div>{{form.enable_waitlist}}</div>
-            <div class="error">{{ form.enable_waitlist.errors }}</div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="id_{{form.waitlist_capacity.name}}" class="form-label"> {{form.waitlist_capacity.label|title}}</label>
-            <div>{{form.waitlist_capacity}}</div>
-            <div class="error">{{ form.waitlist_capacity.errors }}</div>
-          </div>
-          <div class="form-group mb-3 row">
-            <div class="col">
-              <label for="id_{{form.open_date.name}}" class="form-label"> {{form.open_date.label|title}}</label>
-              <div class="input-group">
-                {{form.open_date}}
-                <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-              </div>
-              <div class="error">{{ form.open_date.errors }}</div>
-            </div>
-            <div class="col">
-              <label for="id_{{form.open_time.name}}" class="form-label"> {{form.open_time.label|title}}</label>
-              <div class="input-group">
-                {{form.open_time}}
-                <span class="input-group-text"><i class="fa fa-clock"></i></span>
-              </div>
-              <div class="error">{{ form.open_time.errors }}</div>
-            </div>
-          </div>
-          <div class="form-group mb-3 row">
-            <div class="col">
-              <label for="id_{{form.close_date.name}}" class="form-label"> {{form.close_date.label|title}}</label>
-              <div class="input-group">
-                {{form.close_date}}
-                <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-              </div>
-              <div class="error">{{ form.close_date.errors }}</div>
-            </div>
-            <div class="col">
-              <label for="id_{{form.close_time.name}}" class="form-label"> {{form.close_time.label|title}}</label>
-              <div class="input-group">
-                {{form.close_time}}
-               <span class="input-group-text"><i class="fa fa-clock"></i></span>
-              </div>
-              <div class="error">{{ form.close_time.errors }}</div>
-            </div>
-          </div>
+      <div>{{form.workshop.as_hidden}}</div>
+      <div>{{form.registrants.as_hidden}}</div>
 
-          <div class="form-group mb-3">
-            <label for="id_{{form.isbe_link.name}}" class="form-label"> {{form.isbe_link.label}}</label>
-            <div>{{form.isbe_link}}</div>
-            <div class="error">{{ form.isbe_link.errors }}</div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.registration_type.name}}" class="form-label"> {{form.registration_type.label|title}}</label>
+        <div>{{form.registration_type}}</div>
+        <div class="error">{{ form.registration_type.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.application.name}}" class="form-label"> {{form.application.label|title}}</label>
+        <div>{{form.application}}</div>
+        {% if form.instance.id and form.instance.application.survey_submission.all|length %}
+          {{form.application.as_hidden}}
+        {% endif %}
+        <div class="error">{{ form.application.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.capacity.name}}" class="form-label"> {{form.capacity.label|title}}</label>
+        <div>{{form.capacity}}</div>
+        <div class="error">{{ form.capacity.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.enable_waitlist.name}}" class="form-label"> {{form.enable_waitlist.label|title}}</label>
+        <div>{{form.enable_waitlist}}</div>
+        <div class="error">{{ form.enable_waitlist.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.waitlist_capacity.name}}" class="form-label"> {{form.waitlist_capacity.label|title}}</label>
+        <div>{{form.waitlist_capacity}}</div>
+        <div class="error">{{ form.waitlist_capacity.errors }}</div>
+      </div>
+      <div class="form-group mb-3 row">
+        <div class="col">
+          <label for="id_{{form.open_date.name}}" class="form-label"> {{form.open_date.label|title}}</label>
+          <div class="input-group">
+            {{form.open_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
           </div>
-
-          <div class="form-group mb-3">
-            <label for="id_{{form.confirmation_message.name}}" class="form-label"> {{form.confirmation_message.label|title}}</label>
-            <div>{{form.confirmation_message}}</div>
-            <div class="error">{{ form.confirmation_message.errors }}</div>
+          <div class="error">{{ form.open_date.errors }}</div>
+        </div>
+        <div class="col">
+          <label for="id_{{form.open_time.name}}" class="form-label"> {{form.open_time.label|title}}</label>
+          <div class="input-group">
+            {{form.open_time}}
+            <span class="input-group-text"><i class="fa fa-clock"></i></span>
           </div>
-
-          <div class="form-group mb-3 right">
-            <button class="btn btn-success" type="submit" id="submit_bottom">
-              Save
-            </button>
+          <div class="error">{{ form.open_time.errors }}</div>
+        </div>
+      </div>
+      <div class="form-group mb-3 row">
+        <div class="col">
+          <label for="id_{{form.close_date.name}}" class="form-label"> {{form.close_date.label|title}}</label>
+          <div class="input-group">
+            {{form.close_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
           </div>
-        </form>
+          <div class="error">{{ form.close_date.errors }}</div>
+        </div>
+        <div class="col">
+          <label for="id_{{form.close_time.name}}" class="form-label"> {{form.close_time.label|title}}</label>
+          <div class="input-group">
+            {{form.close_time}}
+           <span class="input-group-text"><i class="fa fa-clock"></i></span>
+          </div>
+          <div class="error">{{ form.close_time.errors }}</div>
+        </div>
       </div>
 
-    </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.isbe_link.name}}" class="form-label"> {{form.isbe_link.label}}</label>
+        <div>{{form.isbe_link}}</div>
+        <div class="error">{{ form.isbe_link.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.confirmation_message.name}}" class="form-label"> {{form.confirmation_message.label|title}}</label>
+        <div>{{form.confirmation_message}}</div>
+        <div class="error">{{ form.confirmation_message.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3 right">
+        <button class="btn btn-success" type="submit" id="submit_bottom">
+          Save
+        </button>
+      </div>
+    </form>
   </div>
 
   <script type="text/javascript">
