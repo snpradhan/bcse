@@ -55,9 +55,6 @@
           <div class="form-group col-md-6">
             <label for="id_{{userProfileForm.user_role.name}}" class="form-label"> {{userProfileForm.user_role.label|title}} (<span class="required">*</span>)</label>
             <div>{{userProfileForm.user_role}}</div>
-            {% if user.userProfile.user_role not in 'AS' %}
-              {{userProfileForm.user_role.as_hidden}}
-            {% endif %}
             <div class="error">{{ userProfileForm.user_role.errors }}</div>
           </div>
           <div class="form-group col-md-6">

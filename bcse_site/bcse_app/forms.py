@@ -246,7 +246,7 @@ class UserProfileForm (ModelForm):
 
     if user.is_authenticated:
       if user.userProfile.user_role not in ['A', 'S']:
-        self.fields['user_role'].widget.attrs['disabled'] = True
+        self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
         self.fields.pop('photo_release_complete')
       else:
         self.fields['work_place'].required = False
