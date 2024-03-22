@@ -234,6 +234,8 @@ def upload_file_to(instance, filename):
     file_path = 'user'
   elif isinstance(instance, Activity):
     file_path = 'activity'
+  elif isinstance(instance, Consumable):
+    file_path = 'consumable'
   elif isinstance(instance, TeacherLeader):
     file_path = 'teacherLeader'
   elif isinstance(instance, Team):
@@ -464,10 +466,29 @@ class Activity(models.Model):
   kit_unit_cost = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0)], help_text='Unit cost for the kit')
   inventory = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Consumable Kit inventory')
   notes = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Inventory notes')
+  consumables = models.ManyToManyField('Consumable', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   equipment_mapping = models.ManyToManyField(EquipmentType, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Consumable Kit')
+  status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['name']
+
+  def __str__(self):
+      return '%s' % (self.name)
+
+
+class Consumable(models.Model):
+  name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable')
+  inventory = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Consumable Kit inventory')
+  unit_cost = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0)], help_text='Unit cost for the consumable')
+  notes = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Inventory notes')
+  color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Consumable')
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

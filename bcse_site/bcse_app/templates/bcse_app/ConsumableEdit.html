@@ -1,0 +1,70 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  {% if form.instance.id %}
+    <h1 class="center"> {{form.instance.name}} </h1>
+  {% else %}
+    <h1 class="center"> Create Consumable </h1>
+  {% endif %}
+  <div class="admin_form">
+    <form method="post" enctype="multipart/form-data" id="formConsumable">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="form-group mb-3">
+        <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
+        <div>{{form.name}}</div>
+        <div class="error">{{ form.name.errors }}</div>
+      </div>      
+      <div class="form-group mb-3">
+        <label for="id_{{form.inventory.name}}" class="form-label"> {{form.inventory.label|title}}</label>
+        <div>{{form.inventory}}</div>
+        <div class="error">{{ form.inventory.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label|title}}</label>
+        <div>{{form.notes}}</div>
+        <div class="error">{{ form.notes.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.unit_cost.name}}" class="form-label"> {{form.unit_cost.label|title}}($)</label>
+        <div>{{form.unit_cost}}</div>
+        <div class="error">{{ form.unit_cost.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.color.name}}" class="form-label"> {{form.color.label|title}}</label>
+        <div>{{form.color}}</div>
+        <div class="error">{{ form.color.errors }}</div>
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
+        {% if form.instance.id and form.instance.image.url %}
+          <div class="image_preview">
+            <img src="{{form.instance.image.url}}" class="icon" alt="">
+          </div>
+        {% endif %}
+        <div>{{form.image}}</div>
+        <div class="error">{{ form.image.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
+        <div>{{form.status}}</div>
+        <div class="error">{{ form.status.errors }}</div>
+      </div>
+      <div class="form-group mb-3 right">
+        {% if form.instance.id %}
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:consumableDelete' form.instance.id %}" data-title="the consumable <strong>{{form.instance.name}}</strong>">
+            Delete
+          </button>
+        {% endif %}
+        <button class="btn" type="submit" id="submit_bottom">
+          Save
+        </button>
+      </div>
+
+    </form>
+  </div>
+{% endblock %}

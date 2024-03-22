@@ -17,6 +17,7 @@
           <th> Kit Inventory </th>
           <th> Inventory Notes </th>
           <th> Kit Unit Cost ($) </th>
+          <th> Consumables</th>
           <th> Status </th>
           <th> Tags </th>
           <th> Mapped Equipment</th>
@@ -38,6 +39,15 @@
             <td> {{activity.inventory|default_if_none:""|safe}} </td>
             <td> {{activity.notes|default_if_none:""|safe}} </td>
             <td> {{activity.kit_unit_cost|default_if_none:""}} </td>
+            <td>
+              {% if activity.consumables %}
+              <ul>
+                {% for consumable in activity.consumables.all %}
+                  <li> {{consumable.name}}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </td>
             <td> {{activity.get_status_display}} </td>
             <td>
               <ul>

@@ -56,6 +56,13 @@ urlpatterns = [
     path('adminConfiguration/activity/new', views.activityEdit, name='activityNew'),
     path('adminConfiguration/activities/', views.activities, name='activities'),
     path('activity/<int:id>/view', views.activityView, name='activityView'),
+
+    path('adminConfiguration/consumable/<int:id>/edit', views.consumableEdit, name='consumableEdit'),
+    path('adminConfiguration/consumable/<int:id>/update', views.consumableUpdate, name='consumableUpdate'),
+    path('adminConfiguration/consumable/<int:id>/delete', views.consumableDelete, name='consumableDelete'),
+    path('adminConfiguration/consumable/new', views.consumableEdit, name='consumableNew'),
+    path('adminConfiguration/consumables/', views.consumables, name='consumables'),
+
     path('adminConfiguration/equipmentType/<int:id>/edit', views.equipmentTypeEdit, name='equipmentTypeEdit'),
     path('adminConfiguration/equipmentType/<int:id>/delete', views.equipmentTypeDelete, name='equipmentTypeDelete'),
     path('adminConfiguration/equipmentType/new', views.equipmentTypeEdit, name='equipmentTypeNew'),

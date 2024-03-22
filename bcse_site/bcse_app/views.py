@@ -643,22 +643,29 @@ def activityUpdate(request, id=''):
       raise CustomException('You do not have the permission to update activity')
 
     activity = models.Activity.objects.get(id=id)
+    ConsumableFormSet = modelformset_factory(models.Consumable, form=forms.ConsumableUpdateForm, can_delete=False, can_order=False, extra=0)
+
     if request.method == 'GET':
-      form = forms.ActivityUpdateForm(instance=activity)
-      context = {'form': form, 'activity': activity}
+      form = forms.ActivityUpdateForm(instance=activity, prefix="activity")
+      formset = ConsumableFormSet(queryset=activity.consumables.all(), prefix="consumables")
+      context = {'activity': activity, 'form': form, 'formset': formset}
       return render(request, 'bcse_app/ActivityUpdateModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.ActivityUpdateForm(data, instance=activity)
+      print(data)
+      form = forms.ActivityUpdateForm(data, instance=activity, prefix="activity")
+      formset = ConsumableFormSet(data, queryset=activity.consumables.all(), prefix="consumables")
       response_data = {}
-      if form.is_valid():
+      if form.is_valid() and formset.is_valid():
         form.save()
+        formset.save()
         response_data['success'] = True
         messages.success(request, 'Activity %s updated' % id)
       else:
-        print(form.errors)
+        print('form errors', form.errors)
+        print('formset errors', formset.errors)
         response_data['success'] = False
-        context = {'form': form, 'activity': activity}
+        context = {'activity': activity, 'form': form, 'formset': formset}
         response_data['html'] = render_to_string('bcse_app/ActivityUpdateModal.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -734,6 +741,123 @@ def activityDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+####################################
+# CONSUMABLES
+####################################
+@login_required
+def consumables(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view consumables')
+
+    consumables = models.Consumable.objects.all()
+    context = {'consumables': consumables}
+    return render(request, 'bcse_app/Consumables.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+###################################
+# EDIT CONSUMABLE
+####################################
+@login_required
+def consumableEdit(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit consumable')
+    if '' != id:
+      consumable = models.Consumable.objects.get(id=id)
+    else:
+      consumable = models.Consumable()
+
+
+    if request.method == 'GET':
+      form = forms.ConsumableForm(instance=consumable)
+      context = {'form': form}
+      return render(request, 'bcse_app/ConsumableEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ConsumableForm(data, files=request.FILES, instance=consumable)
+      if form.is_valid():
+        savedConsumable = form.save()
+        messages.success(request, "Consumable saved")
+        return shortcuts.redirect('bcse:consumableEdit', id=savedConsumable.id)
+      else:
+        print(form.errors)
+        messages.error(request, "Consumable could not be saved. Check the errors below.")
+        context = {'form': form}
+        return render(request, 'bcse_app/ConsumableEdit.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+###################################################
+# UPDATE CONSUMABLE
+###################################################
+@login_required
+def consumableUpdate(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to update consumable')
+
+    consumable = models.Consumable.objects.get(id=id)
+    if request.method == 'GET':
+      form = forms.ConsumableUpdateForm(instance=consumable)
+      context = {'form': form, 'consumable': consumable}
+      return render(request, 'bcse_app/ConsumableUpdateModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ConsumableUpdateForm(data, instance=consumable)
+      response_data = {}
+      if form.is_valid():
+        form.save()
+        response_data['success'] = True
+        messages.success(request, 'Consumable %s updated' % id)
+      else:
+        print(form.errors)
+        response_data['success'] = False
+        context = {'form': form, 'consumable': consumable}
+        response_data['html'] = render_to_string('bcse_app/ConsumableUpdateModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Consumable.DoesNotExist as e:
+    messages.error(request, 'Consumable does not exists')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+###################################
+# DELETE CONSUMABLE
+####################################
+@login_required
+def consumableDelete(request, id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete consumable')
+    if '' != id:
+      consumable = models.Consumable.objects.get(id=id)
+      consumable.delete()
+      messages.success(request, "Consumable deleted")
+
+    return shortcuts.redirect('bcse:consumables')
+
+  except models.Consumable.DoesNotExist:
+    messages.success(request, "Consumable not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # EQUIPMENT TYPES
@@ -906,29 +1030,6 @@ def equipmentDelete(request, id=''):
 
   except models.Equipment.DoesNotExist:
     messages.success(request, "Equipment not found")
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-  except CustomException as ce:
-    messages.error(request, ce)
-    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-####################################
-# DELETE ACTIVITY
-####################################
-@login_required
-def activityDelete(request, id=''):
-
-  try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to delete activity')
-    if '' != id:
-      activity = models.Activity.objects.get(id=id)
-      activity.delete()
-      messages.success(request, "Activity deleted")
-
-    return shortcuts.redirect('bcse:activities')
-
-  except models.Activity.DoesNotExist:
-    messages.success(request, "Activity not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)

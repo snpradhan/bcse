@@ -184,6 +184,7 @@ CKEDITOR_CONFIGS = {
         ),
         'autoGrow_onStartup': True,
         'scayt_autoStartup': True,
+        'autoGrow_maxHeight': '200',
         'scayt_sLang': 'en_US',
         'disableNativeSpellChecker': False,
     },
