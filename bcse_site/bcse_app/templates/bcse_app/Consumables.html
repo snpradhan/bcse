@@ -1,0 +1,64 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Consumables </h1>
+  <div class="button-row">
+    <a class="btn" href="{% url 'bcse:consumableNew' %}" role="button">Create Consumable</a>
+  </div>
+  <div class="search_results static">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> Consumable ID</th>
+          <th> Name </th>
+          <th> Inventory </th>
+          <th> Notes </th>
+          <th> Unit Cost ($) </th>
+          <th> Status </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for consumable in consumables %}
+          {% if consumable.color %}
+            <tr style="background-color: {{consumable.color.color}};" title="{{consumable.color.description}}">
+          {% else %}
+            <tr>
+          {% endif %}
+            <td> {{consumable.id}}</td>
+            <td> {{consumable.name}} </td>
+            <td> {{consumable.inventory|default_if_none:""|safe}} </td>
+            <td> {{consumable.notes|default_if_none:""|safe}} </td>
+            <td> {{consumable.unit_cost|default_if_none:""}} </td>
+            <td> {{consumable.get_status_display}} </td>         
+            <td> {{consumable.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{consumable.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:consumableEdit' consumable.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:consumableDelete' consumable.id %}"
+                    data-title="the consumable <strong>{{consumable.name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

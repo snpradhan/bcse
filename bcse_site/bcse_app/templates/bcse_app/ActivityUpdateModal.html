@@ -15,50 +15,122 @@
     <form class="form" id="formActivityUpdate" method="post" action="{% url 'bcse:activityUpdate' activity.id %}">
       {% csrf_token %}
       {{form.media}}
+      {{formset.management_form}}
+
       <div class="modal-body">
-        <div class="form-group mb-3">
-          <label for="id_{{form.inventory.name}}">
-            {{ form.inventory.label|title }}
-            {% if form.inventory.field.required %}
-              (<span class="required">*</span>)
-            {% endif %}
-          </label>
-          <div>{{form.inventory}}</div>
-          <div class="error">{{ form.inventory.errors }}</div>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="activity_{{form.instance.id}}-tab" data-bs-toggle="tab"  type="button" data-bs-target="#activity_{{form.instance.id}}" role="tab" aria-controls="activity_{{form.instance.id}}" aria-selected="true">Activity Kit</button>
+          </li>
+          {% for consumableForm in formset %}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="consumable_{{consumableForm.instance.id}}-tab" data-bs-toggle="tab" type="button" data-bs-target="#consumable_{{consumableForm.instance.id}}" role="tab" aria-controls="consumable_{{consumableForm.instance.id}}"  aria-selected="false">{{consumableForm.instance.name}}
+              </button>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <div class="tab-content" id="activityTabContent">
+
+          <div class="tab-pane active" id="activity_{{form.instance.id}}" role="tabpanel" aria-labelledby="activity_{{form.instance.id}}-tab">
+            <div class="form-group mb-3">
+              <label for="id_{{form.inventory.name}}">
+                {{ form.inventory.label|title }}
+                {% if form.inventory.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
+              <div>{{form.inventory}}</div>
+              <div class="error">{{ form.inventory.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.notes.name}}">
+                {{ form.notes.label|title }}
+                {% if form.notes.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
+              <div>{{form.notes}}</div>
+              <div class="error">{{ form.notes.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.kit_unit_cost.name}}">
+                {{ form.kit_unit_cost.label|title }}  ($)
+                {% if form.kit_unit_cost.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
+              <div>{{form.kit_unit_cost}}</div>
+              <div class="error">{{ form.kit_unit_cost.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{form.color.name}}">
+                {{ form.color.label }}
+                {% if form.color.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
+              <div>{{form.color}}</div>
+              <div class="error">{{ form.color.errors }}</div>
+            </div>
+          </div>
+
+          {% if formset|length > 0 %}
+            {% for consumableForm in formset %}
+              {{consumableForm.id}}
+              <div class="tab-pane" id="consumable_{{consumableForm.instance.id}}" role="tabpanel" aria-labelledby="consumable_{{consumableForm.instance.id}}-tab">
+                <div class="form-group mb-3">
+                  <label for="id_{{consumableForm.inventory.name}}">
+                    {{ consumableForm.inventory.label|title }}
+                    {% if consumableForm.inventory.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div>{{consumableForm.inventory}}</div>
+                  <div class="error">{{ consumableForm.inventory.errors }}</div>
+                </div>
+                <div class="form-group mb-3">
+                  <label for="id_{{consumableForm.notes.name}}">
+                    {{ consumableForm.notes.label|title }}
+                    {% if consumableForm.notes.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div>{{consumableForm.notes}}</div>
+                  <div class="error">{{ consumableForm.notes.errors }}</div>
+                </div>
+                <div class="form-group mb-3">
+                  <label for="id_{{consumableForm.unit_cost.name}}">
+                    {{ consumableForm.unit_cost.label|title }}  ($)
+                    {% if consumableForm.unit_cost.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div>{{consumableForm.unit_cost}}</div>
+                  <div class="error">{{ consumableForm.unit_cost.errors }}</div>
+                </div>
+                <div class="form-group mb-3">
+                  <label for="id_{{consumableForm.color.name}}">
+                    {{ consumableForm.color.label }}
+                    {% if consumableForm.color.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div>{{consumableForm.color}}</div>
+                  <div class="error">{{ consumableForm.color.errors }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            {{formset}}
+          {% endif %}
         </div>
-        <div class="form-group mb-3">
-          <label for="id_{{form.notes.name}}">
-            {{ form.notes.label|title }}
-            {% if form.notes.field.required %}
-              (<span class="required">*</span>)
-            {% endif %}
-          </label>
-          <div>{{form.notes}}</div>
-          <div class="error">{{ form.notes.errors }}</div>
-        </div>
-        <div class="form-group mb-3">
-          <label for="id_{{form.kit_unit_cost.name}}">
-            {{ form.kit_unit_cost.label|title }}  ($)
-            {% if form.kit_unit_cost.field.required %}
-              (<span class="required">*</span>)
-            {% endif %}
-          </label>
-          <div>{{form.kit_unit_cost}}</div>
-          <div class="error">{{ form.kit_unit_cost.errors }}</div>
-        </div>
-        <div class="form-group mb-3">
-          <label for="id_{{form.color.name}}">
-            {{ form.color.label }}
-            {% if form.color.field.required %}
-              (<span class="required">*</span>)
-            {% endif %}
-          </label>
-          <div>{{form.color}}</div>
-          <div class="error">{{ form.color.errors }}</div>
-        </div>
+
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
         </div>
+
       </div>
       <div class="modal-footer">
         <div class="form-group">
@@ -74,18 +146,16 @@
 
     $("#formActivityUpdate").submit(function(e){
       e.preventDefault();
+
+      for (var instance in CKEDITOR.instances) {
+        CKEDITOR.instances[instance].updateElement();
+      }
       var formData = new FormData(this);
-      var inventory = CKEDITOR.instances.id_inventory.getData();
-      formData.append('inventory', inventory);
-      var notes = CKEDITOR.instances.id_notes.getData();
-      formData.append('notes', notes);
 
       $.ajax({
         type: $(this).attr('method'),
         url: this.action,
         data: formData,
-        dataType: 'json',
-        context: this,
         cache:false,
         contentType: false,
         processData: false,

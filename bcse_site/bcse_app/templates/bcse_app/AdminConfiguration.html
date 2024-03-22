@@ -61,6 +61,8 @@
               {% endif %}
               <ul class="collapse navbar-nav {% leftnavactive request 'activities' %}
                                              {% leftnavactive request 'activity' %}
+                                             {% leftnavactive request 'consumables' %}
+                                             {% leftnavactive request 'consumable' %}
                                              {% leftnavactive request 'equipmentTypes' %}
                                              {% leftnavactive request 'baxterBoxCategories' %}
                                              {% leftnavactive request 'baxterBoxSubCategories' %}
@@ -75,6 +77,9 @@
                                              id="baxter_box_config">
                 <li class="{% if 'activities' in request.path or 'activity' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:activities' %}">Activities</a>
+                </li>
+                <li class="{% if 'consumables' in request.path or 'consumable' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:consumables' %}">Consumables</a>
                 </li>
                 <li class="{% if 'equipmentType' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:equipmentTypes' %}">Equipment Types</a>
