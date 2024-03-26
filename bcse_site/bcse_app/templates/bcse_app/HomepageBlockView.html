@@ -1,13 +1,19 @@
 {% load base_extras %}
 <div class="homepage_block">
   <div>
+    <div id="height">
     <h1>{{homepage_block.title}}</h1>
+
+    
     {% if homepage_block.image and homepage_block.image.url %}
       <img class="curve" alt="" src="{{homepage_block.image.url}}">
     {% endif %}
+
     <h2 class="left">{{homepage_block.sub_title|default:""}}</h2>
+    </div>
     <div class="wysiwyg_content">{{homepage_block.description|safe}}</div>
   </div>
+
   <br><br>
   <div class="center">
     {% if homepage_block.button_url %}
@@ -20,5 +26,4 @@
       </a>
     {% endif %}
   </div>
-
 </div>
