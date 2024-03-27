@@ -206,8 +206,8 @@ body {
   }
   img.curve {
     border-radius: 50%;
-    width: 15em;
-    height: 15em;
+    width: @min-width;
+    height: @min-height;
     min-width: 12em;
     -webkit-shape-outside: circle();
     shape-outside: circle();
@@ -480,7 +480,7 @@ body {
         padding-top: 5em;
         padding-bottom: 5em;
 
-        div#height {
+        div.homepage_block_content {
             min-height: @min-height;
           }
 
