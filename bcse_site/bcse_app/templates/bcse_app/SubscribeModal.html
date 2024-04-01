@@ -14,13 +14,16 @@
     </div>
      <form class="form" method="post" action="{% url 'bcse:subscribe' %}" id="formSubscription">
       {% csrf_token %}
+      {{form.media}}
       <div class="modal-body">
         {% for field in form %}
           <div class="form-group mb-3">
             <label for="id_{{field.name}}">
-              {{ field.label }}
-              {% if field.field.required %}
-                (<span class="required">*</span>)
+              {% if field.name != 'captcha' %}
+                {{ field.label }}
+                {% if field.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
               {% endif %}
             </label>
             <div>{{field}}</div>
@@ -28,6 +31,7 @@
             <div class="error">{{ field.errors }}</div>
           </div>
         {% endfor %}
+
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
         </div>

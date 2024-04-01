@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'password_reset',
     'django_crontab',
     'dbbackup', #django-dbbackup
+    'django_recaptcha'
 ]
 
 MIDDLEWARE = [

@@ -9,7 +9,8 @@ from localflavor.us.models import USStateField
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from dal import autocomplete
 import datetime
-
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
 ####################################
 # Login Form
@@ -268,14 +269,19 @@ class SubscriptionForm (forms.Form):
   first_name = forms.CharField(required=True, max_length=30, label='First Name')
   last_name = forms.CharField(required=True, max_length=30, label='Last Name')
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
+  captcha = ReCaptchaField()
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
     super(SubscriptionForm, self).__init__(*args, **kwargs)
+    if user.is_authenticated:
+      self.fields.pop('captcha')
+
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
-      field.widget.attrs['aria-describedby'] = field.label
-      field.widget.attrs['placeholder'] = field.help_text
+      if field_name != 'captcha':
+        field.widget.attrs['class'] = 'form-control'
+        field.widget.attrs['aria-describedby'] = field.label
+        field.widget.attrs['placeholder'] = field.help_text
 
     if user.is_authenticated:
       self.fields['email'].initial = user.email

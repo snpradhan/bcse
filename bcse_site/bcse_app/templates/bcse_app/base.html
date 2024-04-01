@@ -27,6 +27,9 @@
           gtag('config', '{% settings_value "GOOGLE_ANALYTICS_ID" %}');
         </script>
       {% endblock %}
+      {% block captcha %}
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+      {% endblock %}
       {% block jquery %}
         <!-- jQuery library -->
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
