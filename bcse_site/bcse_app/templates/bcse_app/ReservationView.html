@@ -29,6 +29,18 @@
                       {% endif %}
                   </td>
                 </tr>
+                {% if user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.consumables %}
+                <tr>
+                  <th>Consumables:</th>
+                  <td>
+                    <ul>
+                      {% for consumable in reservation.consumables.all %}
+                        <li>{{consumable}}</li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+                </tr>
+                {% endif %}
                 {% if reservation.activity.manuals_resources %}
                   <tr>
                     <th>Manuals/Resources</th>

@@ -637,10 +637,13 @@ class ReservationForm(ModelForm):
       self.fields.pop('more_num_of_classes')
       self.fields.pop('admin_notes')
       self.fields.pop('color')
+      self.fields.pop('consumables')
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
       self.fields['activity'].queryset = models.Activity.objects.all()
       self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
+      self.fields['consumables'].queryset = models.Consumable.objects.all().filter(status='A')
+
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()
@@ -1280,6 +1283,7 @@ class ReservationsSearchForm(forms.Form):
       self.fields.pop('assignee')
       self.fields.pop('color')
       self.fields.pop('feedback_status')
+      self.fields.pop('consumables')
     else:
       self.fields['rows_per_page'].initial = 75
 

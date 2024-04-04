@@ -1,0 +1,9 @@
+<div>
+  <select name="consumables" class="form-control" aria-describedby="Consumables" placeholder="On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection" id="id_consumables" 
+  multiple>
+  {% for consumable in consumables %}
+    <option value="{{consumable.id}}">{{consumable.name}}</option>
+  {% endfor %}
+</select>
+</div>
+

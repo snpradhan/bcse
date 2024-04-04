@@ -28,6 +28,9 @@
         {% if 'KT' in columns or tag == 'profile' %}
           <th> Kit </th>
         {% endif %}
+         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
+          <th> Consumables </th>
+        {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
           <th> Kit Inventory </th>
         {% endif %}
@@ -100,6 +103,9 @@
         {% endif %}
         {% if 'KT' in columns or tag == 'profile' %}
           <td style="background-color: #767676; color: white;"> Kit </td>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
+          <td style="background-color: #767676; color: white;"> Consumables </td>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
           <td style="background-color: #767676; color: white;"> Kit Inventory </td>
@@ -196,6 +202,15 @@
                   {% endif %}
                 </a>
               {% endif %}
+            </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
+            <td>
+              <ul>
+                {% for consumable in reservation.consumables.all %}
+                  <li>{{consumable}}</li>
+                {% endfor %}
+              </ul>
             </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}

@@ -44,6 +44,17 @@
               <div>{{form.activity}}</div>
               <div class="error">{{ form.activity.errors }}</div>
             </div>
+            {% if form.consumables %}
+              <div class="form-group mb-4">
+                <label for="id_{{form.consumables.name}}" class="form-label"> {{form.consumables.label}}
+                  {% if form.consumables.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div id="id_consumable_options">{{form.consumables}}</div>
+                <div class="error">{{ form.consumables.errors }}</div>
+              </div>
+            {% endif %}
             <div class="form-group form-check mb-4">
               <div>{{form.other_activity}}</div>
               <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}
@@ -474,12 +485,18 @@
           })
           return selectedEquipment;
         }
+        function getSelectedConsumables() {
+          var selectedConsumables = $('#id_consumables').val();
+          return selectedConsumables;
+        }
 
         function bindActivityChange() {
           //Activity changed
           $('select#id_activity').on('change', function(e){
             //get preselected equipment
             var selected_equipment = getSelectedEquipment();
+            var selected_consumables = getSelectedConsumables();
+
             //Activity is selected from dropdown
             if($(this).val()) {
               var url = '/activity/'+$(this).val()+'/view';
@@ -504,6 +521,21 @@
                         $('div.form-group.equipment_info').html(data['materials_equipment']);
                         $('div.form-group.equipment_info').show();
                       }
+                    }
+                    if (data['consumable_options'] && data['consumable_mapping']) {
+                      $('#id_consumable_options').html(data['consumable_options']);
+                      if(selected_consumables && selected_consumables.every(val =>  data['consumable_mapping'].includes(parseInt(val))) ) {
+                        $('#id_consumables').val(selected_consumables);
+                      }
+                      else {
+                        //select all
+                        $('#id_consumables option').prop('selected', true);
+                      }
+                      $('#id_consumable_options').closest('.form-group').show();
+                    }
+                    else {
+                      $('#id_consumable_options').html('');
+                      $('#id_consumable_options').closest('.form-group').hide();
                     }
                     //for non-admins, filter equipment options to the ones mapped to the selected activity
                     if(data['equipment_options']) {
@@ -576,6 +608,9 @@
               $('div.form-group.kit_info span.kit_name').html('');
               $('div.form-group.kit_info span.num_of_classes').html('');
               $('div.form-group.kit_info').hide();
+              //unselect and hide consumable selection
+              $('#id_consumables').val('');
+              $('#id_consumable_options').closest('.form-group').hide();
             }
 
             $('select#id_num_of_classes').trigger('change');

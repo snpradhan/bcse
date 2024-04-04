@@ -704,6 +704,9 @@ def activityView(request, id=''):
             response_data['equipment_mapping'] = list(activity.equipment_mapping.all().values_list('name', flat=True))
             response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
             response_data['equipment_options'] = load_equipment_options(request, activity.id)
+            if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+              response_data['consumable_options'] = load_consumable_options(request, activity.id)
+              response_data['consumable_mapping'] = list(activity.consumables.all().filter(status='A').distinct().values_list('id', flat=True))
             return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
         context = {'title': activity.kit_name, 'kit': activity, 'type': 'activity'}
@@ -1170,6 +1173,12 @@ def reservationEdit(request, id=''):
         else:
           savedReservation = form.save()
           savedReservation.equipment.clear()
+          savedReservation.save()
+
+        # when teacher makes/edits a reservation, save the mapped consumables on the reservation
+        if request.user.userProfile.user_role in ['T', 'P'] and savedReservation.activity and savedReservation.activity.consumables:
+          savedReservation.consumables.clear()
+          savedReservation.consumables.add(*savedReservation.activity.consumables.all())
           savedReservation.save()
 
         if '' != id:
@@ -6889,6 +6898,32 @@ def load_equipment_options(request, activity_id=''):
         response_data['success'] = True
         response_data['html'] = html
         return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Activity.DoesNotExist as e:
+    messages.error(request, 'Activity not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+#####################################################
+# LOAD MAPPED CONSUMABLES FOR THE SELECTED ACTIVITY
+#####################################################
+def load_consumable_options(request, activity_id=''):
+  try:
+    if request.method == 'GET':
+      if request.user.is_anonymous or request.user.userProfile.user_role in ['T', 'P']:
+        raise CustomException('You do not have the permission load consumables')
+
+      activity = models.Activity.objects.get(id=activity_id)
+      consumables = activity.consumables.all().filter(status='A').distinct()
+
+      context = {'consumables': consumables}
+      html = render_to_string('bcse_app/ConsumableSelectionOptions.html', context, request)
+      return html
 
     return http.HttpResponseNotAllowed(['GET'])
 
