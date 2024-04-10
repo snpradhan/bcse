@@ -56,7 +56,7 @@ def home(request):
   """
   home is called from the path 'about/home' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/Home.html' 
+  :returns: rendered template 'bcse_app/Home.html' which is the home page  
   """
   homepage_blocks = models.HomepageBlock.objects.all().filter(status='A').order_by('order')
   members = models.Team.objects.all().filter(status='A').order_by('order')
@@ -1031,9 +1031,9 @@ def activityDelete(request, id=''):
 ####################################
 def reservations(request):
   """
-  reservations is called from the path 'adminConfiguration/reservations' 
+  reservations is called from the path 'reservations' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/UserReservatons.html' or 'bcse_app/Reservations.html'
+  :returns: list of reservations as rendered template 'bcse_app/UserReservatons.html' for admins or 'bcse_app/Reservations.html' for non-admins
   :raises CustomException: raises an exception and returns http response redirect
   """
   try:
@@ -1395,9 +1395,9 @@ def reservationCancel(request, id=''):
 ##########################################################
 def reservationsSearch(request):
   """
-  reservationsSearch is called from the path 'adminConfiguration/reservations' 
+  reservationsSearch is called from the path 'reservations/search' 
   :param request: request from the browser 
-  :returns: http response 
+  :returns: list of reservations that match search criteria in the template 'bcse_app/ReservationsTableView.html'
   :raises CustomException: raises an exception and returns http response redirect or http response not allowed
   """
   try:
