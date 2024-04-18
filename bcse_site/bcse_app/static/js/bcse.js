@@ -144,6 +144,7 @@ $(function (){
   });
 
   $('.about_us .partner .description p').addClass('callout wysiwyg_content');
+  $('.about_us .member .description p').addClass('callout wysiwyg_content');
 
   bindPagination();
   bindRegistrationSubmit();

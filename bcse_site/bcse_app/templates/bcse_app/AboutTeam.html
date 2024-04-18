@@ -20,7 +20,7 @@
               <h3>{{member.organization}}</h3>
               <h3>{{member.email}}</h3>
             </div>
-            <p class="callout wysiwyg_content">{{member.description}}</p>
+            <div class="description">{{member.description|safe}}</div>
           </div>
         </div>
         {% endfor %}

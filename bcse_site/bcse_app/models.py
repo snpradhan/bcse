@@ -618,7 +618,7 @@ class ReservationColor(models.Model):
 
 class Team(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Team Member')
-  description = RichTextField(null=True, blank=True)
+  description = RichTextField(null=True, blank=True, config_name='resource_url_ckeditor')
   email = models.EmailField(null=False, max_length=256)
   position = models.CharField(null=False, max_length=256, help_text='Position of the Team Member')
   organization = models.CharField(null=False, max_length=256, help_text='Org. of the Team Member')

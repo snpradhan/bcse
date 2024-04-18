@@ -17,6 +17,7 @@
     </div>
     <form class="form" method="post" enctype="multipart/form-data" action="{% if form.instance.id %}{% url 'bcse:teamMemberEdit' form.instance.id %} {% else %} {% url 'bcse:teamMemberNew' %}{% endif %}" id="formTeamMember">
       {% csrf_token %}
+      {{form.media}}
       {{form.management_form}}
       <div class="modal-body">
         <div class="form-group mb-3">
@@ -121,6 +122,8 @@
     $('#formTeamMember').submit(function(e){
       e.preventDefault();
       var formData = new FormData(this);
+      var description = CKEDITOR.instances.id_description.getData();
+      formData.append('description', description);
       $.ajax({
         type: $(this).attr('method'),
         url: this.action,
