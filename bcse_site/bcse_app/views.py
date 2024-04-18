@@ -72,8 +72,8 @@ def adminConfiguration(request):
   """
   adminConfiguration is called from the path 'about/adminConfiguration' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/AdminConfiguration.html' 
-  :raises CustomException: raises an exception and returns http response redirect
+  :returns: rendered template 'bcse_app/AdminConfiguration.html' which displays admin settings and options
+  :raises CustomException: raises an exception and redirects users to the page they were on before the error occurs
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in 'AS':
@@ -90,7 +90,7 @@ def aboutBCSE(request):
   """
   aboutBCSE is called from the path 'about/BCSE' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/AboutBCSE.html' 
+  :returns: rendered template 'bcse_app/AboutBCSE.html' which is a page about BCSE
   """
   collaborators = models.Collaborator.objects.all().filter(status='A').order_by('order')
   context = {'collaborators': collaborators}
@@ -100,7 +100,7 @@ def aboutCenters(request):
   """
   aboutCenters is called from the path 'about/centers' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/AboutCenters.html' 
+  :returns: rendered template 'bcse_app/AboutCenters.html' which is a page about the centers
   """
   context = {}
   return render(request, 'bcse_app/AboutCenters.html', context)
@@ -109,7 +109,7 @@ def aboutPartners(request):
   """
   aboutPartners is called from the path 'about/partners' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/AboutPartners.html' 
+  :returns: rendered template 'bcse_app/AboutPartners.html', a page about school partners
   """
   partners = models.Partner.objects.all().filter(status='A').order_by('order')
   collaborators = models.Collaborator.objects.all().filter(status='A').order_by('order')
@@ -120,7 +120,7 @@ def aboutTeam(request):
   """
   aboutTeam is called from the path 'about/team' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/AboutTeam.html' 
+  :returns: rendered template 'bcse_app/AboutTeam.html', a page about the BCSE team
   """
   members = models.Team.objects.all().filter(status='A').order_by('order')
   context = {'members': members}
@@ -130,7 +130,7 @@ def aboutTeacherLeaders(request):
   """
   aboutTeacherLeaders is called from the path 'about/teacherLeaders' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/AboutTeacherLeaders.html' 
+  :returns: rendered template 'bcse_app/AboutTeacherLeaders.html', a page abou the BCSE teacher leaders
   """
   teacherLeaders = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
   context = {'teacherLeaders': teacherLeaders}
@@ -140,7 +140,7 @@ def contactUs(request):
   """
   contactUs is called from the path 'about/contactUs' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/ContactUs.html' 
+  :returns: rendered template 'bcse_app/ContactUs.html', a page with BCSE contact information
   """
   context = {}
   return render(request, 'bcse_app/ContactUs.html', context)
@@ -152,8 +152,8 @@ def baxterBoxInfo(request):
   """
   baxterBoxInfo is called from the path 'forClassrooms/baxterBoxInfo' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/BaxterBoxInfo.html' 
-  :raises CustomException: raises an exception and returns http response redirect
+  :returns: rendered template 'bcse_app/BaxterBoxInfo.html', a page about the baxter box program 
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     current_date = datetime.datetime.now().date()
@@ -178,8 +178,8 @@ def baxterBoxSearch(request):
   """
   baxterBoxSearch is called from the path 'forClassrooms/baxterBoxInfo' 
   :param request: request from the browser 
-  :returns: http response redirect or http response not allowed
-  :raises CustomException: raises an exception and returns http response redirect
+  :returns: redirects to user a JSON view of response_data or redirects to an error page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     if request.method == 'GET':
@@ -219,8 +219,8 @@ def baxterBoxSettings(request):
   """
   baxterBoxSettings is called from the path 'forClassrooms/baxterBoxSettings' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/BaxterBoxSettings.html' 
-  :raises CustomException: raises an exception and returns http response redirect
+  :returns: rendered template 'bcse_app/BaxterBoxSettings.html', a page with baxter box program settings
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -317,6 +317,14 @@ def blackoutDateDelete(request, id=''):
 ##########################################################
 @login_required
 def baxterBoxMessageEdit(request, id=''):
+  """
+  baxterBoxMessageEdit is called from the path 'forClassrooms/baxterBoxSettings' 
+  :param request: request from the browser 
+  :param id='': id of the baxter box message 
+  :returns: rendered template 'bcse_app/BaxterBoxNessageEdit.html' with view of message, redirect to JSON view of working or error status of baxter box message
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+  :raises models.BaxterBoxMessage.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to message not existing
+  """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -365,8 +373,8 @@ def reservationColors(request):
   """
   reservationColors is called from the path 'adminConfiguration/reservationColors' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/ReservationColors.html' 
-  :raises CustomException: raises an exception and returns http response redirect
+  :returns: rendered template 'bcse_app/ReservationColors.html'
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -385,7 +393,13 @@ def reservationColors(request):
 ##########################################################
 @login_required
 def reservationColorEdit(request, id=''):
-
+  """
+  reservationColorEdit is called from the path 'adminConfiguration/reservationColors' 
+  :param request: request from the browser 
+  :param id='': id of the reservation color to edit
+  :returns: JSON view of 'bcse_app/ReservationColorEdit.html' or error page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit reservation color')
@@ -426,7 +440,14 @@ def reservationColorEdit(request, id=''):
 ##########################################################
 @login_required
 def reservationColorDelete(request, id=''):
-
+"""
+reservationColorDelete is called from the path 'adminConfiguration/reservationColors' 
+:param request: request from the browser 
+:param id='': id of the reservation color to delete
+:returns: redirect to reservationColors page
+:raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+:raises models.ReservationColor.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to reservation color not existing
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete reservation Color')
@@ -509,7 +530,7 @@ def userSignout(request):
   """
   userSignout logs user out
   :param request: request from the browser 
-  :returns: redirect to home page page
+  :returns: redirect to home page 
   """
   logout(request)
   messages.success(request, "You have signed out")
@@ -522,8 +543,8 @@ def userSignup(request):
   """
   userSignup is called from the home page
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/SignUpModal.html', http response , or http response not allowed
-  :raises CustomException: raises an exception and returns http response
+  :returns: rendered template 'bcse_app/SignUpModal.html', which is the sign up page, redirect to JSON view of response_data, or redirect to error page
+  :raises CustomException: raises an exception and does not allow user to create another user account
   """
   work_place = models.WorkPlace()
   redirect_url = request.GET.get('next', '')
@@ -664,8 +685,8 @@ def activities(request):
   """
   activities is called from the path 'forTeachers/activities' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/Activities.html' 
-  :raises CustomException: raises an exception and returns http response redirect
+  :returns: rendered template 'bcse_app/Activities.html', which is a page with workshops
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -927,8 +948,8 @@ def equipments(request):
   """
   equipments is called from the path 'forClassrooms/equipments' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/Equipments.html' 
-  :raises CustomException: raises an exception and returns http response redirect
+  :returns: rendered template 'bcse_app/Equipments.html', which is a page with available lab equipment
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -1034,7 +1055,7 @@ def reservations(request):
   reservations is called from the path 'reservations' 
   :param request: request from the browser 
   :returns: list of reservations as rendered template 'bcse_app/UserReservatons.html' for admins or 'bcse_app/Reservations.html' for non-admins
-  :raises CustomException: raises an exception and returns http response redirect
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permission to view reservations
   """
   try:
     if request.user.is_anonymous:
@@ -1397,8 +1418,8 @@ def reservationsSearch(request):
   """
   reservationsSearch is called from the path 'reservations/search' 
   :param request: request from the browser 
-  :returns: list of reservations that match search criteria in the template 'bcse_app/ReservationsTableView.html'
-  :raises CustomException: raises an exception and returns http response redirect or http response not allowed
+  :returns: list of reservations that match search criteria in the template 'bcse_app/ReservationsTableView.html' or error page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to no permission for viewing reservations
   """
   try:
     if request.user.is_anonymous:
@@ -1686,8 +1707,8 @@ def adminAvailabilityCalendar(request):
   """
   adminAvailabilityCalendar is called from the path 'adminConfiguration' 
   :param request: request from the browser 
-  :returns: http response 
-  :raises CustomException: raises an exception and returns http response redirect or http response not allowed
+  :returns: rendered template 'bcse_app/AdminAvailabilityCalender.html', availability_data, or error page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to no permission to view availability calender
   """
   try:
     if request.user.is_anonymous:
@@ -1882,8 +1903,8 @@ def baxterBoxUsageReport(request):
   """
   baxterBoxUsageReport is called from the path 'adminConfiguration' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/BaxterBoxUsageReport.html' or http response 
-  :raises CustomException: raises an exception and returns http response redirect 
+  :returns: rendered template 'bcse_app/BaxterBoxUsageReport.html' with view of baxter box report, or error page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to no permission to view baxter box report
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -1913,8 +1934,8 @@ def baxterBoxUsageReportSearch(request):
   """
   baxterBoxUsageReportSearch is called from the path 'adminConfiguration' 
   :param request: request from the browser 
-  :returns: http response or http response not allowed
-  :raises CustomException: raises an exception and returns http response redirect 
+  :returns: JSON view of baxter box usage report search or error page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to no permission to view baxter box report
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -2081,8 +2102,8 @@ def registrationEmailMessages(request):
   """
   registrationEmailMessages is called from the path 'adminConfiguration' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/RegistrationEmailMessages.html'
-  :raises CustomException: raises an exception and returns http response redirect 
+  :returns: rendered template 'bcse_app/RegistrationEmailMessages.html', which is a page with automatic emails sent after registration
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -2230,8 +2251,8 @@ def baxterBoxCategories(request):
   """
   baxterBoxCategories is called from the path 'adminConfiguration' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/BaxterBoxCategories.html'
-  :raises CustomException: raises an exception and returns http response redirect 
+  :returns: rendered template 'bcse_app/BaxterBoxCategories.html', a page to view all categories of baxter boxes
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -2254,8 +2275,8 @@ def baxterBoxSubCategories(request):
   """
   baxterBoxCategories is called from the path 'adminConfiguration' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/BaxterBoxSubCategories.html'
-  :raises CustomException: raises an exception and returns http response redirect 
+  :returns: rendered template 'bcse_app/BaxterBoxSubCategories.html', a page to view all subcategories of baxter boxes
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
