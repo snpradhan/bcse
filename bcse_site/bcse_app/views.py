@@ -686,7 +686,7 @@ def activities(request):
   activities is called from the path 'forTeachers/activities' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/Activities.html', which is a page with workshops
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
+  :raises CustomException: redirects user to page they were on before encountering error
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -705,7 +705,13 @@ def activities(request):
 ####################################
 @login_required
 def activityEdit(request, id=''):
-
+"""
+activityEdit is called from the path 'forTeachers/activities' 
+:param request: request from the browser 
+:param id='': id of the activity to edit
+:returns: rendered template 'bcse_app/ActivityEdit.html', redirect to page to activityEdit after edits saved, or error page
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit activity')
@@ -744,6 +750,13 @@ def activityEdit(request, id=''):
 ###################################################
 @login_required
 def activityUpdate(request, id=''):
+"""
+activityUpdate is called from the path 'forTeachers/activities' 
+:param request: request from the browser 
+:param id='': id of the activity to update
+:returns: rendered template 'bcse_app/ActivityUpdateModal.html', redirect to JSON view of ActivityUpdateModel, or error page
+:raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to update activity')
@@ -782,6 +795,13 @@ def activityUpdate(request, id=''):
 # VIEW ACTIVITY
 ####################################
 def activityView(request, id=''):
+"""
+activityUpdate is called from the path 'forTeachers/activities' 
+:param request: request from the browser 
+:param id='': id of the activity to view
+:returns: rendered template 'bcse_app/ActivityBaseView.html', rendered template ActivityView
+:raises CustomException: redirects user to page they were on before encountering error due to activity not existing
+"""
 
   try:
     if '' != id:
@@ -822,7 +842,14 @@ def activityView(request, id=''):
 ####################################
 @login_required
 def activityDelete(request, id=''):
-
+"""
+activityDelete is called from the path 'forTeachers/activities' 
+:param request: request from the browser 
+:param id='': id of the activity to delete
+:returns: redirect to activities page
+:raises models.Activity.DoesNotExist: redirects user to page they were on before encountering error due to activity not found
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete activity')
@@ -846,6 +873,12 @@ def activityDelete(request, id=''):
 ####################################
 @login_required
 def equipmentTypes(request):
+"""
+equipmentTypes is called from the path 'forTeachers/equipment' 
+:param request: request from the browser 
+:returns: rendered template 'bcse_app/EquipmentTypes.html' which is a page to view all equipment types
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view equipment types')
@@ -863,7 +896,13 @@ def equipmentTypes(request):
 ####################################
 @login_required
 def equipmentTypeEdit(request, id=''):
-
+"""
+equipmentTypeEdit is called from the path 'forTeachers/equipment' 
+:param request: request from the browser 
+:param id='': id of the equipment type to edit
+:returns: rendered template 'bcse_app/EquipmentTypeEdit.html', redirect to equipment type edit page after updates are saved, or error page
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit equipment type')
@@ -900,6 +939,14 @@ def equipmentTypeEdit(request, id=''):
 ####################################
 @login_required
 def equipmentTypeDelete(request, id=''):
+"""
+equipmentTypeDelete is called from the path 'forTeachers/equipment' 
+:param request: request from the browser 
+:param id='': id of the equipment type to delete
+:returns: redirect to equipment type edit page after deleting
+:raises models.EquipmentType.DoesNotExist: redirects user to page they were on before encountering error due to equipment type not being found
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -922,7 +969,13 @@ def equipmentTypeDelete(request, id=''):
 # VIEW EQUIPMENT TYPE
 ####################################
 def equipmentTypeView(request, id=''):
-
+"""
+equipmentTypeView is called from the path 'forTeachers/equipment' 
+:param request: request from the browser 
+:param id='': id of the equipment type to view
+:returns: rendered template 'bcse_app/BaxterBoxKitModal.html' where all equipments are or redirect to error page
+:raises CustomException: redirects user to page they were on before encountering error due to equipment not exisitng
+"""
   try:
     if '' != id:
       equipment_type = models.EquipmentType.objects.get(id=id)
@@ -945,11 +998,11 @@ def equipmentTypeView(request, id=''):
 ####################################
 @login_required
 def equipments(request):
-  """
+"""
   equipments is called from the path 'forClassrooms/equipments' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/Equipments.html', which is a page with available lab equipment
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
+  :raises CustomException: redirects user to page they were on before encountering error
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -968,7 +1021,13 @@ def equipments(request):
 ####################################
 @login_required
 def equipmentEdit(request, id=''):
-
+"""
+equipmentEdit is called from the path 'forTeachers/equipments' 
+:param request: request from the browser 
+:param id='': id of the equipment to edit
+:returns: rendered template 'bcse_app/EquipmentEdit.html' where all equipments are if equipment cannot be saved, redirect to original equipmentEdit page if saved, or error page
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit equipment')
@@ -1005,7 +1064,14 @@ def equipmentEdit(request, id=''):
 ####################################
 @login_required
 def equipmentDelete(request, id=''):
-
+"""
+equipmentDelete is called from the path 'forTeachers/equipments' 
+:param request: request from the browser 
+:param id='': id of the equipment to delete
+:returns: redirects to equipments page if equipment successfully deleted
+:raises models.Equipment.DoesNotExist: redirects user to page they were on before encountering error due to equipment id not existing
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete equipment')
@@ -1028,7 +1094,14 @@ def equipmentDelete(request, id=''):
 ####################################
 @login_required
 def activityDelete(request, id=''):
-
+"""
+activityDelete is called from the path 'activities' 
+:param request: request from the browser 
+:param id='': id of the activity to delete
+:returns: redirects to activities page if activity successfully deleted
+:raises models.Activity.DoesNotExist: redirects user to page they were on before encountering error due to activity id not existing
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete activity')
@@ -1055,7 +1128,7 @@ def reservations(request):
   reservations is called from the path 'reservations' 
   :param request: request from the browser 
   :returns: list of reservations as rendered template 'bcse_app/UserReservatons.html' for admins or 'bcse_app/Reservations.html' for non-admins
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permission to view reservations
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permission to view reservations
   """
   try:
     if request.user.is_anonymous:
@@ -1085,6 +1158,12 @@ def reservations(request):
 
 
 def reservationsList(request, user_id=''):
+"""
+reservationsList is called from the path 'reservations' 
+:param request: request from the browser 
+:param user_id='': user
+:returns: list of reservations for a user
+"""
   reservations = None
   if request.user.is_authenticated:
     if request.user.userProfile.user_role not in ['A', 'S']:
@@ -1103,6 +1182,14 @@ def reservationsList(request, user_id=''):
 ####################################
 @login_required
 def reservationEdit(request, id=''):
+"""
+reservationEdit is called from the path 'reservations' 
+:param request: request from the browser 
+:param id='': id of reservation
+:returns: rendered template 'bcse_app/ReservationEdit.html' if errors present, redirect to reservationView if reservation successfully edited, or error page
+:raises models.Reservation.DoesNotExist: redirects user to page they were on before encountering error due to reservation id not existing
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions or reservation already having happened
+"""
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to create/edit a reservation')
@@ -1228,6 +1315,14 @@ def reservationEdit(request, id=''):
 # VIEW RESERVATION
 ####################################
 def reservationView(request, id=''):
+"""
+reservationView is called from the path 'reservations' 
+:param request: request from the browser 
+:param id='': id of reservation
+:returns: rendered template 'bcse_app/ReservationView.html' 
+:raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
+:raises CustomException: redirects to home page due to lack of permissions 
+"""
   try:
     if request.user.is_anonymous:
       next1 = "?next=/signin"
