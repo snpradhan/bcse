@@ -355,7 +355,7 @@
                   {% if reservation.activity %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityUpdate' reservation.activity.id %}">Update Kit Inventory</a>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:reservationActivityUpdate' reservation.activity.id reservation.id %}">Update Inventory</a>
                     </li>
                   {% endif %}
                   <li><hr class="dropdown-divider"></li>

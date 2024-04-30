@@ -26,8 +26,6 @@
             </div>
             <div class="error">{{ searchForm.to_date.errors }}</div>
           </div>
-        </div>
-        <div class="filter_fields">
           <div class="form-group">
             <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
             <div>{{searchForm.work_place}}</div>
@@ -38,12 +36,21 @@
             <div>{{searchForm.user}}</div>
             <div class="error">{{ searchForm.user.errors }}</div>
           </div>
+        </div>
+        <div class="filter_fields">
           <div class="form-group">
             <label for="id_{{searchForm.activity.name}}" class="form-label"> {{searchForm.activity.label|title}}
               <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.activity.help_text}}"></i>
             </label>
             <div>{{searchForm.activity}}</div>
             <div class="error">{{ searchForm.activity.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.consumable.name}}" class="form-label"> {{searchForm.consumable.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.consumable.help_text}}"></i>
+            </label>
+            <div>{{searchForm.consumable}}</div>
+            <div class="error">{{ searchForm.consumable.errors }}</div>
           </div>
         </div>
         <div class="filter_fields">

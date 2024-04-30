@@ -1250,6 +1250,7 @@ class ReservationsSearchForm(forms.Form):
   assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
   activity = forms.ModelChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'))
+  consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':6}))
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
   return_before = forms.DateField(required=False, label=u'Return on/before')
@@ -1267,7 +1268,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('created_date_desc', 'Created Date (Desc)'),
                                                        ('created_date_asc', 'Created Date (Asc)'),
                                                        ('status', 'Status')))
-  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
+  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'CO', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'AT', 'ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
   color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().filter(target__in=['R', 'B']).order_by('name'))
 
@@ -1283,14 +1284,14 @@ class ReservationsSearchForm(forms.Form):
       self.fields.pop('assignee')
       self.fields.pop('color')
       self.fields.pop('feedback_status')
-      self.fields.pop('consumables')
+      self.fields.pop('consumable')
     else:
       self.fields['rows_per_page'].initial = 75
 
     for field_name, field in self.fields.items():
       if field_name in ['delivery_after', 'return_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
-      elif field_name in ['equipment']:
+      elif field_name in ['equipment', 'consumable']:
         field.widget.attrs['class'] = 'form-control select2'
       else:
         field.widget.attrs['class'] = 'form-control'
@@ -1467,9 +1468,10 @@ class BaxterBoxUsageSearchForm(forms.Form):
   to_date = forms.DateField(required=False, label=u'To')
   work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Work Place", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the work place ...'}),)
   user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
-  activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
-  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':6}))
-  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+  activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':7}))
+  equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':7}))
+  consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':5}))
+  status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':5}))
 
 
   def __init__(self, *args, **kwargs):
@@ -1483,7 +1485,7 @@ class BaxterBoxUsageSearchForm(forms.Form):
       else:
         field.widget.attrs['class'] = 'form-control'
 
-      if field_name in ['activity', 'equipment', 'status']:
+      if field_name in ['activity', 'equipment', 'consumable', 'status']:
         field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
 
       if field.help_text:

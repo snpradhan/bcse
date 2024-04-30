@@ -35,6 +35,11 @@
           <div class="error">{{ searchForm.activity.errors }}</div>
         </div>
         <div class="form-group">
+          <label for="id_{{searchForm.consumable.name}}" class="form-label"> {{searchForm.consumable.label|title}}</label>
+          <div>{{searchForm.consumable}}</div>
+          <div class="error">{{ searchForm.consumable.errors }}</div>
+        </div>
+        <div class="form-group">
           <label for="id_{{searchForm.equipment.name}}" class="form-label">
             {{searchForm.equipment.label|title}}
           </label>

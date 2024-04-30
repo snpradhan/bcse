@@ -637,7 +637,7 @@ def activityEdit(request, id=''):
 # UPDATE ACTIVITY
 ###################################################
 @login_required
-def activityUpdate(request, id=''):
+def activityUpdate(request, id='', reservation_id=''):
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to update activity')
@@ -647,14 +647,23 @@ def activityUpdate(request, id=''):
 
     if request.method == 'GET':
       form = forms.ActivityUpdateForm(instance=activity, prefix="activity")
-      formset = ConsumableFormSet(queryset=activity.consumables.all(), prefix="consumables")
+      if '' != reservation_id:
+        reservation = models.Reservation.objects.get(id=reservation_id)
+        formset = ConsumableFormSet(queryset=reservation.consumables.all(), prefix="consumables")
+      else:
+        formset = ConsumableFormSet(queryset=activity.consumables.all(), prefix="consumables")
       context = {'activity': activity, 'form': form, 'formset': formset}
       return render(request, 'bcse_app/ActivityUpdateModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
       print(data)
       form = forms.ActivityUpdateForm(data, instance=activity, prefix="activity")
-      formset = ConsumableFormSet(data, queryset=activity.consumables.all(), prefix="consumables")
+      if '' != reservation_id:
+        reservation = models.Reservation.objects.get(id=reservation_id)
+        formset = ConsumableFormSet(data, queryset=reservation.consumables.all(), prefix="consumables")
+      else:
+        formset = ConsumableFormSet(data, queryset=activity.consumables.all(), prefix="consumables")
+
       response_data = {}
       if form.is_valid() and formset.is_valid():
         form.save()
@@ -1422,6 +1431,7 @@ def reservationsSearch(request):
       user_filter = None
       workplace_filter = None
       activity_filter = None
+      consumable_filter = None
       equipment_filter = None
       delivery_after_filter = None
       return_before_filter = None
@@ -1435,6 +1445,7 @@ def reservationsSearch(request):
       work_place = request.GET.get('reservation_search-work_place', '')
       assignee = request.GET.get('reservation_search-assignee', '')
       activity = request.GET.get('reservation_search-activity', '')
+      consumable = request.GET.getlist('reservation_search-consumable', '')
       equipment = request.GET.getlist('reservation_search-equipment', '')
       delivery_after = request.GET.get('reservation_search-delivery_after', '')
       return_before = request.GET.get('reservation_search-return_before', '')
@@ -1453,6 +1464,7 @@ def reservationsSearch(request):
         'work_place': work_place,
         'assignee': assignee,
         'activity': activity,
+        'consumable': consumable,
         'equipment': equipment,
         'delivery_after': delivery_after,
         'return_before': return_before,
@@ -1483,6 +1495,10 @@ def reservationsSearch(request):
 
       if activity:
         activity_filter = Q(activity=activity)
+
+      if consumable:
+        consumable_filter = Q(consumables__in=consumable)
+
       if status:
         status_filter = Q(status__in=status)
 
@@ -1515,6 +1531,8 @@ def reservationsSearch(request):
         query_filter = query_filter & assignee_filter
       if activity_filter:
         query_filter = query_filter & activity_filter
+      if consumable_filter:
+        query_filter = query_filter & consumable_filter
       if equipment_filter:
         query_filter = query_filter & equipment_filter
 
@@ -1913,16 +1931,21 @@ def baxterBoxUsageReportSearch(request):
       reservations = models.Reservation.objects.all().exclude(status='N')
       equipment_types = models.EquipmentType.objects.all().order_by('order')
       activities = models.Activity.objects.all().order_by('name')
+      consumables = models.Consumable.objects.all().order_by('name')
 
       equipment_usage = {}
       kit_usage = {}
-      total_usage = {'reservations': 0, 'total_equipment_cost': 0.0, 'kits': 0, 'total_kit_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+      consumable_usage = {}
+      total_usage = {'reservations': 0, 'total_equipment_cost': 0.0, 'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
 
       for equipment_type in equipment_types:
         print(equipment_type.name, equipment_type.unit_cost)
         equipment_usage[equipment_type.id] = {'name': equipment_type.name, 'unit_cost': equipment_type.unit_cost,'reservations': [], 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
       for activity in activities:
         kit_usage[activity.id] = {'name': activity.kit_name, 'unit_cost': activity.kit_unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+      for consumable in consumables:
+        consumable_usage[consumable.id] = {'name': consumable.name, 'unit_cost': consumable.unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+
 
       query_filter = Q()
       filter_selected = False
@@ -1932,6 +1955,7 @@ def baxterBoxUsageReportSearch(request):
       work_place = request.GET.get('usage-work_place', '')
       user = request.GET.get('usage-user', '')
       activity = request.GET.getlist('usage-activity', '')
+      consumable = request.GET.getlist('usage-consumable', '')
       equipment = request.GET.getlist('usage-equipment', '')
       status = request.GET.getlist('usage-status', '')
 
@@ -1942,6 +1966,7 @@ def baxterBoxUsageReportSearch(request):
         'work_place': work_place,
         'user': user,
         'activity': activity,
+        'consumable': consumable,
         'equipment': equipment,
         'status': status
       }
@@ -1966,9 +1991,15 @@ def baxterBoxUsageReportSearch(request):
       if activity:
         query_filter = query_filter & Q(activity__in=activity)
         filter_selected = True
+
+      if consumable:
+        query_filter = query_filter & Q(consumables__in=consumable)
+        filter_selected = True
+
       if status:
         query_filter = query_filter & Q(status__in=status)
         filter_selected = True
+
       if equipment:
         query_filter = query_filter & Q(equipment__equipment_type__id__in=equipment)
         filter_selected = True
@@ -2013,6 +2044,16 @@ def baxterBoxUsageReportSearch(request):
             if reservation.activity.kit_unit_cost:
               total_usage['total_kit_cost'] += reservation.activity.kit_unit_cost * reservation_classes
 
+            for reservation_consumable in reservation.consumables.all():
+              consumable_usage[reservation_consumable.id]['count'] += reservation_classes
+              consumable_usage[reservation_consumable.id]['classes'] += reservation_classes
+              consumable_usage[reservation_consumable.id]['students'] += reservation_students
+              total_usage['consumables'] += reservation_classes
+              if reservation_consumable.unit_cost:
+                total_usage['total_consumables_cost'] += reservation_consumable.unit_cost * reservation_classes
+
+
+
           kit_usage[reservation.activity.id]['classes'] += reservation_classes
           kit_usage[reservation.activity.id]['students'] += reservation_students
 
@@ -2035,6 +2076,7 @@ def baxterBoxUsageReportSearch(request):
       if filter_selected:
         remove_equipment = []
         remove_kit = []
+        remove_consumable = []
         for equipment_type_id, usage in equipment_usage.items():
            if len(usage['reservations']) == 0 and len(usage['teachers']) == 0 and len(usage['schools']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
              remove_equipment.append(equipment_type_id)
@@ -2043,16 +2085,23 @@ def baxterBoxUsageReportSearch(request):
           if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['schools']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
              remove_kit.append(activity_id)
 
+        for consumable_id, usage in consumable_usage.items():
+          if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['schools']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
+             remove_consumable.append(consumable_id)
+
         for equipment_type_id in remove_equipment:
           del equipment_usage[equipment_type_id]
 
         for activity_id in remove_kit:
           del kit_usage[activity_id]
 
+        for consumable_id in remove_consumable:
+          del consumable_usage[consumable_id]
+
 
       response_data = {}
       response_data['success'] = True
-      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date}
+      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'consumable_usage': consumable_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date}
       response_data['html'] = render_to_string('bcse_app/BaxterBoxUsageTableView.html', context, request)
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
