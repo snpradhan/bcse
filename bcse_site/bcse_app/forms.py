@@ -1199,6 +1199,7 @@ class SurveySubmissionsSearchForm(forms.Form):
                                                       ('last_name', 'Last Name'),
                                                       ('created_date_desc', 'Created Date (Desc)'),
                                                       ('created_date_asc', 'Created Date (Asc)')), initial='created_date_desc')
+  columns = forms.MultipleChoiceField(required=False, choices=models.SURVEY_SUBMISSION_TABLE_COLUMN_CHOICES, initial=['SI', 'EM', 'FN', 'WP', 'CE', 'AN', 'CD','ST'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
 

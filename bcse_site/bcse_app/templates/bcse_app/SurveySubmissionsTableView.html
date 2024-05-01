@@ -6,53 +6,99 @@
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th>Serial #</th>
-        <th>Submission ID</th>
-        <th>IP Address</th>
-        <th> User ID </th>
-        <th> Email </th>
-        <th> Full Name </th>
-        <th> Work Place</th>
-        <th>
-          {%  if survey.survey_type == 'B' %}
-            Activity
-          {% elif survey.survey_type == 'W' %}
-            Workshop
-          {% else %}
-            Connected Entity
-          {% endif %}
-        </th>
-        <th> Created Date </th>
-        <th> Status </th>
+        {% if 'SN' in columns %}
+          <th>Serial #</th>
+        {% endif %}
+        {% if 'SI' in columns %}
+          <th>Submission ID</th>
+        {% endif %}
+        {% if 'IP' in columns %}
+          <th>IP Address</th>
+        {% endif %}
+        {% if 'UI' in columns %}
+          <th> User ID </th>
+        {% endif %}
+        {% if 'EM' in columns %}
+          <th> Email </th>
+        {% endif %}
+        {% if 'FN' in columns %}
+          <th> Full Name </th>
+        {% endif %}
+        {% if 'WP' in columns %}
+          <th> Work Place</th>
+        {% endif %}
+        {% if 'AN' in columns %}
+          <th> Admin Notes</th>
+        {% endif %}
+        {% if 'CE' in columns %}
+          <th>
+            {%  if survey.survey_type == 'B' %}
+              Activity
+            {% elif survey.survey_type == 'W' %}
+              Workshop
+            {% else %}
+              Connected Entity
+            {% endif %}
+          </th>
+        {% endif %}
+        {% if 'CD' in columns %}
+          <th> Created Date </th>
+        {% endif %}
+        {% if 'ST' in columns %}
+          <th> Status </th>
+        {% endif %}
         <th> Action </th>
       </tr>
     </thead>
     <tbody>
       {% for submission in surveySubmissions %}
        <tr>
-          <td> {{forloop.counter}}</td>
-          <td>{{submission.UUID}}</td>
-          <td>{{submission.ip_address}}</td>
-          <td>{{submission.user.id|default_if_none:""}}</td>
-          <td>{{submission.user.user.email|default_if_none:""}}</td>
-          <td>{{submission.user.user.get_full_name|default_if_none:""}}</td>
-          <td>{{submission.user.work_place|default_if_none:""}}</td>
-          <td>
-            {% get_submission_connected_entity submission.UUID as survey_entity %}
-            {% if survey_entity %}
-              {% if survey_entity.entity_type == 'Reservation' %}
-                {% if survey_entity.entity.activity %}
-                  {{survey_entity.entity.activity.name}}
-                {% elif survey_entity.entity.other_activity %}
-                  {{survey_entity.entity.other_activity_name}}
+          {% if 'SN' in columns %}
+            <td> {{forloop.counter}}</td>
+          {% endif %}
+          {% if 'SI' in columns %}
+            <td>{{submission.UUID}}</td>
+          {% endif %}
+          {% if 'IP' in columns %}
+            <td>{{submission.ip_address}}</td>
+          {% endif %}
+          {% if 'UI' in columns %}
+            <td>{{submission.user.id|default_if_none:""}}</td>
+          {% endif %}
+          {% if 'EM' in columns %}
+            <td>{{submission.user.user.email|default_if_none:""}}</td>
+          {% endif %}
+          {% if 'FN' in columns %}
+            <td>{{submission.user.user.get_full_name|default_if_none:""}}</td>
+          {% endif %}
+          {% if 'WP' in columns %}
+            <td>{{submission.user.work_place|default_if_none:""}}</td>
+          {% endif %}
+          {% if 'AN' in columns %}
+            <td> {{submission.admin_notes|default_if_none:""}}</td>
+          {% endif %}
+          {% if 'CE' in columns %}
+            <td>
+              {% get_submission_connected_entity submission.UUID as survey_entity %}
+              {% if survey_entity %}
+                {% if survey_entity.entity_type == 'Reservation' %}
+                  {% if survey_entity.entity.activity %}
+                    {{survey_entity.entity.activity.name}}
+                  {% elif survey_entity.entity.other_activity %}
+                    {{survey_entity.entity.other_activity_name}}
+                  {% endif %}
+                {% elif survey_entity.entity_type == 'Workshop' %}
+                  {{survey_entity.entity.name}}
                 {% endif %}
-              {% elif survey_entity.entity_type == 'Workshop' %}
-                {{survey_entity.entity.name}}
               {% endif %}
-            {% endif %}
-          </td>
-          <td>{{submission.created_date|date}}</td>
-          <td>{{submission.get_status_display}}</td>
+            </td>
+          {% endif %}
+          {% if 'CD' in columns %}
+            <td>{{submission.created_date|date}}</td>
+          {% endif %}
+          {% if 'ST' in columns %}
+            <td>{{submission.get_status_display}}</td>
+          {% endif %}
           <td>
             <div class="btn-group">
               <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

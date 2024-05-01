@@ -5566,6 +5566,7 @@ def surveySubmissionsSearch(request, id=''):
       work_place = request.GET.get('survey_submission_search-work_place', '')
       status = request.GET.get('survey_submission_search-status', '')
       sort_by = request.GET.get('survey_submission_search-sort_by', '')
+      columns = request.GET.getlist('survey_submission_search-columns', '')
       rows_per_page = request.GET.get('survey_submission_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
       page = request.GET.get('page', '')
 
@@ -5577,6 +5578,7 @@ def surveySubmissionsSearch(request, id=''):
         'user_role': user_role,
         'work_place': work_place,
         'status': status,
+        'columns': columns,
         'sort_by': sort_by,
         'rows_per_page': rows_per_page,
         'page': page
@@ -5639,7 +5641,7 @@ def surveySubmissionsSearch(request, id=''):
 
       surveySubmissions = paginate(request, surveySubmissions, sort_order, rows_per_page, page)
 
-      context = {'survey': survey, 'surveySubmissions': surveySubmissions}
+      context = {'survey': survey, 'surveySubmissions': surveySubmissions, 'columns': columns}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/SurveySubmissionsTableView.html', context, request)

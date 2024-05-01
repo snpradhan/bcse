@@ -190,6 +190,20 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('MD', 'Modified Date'),
 )
 
+SURVEY_SUBMISSION_TABLE_COLUMN_CHOICES = (
+  ('SN', 'Serial #'),
+  ('SI', 'Submission ID'),
+  ('IP', 'IP Address'),
+  ('UI', 'User ID'),
+  ('FN', 'Full Name'),
+  ('EM', 'Email'),
+  ('WP', 'Work Place'),
+  ('CE', 'Connected Entity'),
+  ('AN', 'Admin Notes'),
+  ('ST', 'Status'),
+  ('CD', 'Created Date'),
+)
+
 COLOR_TARGET_CHOICES = (
   ('R', 'Reservation'),
   ('K', 'Activity Kit'),
