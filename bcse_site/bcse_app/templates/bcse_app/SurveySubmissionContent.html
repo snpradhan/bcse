@@ -27,7 +27,7 @@
     </thead>
     <tbody>
       <tr>
-        <td>{{submission.UUID}}</td>
+        <td>{{submission.UUID|truncatechars:8}}</td>
         <td>{{submission.ip_address}}</td>
         <td>{{submission.user.id|default_if_none:""}}</td>
         <td>{{submission.user.user.email|default_if_none:""}}</td>
@@ -65,7 +65,7 @@
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item action delete" data-href="{% url 'bcse:surveySubmissionDelete' survey.id submission.UUID %}"
-                  data-title="the survey submission <strong>{{submission.UUID}}</strong>">
+                  data-title="the survey submission <strong>{{submission.UUID|truncatechars:8}}</strong>">
                   Delete
                 </a>
               </li>

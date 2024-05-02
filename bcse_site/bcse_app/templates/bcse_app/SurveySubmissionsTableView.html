@@ -57,7 +57,7 @@
             <td> {{forloop.counter}}</td>
           {% endif %}
           {% if 'SI' in columns %}
-            <td>{{submission.UUID}}</td>
+            <td>{{submission.UUID|truncatechars:8}}</td>
           {% endif %}
           {% if 'IP' in columns %}
             <td>{{submission.ip_address}}</td>
@@ -119,7 +119,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <a class="dropdown-item action delete" data-href="{% url 'bcse:surveySubmissionDelete' survey.id submission.UUID %}"
-                  data-title="the survey submission <strong>{{submission.UUID}}</strong>">
+                  data-title="the survey submission <strong>{{submission.UUID|truncatechars:8}}</strong>">
                     Delete
                   </a>
                 </li>
