@@ -325,7 +325,7 @@ class UserProfile(models.Model):
       ordering = ['user__last_name', 'user__first_name']
 
   def __str__(self):
-      return '%s, %s' % (self.user.last_name, self.user.first_name)
+      return '%s, %s (%s)' % (self.user.last_name, self.user.first_name, self.user.email)
 
 class EquipmentType(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of Equipment Type')

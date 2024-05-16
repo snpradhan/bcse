@@ -2705,7 +2705,15 @@ def workshopRegistration(request, workshop_id):
       if not request.is_ajax():
         messages.success(request, "There were some errors")
       if request.user.userProfile.user_role in ['A', 'S']:
-        admin_message = "Something went wrong with the workshop registration"
+        try:
+          registration_user = data.get("workshop-%s-user"%workshop.id, "")
+          if registration_user:
+            reg = userRegistration(request, workshop.id, registration_user)
+            admin_message = "Workshop registration for user <b>%s</b> already exists. If you need to update the registration status for this user, please use the Registrants tab" % reg.user
+
+        except CustomException as ce:
+          admin_message = "Something went wrong with the workshop registration"
+
         registration['admin_message'] = admin_message
       else:
         registration['user_message'] = user_message
@@ -6999,7 +7007,7 @@ class UserAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
     qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
     if self.q:
-      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
+      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q))
 
     return qs
 
@@ -7024,11 +7032,11 @@ class RegistrantAutocomplete(autocomplete.Select2QuerySetView):
     workshop_registration_setting = self.forwarded.get('workshop_registration_setting', None)
     print(workshop_registration_setting)
     if workshop_registration_setting:
-      registered_users = models.Registration.objects.all().filter(workshop_registration_setting=workshop_registration_setting).values_list('user', flat=True)
-      qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name').exclude(id__in=registered_users)
+      #registered_users = models.Registration.objects.all().filter(workshop_registration_setting=workshop_registration_setting).values_list('user', flat=True)
+      qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
 
       if self.q:
-        qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
+        qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q))
     else:
       qs = models.UserProfile.objects.none()
 

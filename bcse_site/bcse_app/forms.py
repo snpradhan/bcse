@@ -887,11 +887,6 @@ class WorkshopRegistrationForm(ModelForm):
 
     super(WorkshopRegistrationForm, self).__init__(*args, **kwargs)
 
-    #print(self.instance.workshop_registration_setting)
-    #if not self.instance.id:
-    #  registered_users = models.Registration.objects.all().filter(workshop_registration_setting=self.instance.workshop_registration_setting).values_list('user', flat=True)
-    #  self.fields['user'].queryset = models.UserProfile.objects.all().exclude(id__in=registered_users)
-
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
