@@ -251,6 +251,15 @@ def baxterBoxSettings(request):
 ##########################################################
 @login_required
 def blackoutDateEdit(request, id=''):
+"""
+blackoutDateEdit is called from the path 'blackoutDates' 
+:param request: request from the browser 
+:param id='': id of blackout date to edit
+:returns: rendered template 'bcse_app/BaxterBoxBlackoutDateEdit.html' with view of message, redirect to JSON view of application or error status of blackout date message
+:returns: redirect to blackoutDates page
+:raises models.BaxterBoxBlackoutDate.DoesNotExist: redirects user to home page due to blackout date id not existing
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -293,7 +302,14 @@ def blackoutDateEdit(request, id=''):
 ##########################################################
 @login_required
 def blackoutDateDelete(request, id=''):
-
+"""
+blackoutDateDelete is called from the path 'blackoutDates' 
+:param request: request from the browser 
+:param id='': id of blackout date to delete
+:returns: redirect to blackoutDates page
+:raises models.BaxterBoxBlackoutDate.DoesNotExist: redirects user to home page due to blackout date id not existing
+:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete blackout date')
@@ -321,8 +337,8 @@ def baxterBoxMessageEdit(request, id=''):
   baxterBoxMessageEdit is called from the path 'forClassrooms/baxterBoxSettings' 
   :param request: request from the browser 
   :param id='': id of the baxter box message 
-  :returns: rendered template 'bcse_app/BaxterBoxNessageEdit.html' with view of message, redirect to JSON view of working or error status of baxter box message
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+  :returns: rendered template 'bcse_app/BaxterBoxMessageEdit.html' with view of message, redirect to JSON view of application or error status of baxter box message
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   :raises models.BaxterBoxMessage.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to message not existing
   """
 
@@ -469,6 +485,12 @@ reservationColorDelete is called from the path 'adminConfiguration/reservationCo
 # USER LOGIN
 ####################################
 def userSignin(request, user_email=''):
+"""
+userSignin is called from the home page 
+:param request: request from the browser 
+:param user_email='': email of the user that wants to sign in
+:returns: rendered template 'bcse_app/SignInModal.html' with view of message, redirect to JSON view of application or error status of sign in message
+"""
   email = password = ''
   print(request.method)
   redirect_url = request.GET.get('next', '')
@@ -1364,6 +1386,14 @@ reservationView is called from the path 'reservations'
 # CREATE RESERVATION MESSAGE
 ####################################
 def reservationMessage(request, id=''):
+"""
+reservationView is called from the path 'reservations' 
+:param request: request from the browser 
+:param id='': id of reservation
+:returns: newly created reservation message, redirect to JSON view of application or error status of reservation message
+:raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
+:raises CustomException: redirects to home page due to lack of permissions 
+"""
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to view this reservation')
@@ -1415,6 +1445,14 @@ def reservationMessage(request, id=''):
 
 
 def reservationMessageDismiss(request, id=''):
+"""
+reservationMessageDismiss is called from the path 'reservations' 
+:param request: request from the browser 
+:param id='': id of reservation
+:returns: error status of reservation message
+:raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
+
+"""
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role in ['T', 'P']:
       raise CustomException('You do not have the permission to dismiss reservation messages')
