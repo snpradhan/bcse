@@ -1,4 +1,5 @@
 {% load bcse_extras %}
+{% load base_extras %}
 
 {% if tag == 'profile' %}
   <h2 class="center">My Baxter Box Reservations</h2>
@@ -6,6 +7,11 @@
 {% if reservations %}
   {% if tag == 'reservations' %}
     {% include "bcse_app/Pagination.html" with model=reservations location='top' %}
+  {% endif %}
+  {% if user.is_authenticated and user.userProfile.user_role in 'TP' and tag == 'profile' %}
+    <div class="right mb-3">
+      <button class="btn export_reservations" type="button">Export Reservations</button>
+    </div>
   {% endif %}
   <table class="table table-bordered table-striped" id="baxter_box_reservations">
     <thead>
@@ -423,7 +429,23 @@
     {% include "bcse_app/Pagination.html" with model=reservations location='bottom'%}
   {% endif %}
 {% else %}
-  {% if tag == 'reservations' %}
+  {% if user.is_authenticated and user.userProfile.user_role in 'TP' %}
+    <div class="warning center">You do not have any Baxter Box reservation</div>
+  {% elif tag == 'reservations' %}
     <div class="warning center">No reservations matching your search criteria found</div>
   {% endif %}
 {% endif %}
+
+<script type="text/javascript">
+  $(function (){
+    $('.export_reservations').on('click', function(e) {
+      $("#baxter_box_reservations").table2excel({
+        exclude: ".noExl",
+        name: "Baxter Box Reservations",
+        filename: "Baxter_Box_Reservations", //do not include extension
+        fileext:".xls", // file extension
+        preserveColors: true, // set to true if you want background colors and font colors preserved
+      });
+    });
+  });
+</script>

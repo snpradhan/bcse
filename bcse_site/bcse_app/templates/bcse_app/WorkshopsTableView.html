@@ -1,4 +1,5 @@
 {% load bcse_extras %}
+{% load base_extras %}
 
 {% if tag == 'profile' %}
   <h2 class="center">My Workshops</h2>
@@ -8,9 +9,14 @@
   {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
     {% include "bcse_app/Pagination.html" with model=workshops location='top' %}
   {% endif %}
-  <table class="table table-bordered table-striped">
+  {% if user.is_authenticated and user.userProfile.user_role in 'TP' %}
+    <div class="right mb-3">
+      <button class="btn export_workshops" type="button">Export Workshops</button>
+    </div>
+  {% endif %}
+  <table class="table table-bordered table-striped" id="workshops_table">
     <thead>
-      <tr>
+      <tr class='noExl'>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
           <th> ID</th>
         {% endif %}
@@ -36,6 +42,33 @@
             {% endif %}
           {% endif %}
           <th> Actions </th>
+        {% endif %}
+      </tr>
+      <tr style="display:none;">
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
+          <td style="background-color: #767676; color: white;"> ID</td>
+        {% endif %}
+        <td style="background-color: #767676; color: white;"> Workshop Type </td>
+        <td style="background-color: #767676; color: white;"> Title </td>
+        <td style="background-color: #767676; color: white;"> Start Date/Time </td>
+        <td style="background-color: #767676; color: white;"> End Date/Time </td>
+        <td style="background-color: #767676; color: white;"> Location </td>
+        {% if user.is_authenticated %}
+          {% if user.userProfile.user_role in 'AS' and tag == 'workshops' %}
+            <td style="background-color: #767676; color: white;"> Registration Enabled? </td>
+            <td style="background-color: #767676; color: white;"> Registration Type </td>
+            <td style="background-color: #767676; color: white;"> Capacity </td>
+            <td style="background-color: #767676; color: white;"> Waitlist Enabled?</td>
+            <td style="background-color: #767676; color: white;"> Waitlist Capacity</td>
+            <td style="background-color: #767676; color: white;"> Number of Registrants</td>
+            <td style="background-color: #767676; color: white;"> Created Date</td>
+            <td style="background-color: #767676; color: white;"> Modified Date </td>
+            <td style="background-color: #767676; color: white;"> Status </td>
+          {% else %}
+            {% if flag != 'teacher' %}
+              <td style="background-color: #767676; color: white;"> Registration Status </td>
+            {% endif %}
+          {% endif %}
         {% endif %}
       </tr>
     </thead>
@@ -83,7 +116,7 @@
               <td> {{workshop.modified_date|date:"F j, Y g:i A"}} </td>
               <td> {{workshop.get_status_display}} </td>
 
-              <td width="15%">
+              <td width="15%" class='noExl'>
                 <div class="btn-group">
                   <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                     Action
@@ -122,7 +155,7 @@
               {% endif %}
               {% if flag != 'teacher' %}
                 <td>{{registration.get_status_display}}</td>
-                <td width="15%">
+                <td width="15%" class='noExl'>
                   {% if workshop.status == 'A'%}
                     <div class="btn-group">
                       <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -150,7 +183,7 @@
                   {% endif %}
                 </td>
               {% else %}
-                <td>
+                <td class='noExl'>
                   <div class="btn-group">
                     <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                       Action
@@ -173,7 +206,23 @@
     {% include "bcse_app/Pagination.html" with model=workshops location='bottom' %}
   {% endif %}
 {% else %}
-  {% if tag == 'workshops' %}
+  {% if user.is_authenticated and user.userProfile.user_role in 'TP' %}
+    <div class="warning center">You have not attended any workshops yet</div>
+  {% else %}
     <div class="warning center">No workshops matching your search criteria found</div>
   {% endif %}
 {% endif %}
+
+<script type="text/javascript">
+  $(function (){
+    $('.export_workshops').on('click', function(e) {
+      $("#workshops_table").table2excel({
+        exclude: ".noExl",
+        name: "My Baxter Center Workshops",
+        filename: "Baxter_Center_Workshops", //do not include extension
+        fileext:".xls", // file extension
+        preserveColors: true, // set to true if you want background colors and font colors preserved
+      });
+    });
+  });
+</script>

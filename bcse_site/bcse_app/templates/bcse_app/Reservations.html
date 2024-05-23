@@ -9,6 +9,7 @@
       <h1 class="center"> My Reservations </h1>
       <div class="button-row">
         <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
+        <button class="btn export_reservations" type="button">Export Reservations</button>
       </div>
       {% include "bcse_app/ReservationsSearch.html" %}
       <div class="form-group" id="spinner">
@@ -21,16 +22,6 @@
   <script type="text/javascript">
     $(function (){
       $('form#reservation_filter_form').submit();
-
-      $('.download').on('click', function(e) {
-        $("#baxter_box_reservations").table2excel({
-          exclude: ".noExl",
-          name: "Baxter Box Reservations",
-          filename: "Baxter_Box_Reservations", //do not include extension
-          fileext:".xls", // file extension
-          preserveColors: true, // set to true if you want background colors and font colors preserved
-        });
-      });
     });
   </script>
 {% endblock %}

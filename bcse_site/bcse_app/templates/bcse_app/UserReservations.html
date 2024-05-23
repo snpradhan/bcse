@@ -6,10 +6,10 @@
   <h1> Users Reservations</h1>
   <div class="button-row">
     <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
-    <button class="btn download" type="button">Download Reservations</button>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-          <a class="btn" href="{% url 'bcse:reservationMessageDismiss' %}">Dismiss Messages</a>
-        {% endif %}
+    <button class="btn export_reservations" type="button">Export Reservations</button>
+    {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+      <a class="btn" href="{% url 'bcse:reservationMessageDismiss' %}">Dismiss Messages</a>
+    {% endif %}
   </div>
   {% include "bcse_app/ReservationsSearch.html" %}
   <div class="form-group" id="spinner">
@@ -22,7 +22,7 @@
     $(function (){
       $('form#reservation_filter_form').submit();
 
-      $('.download').on('click', function(e) {
+      $('.export_reservations').on('click', function(e) {
         $("#baxter_box_reservations").table2excel({
           exclude: ".noExl",
           name: "Baxter Box Reservations",
