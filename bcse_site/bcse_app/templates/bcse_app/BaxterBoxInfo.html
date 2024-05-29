@@ -13,7 +13,14 @@
 
       <p class="callout">The Baxter Box program is a way for teachers to borrow materials and equipment for biology and biotechnology labs for FREE! Workshop participation is highly recommended but not required.</p>
 
-      <p class="callout">Interested in bringing a Baxter Box to your classroom? Just put in a request to reserve a Baxter Box on our website and we will be happy to deliver and pick up materials. Please note that requests need to be confirmed. Training for Baxter Box labs are available through our <a href="/workshops/list" target="_blank">professional learning workshops</a> as well as our <a href='{% settings_value "RESOURCE_HUB_URL" %}' target="_blank">online resource hub</a>. </p>
+      <p class="callout">Interested in bringing a Baxter Box to your classroom? Just put in a request to reserve a Baxter Box on our website and we will be happy to deliver and pick up materials. Please note that requests need to be confirmed. Training for Baxter Box labs are available through our <a href="/workshops/list" target="_blank">professional learning workshops</a> as well as our
+        {% if user.is_authenticated %}
+          <a href='{% settings_value "RESOURCE_HUB_URL" %}' target="_blank">online resource hub</a>.
+        {% else %}
+          <a href='/?next=/signin/?next={% settings_value "RESOURCE_HUB_URL" %}' target="_blank">online resource hub</a>.
+        {% endif %}
+
+      </p>
 
       <h3 class="center">Questions? Contact <a href="mailto:bcse@northwestern.edu">bcse@northwestern.edu</a>
       </h3>
