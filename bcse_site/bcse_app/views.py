@@ -251,15 +251,15 @@ def baxterBoxSettings(request):
 ##########################################################
 @login_required
 def blackoutDateEdit(request, id=''):
-"""
-blackoutDateEdit is called from the path 'blackoutDates' 
-:param request: request from the browser 
-:param id='': id of blackout date to edit
-:returns: rendered template 'bcse_app/BaxterBoxBlackoutDateEdit.html' with view of message, redirect to JSON view of application or error status of blackout date message
-:returns: redirect to blackoutDates page
-:raises models.BaxterBoxBlackoutDate.DoesNotExist: redirects user to home page due to blackout date id not existing
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  blackoutDateEdit is called from the path 'blackoutDates' 
+  :param request: request from the browser 
+  :param id='': id of blackout date to edit
+  :returns: rendered template 'bcse_app/BaxterBoxBlackoutDateEdit.html' with view of message, redirect to JSON view of application or error status of blackout date message
+  :returns: redirect to blackoutDates page
+  :raises models.BaxterBoxBlackoutDate.DoesNotExist: redirects user to home page due to blackout date id not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -302,14 +302,14 @@ blackoutDateEdit is called from the path 'blackoutDates'
 ##########################################################
 @login_required
 def blackoutDateDelete(request, id=''):
-"""
-blackoutDateDelete is called from the path 'blackoutDates' 
-:param request: request from the browser 
-:param id='': id of blackout date to delete
-:returns: redirect to blackoutDates page
-:raises models.BaxterBoxBlackoutDate.DoesNotExist: redirects user to home page due to blackout date id not existing
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  blackoutDateDelete is called from the path 'blackoutDates' 
+  :param request: request from the browser 
+  :param id='': id of blackout date to delete
+  :returns: redirect to blackoutDates page
+  :raises models.BaxterBoxBlackoutDate.DoesNotExist: redirects user to home page due to blackout date id not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete blackout date')
@@ -456,14 +456,14 @@ def reservationColorEdit(request, id=''):
 ##########################################################
 @login_required
 def reservationColorDelete(request, id=''):
-"""
-reservationColorDelete is called from the path 'adminConfiguration/reservationColors' 
-:param request: request from the browser 
-:param id='': id of the reservation color to delete
-:returns: redirect to reservationColors page
-:raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
-:raises models.ReservationColor.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to reservation color not existing
-"""
+  """
+  reservationColorDelete is called from the path 'adminConfiguration/reservationColors' 
+  :param request: request from the browser 
+  :param id='': id of the reservation color to delete
+  :returns: redirect to reservationColors page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+  :raises models.ReservationColor.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to reservation color not existing
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete reservation Color')
@@ -485,12 +485,12 @@ reservationColorDelete is called from the path 'adminConfiguration/reservationCo
 # USER LOGIN
 ####################################
 def userSignin(request, user_email=''):
-"""
-userSignin is called from the home page 
-:param request: request from the browser 
-:param user_email='': email of the user that wants to sign in
-:returns: rendered template 'bcse_app/SignInModal.html' with view of message, redirect to JSON view of application or error status of sign in message
-"""
+  """
+  userSignin is called from the home page 
+  :param request: request from the browser 
+  :param user_email='': email of the user that wants to sign in
+  :returns: rendered template 'bcse_app/SignInModal.html' with view of message, redirect to JSON view of application or error status of sign in message
+  """
   email = password = ''
   print(request.method)
   redirect_url = request.GET.get('next', '')
@@ -727,13 +727,13 @@ def activities(request):
 ####################################
 @login_required
 def activityEdit(request, id=''):
-"""
-activityEdit is called from the path 'forTeachers/activities' 
-:param request: request from the browser 
-:param id='': id of the activity to edit
-:returns: rendered template 'bcse_app/ActivityEdit.html', redirect to page to activityEdit after edits saved, or error page
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  activityEdit is called from the path 'forTeachers/activities' 
+  :param request: request from the browser 
+  :param id='': id of the activity to edit
+  :returns: rendered template 'bcse_app/ActivityEdit.html', redirect to page to activityEdit after edits saved, or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit activity')
@@ -772,13 +772,13 @@ activityEdit is called from the path 'forTeachers/activities'
 ###################################################
 @login_required
 def activityUpdate(request, id=''):
-"""
-activityUpdate is called from the path 'forTeachers/activities' 
-:param request: request from the browser 
-:param id='': id of the activity to update
-:returns: rendered template 'bcse_app/ActivityUpdateModal.html', redirect to JSON view of ActivityUpdateModel, or error page
-:raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  activityUpdate is called from the path 'forTeachers/activities' 
+  :param request: request from the browser 
+  :param id='': id of the activity to update
+  :returns: rendered template 'bcse_app/ActivityUpdateModal.html', redirect to JSON view of ActivityUpdateModel, or error page
+  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to update activity')
@@ -817,13 +817,13 @@ activityUpdate is called from the path 'forTeachers/activities'
 # VIEW ACTIVITY
 ####################################
 def activityView(request, id=''):
-"""
-activityUpdate is called from the path 'forTeachers/activities' 
-:param request: request from the browser 
-:param id='': id of the activity to view
-:returns: rendered template 'bcse_app/ActivityBaseView.html', rendered template ActivityView
-:raises CustomException: redirects user to page they were on before encountering error due to activity not existing
-"""
+  """
+  activityUpdate is called from the path 'forTeachers/activities' 
+  :param request: request from the browser 
+  :param id='': id of the activity to view
+  :returns: rendered template 'bcse_app/ActivityBaseView.html', rendered template ActivityView
+  :raises CustomException: redirects user to page they were on before encountering error due to activity not existing
+  """
 
   try:
     if '' != id:
@@ -864,14 +864,14 @@ activityUpdate is called from the path 'forTeachers/activities'
 ####################################
 @login_required
 def activityDelete(request, id=''):
-"""
-activityDelete is called from the path 'forTeachers/activities' 
-:param request: request from the browser 
-:param id='': id of the activity to delete
-:returns: redirect to activities page
-:raises models.Activity.DoesNotExist: redirects user to page they were on before encountering error due to activity not found
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  activityDelete is called from the path 'forTeachers/activities' 
+  :param request: request from the browser 
+  :param id='': id of the activity to delete
+  :returns: redirect to activities page
+  :raises models.Activity.DoesNotExist: redirects user to page they were on before encountering error due to activity not found
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete activity')
@@ -895,12 +895,12 @@ activityDelete is called from the path 'forTeachers/activities'
 ####################################
 @login_required
 def equipmentTypes(request):
-"""
-equipmentTypes is called from the path 'forTeachers/equipment' 
-:param request: request from the browser 
-:returns: rendered template 'bcse_app/EquipmentTypes.html' which is a page to view all equipment types
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  equipmentTypes is called from the path 'forTeachers/equipment' 
+  :param request: request from the browser 
+  :returns: rendered template 'bcse_app/EquipmentTypes.html' which is a page to view all equipment types
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view equipment types')
@@ -918,13 +918,13 @@ equipmentTypes is called from the path 'forTeachers/equipment'
 ####################################
 @login_required
 def equipmentTypeEdit(request, id=''):
-"""
-equipmentTypeEdit is called from the path 'forTeachers/equipment' 
-:param request: request from the browser 
-:param id='': id of the equipment type to edit
-:returns: rendered template 'bcse_app/EquipmentTypeEdit.html', redirect to equipment type edit page after updates are saved, or error page
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  equipmentTypeEdit is called from the path 'forTeachers/equipment' 
+  :param request: request from the browser 
+  :param id='': id of the equipment type to edit
+  :returns: rendered template 'bcse_app/EquipmentTypeEdit.html', redirect to equipment type edit page after updates are saved, or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit equipment type')
@@ -961,14 +961,14 @@ equipmentTypeEdit is called from the path 'forTeachers/equipment'
 ####################################
 @login_required
 def equipmentTypeDelete(request, id=''):
-"""
-equipmentTypeDelete is called from the path 'forTeachers/equipment' 
-:param request: request from the browser 
-:param id='': id of the equipment type to delete
-:returns: redirect to equipment type edit page after deleting
-:raises models.EquipmentType.DoesNotExist: redirects user to page they were on before encountering error due to equipment type not being found
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  equipmentTypeDelete is called from the path 'forTeachers/equipment' 
+  :param request: request from the browser 
+  :param id='': id of the equipment type to delete
+  :returns: redirect to equipment type edit page after deleting
+  :raises models.EquipmentType.DoesNotExist: redirects user to page they were on before encountering error due to equipment type not being found
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -991,13 +991,13 @@ equipmentTypeDelete is called from the path 'forTeachers/equipment'
 # VIEW EQUIPMENT TYPE
 ####################################
 def equipmentTypeView(request, id=''):
-"""
-equipmentTypeView is called from the path 'forTeachers/equipment' 
-:param request: request from the browser 
-:param id='': id of the equipment type to view
-:returns: rendered template 'bcse_app/BaxterBoxKitModal.html' where all equipments are or redirect to error page
-:raises CustomException: redirects user to page they were on before encountering error due to equipment not exisitng
-"""
+  """
+  equipmentTypeView is called from the path 'forTeachers/equipment' 
+  :param request: request from the browser 
+  :param id='': id of the equipment type to view
+  :returns: rendered template 'bcse_app/BaxterBoxKitModal.html' where all equipments are or redirect to error page
+  :raises CustomException: redirects user to page they were on before encountering error due to equipment not exisitng
+  """
   try:
     if '' != id:
       equipment_type = models.EquipmentType.objects.get(id=id)
@@ -1020,12 +1020,12 @@ equipmentTypeView is called from the path 'forTeachers/equipment'
 ####################################
 @login_required
 def equipments(request):
-"""
-  equipments is called from the path 'forClassrooms/equipments' 
-  :param request: request from the browser 
-  :returns: rendered template 'bcse_app/Equipments.html', which is a page with available lab equipment
-  :raises CustomException: redirects user to page they were on before encountering error
   """
+    equipments is called from the path 'forClassrooms/equipments' 
+    :param request: request from the browser 
+    :returns: rendered template 'bcse_app/Equipments.html', which is a page with available lab equipment
+    :raises CustomException: redirects user to page they were on before encountering error
+    """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view equipment list')
@@ -1043,13 +1043,13 @@ def equipments(request):
 ####################################
 @login_required
 def equipmentEdit(request, id=''):
-"""
-equipmentEdit is called from the path 'forTeachers/equipments' 
-:param request: request from the browser 
-:param id='': id of the equipment to edit
-:returns: rendered template 'bcse_app/EquipmentEdit.html' where all equipments are if equipment cannot be saved, redirect to original equipmentEdit page if saved, or error page
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  equipmentEdit is called from the path 'forTeachers/equipments' 
+  :param request: request from the browser 
+  :param id='': id of the equipment to edit
+  :returns: rendered template 'bcse_app/EquipmentEdit.html' where all equipments are if equipment cannot be saved, redirect to original equipmentEdit page if saved, or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit equipment')
@@ -1086,14 +1086,14 @@ equipmentEdit is called from the path 'forTeachers/equipments'
 ####################################
 @login_required
 def equipmentDelete(request, id=''):
-"""
-equipmentDelete is called from the path 'forTeachers/equipments' 
-:param request: request from the browser 
-:param id='': id of the equipment to delete
-:returns: redirects to equipments page if equipment successfully deleted
-:raises models.Equipment.DoesNotExist: redirects user to page they were on before encountering error due to equipment id not existing
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  equipmentDelete is called from the path 'forTeachers/equipments' 
+  :param request: request from the browser 
+  :param id='': id of the equipment to delete
+  :returns: redirects to equipments page if equipment successfully deleted
+  :raises models.Equipment.DoesNotExist: redirects user to page they were on before encountering error due to equipment id not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete equipment')
@@ -1116,14 +1116,14 @@ equipmentDelete is called from the path 'forTeachers/equipments'
 ####################################
 @login_required
 def activityDelete(request, id=''):
-"""
-activityDelete is called from the path 'activities' 
-:param request: request from the browser 
-:param id='': id of the activity to delete
-:returns: redirects to activities page if activity successfully deleted
-:raises models.Activity.DoesNotExist: redirects user to page they were on before encountering error due to activity id not existing
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-"""
+  """
+  activityDelete is called from the path 'activities' 
+  :param request: request from the browser 
+  :param id='': id of the activity to delete
+  :returns: redirects to activities page if activity successfully deleted
+  :raises models.Activity.DoesNotExist: redirects user to page they were on before encountering error due to activity id not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete activity')
@@ -1180,12 +1180,12 @@ def reservations(request):
 
 
 def reservationsList(request, user_id=''):
-"""
-reservationsList is called from the path 'reservations' 
-:param request: request from the browser 
-:param user_id='': user
-:returns: list of reservations for a user
-"""
+  """
+  reservationsList is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param user_id='': user
+  :returns: list of reservations for a user
+  """
   reservations = None
   if request.user.is_authenticated:
     if request.user.userProfile.user_role not in ['A', 'S']:
@@ -1204,14 +1204,14 @@ reservationsList is called from the path 'reservations'
 ####################################
 @login_required
 def reservationEdit(request, id=''):
-"""
-reservationEdit is called from the path 'reservations' 
-:param request: request from the browser 
-:param id='': id of reservation
-:returns: rendered template 'bcse_app/ReservationEdit.html' if errors present, redirect to reservationView if reservation successfully edited, or error page
-:raises models.Reservation.DoesNotExist: redirects user to page they were on before encountering error due to reservation id not existing
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions or reservation already having happened
-"""
+  """
+  reservationEdit is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param id='': id of reservation
+  :returns: rendered template 'bcse_app/ReservationEdit.html' if errors present, redirect to reservationView if reservation successfully edited, or error page
+  :raises models.Reservation.DoesNotExist: redirects user to page they were on before encountering error due to reservation id not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions or reservation already having happened
+  """
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to create/edit a reservation')
@@ -1337,14 +1337,14 @@ reservationEdit is called from the path 'reservations'
 # VIEW RESERVATION
 ####################################
 def reservationView(request, id=''):
-"""
-reservationView is called from the path 'reservations' 
-:param request: request from the browser 
-:param id='': id of reservation
-:returns: rendered template 'bcse_app/ReservationView.html' 
-:raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions 
-"""
+  """
+  reservationView is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param id='': id of reservation
+  :returns: rendered template 'bcse_app/ReservationView.html' 
+  :raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions 
+  """
   try:
     if request.user.is_anonymous:
       next1 = "?next=/signin"
@@ -1386,14 +1386,14 @@ reservationView is called from the path 'reservations'
 # CREATE RESERVATION MESSAGE
 ####################################
 def reservationMessage(request, id=''):
-"""
-reservationView is called from the path 'reservations' 
-:param request: request from the browser 
-:param id='': id of reservation
-:returns: newly created reservation message, redirect to JSON view of application or error status of reservation message
-:raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions 
-"""
+  """
+  reservationView is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param id='': id of reservation
+  :returns: newly created reservation message, redirect to JSON view of application or error status of reservation message
+  :raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions 
+  """
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to view this reservation')
@@ -1445,13 +1445,13 @@ reservationView is called from the path 'reservations'
 
 
 def reservationMessageDismiss(request, id=''):
-"""
-reservationMessageDismiss is called from the path 'reservations' 
-:param request: request from the browser 
-:param id='': id of reservation
-:returns: redirects to page user was on before 
-:raises CustomException: redirects user to page they were on before encountering error due to lack of permissions 
-"""
+  """
+  reservationMessageDismiss is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param id='': id of reservation
+  :returns: redirects to page user was on before 
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions 
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role in ['T', 'P']:
       raise CustomException('You do not have the permission to dismiss reservation messages')
@@ -1487,13 +1487,13 @@ reservationMessageDismiss is called from the path 'reservations'
 ####################################
 @login_required
 def reservationDelete(request, id=''):
-"""
-reservationDelete is called from the path 'reservations' 
-:param request: request from the browser 
-:param id='': id of reservation
-:returns: redirects to page with remaining reservations 
-:raises CustomException: redirects user to page they were on before encountering error due to no permission for viewing reservations
-"""
+  """
+  reservationDelete is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param id='': id of reservation
+  :returns: redirects to page with remaining reservations 
+  :raises CustomException: redirects user to page they were on before encountering error due to no permission for viewing reservations
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete reservation')
@@ -1522,13 +1522,13 @@ reservationDelete is called from the path 'reservations'
 ####################################
 @login_required
 def reservationCancel(request, id=''):
-"""
-reservationCancel is called from the path 'reservations' 
-:param request: request from the browser 
-:param id='': id of reservation
-:returns: redirects to page with remaining reservations 
-:raises CustomException: redirects user to page they were on before encountering error due to no permission for viewing reservations
-"""
+  """
+  reservationCancel is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param id='': id of reservation
+  :returns: redirects to page with remaining reservations 
+  :raises CustomException: redirects user to page they were on before encountering error due to no permission for viewing reservations
+  """
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to cancel reservation')
@@ -2536,7 +2536,7 @@ def baxterBoxSubCategoryDelete(request, id=''):
 ####################################
 @login_required
 def workshopCategoryEdit(request, id=''):
-"""
+  """
   workshopCategoryEdit is called from the path 'workshopCategories' 
   :param request: request from the browser 
   :param id='': id of workshop category
@@ -2770,7 +2770,7 @@ def workshopCopy(request, id=''):
 # DELETE WORKSHOP
 ####################################
 def workshopDelete(request, id=''):
-"""
+  """
   workshopDelete is called from the path 'workshops/edit' 
   :param request: request from the browser 
   :param id='': id of workshop 
@@ -2804,7 +2804,7 @@ def workshopDelete(request, id=''):
 # VIEW WORKSHOP
 ####################################
 def workshopView(request, id=''):
-"""
+  """
   workshopView is called from the path 'workshops/edit' 
   :param request: request from the browser 
   :param id='': id of workshop 
@@ -2960,7 +2960,7 @@ def workshopRegistration(request, workshop_id):
 # will open or was closed
 ################################################
 def workshopRegistrationSettingStatus(workshop):
-"""
+  """
   workshopRegistrationSettingStatus is called from the path 'workshops/edit' 
   :param workshop: workshop to edit 
   :param id='': id of workshop 
@@ -3348,7 +3348,7 @@ def userRegistration(request, workshop_id, user_id):
 # WORKSHOPS BASE QUERY BEFORE APPLYING FILTERS
 ################################################
 def workshopsBaseQuery(request, flag='list', user_id=''):
-"""
+  """
   workshopsBaseQuery is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param flag='list': type of workshop 
@@ -3811,7 +3811,7 @@ def workshopsRegistrants(request):
 # SEARCH REGISTRANTS ACROSS ALL WORKSHOPS
 ##########################################################
 def workshopsRegistrantsSearch(request):
-   """
+  """
   workshopsRegistrantsSearch is called from the path 'workshops/list' 
   :param request: request from the browser 
   :returns: JSON view of registrants who match search criteria or error page
@@ -4019,7 +4019,7 @@ def workshopsUpload(request):
 # VIEW USER PROFILE
 ##########################################################
 def userProfileView(request, id=''):
-   """
+  """
   userProfileView is called from the path 'users' 
   :param request: request from the browser 
   :param id='': id of user
@@ -4430,7 +4430,7 @@ def standalonePageEdit(request, id=''):
 ##########################################################
 @login_required
 def standalonePageDelete(request, id=''):
-"""
+  """
   standalonePageDelete is called from the path 'adminConfiguration/standalonePages'
   :param request: request from the browser 
   :param id='': id of standalone page to delete
@@ -4458,7 +4458,7 @@ def standalonePageDelete(request, id=''):
 # VIEW STANDALONE PAGE
 ##########################################################
 def standalonePageView(request, id='', url_alias=''):
-"""
+  """
   standalonePageView is called from the path 'adminConfiguration/standalonePages'
   :param request: request from the browser 
   :param id='': id of standalone page to view
@@ -4488,7 +4488,7 @@ def standalonePageView(request, id='', url_alias=''):
 ####################################
 @login_required
 def standalonePageCopy(request, id=''):
-"""
+  """
   standalonePageCopy is called from the path 'adminConfiguration/standalonePages'
   :param request: request from the browser 
   :param id='': id of standalone page to copy
@@ -4548,7 +4548,7 @@ def standalonePageCopy(request, id=''):
 ##########################################################
 @login_required
 def teacherLeaders(request):
-"""
+  """
   teacherLeaders is called from the path 'adminConfiguration/teacherLeaders/'
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/TeacherLeaders.html' 
@@ -4572,7 +4572,7 @@ def teacherLeaders(request):
 ##########################################################
 @login_required
 def teacherLeaderEdit(request, id=''):
-"""
+  """
   teacherLeaderEdit is called from the path 'adminConfiguration/teacherLeaders/'
   :param request: request from the browser 
   :param id='': id of teacher leader to edit
@@ -4648,7 +4648,7 @@ def teacherLeaderDelete(request, id=''):
 ##########################################################
 @login_required
 def users(request):
-"""
+  """
   users is called from the path 'adminConfiguration/users/'
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/Users.html' 
@@ -4677,7 +4677,7 @@ def users(request):
 ####################################################
 @login_required
 def usersSearch(request):
-"""
+  """
   usersSearch is called from the path 'adminConfiguration/users/'
   :param request: request from the browser 
   :returns: JSON view of filtered user(s) 
@@ -4843,7 +4843,7 @@ def usersSearch(request):
 # CLEAR search FILTER
 ####################################################
 def clearSearch(request, session_var=''):
-"""
+  """
   clearSearch is called from the path 'adminConfiguration/', can be used on users, workplaces, etc
   :param request: request from the browser 
   :param session_var='': saved search from admin that's previously been made 
@@ -4866,7 +4866,7 @@ def clearSearch(request, session_var=''):
 ##########################################################
 @login_required
 def usersExport(request):
-"""
+  """
   usersExport is called from the path 'adminConfiguration/users/'
   :param request: request from the browser  
   :returns: exported excel sheet of users or error page
@@ -4933,7 +4933,7 @@ def usersExport(request):
 ##########################################################
 @login_required
 def usersUpload(request):
-"""
+  """
   usersUpload is called from the path 'adminConfiguration/users/'
   :param request: request from the browser  
   :returns: rendered template 'bcse_app/UsersUploadModal.html', JSON view of uploaded users or error page
@@ -5034,7 +5034,7 @@ def usersUpload(request):
 ##########################################################
 @login_required
 def workPlaces(request):
-"""
+  """
   workPlaces is called from the path 'adminConfiguration/workPlaces/'
   :param request: request from the browser  
   :returns: rendered template 'bcse_app/WorkPlaces.html'
@@ -5063,7 +5063,7 @@ def workPlaces(request):
 ####################################################
 @login_required
 def workPlacesSearch(request):
-"""
+  """
   workPlacesSearch is called from the path 'adminConfiguration/workPlaces/'
   :param request: request from the browser 
   :returns: JSON view of filtered workplace(s) or error page
@@ -5202,7 +5202,7 @@ def workPlacesSearch(request):
 ##########################################################
 @login_required
 def workPlaceEdit(request, id=''):
-"""
+  """
   workPlaceEdit is called from the path 'adminConfiguration/workPlaces/'
   :param request: request from the browser 
   :param id='': id of workplace to edit
@@ -5249,7 +5249,7 @@ def workPlaceEdit(request, id=''):
 ##########################################################
 @login_required
 def workPlaceDelete(request, id=''):
-"""
+  """
   workPlaceDelete is called from the path 'adminConfiguration/workPlaces/'
   :param request: request from the browser 
   :param id='': id of workplace to delete
@@ -5279,7 +5279,7 @@ def workPlaceDelete(request, id=''):
 ##########################################################
 @login_required
 def workPlacesUpload(request):
-"""
+  """
   workPlacesUpload is called from the path 'adminConfiguration/workPlaces/'
   :param request: request from the browser  
   :returns: rendered template 'bcse_app/WorkPlacesUploadModal.html', JSON view of uploaded workplaces or error page
@@ -5374,7 +5374,7 @@ def workPlacesUpload(request):
 ##########################################################
 @login_required
 def workPlacesExport(request):
-"""
+  """
   workPlacesExport is called from the path 'adminConfiguration/workPlaces/'
   :param request: request from the browser  
   :returns: exported excel sheet of workplaces or error page
@@ -5443,7 +5443,7 @@ def workPlacesExport(request):
 ##########################################################
 @login_required
 def workshopRegistrantsUpload(request, id=''):
-"""
+  """
   workshopRegistrantsUpload is called from the path 'adminConfiguration/workshopsRegistrants/'
   :param request: request from the browser 
   :param id='': id of workplace to upload a registrant to via an excel template
@@ -5559,7 +5559,7 @@ def workshopRegistrantsUpload(request, id=''):
 ##########################################################
 @login_required
 def allWorkshopsRegistrantsUpload(request):
-"""
+  """
   allWorkshopsRegistrantsUpload is called from the path 'adminConfiguration/workshopsRegistrants/'
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/RegistrantsUploadModal.html', JSON view of a workshop's registrants, or an error page
@@ -5658,7 +5658,7 @@ def allWorkshopsRegistrantsUpload(request):
 ##########################################################
 @login_required
 def teamMembers(request):
-"""
+  """
   teamMembers is called from the path 'adminConfiguration/teamMembers/'
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/TeamMembers.html'
@@ -5684,7 +5684,7 @@ def teamMembers(request):
 ##########################################################
 @login_required
 def teamMemberEdit(request, id=''):
-"""
+  """
   teamMemberEdit is called from the path 'adminConfiguration/teamMembers/'
   :param request: request from the browser 
   :param id='': id of team member to edit
@@ -5730,7 +5730,7 @@ def teamMemberEdit(request, id=''):
 ##########################################################
 @login_required
 def teamMemberDelete(request, id=''):
-"""
+  """
   teamMemberDelete is called from the path 'adminConfiguration/teamMembers/'
   :param request: request from the browser 
   :param id='': id of team member to delete
@@ -5761,7 +5761,7 @@ def teamMemberDelete(request, id=''):
 ##########################################################
 @login_required
 def partners(request):
-"""
+  """
   partners is called from the path 'adminConfiguration/partners/'
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/Partners.html'
@@ -5787,7 +5787,7 @@ def partners(request):
 ##########################################################
 @login_required
 def partnerEdit(request, id=''):
-"""
+  """
   partnerEdit is called from the path 'adminConfiguration/partners/'
   :param request: request from the browser 
   :param id='': id of partner to edit
@@ -5833,7 +5833,7 @@ def partnerEdit(request, id=''):
 ##########################################################
 @login_required
 def partnerDelete(request, id=''):
-"""
+  """
   partnerDelete is called from the path 'adminConfiguration/partners/'
   :param request: request from the browser 
   :param id='': id of partner to delete
@@ -5864,7 +5864,7 @@ def partnerDelete(request, id=''):
 ##########################################################
 @login_required
 def collaborators(request):
-"""
+  """
   collaborators is called from the path 'adminConfiguration/collaborators/'
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/Collaborators.html'
@@ -5890,7 +5890,7 @@ def collaborators(request):
 ##########################################################
 @login_required
 def collaboratorEdit(request, id=''):
-"""
+  """
   collaboratorEdit is called from the path 'adminConfiguration/collaborators/'
   :param request: request from the browser 
   :param id='': id of collaborator to edit
@@ -5937,7 +5937,7 @@ def collaboratorEdit(request, id=''):
 ##########################################################
 @login_required
 def collaboratorDelete(request, id=''):
-"""
+  """
   collaboratorDelete is called from the path 'adminConfiguration/collaborators/'
   :param request: request from the browser 
   :param id='': id of collaborator to delete
@@ -5969,7 +5969,7 @@ def collaboratorDelete(request, id=''):
 ####################################
 @login_required
 def surveys(request):
-"""
+  """
   surveys is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/Surveys.html'
@@ -5994,7 +5994,7 @@ def surveys(request):
 ##########################################################
 @login_required
 def surveyEdit(request, id=''):
-"""
+  """
   surveyEdit is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id='': id of survey to edit
@@ -6043,7 +6043,7 @@ def surveyEdit(request, id=''):
 # CLONE SURVEY
 ####################################
 def surveyCopy(request, id=''):
-"""
+  """
   surveyEdit is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id='': id of survey to copy
@@ -6147,7 +6147,7 @@ def surveySubmissions(request, id=''):
 ################################################################
 @login_required
 def surveySubmissionsSearch(request, id=''):
-"""
+  """
   surveyEdit is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id='': id of survey to search through submissions for 
@@ -6273,7 +6273,7 @@ def surveySubmissionsSearch(request, id=''):
 ###################################################################################
 @login_required
 def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
-"""
+  """
   surveySubmissionsExport is called from the path 'adminConfiguration/surveys/', can export one or multiple submissions to excel 
   :param request: request from the browser 
   :param survey_id='': id of survey to export submissions for
@@ -6319,7 +6319,7 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
 # GENERATE EXCEL WITH SURVEY RESPONSES
 ########################################
 def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
-"""
+  """
   generateSurveySubmissionsExcel is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param survey: survey to generate excel sheet from
@@ -6518,7 +6518,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
 ##########################################################
 @login_required
 def surveyComponentEdit(request, survey_id='', id=''):
-"""
+  """
   surveyComponentEdit is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param survey_id='': id of survey to access components for
@@ -6569,7 +6569,7 @@ def surveyComponentEdit(request, survey_id='', id=''):
 ##########################################################
 @login_required
 def surveyComponentDelete(request, survey_id='', id=''):
-"""
+  """
   surveyComponentDelete is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param survey_id='': id of survey to access components for
@@ -6601,7 +6601,7 @@ def surveyComponentDelete(request, survey_id='', id=''):
 ##########################################################
 @login_required
 def surveyDelete(request, id=''):
-"""
+  """
   surveyDelete is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id='': id of survey to delete
@@ -6635,7 +6635,7 @@ def surveyDelete(request, id=''):
 # SURVEY SUBMISSION BY USER
 ##########################################################
 def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
-"""
+  """
   surveySubmission is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param survey_id=='': id of survey to create submission for
@@ -6842,7 +6842,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
 
 def getSurveyComponents(request, survey_id, submission, page_num):
-"""
+  """
   getSurveyComponents is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param survey_id=='': id of survey to create submission for
@@ -6879,7 +6879,7 @@ def getSurveyComponents(request, survey_id, submission, page_num):
 ##########################################################
 @login_required
 def surveySubmissionView(request, id='', submission_uuid=''):
-"""
+  """
   getSurveyComponents is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id=='': id of survey to view
@@ -6912,7 +6912,7 @@ def surveySubmissionView(request, id='', submission_uuid=''):
 ##########################################################
 @login_required
 def surveySubmissionViewModal(request, id='', submission_uuid=''):
-"""
+  """
   surveySubmissionViewModal is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id=='': id of survey to view
@@ -6945,7 +6945,7 @@ def surveySubmissionViewModal(request, id='', submission_uuid=''):
 ##########################################################
 @login_required
 def surveySubmissionEdit(request, id='', submission_uuid=''):
-"""
+  """
   surveySubmissionEdit is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id=='': id of survey to edit
@@ -6991,7 +6991,7 @@ def surveySubmissionEdit(request, id='', submission_uuid=''):
 ##########################################################
 @login_required
 def surveySubmissionDelete(request, id='', submission_uuid=''):
-"""
+  """
   surveySubmissionDelete is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser 
   :param id=='': id of survey to delete
@@ -7024,6 +7024,13 @@ def surveySubmissionDelete(request, id='', submission_uuid=''):
 # VIGNETTES
 ####################################
 def vignettes(request, flag=''):
+  """
+  vignettes is called from the path 'vignettes/table'
+  :param request: request from the browser 
+  :param flag='': specifies if vignettes are being viewed in table or list view 
+  :returns: rendered template 'bcse_app/VignettesPublicView.html' or 'bcse_app/VignettesBaseView.html' based on flag value 
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if '' == flag:
       flag = 'list'
