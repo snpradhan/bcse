@@ -6,7 +6,16 @@
    <div id="dates">
       <div>
          <h3>Hi!</h3>
-         <div>Your reservation request for {{reservation.delivery_date|date:"l, F j, Y"}} has been received. </div>
+         <div>
+            Your reservation request for the lab
+            <b>
+            {% if reservation.activity %}
+               {{reservation.activity}}
+            {% else %}
+               {{reservation.other_activity_name}}
+            {% endif %}
+            </b> with a tentative delivery date of <b>{{reservation.delivery_date|date:"l, F j, Y"}}</b> has been received.
+         </div>
          <div>We will review your request and you will receive another email when we have confirmed your reservation.</div>
          <div>In the mean time you may review your reservation <a href="https://{{domain}}/reservation/{{reservation.id}}/view" style="color:white;">here</a>
       </div>
