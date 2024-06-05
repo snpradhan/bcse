@@ -25,6 +25,22 @@
         </div>
         {% endfor %}
       </div>
+
+      <h2 class="center">Our Alumni</h2>
+      <div class="alumni">
+        {% for alumnus in alumni %}
+          <div class="alumnus">
+            <div class="picture">
+              <img src="{{alumnus.image.url}}" class="circle staff">
+            </div>
+            <br>
+            <div class="details">
+              <h3 class="purple">{{alumnus.name}}</h3>
+              <h4>{{alumnus.position}}</h4>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 {% endblock %}

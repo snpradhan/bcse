@@ -1012,7 +1012,10 @@ class TeamMemberForm(ModelForm):
     super(TeamMemberForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name in ['alumnus']:
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################

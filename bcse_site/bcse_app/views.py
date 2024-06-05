@@ -54,7 +54,7 @@ from django.http import HttpResponse
 ####################################
 def home(request):
   homepage_blocks = models.HomepageBlock.objects.all().filter(status='A').order_by('order')
-  members = models.Team.objects.all().filter(status='A').order_by('order')
+  members = models.Team.objects.all().filter(status='A').exclude(alumnus=True).order_by('order')
   teacher_leaders = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
   context = {'homepage_blocks': homepage_blocks, 'members': members, 'teacher_leaders': teacher_leaders}
   return render(request, 'bcse_app/Home.html', context)
@@ -91,8 +91,9 @@ def aboutPartners(request):
   return render(request, 'bcse_app/AboutPartners.html', context)
 
 def aboutTeam(request):
-  members = models.Team.objects.all().filter(status='A').order_by('order')
-  context = {'members': members}
+  members = models.Team.objects.all().filter(status='A').exclude(alumnus=True).order_by('order')
+  alumni = models.Team.objects.all().filter(status='A', alumnus=True).order_by('order')
+  context = {'members': members, 'alumni': alumni}
   return render(request, 'bcse_app/AboutTeam.html', context)
 
 def aboutTeacherLeaders(request):
@@ -5141,7 +5142,7 @@ def teamMembers(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view team members')
 
-    members = models.Team.objects.all()
+    members = models.Team.objects.all().order_by('alumnus', 'order')
     context = {'members': members}
     return render(request, 'bcse_app/TeamMembers.html', context)
 

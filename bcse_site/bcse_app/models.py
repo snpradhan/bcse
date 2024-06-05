@@ -661,6 +661,7 @@ class Team(models.Model):
   organization = models.CharField(null=False, max_length=256, help_text='Org. of the Team Member')
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of this team member')
   order = models.IntegerField(null=False, blank=False)
+  alumnus = models.BooleanField(default=False)
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
