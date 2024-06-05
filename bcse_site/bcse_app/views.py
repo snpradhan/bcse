@@ -73,7 +73,7 @@ def adminConfiguration(request):
   adminConfiguration is called from the path 'about/adminConfiguration' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/AdminConfiguration.html' which displays admin settings and options
-  :raises CustomException: raises an exception and redirects users to the page they were on before the error occurs
+  :raises CustomException: redirects users to the page they were on before the error occurs
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in 'AS':
@@ -150,10 +150,9 @@ def contactUs(request):
 ####################################
 def baxterBoxInfo(request):
   """
-  baxterBoxInfo is called from the path 'forClassrooms/baxterBoxInfo' 
+  baxterBoxInfo is called from the path 'baxter_box/info/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/BaxterBoxInfo.html', a page about the baxter box program 
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     current_date = datetime.datetime.now().date()
@@ -176,10 +175,9 @@ def baxterBoxInfo(request):
 
 def baxterBoxSearch(request):
   """
-  baxterBoxSearch is called from the path 'forClassrooms/baxterBoxInfo' 
+  baxterBoxSearch is called from the path 'adminConfiguration/activities/' 
   :param request: request from the browser 
   :returns: redirects to user a JSON view of response_data or redirects to an error page
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
     if request.method == 'GET':
@@ -217,7 +215,7 @@ def baxterBoxSearch(request):
 @login_required
 def baxterBoxSettings(request):
   """
-  baxterBoxSettings is called from the path 'forClassrooms/baxterBoxSettings' 
+  baxterBoxSettings is called from the path 'adminConfiguration/baxter_box/settings/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/BaxterBoxSettings.html', a page with baxter box program settings
   :raises CustomException: raises an exception and redirects user to page they were on before encountering error
@@ -252,7 +250,7 @@ def baxterBoxSettings(request):
 @login_required
 def blackoutDateEdit(request, id=''):
   """
-  blackoutDateEdit is called from the path 'blackoutDates' 
+  blackoutDateEdit is called from the path 'adminConfiguration/baxter_box/settings/' 
   :param request: request from the browser 
   :param id='': id of blackout date to edit
   :returns: rendered template 'bcse_app/BaxterBoxBlackoutDateEdit.html' with view of message, redirect to JSON view of application or error status of blackout date message
@@ -303,11 +301,10 @@ def blackoutDateEdit(request, id=''):
 @login_required
 def blackoutDateDelete(request, id=''):
   """
-  blackoutDateDelete is called from the path 'blackoutDates' 
+  blackoutDateDelete is called from the path 'adminConfiguration/baxter_box/settings/' 
   :param request: request from the browser 
   :param id='': id of blackout date to delete
   :returns: redirect to blackoutDates page
-  :raises models.BaxterBoxBlackoutDate.DoesNotExist: redirects user to home page due to blackout date id not existing
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
@@ -334,12 +331,11 @@ def blackoutDateDelete(request, id=''):
 @login_required
 def baxterBoxMessageEdit(request, id=''):
   """
-  baxterBoxMessageEdit is called from the path 'forClassrooms/baxterBoxSettings' 
+  baxterBoxMessageEdit is called from the path 'adminConfiguration/baxter_box/settings/' 
   :param request: request from the browser 
   :param id='': id of the baxter box message 
   :returns: rendered template 'bcse_app/BaxterBoxMessageEdit.html' with view of message, redirect to JSON view of application or error status of baxter box message
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
-  :raises models.BaxterBoxMessage.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to message not existing
   """
 
   try:
@@ -387,10 +383,10 @@ def baxterBoxMessageEdit(request, id=''):
 @login_required
 def reservationColors(request):
   """
-  reservationColors is called from the path 'adminConfiguration/reservationColors' 
+  reservationColors is called from the path 'adminConfiguration/baxter_box/reservation_colors/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/ReservationColors.html'
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -410,11 +406,11 @@ def reservationColors(request):
 @login_required
 def reservationColorEdit(request, id=''):
   """
-  reservationColorEdit is called from the path 'adminConfiguration/reservationColors' 
+  reservationColorEdit is called from the path 'adminConfiguration/baxter_box/reservation_colors/' 
   :param request: request from the browser 
   :param id='': id of the reservation color to edit
   :returns: JSON view of 'bcse_app/ReservationColorEdit.html' or error page
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -457,12 +453,11 @@ def reservationColorEdit(request, id=''):
 @login_required
 def reservationColorDelete(request, id=''):
   """
-  reservationColorDelete is called from the path 'adminConfiguration/reservationColors' 
+  reservationColorDelete is called from the path 'adminConfiguration/baxter_box/reservation_colors/' 
   :param request: request from the browser 
   :param id='': id of the reservation color to delete
   :returns: redirect to reservationColors page
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
-  :raises models.ReservationColor.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to reservation color not existing
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -550,7 +545,7 @@ def userSignin(request, user_email=''):
 @login_required
 def userSignout(request):
   """
-  userSignout logs user out
+  userSignout logs user out, called from the home page
   :param request: request from the browser 
   :returns: redirect to home page 
   """
@@ -566,7 +561,7 @@ def userSignup(request):
   userSignup is called from the home page
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/SignUpModal.html', which is the sign up page, redirect to JSON view of response_data, or redirect to error page
-  :raises CustomException: raises an exception and does not allow user to create another user account
+  :raises CustomException: raises an exception since user not allowed to to create a new user account
   """
   work_place = models.WorkPlace()
   redirect_url = request.GET.get('next', '')
@@ -705,7 +700,7 @@ def signinRedirect(request):
 @login_required 
 def activities(request):
   """
-  activities is called from the path 'forTeachers/activities' 
+  activities is called from the path 'adminConfiguration/activities/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/Activities.html', which is a page with workshops
   :raises CustomException: redirects user to page they were on before encountering error
@@ -728,7 +723,7 @@ def activities(request):
 @login_required
 def activityEdit(request, id=''):
   """
-  activityEdit is called from the path 'forTeachers/activities' 
+  activityEdit is called from the path 'adminConfiguration/activities/' 
   :param request: request from the browser 
   :param id='': id of the activity to edit
   :returns: rendered template 'bcse_app/ActivityEdit.html', redirect to page to activityEdit after edits saved, or error page
@@ -773,11 +768,11 @@ def activityEdit(request, id=''):
 @login_required
 def activityUpdate(request, id=''):
   """
-  activityUpdate is called from the path 'forTeachers/activities' 
+  activityUpdate is called from the path 'adminConfiguration/activities/' 
   :param request: request from the browser 
   :param id='': id of the activity to update
   :returns: rendered template 'bcse_app/ActivityUpdateModal.html', redirect to JSON view of ActivityUpdateModel, or error page
-  :raises CustomException: raises an exception and redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -818,7 +813,7 @@ def activityUpdate(request, id=''):
 ####################################
 def activityView(request, id=''):
   """
-  activityUpdate is called from the path 'forTeachers/activities' 
+  activityUpdate is called from the path 'adminConfiguration/activities/' 
   :param request: request from the browser 
   :param id='': id of the activity to view
   :returns: rendered template 'bcse_app/ActivityBaseView.html', rendered template ActivityView
@@ -865,7 +860,7 @@ def activityView(request, id=''):
 @login_required
 def activityDelete(request, id=''):
   """
-  activityDelete is called from the path 'forTeachers/activities' 
+  activityDelete is called from the path 'adminConfiguration/activities/' 
   :param request: request from the browser 
   :param id='': id of the activity to delete
   :returns: redirect to activities page
@@ -896,7 +891,7 @@ def activityDelete(request, id=''):
 @login_required
 def equipmentTypes(request):
   """
-  equipmentTypes is called from the path 'forTeachers/equipment' 
+  equipmentTypes is called from the path 'adminConfiguration/equipmentTypes/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/EquipmentTypes.html' which is a page to view all equipment types
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
@@ -919,7 +914,7 @@ def equipmentTypes(request):
 @login_required
 def equipmentTypeEdit(request, id=''):
   """
-  equipmentTypeEdit is called from the path 'forTeachers/equipment' 
+  equipmentTypeEdit is called from the path 'adminConfiguration/equipmentTypes/' 
   :param request: request from the browser 
   :param id='': id of the equipment type to edit
   :returns: rendered template 'bcse_app/EquipmentTypeEdit.html', redirect to equipment type edit page after updates are saved, or error page
@@ -962,11 +957,10 @@ def equipmentTypeEdit(request, id=''):
 @login_required
 def equipmentTypeDelete(request, id=''):
   """
-  equipmentTypeDelete is called from the path 'forTeachers/equipment' 
+  equipmentTypeDelete is called from the path 'adminConfiguration/equipmentTypes/' 
   :param request: request from the browser 
   :param id='': id of the equipment type to delete
   :returns: redirect to equipment type edit page after deleting
-  :raises models.EquipmentType.DoesNotExist: redirects user to page they were on before encountering error due to equipment type not being found
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
 
@@ -992,7 +986,7 @@ def equipmentTypeDelete(request, id=''):
 ####################################
 def equipmentTypeView(request, id=''):
   """
-  equipmentTypeView is called from the path 'forTeachers/equipment' 
+  equipmentTypeView is called from the path 'adminConfiguration/equipmentTypes/' 
   :param request: request from the browser 
   :param id='': id of the equipment type to view
   :returns: rendered template 'bcse_app/BaxterBoxKitModal.html' where all equipments are or redirect to error page
@@ -1021,10 +1015,10 @@ def equipmentTypeView(request, id=''):
 @login_required
 def equipments(request):
   """
-    equipments is called from the path 'forClassrooms/equipments' 
+    equipments is called from the path 'adminConfiguration/equipments/' 
     :param request: request from the browser 
     :returns: rendered template 'bcse_app/Equipments.html', which is a page with available lab equipment
-    :raises CustomException: redirects user to page they were on before encountering error
+    :raises CustomException: redirects user to page they were on before encountering error due to lack of permission
     """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -1044,7 +1038,7 @@ def equipments(request):
 @login_required
 def equipmentEdit(request, id=''):
   """
-  equipmentEdit is called from the path 'forTeachers/equipments' 
+  equipmentEdit is called from the path 'adminConfiguration/equipments/' 
   :param request: request from the browser 
   :param id='': id of the equipment to edit
   :returns: rendered template 'bcse_app/EquipmentEdit.html' where all equipments are if equipment cannot be saved, redirect to original equipmentEdit page if saved, or error page
@@ -1087,11 +1081,10 @@ def equipmentEdit(request, id=''):
 @login_required
 def equipmentDelete(request, id=''):
   """
-  equipmentDelete is called from the path 'forTeachers/equipments' 
+  equipmentDelete is called from the path 'adminConfiguration/equipments/' 
   :param request: request from the browser 
   :param id='': id of the equipment to delete
   :returns: redirects to equipments page if equipment successfully deleted
-  :raises models.Equipment.DoesNotExist: redirects user to page they were on before encountering error due to equipment id not existing
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
@@ -1117,11 +1110,10 @@ def equipmentDelete(request, id=''):
 @login_required
 def activityDelete(request, id=''):
   """
-  activityDelete is called from the path 'activities' 
+  activityDelete is called from the path 'adminConfiguration/activities' 
   :param request: request from the browser 
   :param id='': id of the activity to delete
   :returns: redirects to activities page if activity successfully deleted
-  :raises models.Activity.DoesNotExist: redirects user to page they were on before encountering error due to activity id not existing
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
@@ -1209,7 +1201,6 @@ def reservationEdit(request, id=''):
   :param request: request from the browser 
   :param id='': id of reservation
   :returns: rendered template 'bcse_app/ReservationEdit.html' if errors present, redirect to reservationView if reservation successfully edited, or error page
-  :raises models.Reservation.DoesNotExist: redirects user to page they were on before encountering error due to reservation id not existing
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions or reservation already having happened
   """
   try:
@@ -1391,7 +1382,6 @@ def reservationMessage(request, id=''):
   :param request: request from the browser 
   :param id='': id of reservation
   :returns: newly created reservation message, redirect to JSON view of application or error status of reservation message
-  :raises models.Reservation.DoesNotExist: redirects user to home page due to reservation id not existing
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions 
   """
   try:
@@ -1560,7 +1550,7 @@ def reservationCancel(request, id=''):
 ##########################################################
 def reservationsSearch(request):
   """
-  reservationsSearch is called from the path 'reservations/search' 
+  reservationsSearch is called from the path 'reservations' 
   :param request: request from the browser 
   :returns: list of reservations that match search criteria in the template 'bcse_app/ReservationsTableView.html' or error page 
   :raises CustomException: redirects user to page they were on before encountering error due to no permission for viewing reservations
@@ -1756,6 +1746,12 @@ def reservationsSearch(request):
 # GET EQUIPMENT AVAILABILITY
 ####################################
 def getAvailabilityData(request, id=''):
+  """
+  getAvailabilityData is called from the path 'adminConfiguration/equipments/' 
+  :param request: request from the browser 
+  :param id='': id of equipment to check availability for 
+  :returns: availability data, including if available and dates when available 
+  """
   data = request.POST.copy()
   equipment_types = models.EquipmentType.objects.all().filter(id__in=request.POST.getlist('equipment_types', ''))
   delivery_date = datetime.datetime.strptime(request.POST.get('delivery_date'), '%B %d, %Y').date()
@@ -1792,6 +1788,17 @@ def getAvailabilityData(request, id=''):
 # CHECK EQUIPMENT AVAILABILITY
 ####################################
 def checkAvailability(request, current_reservation_id, equipment_types, start_date, end_date, delivery_date, return_date):
+  """
+  checkAvailability is called from the path 'adminConfiguration/equipments/' 
+  :param request: request from the browser 
+  :param current_reservation_id: id of reservation of equipment to check availability for 
+  :param equipment_types: type of equipment being checked
+  :param start_date: date to start checking availability from
+  :param end_date: date to start checking availability to
+  :param delivery_date: delivery date of equipment
+  :param return_date: when equipment should be available again
+  :returns: availability matrix, indicating if available and most available days
+  """
   equipment_availability_matrix = {}
   delta = return_date - delivery_date
   reservation_days = delta.days + 1
@@ -1849,7 +1856,7 @@ def checkAvailability(request, current_reservation_id, equipment_types, start_da
 ####################################
 def adminAvailabilityCalendar(request):
   """
-  adminAvailabilityCalendar is called from the path 'adminConfiguration' 
+  adminAvailabilityCalendar is called from the path 'adminConfiguration/equipments/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/AdminAvailabilityCalender.html', availability_data, or error page
   :raises CustomException: redirects user to page they were on before encountering error due to no permission to view availability calender
@@ -1897,6 +1904,13 @@ def adminAvailabilityCalendar(request):
 ####################################
 
 def checkAvailabilityForAdmin(request, equipment_types, selected_month):
+  """
+  checkAvailabilityForAdmin is called from the path 'adminConfiguration/equipments/' 
+  :param request: request from the browser 
+  :param equipment_types: type of equipment to check availability
+  :param selected_month: which month to check availability of equipment for 
+  :returns: rendered template 'bcse_app/AdminAvailabilityCalender.html', availability_data, or error page
+  """
   equipment_availability_matrix = {}
 
   oneday = datetime.timedelta(days=1)
@@ -1933,6 +1947,13 @@ def checkAvailabilityForAdmin(request, equipment_types, selected_month):
 ###################################################
 @login_required
 def reservationUpdate(request, reservation_id):
+  """
+  reservationUpdate is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param reservation_id: id of reservation to update
+  :returns: rendered template 'bcse_app/ReservationUpdateModal.html', JSON view of updated reservations or or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to update reservation color')
@@ -1978,6 +1999,13 @@ def reservationUpdate(request, reservation_id):
 ####################################
 @login_required
 def reservationDeliveryAddressEdit(request, reservation_id):
+  """
+  reservationDeliveryAddressEdit is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param reservation_id: id of reservation delivery address to edit
+  :returns: rendered template 'bcse_app/ReservationDeliveryAddressModal.html', JSON view of updated addresses or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to update delivery address')
@@ -2021,6 +2049,13 @@ def reservationDeliveryAddressEdit(request, reservation_id):
 ####################################
 @login_required
 def reservationDeliveryAddressDelete(request, reservation_id):
+  """
+  reservationDeliveryAddressDelete is called from the path 'reservations' 
+  :param request: request from the browser 
+  :param reservation_id: id of reservation delivery address to delete
+  :returns: page admin was on prior to deleting delivery address
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete delivery address')
@@ -2045,9 +2080,9 @@ def reservationDeliveryAddressDelete(request, reservation_id):
 @login_required
 def baxterBoxUsageReport(request):
   """
-  baxterBoxUsageReport is called from the path 'adminConfiguration' 
+  baxterBoxUsageReport is called from the path 'adminConfiguration/baxter_box/usage_report/' 
   :param request: request from the browser 
-  :returns: rendered template 'bcse_app/BaxterBoxUsageReport.html' with view of baxter box report, or error page
+  :returns: rendered template 'bcse_app/BaxterBoxUsageReport.html' with view of baxter box report or error page
   :raises CustomException: redirects user to page they were on before encountering error due to no permission to view baxter box report
   """
   try:
@@ -2076,7 +2111,7 @@ def baxterBoxUsageReport(request):
 @login_required
 def baxterBoxUsageReportSearch(request):
   """
-  baxterBoxUsageReportSearch is called from the path 'adminConfiguration' 
+  baxterBoxUsageReportSearch is called from the path 'adminConfiguration/baxter_box/usage_report/' 
   :param request: request from the browser 
   :returns: JSON view of baxter box usage report search or error page
   :raises CustomException: redirects user to page they were on before encountering error due to no permission to view baxter box report
@@ -2244,10 +2279,10 @@ def baxterBoxUsageReportSearch(request):
 @login_required
 def registrationEmailMessages(request):
   """
-  registrationEmailMessages is called from the path 'adminConfiguration' 
+  registrationEmailMessages is called from the path 'adminConfiguration/registrationEmailMessages' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/RegistrationEmailMessages.html', which is a page with automatic emails sent after registration
-  :raises CustomException: redirects user to page they were on before encountering error
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -2266,7 +2301,13 @@ def registrationEmailMessages(request):
 ####################################################
 @login_required
 def registrationEmailMessageEdit(request, id=''):
-
+  """
+  registrationEmailMessageEdit is called from the path 'adminConfiguration/registrationEmailMessages' 
+  :param request: request from the browser 
+  :param id='': id of registration email message to edit 
+  :returns: rendered template 'bcse_app/RegistrationEmailMessages.html' or page with updated message
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit registration messages')
@@ -2303,7 +2344,13 @@ def registrationEmailMessageEdit(request, id=''):
 # DELETE WORKSHOP REGISTRATION CONFIRMATION MESSAGE
 ####################################################
 def registrationEmailMessageDelete(request, id=''):
-
+  """
+  registrationEmailMessageDelete is called from the path 'adminConfiguration/registrationEmailMessages' 
+  :param request: request from the browser 
+  :param id='': id of registration email message to delete 
+  :returns: page with remaining messages
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete this workshop')
@@ -2329,10 +2376,10 @@ def registrationEmailMessageDelete(request, id=''):
 @login_required
 def baxterBoxCategoryEdit(request, id=''):
   """
-  baxterBoxCategoryEdit is called from the path 'baxterBoxCategories' 
+  baxterBoxCategoryEdit is called from the path 'adminConfiguration/baxter_box/baxterBoxCategories/' 
   :param request: request from the browser 
   :param id='': id of baxter box category
-  :returns: JSON view of all categories of baxter boxes or error page or error page
+  :returns: JSON view of all categories of baxter boxes or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
 
@@ -2377,7 +2424,7 @@ def baxterBoxCategoryEdit(request, id=''):
 @login_required
 def baxterBoxCategoryDelete(request, id=''):
   """
-  baxterBoxCategoryDelete is called from the path 'baxterBoxCategories' 
+  baxterBoxCategoryDelete is called from the path 'adminConfiguration/baxter_box/baxterBoxCategories/' 
   :param request: request from the browser 
   :param id='': id of baxter box category
   :returns: redirects to page to view all remaining categories of baxter boxes
@@ -2406,7 +2453,7 @@ def baxterBoxCategoryDelete(request, id=''):
 @login_required
 def baxterBoxCategories(request):
   """
-  baxterBoxCategories is called from the path 'baxterBoxCategories' 
+  baxterBoxCategories is called from the path 'adminConfiguration/baxter_box/baxterBoxCategories/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/BaxterBoxCategories.html', a page to view all categories of baxter boxes
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
@@ -2430,7 +2477,7 @@ def baxterBoxCategories(request):
 @login_required
 def baxterBoxSubCategories(request):
   """
-  baxterBoxSubCategories is called from the path 'BaxterBoxSubCategories' 
+  baxterBoxSubCategories is called from the path 'adminConfiguration/baxter_box/baxterBoxSubCategories/' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/BaxterBoxSubCategories.html', a page to view all subcategories of baxter boxes
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
@@ -2453,7 +2500,7 @@ def baxterBoxSubCategories(request):
 @login_required
 def baxterBoxSubCategoryEdit(request, id=''):
   """
-  baxterBoxSubCategoryEdit is called from the path 'BaxterBoxSubCategories' 
+  baxterBoxSubCategoryEdit is called from the path 'adminConfiguration/baxter_box/baxterBoxSubCategories/' 
   :param request: request from the browser 
   :param id='': id of baxter box subcategory
   :returns: JSON view of all categories of baxter boxes or error page
@@ -2506,7 +2553,7 @@ def baxterBoxSubCategoryEdit(request, id=''):
 @login_required
 def baxterBoxSubCategoryDelete(request, id=''):
   """
-  baxterBoxSubCategoryDelete is called from the path 'BaxterBoxSubCategories' 
+  baxterBoxSubCategoryDelete is called from the path 'adminConfiguration/baxter_box/baxterBoxSubCategories/' 
   :param request: request from the browser 
   :param id='': id of baxter box subcategory
   :returns: redirects to page to view all remaining subcategories of baxter boxes
@@ -2657,7 +2704,7 @@ def getWorkshopCategoryDetails(request, id=''):
 @login_required
 def workshopEdit(request, id=''):
   """
-  workshopEdit is called from the path 'workshops/edit' 
+  workshopEdit is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param id='': id of workshop 
   :returns: rendered template 'bcse_app/WorkshopEdit.html', redirects to page with specified workshop, or error page 
@@ -2712,7 +2759,7 @@ def workshopEdit(request, id=''):
 ####################################
 def workshopCopy(request, id=''):
   """
-  workshopCopy is called from the path 'workshops/edit' 
+  workshopCopy is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param id='': id of workshop 
   :returns: redirects to page with specified workshop or page user was on before
@@ -2771,7 +2818,7 @@ def workshopCopy(request, id=''):
 ####################################
 def workshopDelete(request, id=''):
   """
-  workshopDelete is called from the path 'workshops/edit' 
+  workshopDelete is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param id='': id of workshop 
   :returns: redirects to page view of remaining workshops or page user was on before since workshop already has registrants
@@ -2805,7 +2852,7 @@ def workshopDelete(request, id=''):
 ####################################
 def workshopView(request, id=''):
   """
-  workshopView is called from the path 'workshops/edit' 
+  workshopView is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param id='': id of workshop 
   :returns: rendered template 'bcse_app/WorkshopAdminView.html' or rendered template 'bcse_app/WorkshopPublicView.html'
@@ -2847,7 +2894,7 @@ def workshopRegistration(request, workshop_id):
   workshopRegistration is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param workshop_id: id of workshop 
-  :returns: JSON view of workshops user is registered for or successful registration information
+  :returns: JSON view of workshops user is currently registered for or successful registration information from updated registration
   """
   registration = {}
   form = workshop_registration = user_message = admin_message = message_class = current_status = None
@@ -2961,11 +3008,10 @@ def workshopRegistration(request, workshop_id):
 ################################################
 def workshopRegistrationSettingStatus(workshop):
   """
-  workshopRegistrationSettingStatus is called from the path 'workshops/edit' 
+  workshopRegistrationSettingStatus is called from the path 'workshops/list' 
   :param workshop: workshop to edit 
   :param id='': id of workshop 
   :returns: status of the workshop
-
   """
   current_datetime = datetime.datetime.now()
   current_date = current_datetime.date()
@@ -3077,7 +3123,7 @@ def workshopRegistrationSettingStatus(workshop):
 ################################################
 def workshopRegistrationEdit(request, workshop_id='', id=''):
   """
-  workshopRegistrationEdit is called from the path 'workshops/edit' 
+  workshopRegistrationEdit is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param workshop_id='': id of workshop 
   :param id='': id of registrant 
@@ -3135,7 +3181,7 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
 ################################################
 def workshopRegistrationDelete(request, workshop_id='', id=''):
   """
-  workshopRegistrationDelete is called from the path 'workshops/edit' 
+  workshopRegistrationDelete is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param workshop_id='': id of workshop 
   :param id='': id of registrant 
@@ -3180,7 +3226,7 @@ def workshopRegistrationDelete(request, workshop_id='', id=''):
 ################################################
 def workshopRegistrationCancel(request, workshop_id='', id=''):
   """
-  workshopRegistrationCancel is called from the path 'workshops/edit' 
+  workshopRegistrationCancel is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param workshop_id='': id of workshop 
   :param id='': id of registrant 
@@ -3227,7 +3273,7 @@ def workshopRegistrationCancel(request, workshop_id='', id=''):
 ################################################
 def workshopRegistrationQuestionnaire(request, workshop_id=''):
   """
-  workshopRegistrationQuestionnaire is called from the path 'workshops/edit' 
+  workshopRegistrationQuestionnaire is called from the path 'workshops/list' 
   :param request: request from the browser 
   :param workshop_id='': id of workshop 
   :returns: rendered template 'bcse_app/WorkshopRegistrationQuestionnaireModal.html', JSON view of workshop or error page
@@ -3285,7 +3331,7 @@ def workshopRegistrationQuestionnaire(request, workshop_id=''):
 ################################################
 def workshopRegistrationMessage(workshop_registration):
   """
-  workshopRegistrationQuestionnaire is called from the path 'workshops/edit' 
+  workshopRegistrationQuestionnaire is called from the path 'workshops/list' 
   :param workshop_registration: workshop registration status to edit
   :returns: updated registration status
   """
@@ -3783,7 +3829,7 @@ def workshopRegistrantsSearch(request, id=''):
 ##########################################################
 def workshopsRegistrants(request):
   """
-  workshopsSearch is called from the path 'workshops/list' 
+  workshopsSearch is called from the path 'adminConfiguration/workshops/list' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/WorkshopsRegistrants.html', to view all registrants across all workshops
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
@@ -3812,7 +3858,7 @@ def workshopsRegistrants(request):
 ##########################################################
 def workshopsRegistrantsSearch(request):
   """
-  workshopsRegistrantsSearch is called from the path 'workshops/list' 
+  workshopsRegistrantsSearch is called from the path 'adminConfiguration/workshops/list' 
   :param request: request from the browser 
   :returns: JSON view of registrants who match search criteria or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
@@ -3898,7 +3944,7 @@ def workshopsRegistrantsSearch(request):
 @login_required
 def workshopsUpload(request):
   """
-  workshopsUpload is called from the path 'workshops/list' 
+  workshopsUpload is called from the path 'adminConfiguration/workshops/list' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/WorkshopsUploadModal.html', JSON view of uploaded workshops or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
@@ -4195,7 +4241,7 @@ def userProfileDelete(request, id=''):
 
 def subscribe(request):
   """
-  subscribe is called from the path 'about/contact' 
+  subscribe is called from the path adminConfiguration/users' 
   :param request: request from the browser 
   :returns: rendered template 'bcse_app/SubscribeModal.html', JSON view of subscribed users, page user was on before or error page
   """
@@ -4386,7 +4432,7 @@ def standalonePages(request):
 @login_required
 def standalonePageEdit(request, id=''):
   """
-  standalonePageEdit is called from the path 'adminConfiguration/standalonePages'
+  standalonePageEdit is called from the path 'adminConfiguration/standalonePages/'
   :param request: request from the browser 
   :param id='': id of standalone page to edit
   :returns: rendered template 'bcse_app/StandalonePageEdit.html', page with updated standalone page or error page
@@ -4431,7 +4477,7 @@ def standalonePageEdit(request, id=''):
 @login_required
 def standalonePageDelete(request, id=''):
   """
-  standalonePageDelete is called from the path 'adminConfiguration/standalonePages'
+  standalonePageDelete is called from the path 'adminConfiguration/standalonePages/'
   :param request: request from the browser 
   :param id='': id of standalone page to delete
   :returns: page with remaining standalone pages 
@@ -4459,7 +4505,7 @@ def standalonePageDelete(request, id=''):
 ##########################################################
 def standalonePageView(request, id='', url_alias=''):
   """
-  standalonePageView is called from the path 'adminConfiguration/standalonePages'
+  standalonePageView is called from the path 'adminConfiguration/standalonePages/'
   :param request: request from the browser 
   :param id='': id of standalone page to view
   :param url_alias='': url of standalone page to view, is another way to get a specific page if id not provided
@@ -4489,7 +4535,7 @@ def standalonePageView(request, id='', url_alias=''):
 @login_required
 def standalonePageCopy(request, id=''):
   """
-  standalonePageCopy is called from the path 'adminConfiguration/standalonePages'
+  standalonePageCopy is called from the path 'adminConfiguration/standalonePages/'
   :param request: request from the browser 
   :param id='': id of standalone page to copy
   :returns: page with updated view of standalone pages or page user was on before
@@ -6092,6 +6138,11 @@ def surveyCopy(request, id=''):
 # GET ASSOCIATED ENTITY FOR SURVEY SUBMISSION
 ##########################################################
 def get_submission_connected_entity(submission_id):
+  """
+  get_submission_connected_entity is called from the path 'adminConfiguration/surveys/'
+  :param submission_id: id of submission to get associated entity for
+  :returns: associated entity with submission or None if none found
+  """
   connected_entity = {}
   reservation_feedback = models.ReservationFeedback.objects.all().filter(feedback__UUID=submission_id)
   if reservation_feedback.count():
@@ -6114,6 +6165,13 @@ def get_submission_connected_entity(submission_id):
 ##########################################################
 @login_required
 def surveySubmissions(request, id=''):
+  """
+  surveySubmissions is called from the path 'adminConfiguration/surveys/'
+  :param request: request from the browser 
+  :param id='': id of survey component to edit
+  :returns: rendered template 'bcse_app/SurveySubmissions.html' or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -7238,6 +7296,13 @@ def vignetteDelete(request, id=''):
 # VIEW VIGNETTE
 ##########################################################
 def vignetteView(request, id=''):
+  """
+  vignetteView is called from the path 'adminConfiguration/vignettes/'
+  :param request: request from the browser 
+  :param id='': id of vignette to view
+  :returns: rendered template 'bcse_app/VignetteViewModal.html'
+  :raises models.Vignette.DoesNotExist: redirects user to page they were on before encountering error due to vignette not existing
+  """
 
   try:
     if '' != id:
@@ -7259,6 +7324,13 @@ def vignetteView(request, id=''):
 # CLONE VIGNETTE
 ####################################
 def vignetteCopy(request, id=''):
+  """
+  vignetteCopy is called from the path 'adminConfiguration/vignettes/'
+  :param request: request from the browser 
+  :param id='': id of vignette to copy
+  :returns: page with view of copied vignette or page admin was on prior to copying vignette
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
 
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
@@ -7307,7 +7379,12 @@ def vignetteCopy(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def teacherLeadershipOpportunities(request):
-
+  """
+  teacherLeadershipOpportunities is called from the path 'adminConfiguration/vignettes/'
+  :param request: request from the browser 
+  :returns: rendered template 'bcse_app/TeacherLeadershipOpportunities.html' with featured active vignettes 
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     vignettes = models.Vignette.objects.all().filter(status='A', featured=True)
     context = {'vignettes': vignettes}
@@ -7321,7 +7398,15 @@ def teacherLeadershipOpportunities(request):
 # PAGINATE THE QUERYSET BASED ON THE ITEMS PER PAGE AND SORT ORDER
 ########################################################################
 def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAGE, page=1):
-
+  """
+  paginate is called from the path 'adminConfiguration/'
+  :param request: request from the browser 
+  :param queryset: list of objects
+  :param sort_order: request from the browser
+  :param count=settings.DEFAULT_ITEMS_PER_PAGE: request from the browser
+  :param page=1: request from the browser
+  :returns: upated view of queryset
+  """
   ordering_list = []
 
   if sort_order:
@@ -7368,6 +7453,12 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
 # UPDATE MAILING LIST SUBSCRIPTION
 #######################################
 def subscription(userDetails, status, subscriber_hash=None):
+  """
+  subscription is called from the path 'adminConfiguration/users' to subcribe a user
+  :param userDetails: user's information, including email address and name
+  :param status: if user is subcribed or not
+  :param subscriber_hash=None: user's hashed information
+  """
   api_key = settings.MAILCHIMP_API_KEY
   server = settings.MAILCHIMP_DATA_CENTER
   list_id = settings.MAILCHIMP_EMAIL_LIST_ID
@@ -7412,6 +7503,13 @@ def subscription(userDetails, status, subscriber_hash=None):
 # WHEN A RESERVATION IS CONFIRMED
 #####################################################
 def reservationConfirmationEmailSend(request, id):
+  """
+  reservationConfirmationEmailSend is called from the path 'reservations'
+  :param request: request from the browser 
+  :param id: id of reservation 
+  :returns: JSON view of reservations
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to send reservation email')
@@ -7464,6 +7562,14 @@ def reservationConfirmationEmailSend(request, id):
 # AFTER A RESERVATION IS CHECKED IN
 #####################################################
 def reservationFeedbackEmailSend(request, id):
+  """
+  reservationFeedbackEmailSend is called from the path 'reservations'
+  :param request: request from the browser 
+  :param id: id of reservation 
+  :returns: JSON view of reservations
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to feedback survey not being found
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to send feedback email')
@@ -7524,6 +7630,13 @@ def reservationFeedbackEmailSend(request, id):
 # WHEN A NEW RESERVATIONIS MADE
 #####################################################
 def reservationReceiptEmailSend(request, id):
+  """
+  reservationReceiptEmailSend is called from the path 'reservations'
+  :param request: request from the browser 
+  :param id: id of reservation 
+  :returns: JSON view of reservations
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to send reservation email')
@@ -7572,6 +7685,11 @@ def reservationReceiptEmailSend(request, id):
 # WHEN A NEW MESSAGE IS POSTED FOR A RESERVATION
 #####################################################
 def send_reservation_message_email(request, reservation_message):
+  """
+  send_reservation_message_email is called from the path 'reservations'
+  :param request: request from the browser 
+  :param reservation_message: message posted for a reservation
+  """
   current_site = Site.objects.get_current()
   domain = current_site.domain
   subject = 'You have a new message about your Baxter Box Reservation'
@@ -7590,6 +7708,19 @@ def send_reservation_message_email(request, reservation_message):
 # CREATE A NEW USER WITH RANDOM PASSWORD
 #####################################################
 def create_user(request, email, first_name, last_name, user_role, phone_number, twitter_handle, instagram_handle, term_id=None):
+  """
+  create_user is called from the path 'adminConfiguration/users'
+  :param request: request from the browser 
+  :param email: new user's email
+  :param first_name: new user's first name
+  :param last_name: new user's last name
+  :param user_role: new user's role as admin, etc
+  :param phone_number: new user's phone number
+  :param twitter_handle: new user's twitter username
+  :param instagram_handle: new user's IG username
+  :param term_id=None: new user's term id
+  :returns: newly created user
+  """
   #all required fields available to create user
   user = User.objects.create_user(email.lower(),
                     email.lower(),
@@ -7620,6 +7751,16 @@ def create_user(request, email, first_name, last_name, user_role, phone_number, 
 # CREATE A WORKSHOP REGISTRATION RECORD FOR A USER
 #####################################################
 def create_registration(request, email, workshop_id, registration_status=None):
+  """
+  create_registration is called from the path 'workshops'
+  :param request: request from the browser 
+  :param email: email to send user with registration information
+  :param workshop_id: id of workshop
+  :param registration_status=None: if registration is enabled
+  :returns: true/false based on if registration has been created 
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to disabled registration for workshop
+  """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to create registration')
@@ -7654,6 +7795,13 @@ def create_registration(request, email, workshop_id, registration_status=None):
 # LOAD MAPPED EQUIPMENT FOR THE SELECTED ACTIVITY
 #####################################################
 def load_equipment_options(request, activity_id=''):
+  """
+  load_equipment_options is called from the path 'adminConfiguration/activities/'
+  :param request: request from the browser 
+  :param activity_id='': id of activity to load mapped equipment to
+  :returns: rendered string 'bcse_app/EquipmentSelectionOptions.html', JSON view of equipment or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
   try:
     if request.method == 'GET':
       if request.user.is_anonymous:
@@ -7688,6 +7836,11 @@ def load_equipment_options(request, activity_id=''):
 # TERMS OF USE
 #####################################################
 def termsOfUse(request):
+  """
+  termsOfUse is called from the path 'adminConfiguration/equipments/'
+  :param request: request from the browser 
+  :returns: rendered template 'bcse_app/TermsOfUse.html'
+  """
   context = {}
   return render(request, 'bcse_app/TermsOfUse.html', context)
 
@@ -7696,6 +7849,11 @@ def termsOfUse(request):
 #####################################################
 class UserAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
+    """
+    get_queryset is called from the path 'adminConfiguration/users'
+    :param self: search term
+    :returns: autocompleted query set, list of suggested users 
+    """
     qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
     if self.q:
       qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
@@ -7708,6 +7866,11 @@ class UserAutocomplete(autocomplete.Select2QuerySetView):
 #####################################################
 class TeacherLeaderAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
+    """
+    get_queryset is called from the path 'adminConfiguration/teacherLeaders/'
+    :param self: search term
+    :returns: autocompleted query set, list of suggested teachers 
+    """
     existing_teacher_leaders = models.TeacherLeader.objects.all().values_list('teacher', flat=True)
     qs = models.UserProfile.objects.all().filter(user__is_active=True, user_role__in=['T', 'P']).exclude(id__in=existing_teacher_leaders).order_by('user__last_name', 'user__first_name')
     if self.q:
@@ -7720,6 +7883,11 @@ class TeacherLeaderAutocomplete(autocomplete.Select2QuerySetView):
 #####################################################
 class RegistrantAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
+    """
+    get_queryset is called from the path 'adminConfiguration/workshopsRegistrants/'
+    :param self: search term
+    :returns: autocompleted query set, list of suggested registrants 
+    """
     workshop_registration_setting = self.forwarded.get('workshop_registration_setting', None)
     print(workshop_registration_setting)
     if workshop_registration_setting:
@@ -7738,6 +7906,11 @@ class RegistrantAutocomplete(autocomplete.Select2QuerySetView):
 #####################################################
 class WorkplaceAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
+    """
+    get_queryset is called from the path 'adminConfiguration/workPlaces/'
+    :param self: search term
+    :returns: autocompleted query set, list of suggested work places 
+    """
     qs = models.WorkPlace.objects.all().filter(status='A').order_by('name')
     if self.q:
       qs = qs.filter(name__icontains=self.q)
@@ -7749,6 +7922,12 @@ class WorkplaceAutocomplete(autocomplete.Select2QuerySetView):
 # REMOVE HTML TAGS FROM STRING
 ################################
 def remove_html_tags(request, text):
+  """
+  remove_html_tags is called from the path 'adminConfiguration/'
+  :param request: request from the browser 
+  :text: text to remove html tag(s) from
+  :returns: string without html tag(s)
+  """
   html_re = re.compile(r'<[^>]+>')
   text_re = html_re.sub('', text)
   plain_text = html.unescape(text_re)
