@@ -5218,6 +5218,22 @@ def teamMemberDelete(request, id=''):
 
 
 ##########################################################
+# VIEW TEAM MEMBER
+##########################################################
+def teamMemberView(request, id=''):
+  try:
+    member = models.Team.objects.get(id=id)
+    context = {'member': member}
+    return render(request, 'bcse_app/TeamModal.html', context)
+
+  except models.Team.DoesNotExist as e:
+    messages.error(request, 'Team member not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
 # VIEW PARTNERS
 ##########################################################
 @login_required

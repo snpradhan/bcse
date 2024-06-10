@@ -126,6 +126,7 @@ urlpatterns = [
     path('adminConfiguration/teamMember/<int:id>/edit', views.teamMemberEdit, name='teamMemberEdit'),
     path('adminConfiguration/teamMember/<int:id>/delete', views.teamMemberDelete, name='teamMemberDelete'),
     path('adminConfiguration/teamMember/new', views.teamMemberEdit, name='teamMemberNew'),
+    path('teamMember/<int:id>/view', views.teamMemberView, name='teamMemberView'),
     path('adminConfiguration/partners/', views.partners, name='partners'),
     path('adminConfiguration/partner/<int:id>/edit', views.partnerEdit, name='partnerEdit'),
     path('adminConfiguration/partner/<int:id>/delete', views.partnerDelete, name='partnerDelete'),

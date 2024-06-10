@@ -29,7 +29,7 @@
       <h2 class="center">Our Alumni</h2>
       <div class="alumni">
         {% for alumnus in alumni %}
-          <div class="alumnus">
+          <div class="alumnus modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:teamMemberView' alumnus.id %}">
             <div class="picture">
               <img src="{{alumnus.image.url}}" class="circle staff">
             </div>
