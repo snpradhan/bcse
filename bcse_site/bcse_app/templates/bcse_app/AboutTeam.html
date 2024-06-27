@@ -25,22 +25,23 @@
         </div>
         {% endfor %}
       </div>
-
-      <h2 class="center">Our Alumni</h2>
-      <div class="alumni">
-        {% for alumnus in alumni %}
-          <div class="alumnus modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:teamMemberView' alumnus.id %}">
-            <div class="picture">
-              <img src="{{alumnus.image.url}}" class="circle staff">
+      {% if former_members %}
+        <h2 class="center">Former Team Members</h2>
+        <div class="alumni">
+          {% for former_member in former_members %}
+            <div class="alumnus modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:teamMemberView' former_member.id %}">
+              <div class="picture">
+                <img src="{{former_member.image.url}}" class="circle staff">
+              </div>
+              <br>
+              <div class="details">
+                <h3 class="purple">{{former_member.name}}</h3>
+                <h4>{{former_member.position|default_if_none:""}}</h4>
+              </div>
             </div>
-            <br>
-            <div class="details">
-              <h3 class="purple">{{alumnus.name}}</h3>
-              <h4>{{alumnus.position}}</h4>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
+          {% endfor %}
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

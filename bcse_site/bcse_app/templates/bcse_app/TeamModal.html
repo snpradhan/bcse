@@ -11,7 +11,7 @@
         <div class="col-md-9">
           <div class="intro">
             <h2>{{member.name}}</h2>
-            <h3>{{member.position}}</h3>
+            <h3>{{member.position|default_if_none:""}}</h3>
           </div>
           <div class="description">{{member.description|safe}}</div>
         </div>

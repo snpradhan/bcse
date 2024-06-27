@@ -17,7 +17,7 @@
           <th> Position </th>
           <th> Organization </th>
           <th> Order </th>
-          <th> Alumnus </th>
+          <th> Former Member? </th>
           <th> Status </th>
           <th> Created Date</th>
           <th> Modified Date </th>
@@ -30,10 +30,10 @@
             <td> {{member.id}}</td>
             <td> {{member.name}} </td>
             <td> {{member.email}} </td>
-            <td> {{member.position}} </td>
-            <td> {{member.organization}} </td>
+            <td> {{member.position|default_if_none:""}} </td>
+            <td> {{member.organization|default_if_none:""}} </td>
             <td> {{member.order}} </td>
-            <td> {{member.alumnus|yesno:"Yes,No"}} </td>
+            <td> {{member.former_member|yesno:"Yes,No"}} </td>
             <td> {{member.get_status_display}} </td>
             <td> {{member.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{member.modified_date|date:"F j, Y g:i A"}} </td>

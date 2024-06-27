@@ -51,11 +51,19 @@
           <div class="error">{{ form.description.errors }}</div>
         </div>
         <div class="form-group mb-3">
-          <label for="id_{{form.position.name}}">
-            {{ form.position.label }}
-            {% if form.position.field.required %}
+          <label for="id_{{form.former_member.name}}">
+            {{ form.former_member.label }}
+            {% if form.former_member.field.required %}
             (<span class="required">*</span>)
             {% endif %}
+          </label>
+          <div>{{form.former_member}}</div>
+          <div class="error">{{ form.former_member.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.position.name}}">
+            {{ form.position.label }}
+            <span>(<span class="required">*</span>)</span>
           </label>
           <div>{{form.position}}</div>
           <div class="error">{{ form.position.errors }}</div>
@@ -63,9 +71,7 @@
         <div class="form-group mb-3">
           <label for="id_{{form.organization.name}}">
             {{ form.organization.label }}
-            {% if form.organization.field.required %}
-            (<span class="required">*</span>)
-            {% endif %}
+            <span>(<span class="required">*</span>)</span>
           </label>
           <div>{{form.organization}}</div>
           <div class="error">{{ form.organization.errors }}</div>
@@ -84,16 +90,6 @@
           {% endif %}
           <div>{{form.image}}</div>
           <div class="error">{{ form.image.errors }}</div>
-        </div>
-        <div class="form-group mb-3">
-          <label for="id_{{form.alumnus.name}}">
-            {{ form.alumnus.label }}
-            {% if form.alumnus.field.required %}
-            (<span class="required">*</span>)
-            {% endif %}
-          </label>
-          <div>{{form.alumnus}}</div>
-          <div class="error">{{ form.alumnus.errors }}</div>
         </div>
         <div class="form-group mb-3">
           <label for="id_{{form.order.name}}">
@@ -128,6 +124,22 @@
 </div>
 <script type="text/javascript">
   $(function (){
+
+    $('input#id_former_member').on('change', function(){
+      if(this.checked) {
+        $('input#id_position').prop('required', false);
+        $('input#id_organization').prop('required', false);
+        $('input#id_position').closest('.form-group').find('label>span').hide();
+        $('input#id_organization').closest('.form-group').find('label>span').hide();
+      }
+      else {
+        $('input#id_position').prop('required', true);
+        $('input#id_organization').prop('required', true);
+        $('input#id_position').closest('.form-group').find('label>span').show();
+        $('input#id_organization').closest('.form-group').find('label>span').show();
+      }
+    });
+    $('input#id_former_member').trigger('change');
 
     $('#formTeamMember').submit(function(e){
       e.preventDefault();
