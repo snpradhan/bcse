@@ -250,7 +250,23 @@
           </div>
         </nav>
 
-        <div class="anniversary_banner">Fostering Tomorrow's Innovators since 2009</div>
+        <div class="anniversary_banner">
+          {% if request.domain %}
+            {% if request.domain == 'localhost' %}
+              ****** Local ******
+            {% elif request.domain == 'stage' %}
+              ****** Stage ******
+            {% endif %}
+          {% endif %}
+          Fostering Tomorrow's Innovators since 2009
+          {% if request.domain %}
+            {% if request.domain == 'localhost' %}
+             ****** Local ******
+            {% elif request.domain == 'stage' %}
+             ****** Stage ******
+            {% endif %}
+          {% endif %}
+        </div>
 
         <ul class="messages bg-light-gray">
           {% if messages %}

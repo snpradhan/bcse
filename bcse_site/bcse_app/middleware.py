@@ -7,6 +7,7 @@ from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponse
 from django import shortcuts
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 
 class UpdateSession(MiddlewareMixin):
 
@@ -83,3 +84,15 @@ class NextParameterMiddleware(MiddlewareMixin):
     if target and redirect_url:
       request.target = target
       request.redirect_url = redirect_url
+
+class DomainMiddleware(MiddlewareMixin):
+  def process_request(self, request):
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+
+    if 'localhost' in domain:
+      request.domain = 'localhost'
+    elif 'stage' in domain:
+      request.domain = 'stage'
+
+

@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'bcse_app.middleware.UpdateSession',
     'bcse_app.middleware.OnlineNowMiddleware',
     'bcse_app.middleware.NextParameterMiddleware',
+    'bcse_app.middleware.DomainMiddleware',
 ]
 
 ROOT_URLCONF = 'bcse_site.urls'
