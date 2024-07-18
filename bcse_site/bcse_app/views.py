@@ -6734,6 +6734,10 @@ def reservationConfirmationEmailSend(request, id):
     success = email.send(fail_silently=True)
     if success:
       reservation.email_sent = True
+      if reservation.confirmation_email_dates:
+        reservation.confirmation_email_dates+= '<br> %s' % datetime.datetime.now().strftime('%B %d, %Y %I:%M:%S %p')
+      else:
+        reservation.confirmation_email_dates = '%s' % datetime.datetime.now().strftime('%B %d, %Y %I:%M:%S %p')
       reservation.save()
 
     if request.is_ajax():

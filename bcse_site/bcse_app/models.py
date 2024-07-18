@@ -564,6 +564,7 @@ class Reservation(models.Model):
   color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
   status = models.CharField(default='U', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   email_sent = models.BooleanField(default=False)
+  confirmation_email_dates = models.TextField(null=True, blank=True)
   feedback_status = models.CharField(null=True, max_length=1, choices=RESERVATION_FEEDBACK_STATUS_CHOICES)
   feedback_email_count = models.IntegerField(null=True, blank=True)
   feedback_email_date = models.DateField(null=True, blank=True)

@@ -176,6 +176,14 @@
                       </div>
                     </td>
                   </tr>
+                  {% if reservation.email_sent %}
+                  <tr>
+                    <th>Confirmation Email Dates:</th>
+                    <td>
+                      {{reservation.confirmation_email_dates|safe}}
+                    </td>
+                  </tr>
+                  {% endif %}
                   <tr>
                     <th>Feedback Status:</th>
                     <td>
