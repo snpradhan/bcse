@@ -133,6 +133,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('AC', 'Activity'),
   ('KT', 'Kit'),
   ('CO', 'Consumables'),
+  ('GG', 'Include Gloves/Goggles'),
   ('IV', 'Inventory'),
   ('IN', 'Inventory Notes'),
   ('EQ', 'Equipment'),
@@ -554,6 +555,7 @@ class Reservation(models.Model):
   other_activity = models.BooleanField(default=False)
   other_activity_name = models.CharField(null=True, blank=True, max_length=256, help_text='Name of the other activity')
   num_of_students = models.IntegerField(null=False, blank=False)
+  include_gloves_goggles = models.BooleanField(default=False)
   equipment_not_needed = models.BooleanField(default=False)
   equipment = models.ManyToManyField(Equipment, null=True, blank=True)
   delivery_date = models.DateField(null=False)

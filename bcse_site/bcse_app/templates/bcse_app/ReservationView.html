@@ -79,6 +79,10 @@
                   </td>
                 </tr>
                 <tr>
+                  <th>Include Gloves/Goggles:</th>
+                  <td>{{reservation.include_gloves_goggles|yesno:"Yes,No"}}</td>
+                </tr>
+                <tr>
                   <th>Reserved Lab Equipment:</th>
                   <td>
                     {% if reservation.equipment %}

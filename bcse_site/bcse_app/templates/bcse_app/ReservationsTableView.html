@@ -34,8 +34,11 @@
         {% if 'KT' in columns or tag == 'profile' %}
           <th> Kit </th>
         {% endif %}
-         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
           <th> Consumables </th>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
+          <th> Include Gloves/Goggles </th>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
           <th> Kit Inventory </th>
@@ -112,6 +115,9 @@
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
           <td style="background-color: #767676; color: white;"> Consumables </td>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
+          <td style="background-color: #767676; color: white;"> Include Gloves/Goggles </td>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
           <td style="background-color: #767676; color: white;"> Kit Inventory </td>
@@ -218,6 +224,9 @@
                 {% endfor %}
               </ul>
             </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
+            <td>{{reservation.include_gloves_goggles|yesno:"Yes,No"}}</td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
             <td>{{reservation.activity.inventory|default_if_none:""|safe}}</td>

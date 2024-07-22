@@ -62,8 +62,8 @@ def export_reservations():
   date_format.num_format_str = 'mm/dd/yyyy'
   date_format.borders = borders
 
-  columns = ['ID', 'Reservation Made On', 'User', 'User Email', 'Activity', 'Kit', 'Equipment', 'Pickup/Return Notes', 'Delivery Date', 'Return Date', 'Delivery Address', 'Delivery Distance (miles)', 'Delivery Travel Time (mins)', 'Admin Notes', 'Help Needed?', 'Assigned To', 'Confirmation Email Sent?', 'Status']
-  font_styles = [font_style, date_format, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_format, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style]
+  columns = ['ID', 'Reservation Made On', 'User', 'User Email', 'Activity', 'Kit', 'Consumables', 'Include Gloves/Goggles', 'Equipment', 'Pickup/Return Notes', 'Delivery Date', 'Return Date', 'Delivery Address', 'Delivery Distance (miles)', 'Delivery Travel Time (mins)', 'Admin Notes', 'Help Needed?', 'Assigned To', 'Confirmation Email Sent?', 'Status']
+  font_styles = [font_style, date_format, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_format, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style]
 
   ws = wb.add_sheet('Reservations')
   row_num = 0
@@ -79,7 +79,7 @@ def export_reservations():
     ws.write(row_num, col_num, columns[col_num], header_style)
 
   for reservation in reservations:
-    activity = kit = equipment = delivery_address = delivery_distance = delivery_time = assignee_name = ''
+    activity = kit = equipment = delivery_address = delivery_distance = delivery_time = assignee_name = consumables = ''
 
     if reservation.activity:
       activity = reservation.activity.name
@@ -92,6 +92,9 @@ def export_reservations():
         kit += reservation.num_of_classes
       elif reservation.more_num_of_classes:
         kit += reservation.more_num_of_classes
+
+      for consumable in reservation.activity.consumables.all():
+        consumables = consumables + consumable.name + '\n'
 
     for equip in reservation.equipment.all():
       equipment = equip.equipment_type.name + (equip.name) + '\n'
@@ -123,6 +126,8 @@ def export_reservations():
            reservation.user.user.email,
            activity,
            kit,
+           consumables,
+           "Yes" if reservation.include_gloves_goggles else "No",
            equipment,
            reservation.notes,
            reservation.delivery_date,

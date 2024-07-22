@@ -590,7 +590,7 @@ class ReservationForm(ModelForm):
     super(ReservationForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['other_activity', 'equipment_not_needed', 'additional_help_needed', 'activity_kit_not_needed']:
+      if field_name not in ['other_activity', 'equipment_not_needed', 'additional_help_needed', 'activity_kit_not_needed', 'include_gloves_goggles']:
         if field_name in ['delivery_date', 'return_date']:
           if field_name == 'delivery_date':
             field.widget.attrs['class'] = 'form-control datepicker reservation_delivery_date reservation_date'
@@ -628,6 +628,7 @@ class ReservationForm(ModelForm):
     self.fields['num_of_students'].label = 'Total # of students who will be doing this activity?'
     self.fields['num_of_classes'].label = 'Number of classes'
     self.fields['more_num_of_classes'].label = 'Number of classes more than 4'
+    self.fields['include_gloves_goggles'].label = 'Include gloves/goggles'
     self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
     self.fields['notes'].label = 'Please provide any additional information that would be useful, such as your preferred pick-up and return times, and any directions for parking and entering your school.'
     self.fields['assignee'].label = 'Select the BCSE team member in-charge of this reservation'

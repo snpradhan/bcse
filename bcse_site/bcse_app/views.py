@@ -1208,7 +1208,10 @@ def reservationEdit(request, id=''):
           savedReservation.save()
 
         # when teacher makes/edits a reservation, save the mapped consumables on the reservation
-        if request.user.userProfile.user_role in ['T', 'P'] and savedReservation.activity and savedReservation.activity.consumables:
+        if savedReservation.activity_kit_not_needed:
+          savedReservation.consumables.clear()
+          savedReservation.save()
+        elif request.user.userProfile.user_role in ['T', 'P'] and savedReservation.activity and savedReservation.activity.consumables:
           savedReservation.consumables.clear()
           savedReservation.consumables.add(*savedReservation.activity.consumables.all())
           savedReservation.save()
