@@ -17,6 +17,9 @@
             </b> with a tentative delivery date of <b>{{reservation.delivery_date|date:"l, F j, Y"}}</b> has been received.
          </div>
          <div>We will review your request and you will receive another email when we have confirmed your reservation.</div>
+         {% if reservation.activity and reservation.activity.color and reservation.activity.color.low_stock %}
+            <div class="warning">Please note that some of the kits for the lab you have selected are low in stock.</div>
+         {% endif %}
          <div>In the mean time you may review your reservation <a href="https://{{domain}}/reservation/{{reservation.id}}/view" style="color:white;">here</a>
       </div>
    </div>

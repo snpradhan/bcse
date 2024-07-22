@@ -521,6 +521,9 @@
                         $('div.form-group.equipment_info').html(data['materials_equipment']);
                         $('div.form-group.equipment_info').show();
                       }
+                      if(data['is_low_stock']) {
+                        displayWarningDialog('The supplies for the activity you have selected is low is stock');
+                      }
                     }
                     if (data['consumable_options'] && data['consumable_mapping']) {
                       $('#id_consumable_options').html(data['consumable_options']);

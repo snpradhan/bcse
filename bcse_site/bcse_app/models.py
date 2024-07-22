@@ -644,6 +644,7 @@ class ReservationColor(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Color')
   color = models.CharField(null=False, max_length=8, unique=True, help_text='Hex code of the Color')
   description = models.CharField(null=False, blank=False, max_length=512, help_text='Describe the types of reservations/kit this color will be applied to')
+  low_stock = models.BooleanField(default=False)
   target = models.CharField(default='R', max_length=1, choices=COLOR_TARGET_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

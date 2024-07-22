@@ -16,6 +16,7 @@
           <th> Hex </th>
           <th> Color </th>
           <th> Description </th>
+          <th> Low Stock </th>
           <th> Target </th>
           <th> Created Date</th>
           <th> Modified Date </th>
@@ -30,6 +31,7 @@
             <td> {{color.color|upper}} </td>
             <td> <div class="color" style="background-color: {{color.color}};"></div></td>
             <td> {{color.description}} </td>
+            <td> {{color.low_stock|yesno:"Yes,No"}}</td>
             <td> {{color.get_target_display}} </td>
             <td> {{color.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{color.modified_date|date:"F j, Y g:i A"}} </td>

@@ -15,6 +15,10 @@
         <div class="title">
           <h5 class="center">{{activity.name}}</h5>
         </div>
+        {% is_activity_low_in_stock activity.id as low_stock %}
+        {% if low_stock %}
+          <i class="fas fa-tachometer-alt-slowest low_stock" title="Low in stock"></i>
+        {% endif %}
       </div>
     {% endfor %}
   </div>

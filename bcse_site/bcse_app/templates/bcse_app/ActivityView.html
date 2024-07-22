@@ -1,9 +1,15 @@
 {% if activity %}
   <div class="activity specific">
-    <h3 class="center underline"> You have selected {{activity}}</h3>
+    <h3 class="center underline">
+      You have selected {{activity}}
+    </h3>
+    {% if is_low_stock %}
+      <div class="warning center">Note: Some of the kits are low in stock</div>
+      <br>
+    {% endif %}
+
     <div class="activity_info">
       <div class="activity_details">
-        <h3 class="underline">Activity</h3>
         <div class="wysiwyg_content">{{activity.description|safe}}</div>
       </div>
       <br>

@@ -278,3 +278,10 @@ def multiply(a, b):
 @register.filter
 def get_tag_dictionary(tags):
   return utils.get_tag_dictionary(tags)
+
+@register.simple_tag(takes_context=True)
+def is_activity_low_in_stock(context, id):
+  request = context.get('request')
+  return views.isActivityLowInStock(id)
+
+

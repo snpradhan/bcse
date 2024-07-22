@@ -712,8 +712,12 @@ def activityView(request, id=''):
             response_data['materials_equipment'] = activity.materials_equipment
             response_data['manuals_resources'] = activity.manuals_resources
             response_data['equipment_mapping'] = list(activity.equipment_mapping.all().values_list('name', flat=True))
+            is_low_stock = isActivityLowInStock(id)
+            response_data['is_low_stock'] = is_low_stock
+            context['is_low_stock'] = is_low_stock
             response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
             response_data['equipment_options'] = load_equipment_options(request, activity.id)
+
             if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
               response_data['consumable_options'] = load_consumable_options(request, activity.id)
               response_data['consumable_mapping'] = list(activity.consumables.all().filter(status='A').distinct().values_list('id', flat=True))
@@ -727,6 +731,24 @@ def activityView(request, id=''):
 
     return http.HttpResponseNotAllowed(['GET'])
 
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def isActivityLowInStock(id=''):
+  try:
+    if '' != id:
+      activity = models.Activity.objects.get(id=id)
+      is_low_stock = False
+      if activity.color and activity.color.low_stock:
+        return True
+      for consumable in activity.consumables.all():
+        if consumable.color and consumable.color.low_stock:
+          is_low_stock = True
+          break
+      return is_low_stock
+    else:
+      raise CustomException('Activity does not exist')
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
