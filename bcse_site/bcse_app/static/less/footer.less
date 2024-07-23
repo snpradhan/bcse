@@ -35,22 +35,28 @@ footer {
 
   .credits {
     background-color: @nu-purple;
-    color:  white;
-    padding: 1em 5%;
+    color:  white !important;
+    padding: 3em 5%;
     display: flex;
-    align-items: center;
     justify-content: space-between;
 
-    .credit {
+    h2, h4 {
+      color:  white !important;
+    }
+    h2 {
+      margin-bottom: 1em;
+    }
 
-      &.terms, &.subscribe {
-        text-decoration: underline;
-      }
+    .credit {
 
       &.social {
         display: flex;
         justify-content: flex-end;
-        gap:  1em;
+        gap:  2em;
+        align-items: center;
+      }
+      &.copyright {
+        margin: auto 0;
       }
 
       a {

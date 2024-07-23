@@ -1,6 +1,6 @@
 $(function (){
 
-  $("#copyright_year").html(new Date().getFullYear());
+  $(".copyright_year").html(new Date().getFullYear());
 
   $(".datepicker:not(.reservation_date):not(.availability)").datepicker({
     dateFormat: "MM dd, yy",

@@ -360,22 +360,46 @@
           </div>
         </div>
         <div class="credits">
-            <div class="credit copyright left">&copy; 2009 - <span id="copyright_year">2009</span> Northwestern University. All Rights Reserved </div>
-            <div class="credit terms center"> <a href="{% url 'bcse:termsOfUse' %}">Terms of Use</a></div>
+          <div>
+            <h2>240K Students</h2>
+            <h4 class="credit terms"> <a href="{% url 'bcse:termsOfUse' %}">Terms of Use</a></h4>
+          </div>
+          <div>
+            <h2>3659 Teachers</h2>
+            <h4 class="credit"><a href="{% url 'bcse:workshops' 'list' %}">Workshops</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box Program</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Lab Grants</a></h4>
+          </div>
+          <div>
+            <h2>402 Schools</h2>
+            <h4 class="credit"> <a href="{% url 'bcse:aboutBCSE' %}">About</a></h4>
+            <h4 class="credit"> <a href="{% url 'bcse:aboutPartners' %}">Partners</a></h4>
+            <h4 class="credit"> <a href="{% url 'bcse:aboutTeam' %}">Team</a></h4>
+            <h4 class="credit"> <a href="{% url 'bcse:contactUs' %}">Contact Us</a></h4>
             <div class="credit subscribe">
               {% if user.is_authenticated %}
-                <a href="{% url 'bcse:subscribe' %}">Subscribe</a>
+                <h4 class="credit"><a href="{% url 'bcse:subscribe' %}">Subscribe</a></h4>
               {% else %}
-                <a class="modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subscribe' %}" href="#">Subscribe</a>
+                <h4 class="credit"><a class="modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subscribe' %}" href="#">Subscribe</a></h4>
               {% endif %}
             </div>
+          </div>
+        </div>
+        <div class="credits">
+            <div class="credit copyright left">&copy; 2009 - <span class="copyright_year">2009</span> Northwestern University. All Rights Reserved </div>
             <!-- Social Links -->
             <div class="credit social right">
               <a class="fb" href="https://www.facebook.com/bcse.nu/" target="_blank" rel="me">
-                <i class="fa fa-facebook" aria-hidden="true"></i>
+                <i class="fa-brands fa-facebook fa-3x"></i>
               </a>
               <a class="instagram" href="https://www.instagram.com/bcse_nu/" target="_blank" rel="me">
-                <i class="fa fa-instagram" aria-hidden="true"></i>
+                <i class="fa-brands fa-instagram fa-3x"></i>
+              </a>
+              <a class="youtube" href="https://www.youtube.com/@thebaxtercenterforsciencee5307" target="_blank" rel="me">
+                <i class="fa-brands fa-youtube fa-3x" aria-hidden="true"></i>
               </a>
               <!--a class="gplus" href="" target="_blank" rel="me"><i class="fa fa-google-plus" aria-hidden="true"></i></a>
               <a class="linkedin" href="" target="_blank" rel="me"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
