@@ -172,7 +172,13 @@
 
           });
 
-          $('a#community_tab').trigger('click');
+          var request = '{{request}}';
+          if(request.indexOf('activity') != -1){
+            $('a#activities_tab').trigger('click');
+          }
+          else {
+            $('a#community_tab').trigger('click');
+          }
 
           $('select.select2').select2({
             placeholder: {

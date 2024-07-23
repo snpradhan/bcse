@@ -21,10 +21,19 @@
           <br>
           <div>
             <h3 class="underline">Instruction Manuals/Resources</h3>
-            <div class="wysiwyg_content">{{kit.manuals_resources|safe}}</div>
+            {% if user.is_authenticated %}
+              <div class="wysiwyg_content">{{kit.manuals_resources|safe}}</div>
+            {% else %}
+              Please <a class="modal-open" data-bs-toggle="modal"  data-bs-dismiss="modal" data-bs-target="#general" data-href="{% url 'bcse:signin' %}?next=?next={% url 'bcse:activityView' kit.id %}">Login</a> to view the instructional manuals and resources.
+             {% endif %}
           </div>
         {% endif %}
       </div>
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  $(function(){
+    bindModalOpen();
+  });
+</script>
