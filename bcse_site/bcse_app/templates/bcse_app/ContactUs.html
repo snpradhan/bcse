@@ -5,77 +5,6 @@
 {% block content %}
   {{block.super}}
 
-<head>
-  <script src="https://kit.fontawesome.com/bed20bd2ea.js" crossorigin="anonymous"></script>
-  <style type="text/css">  
-
-  #icons_container {
-    margin-top: 35px;
-    display: flex;
-    text-align: center;
-    background-image: linear-gradient(#684C96, #5B3B8C, #4E2A84);
-  }
-
-  #FB {
-    justify-content: center;
-    flex-direction: row;
-    width: 250px;
-
-  }
-
-  #IG {
-    justify-content: center;
-    flex-direction: row;
-    width: 250px;
-
-  }
-
-  #email {
-    justify-content: center;
-    flex-direction: row;
-    width: 250px;
-
-  }
-
-  #mailing_list {
-    justify-content: center;
-    flex-direction: row;
-    width: 250px;
-
-  }
-
-  #address {
-    justify-content: center;
-    flex-direction: row;
-    width: 250px;
-
-  }
-
-  #icons_container h3{
-    margin-top: 40px; 
-    color: white !important;
-  }
-
-  h1{
-    margin-top: 40px; 
-  }
-
-  p, .subcribe-center{
-    margin-top: 25px !important;
-    font-size: 1.2em !important; 
-    color: white !important;
-
-  }
-
-  #icons_container i {
-    margin-top: 40px;
-    color: #FFFFFF;
-    
-  }
-
-  </style>
-</head>
-
   <div class="content">
     <div class="about_us container">
       <div class="contact">
@@ -83,49 +12,58 @@
         <div class="mail">
           <h2 class="center">Comments? Questions? Suggestions? We want to hear from you! </h2>
         </div>
+
+        <div id="icons_container">
+          <div class="icon">
+            <a href="https://www.facebook.com/bcse.nu/" target="_blank">
+              <i class="fa-brands fa-facebook fa-3x"></i>
+              <h3>Follow Us</h3>
+              <p>facebook.com/bcse.nu</p>
+            </a>
+          </div>
+
+          <div class="icon">
+            <a href="https://www.instagram.com/bcse_nu" target="_blank">
+              <i class="fa-brands fa-instagram fa-3x"></i>
+              <h3>Follow Us</h3>
+              <p>instagram.com/bcse_nu</p>
+            </a>
+          </div>
+
+          <div class="icon">
+            <a href="mailto:bcse@northwestern.edu" target="_top">
+              <i class="fa-regular fa-envelope fa-3x"></i>
+              <h3>Email Us</h3>
+              <p>bcse@northwestern.edu</p>
+            </a>
+          </div>
+
+          <div class="icon">
+            {% if user.is_authenticated %}
+            <a href="{% url 'bcse:subscribe' %}">
+              <i class="fa-solid fa-inbox fa-3x"></i>
+              <h3>Join Our Mailing List</h3>
+              <button class="btn">Subscribe</button>
+            </a>
+            {% else %}
+              <a class="modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subscribe' %}" href="#">
+                <i class="fa-solid fa-inbox fa-3x"></i>
+                <h3>Join Our Mailing List</h3>
+                <button class="btn">Subscribe</button>
+              </a>
+            {% endif %}
+          </div>
+
+          <div class="icon">
+            <a href="https://maps.app.goo.gl/WEHyQyfEQTHK6x3XA" target="_blank">
+              <i class="fa-solid fa-location-dot fa-3x"></i>
+              <h3>Visit Us</h3>
+              <p>640 Colfax St, Evanston, IL 60208</p>
+            </a>
+          </div>
+        </div>
       </div>
-
-  <div id="icons_container">
-    <div id="FB">
-
-      <a href="https://www.facebook.com/bcse.nu/" target="_blank"><i class="fa-brands fa-facebook fa-2xl"></i></a>
-
-      <h3>Follow Us</h3>
-      <p>facebook.com/bcse.nu</p>
-    </div>
-
-    <div id="IG">
-      <a href="https://www.instagram.com/bcse_nu" target="_blank"><i class="fa-brands fa-instagram fa-2xl"></i></a>
-      <h3>Follow Us</h3>
-      <p>instagram.com/bcse_nu</p>
-    </div>
-
-    <div id="email">
-     <a href="mailto:bcse@northwestern.edu" target="_top"><i class="fa-regular fa-envelope fa-2xl"></i></a>
-     <h3>Email Us</h3>
-     <p>bcse@northwestern.edu</p>
-    </div>
-
-    <div id="mailing_list">
-      <i class="fa-solid fa-inbox fa-2xl"></i>
-      <h3>Subcribe Now</h3>
-      <div class="subscribe center">
-        {% if user.is_authenticated %}
-          <a class="btn" href="{% url 'bcse:subscribe' %}"></a>
-        {% else %}
-          <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subscribe' %}" href="#">BCSE Mailing List</a>
-        {% endif %}
-      </div>
-    </div>
-
-    <div id="address">
-      <a href="https://maps.app.goo.gl/WEHyQyfEQTHK6x3XA" target="_blank"><i class="fa-solid fa-location-dot fa-2xl"></i></a>
-      <h3>Visit Us</h3>
-      <p>640 Colfax St, Evanston, IL 60208</p>
     </div>
   </div>
-
-</div>  
-</div>     
         
 {% endblock %}
