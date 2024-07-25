@@ -1,10 +1,10 @@
 {% if activity %}
-  <div class="activity specific">
+  <div class="activity specific  {% if is_low_stock %}low_stock{% endif %}">
     <h3 class="center underline">
       You have selected {{activity}}
     </h3>
     {% if is_low_stock %}
-      <div class="warning center">Note: Some of the kits are low in stock</div>
+      <div class="warning center">Note: This lab is low in stock. Once the reservation request is received, we will reach out to confirm availability and timing.</div>
       <br>
     {% endif %}
 

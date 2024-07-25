@@ -655,7 +655,10 @@ class ReservationColor(models.Model):
       ordering = ['name']
 
   def __str__(self):
-    return '%s - %s' % (self.name, self.description)
+    if self.low_stock:
+      return '%s - %s (Low stock)' % (self.name, self.description)
+    else:
+      return '%s - %s' % (self.name, self.description)
 
 class Team(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Team Member')
