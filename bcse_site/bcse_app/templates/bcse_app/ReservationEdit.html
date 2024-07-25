@@ -90,6 +90,15 @@
             <div class="form-group mb-4 kit_info">
               <label class="form-label"> You will receive <span class="kit_name"></span> x <span class="num_of_classes"></span></label>
             </div>
+            <div class="form-group mb-4">
+              <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}
+                {% if form.num_of_students.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
+              <div>{{form.num_of_students}}</div>
+              <div class="error">{{ form.num_of_students.errors }}</div>
+            </div>
 
             <div class="form-group form-check mb-4">
               <div>{{form.activity_kit_not_needed}}</div>
@@ -109,16 +118,6 @@
                 {% endif %}
               </label>
               <div class="error">{{ form.include_gloves_goggles.errors }}</div>
-            </div>
-
-            <div class="form-group mb-4">
-              <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}
-                {% if form.num_of_students.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div>{{form.num_of_students}}</div>
-              <div class="error">{{ form.num_of_students.errors }}</div>
             </div>
 
             <div class="form-group mb-4 equipment_info">
