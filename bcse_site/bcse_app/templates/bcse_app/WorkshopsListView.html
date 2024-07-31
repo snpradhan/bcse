@@ -69,5 +69,5 @@
     {% include "bcse_app/Pagination.html" with model=workshops %}
   {% endif %}
 {% else %}
-  <div class="warning center">No workshops matching your search criteria found</div>
+  {% include "bcse_app/WorkshopsNotFound.html" %}
 {% endif %}
