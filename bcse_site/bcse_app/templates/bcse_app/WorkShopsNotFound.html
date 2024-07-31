@@ -1,0 +1,21 @@
+ {% if user.is_authenticated %}
+  {% if tag == 'profile' %}
+    {% if user.userProfile.user_role in 'TP' %}
+      <div class="warning center">You have not attended any workshops yet</div>
+    {% else %}
+      <div class="warning center">This user has not attended any workshops yet</div>
+    {% endif %}
+  {% else %} <!-- tag == workshops-->
+    {% if user.userProfile.user_role in 'TP' %}
+      {% if flag == 'table' %}
+        <div class="warning center">You have not attended any workshops yet</div>
+      {% else %}
+        <div class="warning center">Please come back later for upcoming workshops</div>
+      {% endif %}
+    {% else %}
+      <div class="warning center">No workshops matching your search criteria found</div>
+    {% endif %}
+  {% endif %}
+{% else %}
+  <div class="warning center">Please come back later for upcoming workshops</div>
+{% endif %}

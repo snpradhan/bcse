@@ -206,11 +206,7 @@
     {% include "bcse_app/Pagination.html" with model=workshops location='bottom' %}
   {% endif %}
 {% else %}
-  {% if user.is_authenticated and user.userProfile.user_role in 'TP' %}
-    <div class="warning center">You have not attended any workshops yet</div>
-  {% else %}
-    <div class="warning center">No workshops matching your search criteria found</div>
-  {% endif %}
+  {% include "bcse_app/WorkshopsNotFound.html" %}
 {% endif %}
 
 <script type="text/javascript">
