@@ -3111,6 +3111,11 @@ def workshopRegistration(request, workshop_id):
         registration['instance'] = saved_registration
         registration['current_status'] = saved_registration.status
 
+      #create registration - work place association
+      if saved_registration.user.work_place:
+        registration_work_place = models.RegistrationWorkPlace(registration=saved_registration, work_place=saved_registration.user.work_place)
+        registration_work_place.save()
+
       success = True
     else:
       print(form.errors)
@@ -3905,7 +3910,7 @@ def workshopRegistrantsSearch(request, id=''):
         query_filter = query_filter & user_role_filter
 
       if work_place:
-        work_place_filter = Q(user__work_place=work_place)
+        work_place_filter = Q(registration_to_work_place__work_place=work_place)
         query_filter = query_filter & work_place_filter
 
       if subscribed:
