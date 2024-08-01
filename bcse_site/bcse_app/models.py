@@ -584,6 +584,13 @@ class Reservation(models.Model):
     else:
       return '%s - %s' % (self.other_activity_name, self.user)
 
+################################################################################
+# LINK BETWEEN RESERVATION AND WORKPLACE WHEN THE RESERVATION IS MADE
+###############################################################################
+class ReservationWorkPlace(models.Model):
+  reservation = models.ForeignKey(Reservation, unique=True, on_delete=models.CASCADE, related_name='reservation_to_work_place')
+  work_place = models.ForeignKey(WorkPlace, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_reservation')
+
 
 class ReservationFeedback(models.Model):
   reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='reservation_to_feedback')
