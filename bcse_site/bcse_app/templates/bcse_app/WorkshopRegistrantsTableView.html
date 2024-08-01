@@ -60,7 +60,7 @@
           {% endif %}
           <td> {{registrant.user.user.email}} </td>
           <td> {{registrant.user.user.get_full_name}}</td>
-          <td> {{registrant.user.work_place|default_if_none:""}}</td>
+          <td> {{registrant.registration_to_work_place.first.work_place|default_if_none:""}}</td>
           {% if user.userProfile.user_role in 'AS' %}
             <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>
             <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>

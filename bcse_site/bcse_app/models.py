@@ -454,6 +454,14 @@ class Registration(models.Model):
   def __str__(self):
       return '%s - Registration' % (self.workshop_registration_setting.workshop.name)
 
+#################################################################
+# Workplace associated with creating the registration record
+#############################################################
+class RegistrationWorkPlace(models.Model):
+  registration = models.ForeignKey(Registration, unique=True, on_delete=models.CASCADE, related_name='registration_to_work_place')
+  work_place = models.ForeignKey(WorkPlace, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_registration')
+
+
 class WorkshopApplication(models.Model):
   registration = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name='registration_to_application')
   application = models.ForeignKey('SurveySubmission', on_delete=models.CASCADE, related_name='application_to_registration')
