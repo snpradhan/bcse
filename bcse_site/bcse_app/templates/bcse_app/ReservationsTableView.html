@@ -286,15 +286,17 @@
                 {% endif %}
                 {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
               {% else %}
-                {{reservation.user.work_place.name}}<br>
-                {{reservation.user.work_place.street_address_1}}<br>
-                {% if reservation.user.work_place.street_address_2 %}
-                  {{reservation.user.work_place.street_address_2}}<br>
-                {% endif %}
-                {% if reservation.user.work_place.city %}
-                  {{reservation.user.work_place.city}},
-                {% endif %}
-                {{reservation.user.work_place.state}} {{reservation.user.work_place.zip_code}}
+                {% with work_place=reservation.reservation_to_work_place.first.work_place %}
+                  {{work_place.name}}<br>
+                  {{work_place.street_address_1}}<br>
+                  {% if work_place.street_address_2 %}
+                    {{work_place.street_address_2}}<br>
+                  {% endif %}
+                  {% if work_place.city %}
+                    {{work_place.city}},
+                  {% endif %}
+                  {{work_place.state}} {{work_place.zip_code}}
+                {% endwith %}
               {% endif %}
             </td>
           {% endif %}

@@ -1443,6 +1443,11 @@ def reservationEdit(request, id=''):
               reservationConfirmationEmailSend(request, savedReservation.id)
         else:
           messages.success(request, "Reservation request received")
+          #create reservation <-> work place association
+          if savedReservation.user.work_place:
+            reservation_work_place = models.ReservationWorkPlace(reservation=savedReservation, work_place=savedReservation.user.work_place)
+            reservation_work_place.save()
+
           if current_date <= savedReservation.delivery_date:
             if savedReservation.status == 'U':
               reservationReceiptEmailSend(request, savedReservation.id)
@@ -1775,7 +1780,7 @@ def reservationsSearch(request):
         user_filter = Q(user=user)
 
       if work_place:
-        workplace_filter = Q(user__work_place=work_place)
+        workplace_filter = Q(reservation_to_work_place__work_place=work_place)
 
       if assignee:
         assignee_filter = Q(assignee=assignee)
@@ -2286,7 +2291,7 @@ def baxterBoxUsageReportSearch(request):
         query_filter = query_filter & Q(Q(return_date__lte=to_date) | Q(return_date__isnull=True))
 
       if work_place:
-        query_filter = query_filter & Q(user__work_place=work_place)
+        query_filter = query_filter & Q(reservation_to_work_place__work_place=work_place)
         filter_selected = True
 
       if user:
