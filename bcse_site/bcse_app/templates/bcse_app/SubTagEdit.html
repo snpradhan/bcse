@@ -5,18 +5,18 @@
       {% if form.instance.id %}
         <h3 class="left"> {{form.instance.name}} </h3>
       {% else %}
-        <h3 class="left"> Create Baxter Box Category </h3>
+        <h3 class="left"> Create Sub Tag </h3>
       {% endif %}
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
-    <div id="baxterBoxCategoryMsg" class="msg">
+    <div id="baxterBoxSubCategoryMsg" class="msg">
       <ul class="errorlist">
         {% for message in messages %}
         <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
         {% endfor %}
       </ul>
     </div>
-   <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:baxterBoxCategoryEdit' form.instance.id %} {% else %} {% url 'bcse:baxterBoxCategoryNew' %} {% endif %}" id="formBaxterBoxCategory">
+   <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:subTagEdit' form.instance.id %} {% else %} {% url 'bcse:subTagNew' %}{% endif %}" id="formSubTag">
       {% csrf_token %}
       {{form.management_form}}
       <div class="modal-body">
@@ -41,7 +41,7 @@
 
 <script type="text/javascript">
   $(function (){
-    $('#formBaxterBoxCategory').submit(function(e){
+    $('#formSubTag').submit(function(e){
       e.preventDefault();
       var formData = new FormData(this);
       $.ajax({

@@ -180,10 +180,10 @@ class AdminCalendar(HTMLCalendar):
 def get_tag_dictionary(tags):
   tag_dictionary = {}
   for tag in tags:
-    if tag.category.name in tag_dictionary:
-      tag_dictionary[tag.category.name].append(tag.name)
+    if tag.tag.name in tag_dictionary:
+      tag_dictionary[tag.tag.name].append(tag.name)
     else:
-      tag_dictionary[tag.category.name] = [tag.name]
+      tag_dictionary[tag.tag.name] = [tag.name]
   return tag_dictionary.items()
 
 def strip_html(html_string):

@@ -1,0 +1,67 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Sub Tags </h1>
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:tagNew' %}" href="#" role="button">Create Tag</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subTagNew' %}" href="#" role="button">Create Sub Tag</a>
+  </div>
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <label><a class="nav-link" aria-current="page" id="tag_tab" href="{% url 'bcse:tags' %}">Tags</a></label>
+    </li>
+    <li class="nav-item">
+      <label><a class="nav-link active" aria-current="page" id="sub_tag_tab" >Sub Tags</a></label>
+    </li>
+  </ul>
+  <div class="search_results static">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> Sub Tag ID</th>
+          <th> Tag</th>
+          <th> Name </th>
+          <th> Status </th>
+          <th> Order </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub_tag in sub_tags %}
+          <tr>
+            <td> {{sub_tag.id}}</td>
+            <td> {{sub_tag.tag}}</td>
+            <td> {{sub_tag.name}} </td>
+            <td> {{sub_tag.get_status_display}} </td>
+            <td> {{sub_tag.order}} </td>
+            <td> {{sub_tag.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{sub_tag.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subTagEdit' sub_tag.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:subTagDelete' sub_tag.id %}"
+                    data-title="the sub tag <strong>{{sub_tag.name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>          
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

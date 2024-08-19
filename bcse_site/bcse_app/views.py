@@ -185,16 +185,16 @@ def baxterBoxSearch(request):
   try:
     if request.method == 'GET':
       activities = models.Activity.objects.all().filter(status='A').distinct()
-      categories = models.BaxterBoxCategory.objects.all().filter(status='A')
+      tags = models.Tag.objects.all().filter(status='A')
 
       #set session variable
       request.session['baxter_box_search'] = {}
 
-      for category in categories:
-        sub_categories = request.GET.getlist('category_%s'%category.id, '')
-        request.session['baxter_box_search']['category_'+str(category.id)] = sub_categories
-        if sub_categories:
-          activities = activities.filter(tags__id__in=sub_categories)
+      for tag in tags:
+        sub_tags = request.GET.getlist('tag_%s'%tag.id, '')
+        request.session['baxter_box_search']['tag_'+str(tag.id)] = sub_tags
+        if sub_tags:
+          activities = activities.filter(tags__id__in=sub_tags)
 
       response_data = {}
       response_data['success'] = True
@@ -743,11 +743,11 @@ def activityEdit(request, id=''):
     else:
       activity = models.Activity()
 
-    categories = models.BaxterBoxCategory.objects.all().filter(status='A')
+    tags = models.SubTag.objects.all().filter(status='A')
 
     if request.method == 'GET':
       form = forms.ActivityForm(instance=activity)
-      context = {'form': form, 'categories': categories}
+      context = {'form': form, 'tags': tags}
       return render(request, 'bcse_app/ActivityEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
@@ -2507,44 +2507,44 @@ def registrationEmailMessageDelete(request, id=''):
 
 
 ####################################
-# EDIT BAXTER BOX CATEGORY
+# EDIT TAG
 ####################################
 @login_required
-def baxterBoxCategoryEdit(request, id=''):
+def tagEdit(request, id=''):
   """
-  baxterBoxCategoryEdit is called from the path 'baxterBoxCategories'
+  tagEdit is called from the path 'tags'
   :param request: request from the browser
-  :param id='': id of baxter box category
-  :returns: JSON view of all categories of baxter boxes or error page or error page
+  :param id='': id of tag
+  :returns: JSON view of all tags or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to edit Baxter Box categories')
+      raise CustomException('You do not have the permission to edit a tag')
     if '' != id:
-      baxter_box_category = models.BaxterBoxCategory.objects.get(id=id)
+      tag = models.Tag.objects.get(id=id)
     else:
-      baxter_box_category = models.BaxterBoxCategory()
+      tag = models.Tag()
 
     if request.method == 'GET':
-      form = forms.BaxterBoxCategoryForm(instance=baxter_box_category)
+      form = forms.TagForm(instance=tag)
       context = {'form': form}
-      return render(request, 'bcse_app/BaxterBoxCategoryEdit.html', context)
+      return render(request, 'bcse_app/TagEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.BaxterBoxCategoryForm(data, files=request.FILES, instance=baxter_box_category)
+      form = forms.TagForm(data, files=request.FILES, instance=tag)
       response_data = {}
       if form.is_valid():
         savedCategory = form.save()
-        messages.success(request, "Baxter Box Category saved")
+        messages.success(request, "Tag saved")
         response_data['success'] = True
       else:
         print(form.errors)
-        messages.error(request, "Baxter Box Category could not be saved. Check the errors below.")
+        messages.error(request, "Tag could not be saved. Check the errors below.")
         context = {'form': form}
         response_data['success'] = False
-        response_data['html'] = render_to_string('bcse_app/BaxterBoxCategoryEdit.html', context, request)
+        response_data['html'] = render_to_string('bcse_app/TagEdit.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -2555,52 +2555,52 @@ def baxterBoxCategoryEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# DELETE BAXTER BOX CATEGORY
+# DELETE TAG
 ####################################
 @login_required
-def baxterBoxCategoryDelete(request, id=''):
+def tagDelete(request, id=''):
   """
-  baxterBoxCategoryDelete is called from the path 'baxterBoxCategories'
+  tagDelete is called from the path 'tags'
   :param request: request from the browser
-  :param id='': id of baxter box category
-  :returns: redirects to page to view all remaining categories of baxter boxes
+  :param id='': id of Tag
+  :returns: redirects to page to view all remaining Tags
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to delete Baxter Box category')
+      raise CustomException('You do not have the permission to delete a tag')
     if '' != id:
-      baxter_box_category = models.BaxterBoxCategory.objects.get(id=id)
-      baxter_box_category.delete()
-      messages.success(request, "Baxter Box Category deleted")
+      tag = models.Tag.objects.get(id=id)
+      tag.delete()
+      messages.success(request, "Tag deleted")
 
-    return shortcuts.redirect('bcse:baxterBoxCategories')
+    return shortcuts.redirect('bcse:tags')
 
-  except models.BaxterBoxCategory.DoesNotExist:
-    messages.success(request, "Baxter Box category not found")
+  except models.Tag.DoesNotExist:
+    messages.success(request, "Tag not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# BAXTER BOX CATEGORIES
+# TAGS
 ####################################
 @login_required
-def baxterBoxCategories(request):
+def tags(request):
   """
-  baxterBoxCategories is called from the path 'baxterBoxCategories'
+  tags is called from the path 'adminConfiguration'
   :param request: request from the browser
-  :returns: rendered template 'bcse_app/BaxterBoxCategories.html', a page to view all categories of baxter boxes
+  :returns: rendered template 'bcse_app/Tags.html', a page to view tags
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view Baxter Box categories')
+      raise CustomException('You do not have the permission to view tags')
 
-    baxter_box_categories = models.BaxterBoxCategory.objects.all().order_by('order')
-    context = {'baxter_box_categories': baxter_box_categories}
-    return render(request, 'bcse_app/BaxterBoxCategories.html', context)
+    tags = models.Tag.objects.all().order_by('order')
+    context = {'tags': tags}
+    return render(request, 'bcse_app/Tags.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
@@ -2608,72 +2608,72 @@ def baxterBoxCategories(request):
 
 
 ####################################
-# BAXTER BOX SUBCATEGORIES
+# SUBTAGS
 ####################################
 @login_required
-def baxterBoxSubCategories(request):
+def subTags(request):
   """
-  baxterBoxSubCategories is called from the path 'BaxterBoxSubCategories'
+  subTags is called from the path 'tags'
   :param request: request from the browser
-  :returns: rendered template 'bcse_app/BaxterBoxSubCategories.html', a page to view all subcategories of baxter boxes
+  :returns: rendered template 'bcse_app/SubTags.html', a page to view all sub tags
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view Baxter Box sub categories')
+      raise CustomException('You do not have the permission to view Sub Tags')
 
-    baxter_box_sub_categories = models.BaxterBoxSubCategory.objects.all().order_by('order')
-    context = {'baxter_box_sub_categories': baxter_box_sub_categories}
-    return render(request, 'bcse_app/BaxterBoxSubCategories.html', context)
+    sub_tags = models.SubTag.objects.all()
+    context = {'sub_tags': sub_tags}
+    return render(request, 'bcse_app/SubTags.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# EDIT BAXTER BOX SUBCATEGORY
+# EDIT SUB TAG
 ####################################
 @login_required
-def baxterBoxSubCategoryEdit(request, id=''):
+def subTagEdit(request, id=''):
   """
-  baxterBoxSubCategoryEdit is called from the path 'BaxterBoxSubCategories'
+  subTagEdit is called from the path 'subTags'
   :param request: request from the browser
-  :param id='': id of baxter box subcategory
-  :returns: JSON view of all categories of baxter boxes or error page
+  :param id='': id of sub tag
+  :returns: JSON view of all sub tags or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to edit Baxter Box sub categories')
+      raise CustomException('You do not have the permission to edit a sub tag')
     if '' != id:
-      baxter_box_sub_category = models.BaxterBoxSubCategory.objects.get(id=id)
+      sub_tag = models.SubTag.objects.get(id=id)
     else:
-      if request.GET.get('baxter_box_category'):
+      if request.GET.get('tag'):
         print(request.GET)
-        baxter_box_category = models.BaxterBoxCategory.objects.get(id=request.GET.get('baxter_box_category'))
-        baxter_box_sub_category = models.BaxterBoxSubCategory(category=baxter_box_category)
+        tag = models.Tag.objects.get(id=request.GET.get('tag'))
+        sub_tag = models.SubTag(tag=tag)
       else:
-        baxter_box_sub_category = models.BaxterBoxSubCategory()
+        sub_tag = models.SubTag()
 
     if request.method == 'GET':
-      form = forms.BaxterBoxSubCategoryForm(instance=baxter_box_sub_category)
+      form = forms.SubTagForm(instance=sub_tag)
       context = {'form': form}
-      return render(request, 'bcse_app/BaxterBoxSubCategoryEdit.html', context)
+      return render(request, 'bcse_app/SubTagEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.BaxterBoxSubCategoryForm(data, files=request.FILES, instance=baxter_box_sub_category)
+      form = forms.SubTagForm(data, files=request.FILES, instance=sub_tag)
       response_data = {}
       if form.is_valid():
         savedCategory = form.save()
-        messages.success(request, "Baxter Box Sub Category saved")
+        messages.success(request, "Sub Tag saved")
         response_data['success'] = True
       else:
         print(form.errors)
-        messages.error(request, "Baxter Box Sub Category could not be saved. Check the errors below.")
+        messages.error(request, "Sub Tag could not be saved. Check the errors below.")
         context = {'form': form}
         response_data['success'] = False
-        response_data['html'] = render_to_string('bcse_app/BaxterBoxSubCategoryEdit.html', context, request)
+        response_data['html'] = render_to_string('bcse_app/SubTagEdit.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -2684,29 +2684,29 @@ def baxterBoxSubCategoryEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# DELETE BAXTER BOX SUBCATEGORY
+# DELETE SUB TAG
 ####################################
 @login_required
-def baxterBoxSubCategoryDelete(request, id=''):
+def subTagDelete(request, id=''):
   """
-  baxterBoxSubCategoryDelete is called from the path 'BaxterBoxSubCategories'
+  subTagDelete is called from the path 'SubTags'
   :param request: request from the browser
-  :param id='': id of baxter box subcategory
-  :returns: redirects to page to view all remaining subcategories of baxter boxes
+  :param id='': id of sub tag
+  :returns: redirects to page to view all remaining sub tags
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to delete Baxter Box sub category')
+      raise CustomException('You do not have the permission to delete a Sub Tag')
     if '' != id:
-      baxter_box_sub_category = models.BaxterBoxSubCategory.objects.get(id=id)
-      baxter_box_sub_category.delete()
-      messages.success(request, "Baxter Box Sub Category deleted")
+      sub_tag = models.SubTag.objects.get(id=id)
+      sub_tag.delete()
+      messages.success(request, "Sub Tag deleted")
 
-    return shortcuts.redirect('bcse:baxterBoxCategories')
+    return shortcuts.redirect('bcse:subTags')
 
-  except models.BaxterBoxSubCategory.DoesNotExist:
-    messages.success(request, "Baxter Box sub category not found")
+  except models.SubTag.DoesNotExist:
+    messages.success(request, "Baxter Sub Tag not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)

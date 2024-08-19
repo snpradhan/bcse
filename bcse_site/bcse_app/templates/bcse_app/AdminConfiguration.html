@@ -64,8 +64,6 @@
                                              {% leftnavactive request 'consumables' %}
                                              {% leftnavactive request 'consumable' %}
                                              {% leftnavactive request 'equipmentTypes' %}
-                                             {% leftnavactive request 'baxterBoxCategories' %}
-                                             {% leftnavactive request 'baxterBoxSubCategories' %}
                                              {% leftnavactive request 'equipmentType' %}
                                              {% leftnavactive request 'equipments' %}
                                              {% leftnavactive request 'equipment' %}
@@ -84,9 +82,7 @@
                 <li class="{% if 'equipmentType' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:equipmentTypes' %}">Equipment Types</a>
                 </li>
-                 <li class="{% if 'baxterBoxCategories' in request.path or 'baxterBoxSubCategories' in request.path %} active {% endif %}">
-                  <a href="{% url 'bcse:baxterBoxCategories' %}">Baxter Box Categories</a>
-                </li>
+
                 <li class="{% if 'equipments' in request.path or 'equipment/' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:equipments' %}">Equipment</a>
                 </li>
@@ -107,6 +103,10 @@
                   <a href="{% url 'bcse:adminAvailabilityCalendar' %}">Availability Calendar</a>
                 </li>
               </ul>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="nav-item {% if 'tags' in request.path or 'subTags' in request.path %} active {% endif %}">
+              <a class="nav-link"  href="{% url 'bcse:tags' %}">Tags</a>
             </li>
 
             <li><hr class="dropdown-divider"></li>

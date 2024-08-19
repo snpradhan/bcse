@@ -334,7 +334,7 @@ class EquipmentType(models.Model):
   description = RichTextField(null=True, blank=True)
   unit_cost = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0)], help_text='Unit cost for the equipment')
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment type')
-  tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   order = models.IntegerField(null=False, blank=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -492,7 +492,7 @@ class Activity(models.Model):
   notes = RichTextField(null=True, blank=True, config_name='simple_ckeditor', help_text='Inventory notes')
   consumables = models.ManyToManyField('Consumable', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   equipment_mapping = models.ManyToManyField(EquipmentType, null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
-  tags = models.ManyToManyField('BaxterBoxSubCategory', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Activity Kit')
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
@@ -524,8 +524,8 @@ class Consumable(models.Model):
       return '%s' % (self.name)
 
 
-class BaxterBoxCategory(models.Model):
-  name = models.CharField(null=False, max_length=256, unique=True, help_text='Name of Baxter Box Category')
+class Tag(models.Model):
+  name = models.CharField(null=False, max_length=256, unique=True, help_text='Name of the Tag')
   order = models.IntegerField(null=False, blank=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -537,20 +537,20 @@ class BaxterBoxCategory(models.Model):
   def __str__(self):
       return '%s' % (self.name)
 
-class BaxterBoxSubCategory(models.Model):
-  category = models.ForeignKey(BaxterBoxCategory, related_name='sub_categories', null=False, on_delete=models.CASCADE)
-  name = models.CharField(null=False, max_length=256, help_text='Name of Baxter Box Category')
+class SubTag(models.Model):
+  tag = models.ForeignKey(Tag, related_name='sub_tags', null=False, on_delete=models.CASCADE)
+  name = models.CharField(null=False, max_length=256, help_text='Name of Sub Tag')
   order = models.IntegerField(null=False, blank=False)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
-      ordering = ['category__order', 'order']
-      unique_together = ('category', 'name')
+      ordering = ['tag__order', 'order']
+      unique_together = ('tag', 'name')
 
   def __str__(self):
-      return '%s - %s' % (self.category.name, self.name)
+      return '%s - %s' % (self.tag.name, self.name)
 
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)

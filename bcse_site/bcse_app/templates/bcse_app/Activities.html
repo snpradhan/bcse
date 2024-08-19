@@ -51,11 +51,11 @@
             <td> {{activity.get_status_display}} </td>
             <td>
               <ul>
-                {% for category, subcategories in activity.tags.all|get_tag_dictionary %}
-                  <li>{{category}} </li>
+                {% for tag, sub_tags in activity.tags.all|get_tag_dictionary %}
+                  <li>{{tag}} </li>
                   <ul>
-                    {% for subcategory in subcategories %}
-                      <li>{{subcategory}} </li>
+                    {% for sub_tag in sub_tags %}
+                      <li>{{sub_tag}} </li>
                     {% endfor %}
                   </ul>
                 {% endfor %}
