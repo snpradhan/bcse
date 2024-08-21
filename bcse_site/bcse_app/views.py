@@ -3629,6 +3629,7 @@ def workshopsSearch(request, flag='list'):
     ends_before_filter = None
     registration_filter = None
     status_filter = None
+    tags_filter = None
 
     keywords = request.GET.get('workshop_search-keywords', '')
     starts_after = request.GET.get('workshop_search-starts_after', '')
@@ -3652,6 +3653,14 @@ def workshopsSearch(request, flag='list'):
       'rows_per_page': rows_per_page,
       'page': page
     }
+
+    tags = []
+    for tag in models.Tag.objects.all().filter(status='A'):
+      sub_tags = request.GET.getlist('workshop_search-tag_%s'%tag.id, '')
+      if sub_tags:
+        workshop_search_vars['tag_'+str(tag.id)] = sub_tags
+        tags.append(sub_tags)
+
     request.session['workshops_search'] = workshop_search_vars
 
     if keywords:
@@ -3677,6 +3686,11 @@ def workshopsSearch(request, flag='list'):
       ends_before = datetime.datetime.strptime(ends_before, '%B %d, %Y')
       ends_before_filter = Q(end_date__lte=ends_before)
 
+    if tags:
+      tags_filter = Q()
+      for sub_tags in tags:
+        tags_filter = tags_filter & Q(tags__id__in=sub_tags)
+
 
     if keyword_filter:
       query_filter = keyword_filter
@@ -3688,6 +3702,8 @@ def workshopsSearch(request, flag='list'):
       query_filter = query_filter & starts_after_filter
     if ends_before_filter:
       query_filter = query_filter & ends_before_filter
+    if tags_filter:
+      query_filter = query_filter & tags_filter
 
     workshops = workshops.filter(query_filter)
     if registration_open != '':

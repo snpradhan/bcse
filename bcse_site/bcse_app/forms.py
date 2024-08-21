@@ -481,16 +481,21 @@ class BaxterBoxSearchForm(forms.Form):
   def __init__(self, *args, **kwargs):
     initials = kwargs.pop('initials')
     super(BaxterBoxSearchForm, self).__init__(*args, **kwargs)
-    sub_tags = models.Activity.objects.all().values_list('tags', flat=True)
-    tags = models.Tag.objects.all().filter(status='A', sub_tags__id__in=sub_tags)
 
-    for tag in tags:
-      self.fields['tag_'+str(tag.id)] = forms.MultipleChoiceField(
-                                                          required=False,
-                                                          widget=forms.SelectMultiple(),
-                                                          choices=[(sub.id, sub.name) for sub in models.SubTag.objects.all().filter(tag=tag, status='A')],
-                                                      )
-      self.fields['tag_'+str(tag.id)].label = tag.name
+    sub_tag_ids = models.Activity.objects.all().values_list('tags', flat=True)
+    for sub_tag_id in list(sub_tag_ids):
+      if sub_tag_id != None:
+        sub_tag = models.SubTag.objects.get(id=sub_tag_id)
+
+        if sub_tag.status == 'A' and sub_tag.tag.status == 'A':
+
+          self.fields['tag_'+str(sub_tag.tag.id)] = forms.MultipleChoiceField(
+                                                            required=False,
+                                                            widget=forms.SelectMultiple(),
+                                                            choices=[(sub.id, sub.name) for sub in models.SubTag.objects.all().filter(tag=sub_tag.tag, status='A')],
+                                                        )
+          self.fields['tag_'+str(sub_tag.tag.id)].label = sub_tag.tag.name
+
 
 
     for field_name, field in list(self.fields.items()):
@@ -1344,14 +1349,34 @@ class WorkshopsSearchForm(forms.Form):
     self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A').order_by('name')
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
+      self.fields.pop('workshop_category')
       self.fields.pop('status')
       self.fields['sort_by'].initial = 'start_date_asc'
       #setting rows_per_age to 0 will return all the rows without paging
       self.fields['rows_per_page'].initial = 0
 
+    sub_tag_ids = models.Workshop.objects.all().values_list('tags', flat=True)
+
+    for sub_tag_id in list(sub_tag_ids):
+      if sub_tag_id != None:
+        sub_tag = models.SubTag.objects.get(id=sub_tag_id)
+
+        if sub_tag.status == 'A' and sub_tag.tag.status == 'A':
+
+          self.fields['tag_'+str(sub_tag.tag.id)] = forms.MultipleChoiceField(
+                                                            required=False,
+                                                            widget=forms.SelectMultiple(),
+                                                            choices=[(sub.id, sub.name) for sub in models.SubTag.objects.all().filter(tag=sub_tag.tag, status='A')],
+                                                        )
+          self.fields['tag_'+str(sub_tag.tag.id)].label = sub_tag.tag.name
+
+
     for field_name, field in self.fields.items():
       if field_name in ['starts_after', 'ends_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
+      elif 'tag' in field_name:
+        field.widget.attrs['class'] = 'form-control select2'
+        field.widget.attrs['aria-describedby'] = field.label
       else:
         field.widget.attrs['class'] = 'form-control'
 
@@ -1361,6 +1386,8 @@ class WorkshopsSearchForm(forms.Form):
       if initials:
         if field_name in initials:
           field.initial = initials[field_name]
+
+
 
 ####################################
 # Registrants Search Form

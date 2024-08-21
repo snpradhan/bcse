@@ -1,4 +1,4 @@
-<div class="filter_container" {% if user.is_anonymous or user.userProfile.user_role in 'TP' %}style="display:none;" {% endif %}>
+<div class="filter_container">
   <form method="get" action="{% url 'bcse:workshopsSearch' flag %}" id="workshop_filter_form" class="filter_form">
     {% csrf_token %}
     {{searchForm.media}}
@@ -54,6 +54,17 @@
             <div>{{searchForm.keywords}}</div>
             <div class="error">{{ searchForm.keywords.errors }}</div>
           </div>
+        </div>
+        <div class="filter_fields">
+          {% for field in searchForm %}
+            {% if 'tag' in field.name %}
+              <div class="form-group">
+                <label for="id_{{field.name}}">{{ field.label }}</label>
+                <div>{{field}}</div>
+                <div class="error">{{ field.errors }}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
         <div class="filter_fields">
           <div class="form-group">

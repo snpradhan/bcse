@@ -392,6 +392,7 @@ class Workshop (models.Model):
   enable_registration =  models.BooleanField(default=False)
   meetup_link = models.URLField(null=True, blank=True, max_length=500)
   nid = models.IntegerField(null=True, blank=True)#delete this field after import
+  tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
