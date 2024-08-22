@@ -2358,6 +2358,14 @@ def baxterBoxUsageReportSearch(request):
               consumable_usage[reservation_consumable.id]['count'] += reservation_classes
               consumable_usage[reservation_consumable.id]['classes'] += reservation_classes
               consumable_usage[reservation_consumable.id]['students'] += reservation_students
+
+              if reservation_user not in consumable_usage[reservation_consumable.id]['teachers']:
+                consumable_usage[reservation_consumable.id]['teachers'].append(reservation_user)
+
+              if reservation_work_place not in consumable_usage[reservation_consumable.id]['schools']:
+                consumable_usage[reservation_consumable.id]['schools'].append(reservation_work_place)
+
+
               total_usage['consumables'] += reservation_classes
               if reservation_consumable.unit_cost:
                 total_usage['total_consumables_cost'] += reservation_consumable.unit_cost * reservation_classes
