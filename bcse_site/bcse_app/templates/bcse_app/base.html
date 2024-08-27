@@ -361,7 +361,19 @@
         </div>
         <div class="credits">
           <div>
-            <h4 class="credit terms"> <a href="{% url 'bcse:termsOfUse' %}">Terms of Use</a></h4>
+            <h4 class="credit">
+              <a href="mailto:bcse@northwestern.edu" target="_top">
+                <i class="fa-regular fa-envelope fa-2x"></i>
+                <span>bcse@northwestern.edu</span>
+              </a>
+            </h4>
+            <br>
+            <h4 class="credit">
+              <a href="https://maps.app.goo.gl/WEHyQyfEQTHK6x3XA" target="_blank">
+                <i class="fa-solid fa-location-dot fa-2x"></i>
+                <span>640 Colfax St, Evanston, IL 60208</span>
+              </a>
+            </h4>
           </div>
           <div>
             <h4 class="credit"><a href="{% url 'bcse:workshops' 'list' %}">Workshops</a></h4>
@@ -383,6 +395,8 @@
                 <h4 class="credit"><a class="modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:subscribe' %}" href="#">Subscribe</a></h4>
               {% endif %}
             </div>
+            <h4 class="credit terms"> <a href="{% url 'bcse:termsOfUse' %}">Terms of Use</a></h4>
+
           </div>
         </div>
         <div class="credits">
