@@ -37,9 +37,7 @@
             {% endif %}
             <div class="form-group mb-4">
               <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}
-                {% if form.activity.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
+                <span>(<span class="required">*</span>)</span>
               </label>
               <div>{{form.activity}}</div>
               <div class="error">{{ form.activity.errors }}</div>
@@ -746,6 +744,7 @@
               $('select#id_activity').val('').trigger('change');
               $('select#id_activity').prop('disabled', true);
               $('select#id_activity').prop('required', false);
+              $('select#id_activity').closest('.form-group').find('label > span').hide();
               $('input#id_other_activity_name').prop('required', true);
               $('input#id_other_activity_name').closest('.form-group').show();
               $('div.activity_container div.activity.general').hide();
@@ -755,6 +754,7 @@
             else{
               $('select#id_activity').prop('disabled', false);
               $('select#id_activity').prop('required', true);
+              $('select#id_activity').closest('.form-group').find('label > span').show();
               $('input#id_other_activity_name').prop('required', false);
               $('input#id_other_activity_name').closest('.form-group').hide();
               $('div.activity_container div.activity.general').show();
