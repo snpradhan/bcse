@@ -356,7 +356,10 @@ class ActivityForm(ModelForm):
     self.fields['color'].label = 'Inventory Color'
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'tags':
+        field.widget.attrs['class'] = 'form-control select2'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -483,18 +486,18 @@ class BaxterBoxSearchForm(forms.Form):
     super(BaxterBoxSearchForm, self).__init__(*args, **kwargs)
 
     sub_tag_ids = models.Activity.objects.all().values_list('tags', flat=True)
-    for sub_tag_id in list(sub_tag_ids):
-      if sub_tag_id != None:
-        sub_tag = models.SubTag.objects.get(id=sub_tag_id)
+    tag_ids = models.SubTag.objects.all().filter(id__in=list(sub_tag_ids)).values_list('tag', flat=True)
 
-        if sub_tag.status == 'A' and sub_tag.tag.status == 'A':
-
-          self.fields['tag_'+str(sub_tag.tag.id)] = forms.MultipleChoiceField(
-                                                            required=False,
-                                                            widget=forms.SelectMultiple(),
-                                                            choices=[(sub.id, sub.name) for sub in models.SubTag.objects.all().filter(tag=sub_tag.tag, status='A')],
-                                                        )
-          self.fields['tag_'+str(sub_tag.tag.id)].label = sub_tag.tag.name
+    for tag_id in list(set(tag_ids)):
+      tag = models.Tag.objects.get(id=tag_id)
+      if tag.status == 'A':
+        sub_tags = models.SubTag.objects.all().filter(tag=tag, status='A', id__in=list(sub_tag_ids))
+        self.fields['tag_'+str(tag.id)] = forms.MultipleChoiceField(
+                                                required=False,
+                                                widget=forms.SelectMultiple(),
+                                                choices=[(sub.id, sub.name) for sub in sub_tags],
+                                            )
+        self.fields['tag_'+str(tag.id)].label = tag.name
 
 
 
@@ -835,7 +838,7 @@ class WorkshopForm(ModelForm):
           field.widget.attrs['class'] = 'form-control datepicker'
         elif field_name in ['start_time', 'end_time']:
           field.widget.attrs['class'] = 'form-control timepicker'
-        elif field_name in ['teacher_leaders']:
+        elif field_name in ['teacher_leaders', 'tags']:
           field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
@@ -1356,19 +1359,18 @@ class WorkshopsSearchForm(forms.Form):
       self.fields['rows_per_page'].initial = 0
 
     sub_tag_ids = models.Workshop.objects.all().values_list('tags', flat=True)
+    tag_ids = models.SubTag.objects.all().filter(id__in=list(sub_tag_ids)).values_list('tag', flat=True)
 
-    for sub_tag_id in list(sub_tag_ids):
-      if sub_tag_id != None:
-        sub_tag = models.SubTag.objects.get(id=sub_tag_id)
-
-        if sub_tag.status == 'A' and sub_tag.tag.status == 'A':
-
-          self.fields['tag_'+str(sub_tag.tag.id)] = forms.MultipleChoiceField(
-                                                            required=False,
-                                                            widget=forms.SelectMultiple(),
-                                                            choices=[(sub.id, sub.name) for sub in models.SubTag.objects.all().filter(tag=sub_tag.tag, status='A')],
-                                                        )
-          self.fields['tag_'+str(sub_tag.tag.id)].label = sub_tag.tag.name
+    for tag_id in list(set(tag_ids)):
+      tag = models.Tag.objects.get(id=tag_id)
+      if tag.status == 'A':
+        sub_tags = models.SubTag.objects.all().filter(tag=tag, status='A', id__in=list(sub_tag_ids))
+        self.fields['tag_'+str(tag.id)] = forms.MultipleChoiceField(
+                                                required=False,
+                                                widget=forms.SelectMultiple(),
+                                                choices=[(sub.id, sub.name) for sub in sub_tags],
+                                            )
+        self.fields['tag_'+str(tag.id)].label = tag.name
 
 
     for field_name, field in self.fields.items():
