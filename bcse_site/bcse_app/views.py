@@ -6445,7 +6445,7 @@ def surveySubmissionsSearch(request, id=''):
         user_role_filter = Q(user__user_role=user_role)
 
       if work_place:
-        work_place_filter = Q(user__work_place=work_place)
+        work_place_filter = Q(survey_submission_to_work_place__work_place=work_place)
 
       if status:
         status_filter = Q(status=status)
@@ -6717,7 +6717,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
       row = [submission.user.id if submission.user else '',
              submission.user.user.email if submission.user else '',
              submission.user.user.get_full_name() if submission.user else '',
-             submission.user.work_place.name if submission.user and submission.user.work_place else '',
+             submission.survey_submission_to_work_place.first().work_place.name if submission.survey_submission_to_work_place else '',
              connected_entity_name,
              str(submission.UUID),
              submission.ip_address
@@ -6909,6 +6909,9 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
         submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, user=user, ip_address=request.META['REMOTE_ADDR'])
         submission.save()
+        if submission.user and submission.user.work_place:
+          submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
+          submission_work_place.save()
 
       if '' == page_num:
         page_num = 1

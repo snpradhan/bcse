@@ -770,6 +770,15 @@ class SurveySubmission(models.Model):
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
+
+#################################################################
+# Workplace associated with Survey Submission
+#############################################################
+class SurveySubmissionWorkPlace(models.Model):
+  submission = models.ForeignKey(SurveySubmission, unique=True, on_delete=models.CASCADE, related_name='survey_submission_to_work_place')
+  work_place = models.ForeignKey(WorkPlace, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_survey_submission')
+
+
 class SurveyResponse(models.Model):
   submission = models.ForeignKey(SurveySubmission, related_name='survey_response', on_delete=models.CASCADE)
   survey_component = models.ForeignKey(SurveyComponent, related_name='survey_response', on_delete=models.CASCADE)
