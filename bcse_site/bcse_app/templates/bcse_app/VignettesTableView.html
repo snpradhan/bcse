@@ -11,6 +11,7 @@
         <th>Image</th>
         <th>External Link</th>
         <th>Featured?</th>
+        <th>Order</th>
         <th>Status</th>
         <th>Created Date</th>
         <th>Modified Date</th>
@@ -34,6 +35,7 @@
             {% endif %}
           </td>
           <td>{{vignette.featured|yesno}}</td>
+          <td>{{vignette.order}}</td>
           <td>{{vignette.get_status_display}}</td>
           <td>{{vignette.created_date|date:"F j, Y g:i A"}}</td>
           <td>{{vignette.modified_date|date:"F j, Y g:i A"}}</td>

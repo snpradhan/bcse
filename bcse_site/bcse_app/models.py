@@ -824,11 +824,12 @@ class Vignette(models.Model):
   external_link = models.URLField(null=True, blank=True, max_length=2048)
   featured =  models.BooleanField(default=False, help_text='If marked featured, will be displayed on the Teacher Leadership Opportunity page')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
+  order = models.IntegerField(null=False, blank=False)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
-      ordering = ['-id']
+      ordering = ['order']
 
   def __str__(self):
       return '%s' % (self.title)

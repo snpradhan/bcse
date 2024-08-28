@@ -7364,7 +7364,7 @@ def vignettesSearch(request, flag=''):
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
 
-      order_by = 'title'
+      order_by = 'order'
 
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
 
