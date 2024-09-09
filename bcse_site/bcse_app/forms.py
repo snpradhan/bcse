@@ -232,7 +232,7 @@ class UserProfileForm (ModelForm):
     model = models.UserProfile
     fields = ['work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference']
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
                                               attrs={'data-placeholder': 'Start typing the name if your work place ...', 'dropdownparent': '#profile_workplace_select'}),
     }
@@ -341,7 +341,7 @@ class ActivityForm(ModelForm):
     model = models.Activity
     exclude = ('created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
       'inventory': forms.Textarea(attrs={'rows':2}),
       'notes': forms.Textarea(attrs={'rows':2}),
     }
@@ -399,7 +399,7 @@ class ConsumableForm(ModelForm):
     model = models.Consumable
     exclude = ('created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
       'inventory': forms.Textarea(attrs={'rows':2}),
       'notes': forms.Textarea(attrs={'rows':2}),
     }
@@ -519,7 +519,7 @@ class EquipmentTypeForm(ModelForm):
     model = models.EquipmentType
     exclude = ('created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
     }
 
   def __init__(self, *args, **kwargs):
@@ -823,7 +823,7 @@ class WorkshopForm(ModelForm):
     model = models.Workshop
     exclude = ('nid', 'created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
       'display_date': forms.Textarea(attrs={'rows':3}),
     }
 
@@ -954,7 +954,7 @@ class WorkshopCategoryForm(ModelForm):
     model = models.WorkshopCategory
     exclude = ('created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
     }
 
   def __init__(self, *args, **kwargs):
@@ -996,7 +996,7 @@ class TeacherLeaderForm(ModelForm):
     model = models.TeacherLeader
     exclude = ('created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
       'teacher': autocomplete.ModelSelect2(url='teacher-leader-autocomplete', attrs={'data-placeholder': 'Start typing the name of the teacher ...',})
 
     }
@@ -1020,7 +1020,7 @@ class TeamMemberForm(ModelForm):
     model = models.Team
     exclude = ('id', 'created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
     }
 
   def __init__(self, *args, **kwargs):
@@ -1043,7 +1043,7 @@ class PartnerForm(ModelForm):
     model = models.Partner
     exclude = ('id', 'created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
     }
 
   def __init__(self, *args, **kwargs):
@@ -1063,7 +1063,7 @@ class CollaboratorForm(ModelForm):
     model = models.Collaborator
     exclude = ('id', 'created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
     }
 
   def __init__(self, *args, **kwargs):
@@ -1083,7 +1083,7 @@ class HomepageBlockForm(ModelForm):
     model = models.HomepageBlock
     exclude = ('id', 'created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
     }
 
   def __init__(self, *args, **kwargs):
@@ -1239,7 +1239,7 @@ class VignetteForm(ModelForm):
     model = models.Vignette
     exclude = ('id', 'created_date', 'modified_date')
     widgets = {
-      'image': widgets.FileInput,
+      'image': widgets.ClearableFileInput,
       'attachment': widgets.FileInput,
     }
 
