@@ -3551,27 +3551,36 @@ def userRegistration(request, workshop_id, user_id):
 ################################################
 # WORKSHOPS BASE QUERY BEFORE APPLYING FILTERS
 ################################################
-def workshopsBaseQuery(request, flag='list', user_id=''):
+def workshopsBaseQuery(request, extra='', user_id=''):
   """
   workshopsBaseQuery is called from the path 'workshops/list'
   :param request: request from the browser
-  :param flag='list': type of workshop
-  :param user_id='': id of workshop
+  :param extra: extra parameter [my or teacher]
+  :param user_id='': id of the user to get their registered workshops or teacher leader workshops
   :returns: workshop base query
   """
   workshops = None
   if request.user.is_authenticated:
-    if user_id:
-      workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user__id=user_id), ~Q(registration_setting__workshop_registrants__status='N'))
-    elif request.user.userProfile.user_role not in ['A', 'S']:
-      if flag =='list':
-        workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
-      elif flag == 'teacher':
-        workshops = models.Workshop.objects.all().filter(teacher_leaders__teacher=request.user.userProfile)
+    #for admins
+    if request.user.userProfile.user_role in ['A', 'S']:
+      #fetch user workshops to display on user profile
+      if user_id:
+        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user__id=user_id), ~Q(registration_setting__workshop_registrants__status='N'))
+      #fetch all workshops to display on workshops page
       else:
-        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user=request.user.userProfile), ~Q(registration_setting__workshop_registrants__status='N'))
+        workshops = models.Workshop.objects.all()
+    #for non-admins
     else:
-      workshops = models.Workshop.objects.all()
+      #fetch my workshops
+      if extra =='my' or request.user.userProfile.id == user_id:
+        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user=request.user.userProfile), ~Q(registration_setting__workshop_registrants__status='N'))
+      #fetch teacher leader workshops
+      elif extra == 'teacher':
+        workshops = models.Workshop.objects.all().filter(teacher_leaders__teacher=request.user.userProfile)
+      #fetch all active workshops
+      else:
+        workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
+  #for public, fetch all active workshops
   else:
     workshops = models.Workshop.objects.all().filter(status='A', workshop_category__status='A')
 
@@ -3581,11 +3590,13 @@ def workshopsBaseQuery(request, flag='list', user_id=''):
 ################################################
 # VIEW WORKSHOPS
 ################################################
-def workshops(request, flag='list'):
+def workshops(request, display='list', period='current', extra=''):
   """
   workshops is called from the path 'workshops/list'
   :param request: request from the browser
-  :param flag='list': type of workshop
+  :param display: display type [list or table]
+  :param period: workshop period [current, previous or all]
+  :param extra: extra parameter [my, teacher]
   :returns: rendered template 'bcse_app/WorkshopsPublicBaseView.html' or rendered template 'bcse_app/WorkshopsAdminBaseView.html'
   """
   if request.session.get('workshops_search', False):
@@ -3595,38 +3606,25 @@ def workshops(request, flag='list'):
     searchForm = forms.WorkshopsSearchForm(user=request.user, initials=None, prefix="workshop_search")
     page = 1
 
-  context = {'searchForm': searchForm, 'flag': flag, 'page': page}
+  context = {'searchForm': searchForm, 'display': display, 'period': period, 'extra': extra, 'page': page}
   if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
     return render(request, 'bcse_app/WorkshopsAdminBaseView.html', context)
   else:
     return render(request, 'bcse_app/WorkshopsPublicBaseView.html', context)
 
-
-################################################
-# UTILITY FUNCITON TO GET A LIST OF WORKSHOPS
-################################################
-def workshopsList(request, flag, id=''):
-  """
-  workshops is called from the path 'workshops/list'
-  :param request: request from the browser
-  :param flag: type of workshop
-  :param id=''': id of  workshop
-  :returns: view of workshops
-  """
-  workshops = workshopsBaseQuery(request, flag, id)
-  return workshops
-
 ##########################################################
 # FILTER WORKSHOP BASE QUERY BASED ON FILTER CRITERIA
 ##########################################################
-def workshopsSearch(request, flag='list'):
+def workshopsSearch(request, display='list', period='current', extra=''):
   """
   workshopsSearch is called from the path 'workshops/list'
   :param request: request from the browser
-  :param flag='list': type of workshop
+  :param display: display type [list or table]
+  :param period: workshop period [current, previous or all]
+  :param extra: extra parameter [my, teacher]
   :returns: JSON view of workshops with filter applied or error page
   """
-  workshops = workshopsBaseQuery(request, flag)
+  workshops = workshopsBaseQuery(request, extra)
 
   if request.method == 'GET':
 
@@ -3638,6 +3636,7 @@ def workshopsSearch(request, flag='list'):
     registration_filter = None
     status_filter = None
     tags_filter = None
+    filters_applied = False
 
     keywords = request.GET.get('workshop_search-keywords', '')
     starts_after = request.GET.get('workshop_search-starts_after', '')
@@ -3702,16 +3701,22 @@ def workshopsSearch(request, flag='list'):
 
     if keyword_filter:
       query_filter = keyword_filter
+      filters_applied = True
     if status_filter:
       query_filter = query_filter & status_filter
+      filters_applied = True
     if workshop_category_filter:
       query_filter = query_filter & workshop_category_filter
+      filters_applied = True
     if starts_after_filter:
       query_filter = query_filter & starts_after_filter
+      filters_applied = True
     if ends_before_filter:
       query_filter = query_filter & ends_before_filter
+      filters_applied = True
     if tags_filter:
       query_filter = query_filter & tags_filter
+      filters_applied = True
 
     workshops = workshops.filter(query_filter)
     if registration_open != '':
@@ -3722,6 +3727,14 @@ def workshopsSearch(request, flag='list'):
           workshops_with_open_registration.append(workshop.id)
 
       workshops = workshops.filter(id__in=workshops_with_open_registration)
+      filters_applied = True
+
+    if period == 'current':
+      workshops = workshops.filter(featured=False)
+    elif period == 'previous':
+      workshops = workshops.filter(featured=True)
+
+    workshops = workshops.distinct()
 
     order_by = 'start_date'
     direction = request.GET.get('direction') or 'desc'
@@ -3752,10 +3765,10 @@ def workshopsSearch(request, flag='list'):
     sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
     workshops = paginate(request, workshops, sort_order, rows_per_page, page)
 
-    context = {'workshops': workshops, 'tag': 'workshops', 'flag': flag}
+    context = {'workshops': workshops, 'tag': 'workshops', 'display': display, 'period': period, 'extra': extra, 'filters_applied': filters_applied}
     response_data = {}
     response_data['success'] = True
-    if flag == 'list':
+    if display == 'list':
       response_data['html'] = render_to_string('bcse_app/WorkshopsListView.html', context, request)
     else:
       response_data['html'] = render_to_string('bcse_app/WorkshopsTableView.html', context, request)
@@ -4258,7 +4271,7 @@ def userProfileView(request, id=''):
       raise CustomException('You do not have the permission to view this user profile')
 
     if request.method == 'GET':
-      workshops = workshopsList(request, 'table', id)
+      workshops = workshopsBaseQuery(request, '', id)
       reservations = reservationsList(request, id)
       context = {'userProfile': userProfile, 'workshops': workshops, 'reservations': reservations}
 

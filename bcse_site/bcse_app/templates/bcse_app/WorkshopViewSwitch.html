@@ -1,15 +1,9 @@
 <div id="workshops_view">
   {% if tag == 'workshops' %}
-    {% if flag == 'list' %}
-      <a class="btn" href="{% url 'bcse:workshops' 'table' %}" role="button">Switch to Table View</a>
+    {% if display == 'list' %}
+      <a class="btn" href="{% url 'bcse:workshops' 'table' period %}" role="button">Switch to Table View</a>
     {% else %}
-      <a class="btn" href="{% url 'bcse:workshops' 'list' %}" role="button">Switch to List View</a>
-    {% endif %}
-  {% else %}
-    {% if flag == 'list' %}
-      <a class="btn" href="{% url 'bcse:studentPrograms' 'table' %}" role="button">Switch to Table View</a>
-    {% else %}
-      <a class="btn" href="{% url 'bcse:studentPrograms' 'list' %}" role="button">Switch to List View</a>
+      <a class="btn" href="{% url 'bcse:workshops' 'list' period %}" role="button">Switch to List View</a>
     {% endif %}
   {% endif %}
 </div>

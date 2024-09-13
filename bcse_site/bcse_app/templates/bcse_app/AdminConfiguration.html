@@ -34,7 +34,7 @@
                   {% leftnavactive request 'workshopsRegistrants' %}" id="workshop_config">
 
                 <li class="{% if 'workshops' in request.path or  'workshop/' in request.path %} active {% endif %}">
-                  <a href="{% url 'bcse:workshops' 'table' %}">Workshops</a>
+                  <a href="{% url 'bcse:workshops' 'table' 'current' %}">Workshops</a>
                 </li>
                 <li class="{% if 'workshopCategories' in request.path or  'workshopCategory' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:workshopCategories' %}">Workshop Categories</a>

@@ -390,6 +390,7 @@ class Workshop (models.Model):
   display_date = models.TextField(null=True, blank=True, help_text='For multi-day workshop, enter start and end times for each day')
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
   enable_registration =  models.BooleanField(default=False)
+  featured =  models.BooleanField(default=False)
   meetup_link = models.URLField(null=True, blank=True, max_length=500)
   nid = models.IntegerField(null=True, blank=True)#delete this field after import
   tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')

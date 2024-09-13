@@ -5,4 +5,10 @@
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:allWorkshopsRegistrantsUpload' %}">Upload Participants</a>
     {% include "bcse_app/WorkshopViewSwitch.html" %}
   </div>
+{% elif user.is_authenticated and user.userProfile.user_role in 'TP' %}
+  {% if extra == 'my' or extra == 'teacher' %}
+    <div class="right mb-3">
+      <button class="btn export_workshops" type="button">Export Workshops</button>
+    </div>
+  {% endif %}
 {% endif %}

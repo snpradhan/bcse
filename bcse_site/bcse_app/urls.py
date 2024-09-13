@@ -39,8 +39,12 @@ urlpatterns = [
     path('workshop/<int:workshop_id>/registration/<int:id>/delete', views.workshopRegistrationDelete, name='workshopRegistrationDelete'),
     path('workshop/<int:workshop_id>/registration/<int:id>/cancel', views.workshopRegistrationCancel, name='workshopRegistrationCancel'),
     path('workshop/<int:workshop_id>/registration/questionnaire', views.workshopRegistrationQuestionnaire, name='workshopRegistrationQuestionnaire'),
-    path('workshops/<str:flag>', views.workshops, name='workshops'),
-    path('workshops/search/<str:flag>', views.workshopsSearch, name='workshopsSearch'),
+
+    path('workshops/search/<str:display>/<str:period>/', views.workshopsSearch, name='workshopsSearch'),
+    path('workshops/search/<str:display>/<str:period>/<str:extra>/', views.workshopsSearch, name='workshopsSearchExtra'),
+    path('workshops/<str:display>/<str:period>/', views.workshops, name='workshops'),
+    path('workshops/<str:display>/<str:period>/<str:extra>/', views.workshops, name='workshopsExtra'),
+
     path('signin/', views.userSignin, name='signin'),
     path('signin_redirect/', views.signinRedirect, name='signinRedirect'),
     path('signin/<str:user_email>/', views.userSignin, name='signin'),

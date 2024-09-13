@@ -7,9 +7,9 @@
   <div class="content">
     <div class="workshops_container container">
        <h1 class="center">
-        {% if user.is_authenticated and user.userProfile.user_role in 'TP' and flag == 'table' %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'TP' and extra == 'my' %}
           My Workshops
-        {% elif user.is_authenticated and user.userProfile.user_role in 'TP' and flag == 'teacher' %}
+        {% elif user.is_authenticated and user.userProfile.user_role in 'TP' and extra == 'teacher' %}
           My Workshop Registrants
         {% else %}
           Workshops
@@ -25,11 +25,15 @@
         {% endif %}
         to find materials presented at previous workshops.</p>
       </div>
-      {% include "bcse_app/WorkshopsSearch.html" %}
+      {% if not extra %}
+        {% include "bcse_app/WorkshopsTabs.html" %}
+      {% endif %}
+
+      {% include "bcse_app/WorkshopsPublicSearch.html" %}
       <div class="form-group" id="spinner">
         <img src="/static/img/page-loader.gif" class="icon"/>
       </div>
-      <div class="workshops search_results {{flag}}">
+      <div class="workshops search_results {{display}}">
       </div>
     </div>
   </div>

@@ -107,28 +107,34 @@
                 <li class="nav-item {% navactive request 'bcse:home' %}">
                   <a class="nav-link" aria-current="page" href="{% url 'bcse:home' %}">Home</a>
                 </li>
-                <li class="nav-item dropdown {% navactive request 'bcse:workshops' 'list' %}
-                                             {% navactive request 'bcse:workshops' 'table' %}
+                <li class="nav-item dropdown {% navactive request 'bcse:workshops' 'list' 'current' %}
+                                             {% navactive request 'bcse:workshops' 'list' 'previous' %}
+                                             {% navactive request 'bcse:workshops' 'table' 'current' %}
+                                             {% navactive request 'bcse:workshops' 'table' 'previous' %}
+                                             {% navactive request 'bcse:workshopsExtra' 'table' 'all' 'my' %}
+                                             {% navactive request 'bcse:workshopsExtra' 'table' 'all' 'teacher' %}
                                              {% navactive request 'bcse:workshopsRegistrants' %}
                                              {% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}
                                              {% navactive request 'bcse:standalonePageAliasView' 'ret' %}">
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">For Teachers</a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-                      <li class="{% navactive request 'bcse:workshops' 'list' %} {% navactive request 'bcse:workshops' 'table' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
-                    {% else %}
-                      <li class="{% navactive request 'bcse:workshops' 'list' %}"><a class="dropdown-item" href="{% url 'bcse:workshops' 'list' %}">Workshops</a></li>
-                    {% endif %}
+                    <li class="{% navactive request 'bcse:workshops' 'list' 'current' %}
+                               {% navactive request 'bcse:workshops' 'table' 'current' %}
+                               {% navactive request 'bcse:workshops' 'list' 'previous' %}
+                               {% navactive request 'bcse:workshops' 'table' 'previous' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:workshops' 'list' 'current' %}">Workshops</a>
+                    </li>
+
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
                     <li class="{% navactive request 'bcse:teacherLeadershipOpportunities' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
-                      <li class="{% navactive request 'bcse:workshops' 'table' %}">
-                        <a class="dropdown-item" href="{% url 'bcse:workshops' 'table' %}">My Workshops</a>
+                      <li class="{% navactive request 'bcse:workshopsExtra' 'table' 'all' 'my' %}">
+                        <a class="dropdown-item" href="{% url 'bcse:workshopsExtra' 'table' 'all' 'my' %}">My Workshops</a>
                       </li>
                       {% if user.userProfile|is_teacher_leader %}
-                        <li class="{% navactive request 'bcse:workshops' 'teacher' %}">
-                          <a class="dropdown-item" href="{% url 'bcse:workshops' 'teacher' %}">My Workshop Registrants</a>
+                        <li class="{% navactive request 'bcse:workshopsExtra' 'table' 'all' 'teacher' %}">
+                          <a class="dropdown-item" href="{% url 'bcse:workshopsExtra' 'table' 'all' 'teacher' %}">My Workshop Registrants</a>
                         </li>
                       {% endif %}
                     {% endif %}
@@ -376,7 +382,7 @@
             </h4>
           </div>
           <div>
-            <h4 class="credit"><a href="{% url 'bcse:workshops' 'list' %}">Workshops</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:workshops' 'list' 'current' %}">Workshops</a></h4>
             <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></h4>
             <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></h4>
             <h4 class="credit"><a href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></h4>

@@ -124,6 +124,11 @@
         <div class="error">{{ form.tags.errors }}</div>
       </div>
       <div class="form-group mb-3">
+        <label for="id_{{form.featured.name}}" class="form-label"> {{form.featured.label|title}}</label>
+        <div>{{form.featured}}</div>
+        <div class="error">{{ form.featured.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
         <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
         <div>{{form.status}}</div>
         <div class="error">{{ form.status.errors }}</div>

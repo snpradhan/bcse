@@ -833,7 +833,7 @@ class WorkshopForm(ModelForm):
     self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A').order_by('name')
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['enable_registration']:
+      if field_name not in ['enable_registration', 'featured']:
         if field_name in ['start_date', 'end_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
         elif field_name in ['start_time', 'end_time']:
@@ -1353,6 +1353,9 @@ class WorkshopsSearchForm(forms.Form):
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('workshop_category')
+      self.fields.pop('starts_after')
+      self.fields.pop('ends_before')
+      self.fields.pop('registration_open')
       self.fields.pop('status')
       self.fields['sort_by'].initial = 'start_date_asc'
       #setting rows_per_age to 0 will return all the rows without paging

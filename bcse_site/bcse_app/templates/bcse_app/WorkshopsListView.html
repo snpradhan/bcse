@@ -2,9 +2,7 @@
 
 {% now 'Y-m-d' as current_date %}
 {% if workshops %}
-  {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-    {% include "bcse_app/Pagination.html" with model=workshops %}
-  {% endif %}
+  {% include "bcse_app/Pagination.html" with model=workshops %}
   {% for workshop in workshops %}
     {% get_registration workshop.id as registration %}
     <div class="workshop_container">
@@ -77,9 +75,7 @@
       </div>
     </div>
   {% endfor %}
-  {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
-    {% include "bcse_app/Pagination.html" with model=workshops %}
-  {% endif %}
+  {% include "bcse_app/Pagination.html" with model=workshops %}
 {% else %}
   {% include "bcse_app/WorkshopsNotFound.html" %}
 {% endif %}
