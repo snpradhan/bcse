@@ -1213,6 +1213,25 @@ body {
 
         .details {
           flex: 0 0 45%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+
+          .tags {
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5em;
+            bottom: 2em;
+
+
+            & > div {
+              background-color: @nu-mid-purple;
+              color: white;
+              padding: 0.2em 0.5em;
+              border-radius: 0.5em;
+            }
+          }
         }
         .date_location {
           flex: 0 0 30%;

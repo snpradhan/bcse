@@ -15,8 +15,15 @@
     {% endif %}
   </div>
   <div class="details">
-    <h2>{{workshop.name}}</h2>
-    <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
+    <div>
+      <h2>{{workshop.name}}</h2>
+      <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
+    </div>
+    <div class="tags">
+      {% for subtag in workshop.tags.all|dictsort:"name" %}
+        <div>{{subtag.name}}</div>
+      {% endfor %}
+    </div>
   </div>
   <div class="date_location">
     {% if workshop.display_date %}
