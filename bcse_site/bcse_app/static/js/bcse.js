@@ -134,10 +134,7 @@ $(function (){
 
   });
 
-  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl)
-  });
+
 
   $(window).on('resize', function(){
     paginationPadding();
@@ -153,10 +150,18 @@ $(function (){
   bindWarningAction();
   bindUseAjax();
   bindSelect2();
+  bindTooltipTrigger();
 
 });
 
 var timeout = null;
+
+function bindTooltipTrigger() {
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  });
+}
 
 function bindRegistrationSubmit(){
   $('.registration_submit').unbind('click');

@@ -390,7 +390,7 @@ class Workshop (models.Model):
   display_date = models.TextField(null=True, blank=True, help_text='For multi-day workshop, enter start and end times for each day')
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
   enable_registration =  models.BooleanField(default=False)
-  featured =  models.BooleanField(default=False)
+  featured =  models.BooleanField(default=False, help_text='If marked "Featured", this workshop will be displayed under "Previous Workshops" tab')
   meetup_link = models.URLField(null=True, blank=True, max_length=500)
   nid = models.IntegerField(null=True, blank=True)#delete this field after import
   tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
@@ -832,7 +832,7 @@ class Vignette(models.Model):
   blurb = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this vignette')
   external_link = models.URLField(null=True, blank=True, max_length=2048)
-  featured =  models.BooleanField(default=False, help_text='If marked featured, will be displayed on the Teacher Leadership Opportunity page')
+  featured =  models.BooleanField(default=False, help_text='If marked "Featured", this vignette will be displayed on the "Teacher Leadership Opportunities" page')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   order = models.IntegerField(null=False, blank=False)
   created_date = models.DateTimeField(auto_now_add=True)

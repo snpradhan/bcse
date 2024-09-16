@@ -9,6 +9,7 @@ function bindModalOpen() {
       if($(parentModal).length){
         $(parentModal).hide();
       }
+      bindTooltipTrigger();
     });
   });
 }

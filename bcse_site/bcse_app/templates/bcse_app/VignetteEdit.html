@@ -69,6 +69,7 @@
         <div class="form-group mb-3">
           <label for="id_{{form.featured.name}}" class="form-label">
             {{ form.featured.label }}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.featured.help_text}}"></i>
             {% if form.featured.field.required %}
               (<span class="required">*</span>)
             {% endif %}
