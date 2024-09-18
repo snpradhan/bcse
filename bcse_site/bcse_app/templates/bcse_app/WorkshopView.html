@@ -57,13 +57,9 @@
     {% if workshop.teacher_leaders.all %}
       <div class="location">
         <i class="far fa-fw fa-person-chalkboard" aria-hidden="true" title="Workshop Facilitator(s)"></i>
-        <div>{% for facilitator in workshop.teacher_leaders.all %}
-          {{facilitator}}
-            {% if not forloop.last %}
-            ,
-            {% endif %}
-         {% endfor %}
-        </div>
+        {% for facilitator in workshop.teacher_leaders.all %}
+          {{facilitator}}{% if not forloop.last %},{% endif %}
+        {% endfor %}
       </div>
     {% endif %}
     <div class="workshop_registration">
