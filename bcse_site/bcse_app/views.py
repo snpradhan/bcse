@@ -588,7 +588,7 @@ def userSignup(request):
     response_data = {}
 
     form = forms.SignUpForm(user=request.user, files=request.FILES, data=request.POST)
-    work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, prefix="work_place")
+    work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, prefix='work_place')
 
     if form.is_valid():
       # checking for bot signup
@@ -4306,6 +4306,7 @@ def userProfileEdit(request, id=''):
   try:
     if '' != id:
       userProfile = models.UserProfile.objects.get(id=id)
+      work_place = models.WorkPlace()
     else:
       raise models.UserProfile.DoesNotExist
 
@@ -4315,11 +4316,13 @@ def userProfileEdit(request, id=''):
 
     if request.method == 'GET':
       userForm = forms.UserForm(instance=userProfile.user, user=request.user, prefix="user")
+      work_place_form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
+
       if request.user.userProfile.user_role != 'A' and request.user.userProfile.work_place.status == 'I':
         userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile", initial={'work_place': None})
       else:
         userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile")
-      context = {'userProfileForm': userProfileForm, 'userForm': userForm}
+      context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form}
 
       #if asking user to update their profile on login
       if settings.VERIFY_PROFILE_ON_LOGIN:
@@ -4350,12 +4353,32 @@ def userProfileEdit(request, id=''):
 
       userForm = forms.UserForm(data, instance=userProfile.user, user=request.user, prefix='user')
       userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile")
-      print(request.FILES)
+      work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, prefix='work_place')
+
       response_data = {}
 
       if userForm.is_valid(userProfile.user.id) and userProfileForm.is_valid():
-        userForm.save()
-        savedUserProfile = userProfileForm.save()
+
+        savedUser = userForm.save(commit=False)
+        savedUserProfile = userProfileForm.save(commit=False)
+
+        new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
+        if new_work_place_flag:
+          if work_place_form.is_valid():
+            #create a new school entry
+            new_work_place = work_place_form.save(commit=False)
+            new_work_place.save()
+            savedUserProfile.work_place = new_work_place
+          else:
+            print(work_place_form.errors)
+            context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form}
+            response_data['success'] = False
+            response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
+            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+        savedUser.save()
+        savedUserProfile.save()
+
 
         new_password = savedUserProfile.user.password
         if request.user.id == userProfile.user.id and new_password != old_password:
@@ -4379,7 +4402,7 @@ def userProfileEdit(request, id=''):
       else:
         print(userForm.errors)
         print(userProfileForm.errors)
-        context = {'userProfileForm': userProfileForm, 'userForm': userForm}
+        context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form}
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
 
@@ -5451,12 +5474,12 @@ def workPlaceEdit(request, id=''):
       work_place = models.WorkPlace()
 
     if request.method == 'GET':
-      form = forms.WorkPlaceForm(instance=work_place)
+      form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
       context = {'form': form}
       return render(request, 'bcse_app/WorkPlaceEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.WorkPlaceForm(data, instance=work_place)
+      form = forms.WorkPlaceForm(data, instance=work_place, prefix='work_place')
       response_data = {}
       if form.is_valid():
         savedWorkPlace = form.save()

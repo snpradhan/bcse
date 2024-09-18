@@ -75,11 +75,30 @@
             <div class="error">{{ userProfileForm.grades_taught.errors }}</div>
           </div>
         </div>
-        <div class="form-group mb-3">
-          <label for="id_{{userProfileForm.work_place.name}}" class="form-label"> {{userProfileForm.work_place.label|title}} (<span class="required">*</span>)</label>
-          <div id="profile_workplace_select">{{userProfileForm.work_place}}</div>
-          <div class="error">{{ userProfileForm.work_place.errors }}</div>
+
+        <div class="row mb-3">
+          <div class="form-group col-md-8">
+            <label for="id_{{userProfileForm.work_place.name}}">
+              {{ userProfileForm.work_place.label|title }}
+              <span class="workplace_required">(<span class="required">*</span>)</span>
+            </label>
+            <div id="profile_workplace_select">{{userProfileForm.work_place}}</div>
+            <div class="error work_place_error">{{ userProfileForm.work_place.errors }}</div>
+          </div>
+          <div class="form-group col-md-4">
+            <label for="id_{{userProfileForm.new_work_place_flag.name}}">
+              {{ userProfileForm.new_work_place_flag.label|title }}
+              {% if userProfileForm.new_work_place_flag.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{userProfileForm.new_work_place_flag}}</div>
+            <div class="error">{{ userProfileForm.new_work_place_flag.errors }}</div>
+          </div>
         </div>
+
+        {% include "bcse_app/WorkPlace.html" with work_place_form=work_place_form source='userProfile' %}
+
         <div class="row mb-3">
           <div class="form-group col-md-4">
             <label for="id_{{userProfileForm.twitter_handle.name}}" class="form-label"> {{userProfileForm.twitter_handle.label}}</label>
@@ -143,6 +162,9 @@
           </label>
           <div class="error">{{ userForm.is_active.errors }}</div>
         </div>
+        <div class="form-group" id="spinner">
+          <img src="/static/img/page-loader.gif" class="icon"/>
+        </div>
       </div>
       <div class="modal-footer">
         <div class="form-group buttons">
@@ -165,6 +187,25 @@
         $('.school_related').hide();
       }
     });
+
+    $('input[name="user_profile-new_work_place_flag"]').on('change', function(){
+      if($(this).is(':checked')){
+        $('select#id_user_profile-work_place').prop('disabled', 'disabled');
+        $('span.workplace_required').hide();
+        $('div#work_place_form').show();
+        $('div#work_place_form :input').prop('disabled', false);
+        $('div.work_place_error').html('');
+      }
+      else {
+        $('div#work_place_form').hide();
+        $('div#work_place_form :input').prop('disabled', true);
+        $('span.workplace_required').show();
+        $('select#id_user_profile-work_place').prop('disabled', false);
+      }
+
+    });
+    $('input[name="user_profile-new_work_place_flag"]').trigger('change');
+
     $('select[name="user_profile-user_role"]').trigger('change');
 
     $('#formUserProfile').submit(function(e){
@@ -179,6 +220,12 @@
         cache:false,
         contentType: false,
         processData: false,
+        beforeSend: function(){
+          $('#formUserProfile #spinner').show();
+        },
+        complete: function(){
+          $('#formUserProfile #spinner').hide();
+        },
         success: function(data, status) {
           console.log(status);
           if(data['success'] == true){

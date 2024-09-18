@@ -1,0 +1,113 @@
+<div class="mb-3 {{source}}" id="work_place_form" {% if source != 'workPlaceEdit' %}style="display: none;"{%endif%}>
+  <div class="form-group mb-3">
+    <label for="id_{{work_place_form.work_place_type.name}}">
+      {{ work_place_form.work_place_type.label|title }}
+      {% if work_place_form.work_place_type.field.required %}
+        (<span class="required">*</span>)
+      {% endif %}
+    </label>
+    <div>{{work_place_form.work_place_type}}</div>
+    <div class="error">{{ work_place_form.work_place_type.errors }}</div>
+  </div>
+  <div class="form-group mb-3">
+    <label for="id_{{work_place_form.name.name}}">
+      {{ work_place_form.name.label|title }}
+      {% if work_place_form.name.field.required %}
+        (<span class="required">*</span>)
+      {% endif %}
+    </label>
+    <div>{{work_place_form.name}}</div>
+    <div class="error">{{ work_place_form.name.errors }}</div>
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="id_{{work_place_form.district_number.name}}">
+      {{ work_place_form.district_number.label|title }}
+      {% if work_place_form.district_number.field.required %}
+        (<span class="required">*</span>)
+      {% endif %}
+    </label>
+    <div>{{work_place_form.district_number}}</div>
+    <div class="error">{{ work_place_form.district_number.errors }}</div>
+  </div>
+  <div class="row mb-3">
+    <div class="form-group col-md-6">
+      <label for="id_{{work_place_form.street_address_1.name}}">
+        {{ work_place_form.street_address_1.label|title }}
+        {% if work_place_form.street_address_1.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.street_address_1}}</div>
+      <div class="error">{{ work_place_form.street_address_1.errors }}</div>
+    </div>
+    <div class="form-group col-md-6">
+      <label for="id_{{work_place_form.street_address_2.name}}">
+        {{ work_place_form.street_address_2.label|title }}
+        {% if work_place_form.street_address_2.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.street_address_2}}</div>
+      <div class="error">{{ work_place_form.street_address_2.errors }}</div>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="form-group col-md-4">
+      <label for="id_{{work_place_form.city.name}}">
+        {{ work_place_form.city.label }}
+        {% if work_place_form.city.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.city}}</div>
+      <div class="error">{{ work_place_form.city.errors }}</div>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="id_{{work_place_form.state.name}}">
+        {{ work_place_form.state.label }}
+        {% if work_place_form.state.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.state}}</div>
+      <div class="error">{{ work_place_form.state.errors }}</div>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="id_{{work_place_form.zip_code.name}}">
+        {{ work_place_form.zip_code.label|title }}
+        {% if work_place_form.zip_code.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.zip_code}}</div>
+      <div class="error">{{ work_place_form.zip_code.errors }}</div>
+    </div>
+  </div>
+  <div class="form-group mb-3" {% if source != 'workPlaceEdit' %}style="display: none;"{%endif%}>
+    <label for="id_{{work_place_form.status.name}}">
+      {{ work_place_form.status.label }}
+      {% if work_place_form.status.field.required %}
+      (<span class="required">*</span>)
+      {% endif %}
+    </label>
+    <div>{{work_place_form.status}}</div>
+    <div class="error">{{ work_place_form.status.errors }}</div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  $(function (){
+    $('select[name="work_place-work_place_type"]').on('change', function(){
+      if($(this).val() == "S"){
+        $('input[name="work_place-district_number"]').closest('.form-group').show();
+      }
+      else{
+        $('input[name="work_place-district_number"]').closest('.form-group').hide();
+      }
+    });
+
+    $('select[name="work_place-work_place_type"]').trigger('change');
+  });
+</script>

@@ -228,6 +228,8 @@ class UserForm(ModelForm):
 ####################################
 class UserProfileForm (ModelForm):
 
+  new_work_place_flag = forms.BooleanField(required=False, label='My Work Place Is Not Listed')
+
   class Meta:
     model = models.UserProfile
     fields = ['work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference']
@@ -239,7 +241,7 @@ class UserProfileForm (ModelForm):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
-
+    self.user = user
     super(UserProfileForm, self).__init__(*args, **kwargs)
     self.fields['twitter_handle'].label = 'Twitter ID'
     self.fields['instagram_handle'].label = 'Instagram ID'
@@ -249,16 +251,30 @@ class UserProfileForm (ModelForm):
       if user.userProfile.user_role not in ['A', 'S']:
         self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
         self.fields.pop('photo_release_complete')
-      else:
-        self.fields['work_place'].required = False
+
+      self.fields['work_place'].required = False
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['subscribe', 'photo_release_complete']:
+      if field_name not in ['new_work_place_flag', 'subscribe', 'photo_release_complete']:
         field.widget.attrs['class'] = 'form-control'
       else:
         field.widget.attrs['class'] = 'form-check-input'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+  def clean(self):
+    user = self.user
+    cleaned_data = super(UserProfileForm, self).clean()
+    work_place = cleaned_data.get('work_place')
+    new_work_place_flag = cleaned_data.get('new_work_place_flag')
+
+    #check fields for Teacher, Student and School Administrator
+    if user.is_authenticated:
+      if user.userProfile.user_role not in ['A', 'S']:
+        if work_place is None and not new_work_place_flag:
+          self.fields['work_place'].widget.attrs['class'] += ' error'
+          self.add_error('work_place', 'Work Place is required.')
+
 
 
 ####################################
@@ -979,6 +995,8 @@ class WorkPlaceForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
+      if field_name == 'name':
+        field.label = 'Work Place Name'
       if field_name == 'district_number':
         field.label = 'District #'
 
