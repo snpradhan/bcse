@@ -3599,9 +3599,9 @@ def workshops(request, display='list', period='current', extra=''):
   :param extra: extra parameter [my, teacher]
   :returns: rendered template 'bcse_app/WorkshopsPublicBaseView.html' or rendered template 'bcse_app/WorkshopsAdminBaseView.html'
   """
-  if request.session.get('workshops_search', False):
-    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=request.session['workshops_search'], prefix="workshop_search")
-    page = request.session['workshops_search']['page']
+  if request.session.get('workshops_search_%s_%s'%(period, extra), False):
+    searchForm = forms.WorkshopsSearchForm(user=request.user, initials=request.session['workshops_search_%s_%s'%(period, extra)], prefix="workshop_search")
+    page = request.session['workshops_search_%s_%s'%(period, extra)]['page']
   else:
     searchForm = forms.WorkshopsSearchForm(user=request.user, initials=None, prefix="workshop_search")
     page = 1
@@ -3668,7 +3668,7 @@ def workshopsSearch(request, display='list', period='current', extra=''):
         workshop_search_vars['tag_'+str(tag.id)] = sub_tags
         tags.append(sub_tags)
 
-    request.session['workshops_search'] = workshop_search_vars
+    request.session['workshops_search_%s_%s'%(period, extra)] = workshop_search_vars
 
     if keywords:
       keyword_filter = Q(name__icontains=keywords) | Q(sub_title__icontains=keywords)
