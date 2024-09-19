@@ -153,8 +153,8 @@ class SignUpForm (forms.Form):
 # User Form
 ####################################
 class UserForm(ModelForm):
-  password1 = forms.CharField(widget=forms.PasswordInput, required=False, label='Password', help_text="Leave this field blank to retain old password")
-  password2 = forms.CharField(widget=forms.PasswordInput, required=False, label='Confirm Password')
+  password1 = forms.CharField(required=False, label='Password', help_text="Leave this field blank to retain old password")
+  password2 = forms.CharField(required=False, label='Confirm Password')
 
   class Meta:
     model = models.User
@@ -172,7 +172,10 @@ class UserForm(ModelForm):
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['is_active']:
-        field.widget.attrs['class'] = 'form-control'
+        if field_name in ['password1', 'password2']:
+          field.widget.attrs['class'] = 'form-control password'
+        else:
+          field.widget.attrs['class'] = 'form-control'
       else:
         field.widget.attrs['class'] = 'form-check-input'
       field.widget.attrs['aria-describedby'] = field.label
