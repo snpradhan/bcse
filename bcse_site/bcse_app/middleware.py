@@ -77,6 +77,8 @@ class NextParameterMiddleware(MiddlewareMixin):
       target = '#profile'
     elif redirect_url.find('activity') == 1:
       target = '#kit'
+    elif redirect_url.find('subscribe') == 1:
+      target = '#general'
 
     if request.user.is_authenticated and redirect_url.find('signin') == 1 and redirect_url.find('survey') > 1:
       redirect_url = redirect_url.replace('/signin/?next=/?next=', '')
