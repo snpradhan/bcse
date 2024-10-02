@@ -108,6 +108,16 @@
         <div class="error">{{ form.location.errors }}</div>
       </div>
       <div class="form-group mb-3">
+        <label for="id_{{form.perks.name}}" class="form-label"> {{form.perks.label|title}}</label>
+        <div>{{form.perks}}</div>
+        <div class="error">{{ form.perks.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label for="id_{{form.credits.name}}" class="form-label"> {{form.credits.label}}</label>
+        <div>{{form.credits}}</div>
+        <div class="error">{{ form.credits.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
         <label for="id_{{form.enable_registration.name}}" class="form-label"> {{form.enable_registration.label|title}}</label>
         <div>{{form.enable_registration}}</div>
         <div class="error">{{ form.enable_registration.errors }}</div>
