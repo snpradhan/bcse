@@ -73,7 +73,7 @@
           <label><a class="nav-link" aria-current="page" id="equipment_tab">Lab Equipment</a></label>
         </li>
       </ul>
-      <div class="filter_container">
+      <div class="filter_container {% if searchForm.fields|length > 0 %}show{% endif %}">
         <form method="get" action="{% url 'bcse:baxterBoxSearch' %}" id="baxter_box_filter_form" class="filter_form">
           {% csrf_token %}
           <div class="form-group right" id="filter_toggle">
@@ -157,7 +157,8 @@
             $('.baxter_boxes').show();
             $('.tiles.activity_tiles').show();
             $('input#current_tab').val('activities_tab')
-            $('.filter_container').show();
+            $('.filter_container').hide();
+            $('.filter_container.show').show();
           });
           $('a#equipment_tab').on('click', function(e){
             $('a.nav-link').removeClass('active');
