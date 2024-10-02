@@ -2800,22 +2800,120 @@ def workshopCategoryDelete(request, id=''):
 @login_required
 def workshopCategories(request):
   """
-  workshopCategoryDelete is called from the path 'workshopCategories'
+  workshopCategories is called from the path 'adminConfiguration/workshopCategories/'
   :param request: request from the browser
-  :returns: rendered template 'bcse_app/BaxterBoxCategories.html', a page to view all categories of workshops
+  :returns: rendered template 'bcse_app/WorkshopCategories.html', a page to view all categories of workshops
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view workshop categories')
 
-    workshop_categories = models.WorkshopCategory.objects.all().order_by('name')
-    context = {'workshop_categories': workshop_categories}
+    if request.session.get('workshop_categories_search', False):
+      searchForm = forms.WorkshopCategoriesSearchForm(user=request.user, initials=request.session['workshop_categories_search'], prefix="workshop_category_search")
+      page = request.session['workshop_categories_search']['page']
+    else:
+      searchForm = forms.WorkshopCategoriesSearchForm(user=request.user, initials=None, prefix="workshop_category_search")
+      page = 1
+
+    context = {'searchForm': searchForm, 'page': page}
     return render(request, 'bcse_app/WorkshopCategories.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# FILTER WORKSHOP CATEGORIES BASED ON FILTER CRITERIA
+##########################################################
+def workshopCategoriesSearch(request):
+  """
+  workshopCatgoriesSearch is called from the path 'workshopCategories'
+  :param request: request from the browser
+  :returns: JSON object with a rendered template of search results
+  """
+
+  if request.method == 'GET':
+
+    query_filter = Q()
+    name_filter = None
+    workshop_type_filter = None
+    keyword_filter = None
+    status_filter = None
+
+    name = request.GET.get('workshop_category_search-name', '')
+    keywords = request.GET.get('workshop_category_search-keywords', '')
+    workshop_types = request.GET.getlist('workshop_category_search-workshop_type', '')
+    status = request.GET.get('workshop_category_search-status', '')
+    sort_by = request.GET.get('workshop_category_search-sort_by', '')
+    rows_per_page = request.GET.get('workshop_category_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+    page = request.GET.get('page', '')
+
+    #set session variable
+    workshop_category_search_vars = {
+      'name': name,
+      'keywords': keywords,
+      'workshop_types': workshop_types,
+      'status': status,
+      'sort_by': sort_by,
+      'rows_per_page': rows_per_page,
+      'page': page
+    }
+
+    request.session['workshop_categories_search'] = workshop_category_search_vars
+
+    if keywords:
+      keyword_filter = Q(name__icontains=keywords)
+      keyword_filter = keyword_filter | Q(description__icontains=keywords)
+
+    if name:
+      name_filter = Q(name__icontains=name)
+
+    if status:
+      status_filter = Q(status=status)
+
+    if workshop_types:
+      workshop_type_filter = Q(workshop_type__in=workshop_types)
+
+    if keyword_filter:
+      query_filter = keyword_filter
+    if status_filter:
+      query_filter = query_filter & status_filter
+    if name_filter:
+      query_filter = query_filter & name_filter
+    if workshop_type_filter:
+      query_filter = query_filter & workshop_type_filter
+
+
+    workshop_categories = models.WorkshopCategory.objects.all().filter(query_filter).distinct()
+
+    order_by = 'name'
+    direction = request.GET.get('direction') or 'desc'
+    ignorecase = request.GET.get('ignorecase') or 'false'
+    if sort_by:
+      if sort_by == 'name':
+        order_by = 'name'
+        direction = 'asc'
+        ignorecase = 'true'
+      elif sort_by == 'type':
+        order_by = 'workshop_type'
+        direction = 'desc'
+        ignorecase = 'false'
+
+
+    sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+    workshop_categories = paginate(request, workshop_categories, sort_order, rows_per_page, page)
+
+    context = {'workshop_categories': workshop_categories}
+    response_data = {}
+    response_data['success'] = True
+    response_data['html'] = render_to_string('bcse_app/WorkshopCategoriesTableView.html', context, request)
+
+    return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  return http.HttpResponseNotAllowed(['GET'])
+
+
 
 ####################################
 # GET WORKSHOP CATEGORY DETAILS

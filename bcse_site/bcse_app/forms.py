@@ -985,6 +985,40 @@ class WorkshopCategoryForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
+# Workshop Categories Search Form
+####################################
+class WorkshopCategoriesSearchForm(forms.Form):
+
+  name = forms.CharField(required=False, max_length=256, help_text='Name of Workshop Category')
+  workshop_type = forms.MultipleChoiceField(required=False, choices=(('', '---------'),)+models.WORKSHOP_TYPE_CHOICES)
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
+  keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('name', 'Name'),
+                                                       ('type', 'Type'),
+                                                       ),
+                                              initial='name')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
+    super(WorkshopCategoriesSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      if field_name == 'workshop_type':
+        field.widget.attrs['class'] = 'form-control select2'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
+####################################
 # Work Place Form
 ####################################
 class WorkPlaceForm(ModelForm):

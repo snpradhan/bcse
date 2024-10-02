@@ -105,6 +105,7 @@ urlpatterns = [
     path('adminConfiguration/workshopCategory/<int:id>/details', views.getWorkshopCategoryDetails, name='getWorkshopCategoryDetails'),
     path('adminConfiguration/workshopCategory/new', views.workshopCategoryEdit, name='workshopCategoryNew'),
     path('adminConfiguration/workshopCategories/', views.workshopCategories, name='workshopCategories'),
+    path('adminConfiguration/workshopCategories/search/', views.workshopCategoriesSearch, name='workshopCategoriesSearch'),
     path('adminConfiguration/workshopsRegistrants/', views.workshopsRegistrants, name='workshopsRegistrants'),
     path('adminConfiguration/workshopsRegistrants/search', views.workshopsRegistrantsSearch, name='workshopsRegistrantsSearch'),
     path('adminConfiguration/registrationEmailMessage/<int:id>/edit', views.registrationEmailMessageEdit, name='registrationEmailMessageEdit'),
