@@ -389,6 +389,8 @@ class Workshop (models.Model):
   end_time = models.TimeField(null=True, blank=True, help_text='Workshop end time')
   display_date = models.TextField(null=True, blank=True, help_text='For multi-day workshop, enter start and end times for each day')
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
+  perks = models.CharField(null=True, blank=True, max_length=512, help_text='Workshop perks')
+  credits = models.CharField(null=True, blank=True, max_length=512, help_text='Credits the attendees earn')
   enable_registration =  models.BooleanField(default=False)
   featured =  models.BooleanField(default=False, help_text='If marked "Featured", this workshop will be displayed under "Past Workshop Examples" tab')
   meetup_link = models.URLField(null=True, blank=True, max_length=500)

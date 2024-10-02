@@ -851,6 +851,7 @@ class WorkshopForm(ModelForm):
     super(WorkshopForm, self).__init__(*args, **kwargs)
 
     self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A').order_by('name')
+    self.fields['credits'].label = 'ISBE PD Credits'
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['enable_registration', 'featured']:
