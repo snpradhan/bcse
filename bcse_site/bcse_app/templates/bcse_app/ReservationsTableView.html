@@ -226,7 +226,10 @@
             </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
-            <td>{{reservation.include_gloves_goggles|yesno:"Yes,No"}}</td>
+            <td>
+              <i class="fa-solid fa-mitten"></i> <i class="fa-solid fa-glasses"></i>
+              {{reservation.include_gloves_goggles|yesno:"Yes,No"}}
+            </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
             <td>{{reservation.activity.inventory|default_if_none:""|safe}}</td>
@@ -320,7 +323,10 @@
               <td>{{reservation.admin_notes|default_if_none:""}}</td>
             {% endif %}
             {% if 'HP' in columns %}
-              <td>{{reservation.additional_help_needed|yesno:"Yes,No"}}</td>
+              <td>
+                <i class="fa-solid fa-handshake-angle"></i>
+                {{reservation.additional_help_needed|yesno:"Yes,No"}}
+              </td>
             {% endif %}
             {% if 'AT' in columns %}
               <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
