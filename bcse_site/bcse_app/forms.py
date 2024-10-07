@@ -636,6 +636,7 @@ class ReservationForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
+    self.fields['equipment_types'].choices = [(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')]
     if self.instance.id:
       initial = []
       for equipment in self.instance.equipment.all():
