@@ -94,6 +94,10 @@
                       </a>
                   </li>
                   {% endif %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' registrant.user.id %}">View User Profile</a>
+                  </li>
                 </ul>
               </div>
             </td>

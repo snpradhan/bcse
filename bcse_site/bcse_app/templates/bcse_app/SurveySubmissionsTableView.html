@@ -129,6 +129,12 @@
                     Export Submission
                   </a>
                 </li>
+                {% if submission.user.id %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' submission.user.id %}">View User Profile</a>
+                  </li>
+                {% endif %}
               </ul>
             </div>
           </td>

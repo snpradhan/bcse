@@ -420,6 +420,10 @@
                       <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel</a>
                     </li>
                   {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
+                    </li>
                 {% else %}
                   {% if reservation.status != 'D' %}
                     <li><hr class="dropdown-divider"></li>
