@@ -424,6 +424,10 @@
                     <li>
                       <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
                     </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
+                    </li>
                 {% else %}
                   {% if reservation.status != 'D' %}
                     <li><hr class="dropdown-divider"></li>

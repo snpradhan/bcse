@@ -23,13 +23,16 @@
            --baxter-kelly-green: #58AA18;
            --baxter-orange: #FA8300;
          }
-         body {
+         body.email {
           font-family: din-2014, sans-serif;
          }
          div#header, div#message, div#footer {
            width: 800px !important;
            margin-left: auto;
            margin-right: auto;
+         }
+         div#header h3, div#message h3, div#footer h3 {
+          color: white !important;
          }
          div#header {
           margin-top: 0.5em;
@@ -53,7 +56,7 @@
          }
          div#info, div#dates, div#equipment, div#question, div#footer, div#feedback  {
            background-color: #4e2a84;
-           color: white;
+           color: white !important;
            font-size: 1.2em;
            line-height: 1.5em;
            padding: 2em;
@@ -128,6 +131,7 @@
          div#dates table tr.row td.col, div#equipment table tr.row td.col {
            border-top: 1px solid white;
            padding: 1em 0;
+           color: white;
          }
          table tr.row td.col.left {
            border-right: 1px solid white;
@@ -163,16 +167,16 @@
            width: 4em;
            height: auto;
          }
-         a {
+         body.email a {
            color: white;
            font-weight: 600;
          }
-         li a {
+         body.email li a {
            font-weight: 400;
          }
-         h3 {
-           font-weight: 500;
-           font-size: 2em;
+         body.email h3 {
+           font-weight: 500 !important;
+           font-size: 2em !important;
            color: white;
          }
          div.tile {
@@ -197,7 +201,7 @@
            font-weight: 600;
            font-size: 0.9em;
          }
-         div {
+         body.email div {
            color: white;
          }
          .warning {
@@ -206,7 +210,7 @@
          }
       </style>
    </head>
-   <body>
+   <body class="email">
       {% block header %}
       <div id="header">
          <table cellspacing="0">

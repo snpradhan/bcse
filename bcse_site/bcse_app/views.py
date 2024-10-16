@@ -7933,6 +7933,39 @@ def reservationConfirmationEmailSend(request, id):
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
 #####################################################
+# VIEW RESERVATION CONFIRMATION EMAIL TEMPLATE
+#####################################################
+def reservationConfirmationEmailView(request, id):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role in ['T', 'P']:
+      raise CustomException('You do not have the permission to view reservation email')
+
+    reservation = models.Reservation.objects.get(id=id)
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+    subject = 'Baxter Box Reservation Confirmed'
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+    context = {'reservation': reservation, 'domain': domain, 'subject': subject}
+
+    return render(request, 'bcse_app/EmailReservationConfirmationView.html', context)
+
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
+
+#####################################################
 # SEND FEEDBACK REQUEST EMAIL TO THE USER
 # AFTER A RESERVATION IS CHECKED IN
 #####################################################

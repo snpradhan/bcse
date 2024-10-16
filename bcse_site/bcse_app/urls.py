@@ -15,6 +15,7 @@ urlpatterns = [
     path('reservation/<int:id>/sendconfirmationemail', views.reservationConfirmationEmailSend, name='reservationConfirmationEmailSend'),
     path('reservation/<int:id>/sendfeedbackemail', views.reservationFeedbackEmailSend, name='reservationFeedbackEmailSend'),
     path('reservation/<int:id>/workplace', views.reservationWorkPlaceEdit, name='reservationWorkPlaceEdit'),
+    path('reservation/<int:id>/viewconfirmationemail', views.reservationConfirmationEmailView, name='reservationConfirmationEmailView'),
     path('reservation/new', views.reservationEdit, name='reservationNew'),
     path('reservations', views.reservations, name='reservations'),
     path('reservations/search/', views.reservationsSearch, name='reservationsSearch'),
