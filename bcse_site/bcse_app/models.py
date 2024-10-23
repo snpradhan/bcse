@@ -867,7 +867,11 @@ def check_registration_status_change(sender, instance, **kwargs):
       if domain != 'bcse.northwestern.edu':
         subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
-      body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
+      email_body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
+
+      context = {'email_body': email_body}
+      body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
+
       email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
 
       #check if calendar invite needs to be attached

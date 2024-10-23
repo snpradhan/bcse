@@ -7280,7 +7280,10 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                   if domain != 'bcse.northwestern.edu':
                     subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
-                  body = survey.email_confirmation_message
+                  email_body = survey.email_confirmation_message
+                  context = {'email_body': email_body}
+                  body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
+
                   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [respondant_email])
                   email.attach_file(filename, 'application/ms-excel')
 

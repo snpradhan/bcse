@@ -12,34 +12,28 @@
       <table cellspacing="0">
          <tbody>
             {% if reservation.delivery_date %}
-              <tr class="row">
-                 <td class="col title"align="left">Delivery Date</td>
-                 <td class="col date" align="right">{{reservation.delivery_date|date:"l, F j, Y"}}</td>
+              <tr>
+                 <td class="title"align="left">Delivery Date</td>
+                 <td class="date" align="right">{{reservation.delivery_date|date:"D, M d, Y"}}</td>
               </tr>
             {% endif %}
             {% if reservation.return_date %}
-              <tr class="row">
-                 <td class="col title" align="left">Return Date </td>
-                 <td class="col date" align="right">{{reservation.return_date|date:"l, F j, Y"}}</td>
+              <tr>
+                 <td class="title" align="left">Return Date </td>
+                 <td class="date" align="right">{{reservation.return_date|date:"D, M d, Y"}}</td>
               </tr>
             {% endif %}
-            <tr class="row">
-               <td class="col title" align="left">Reservation</td>
-               <td class="col" align="right"><a href="https://{{domain}}/reservation/{{reservation.id}}/view" style="color:white;">View Reservation</a></td>
-            </tr>
             {% if reservation.activity and reservation.activity.manuals_resources %}
-               <tr class="row">
-                  <td class="col title" align="left">Manuals/Resources</td>
-                  <td class="col" align="right"><div style="color:white;">{{reservation.activity.manuals_resources|safe}}</div></td>
+               <tr>
+                  <td class="title" align="left">Manuals / Resources</td>
+                  <td class="manuals" align="right"><div>{{reservation.activity.manuals_resources|safe}}</div></td>
                </tr>
             {% endif %}
-            <tr class="row address">
-               <td class="col title" align="left">
+            <tr class="address">
+               <td class="title" align="left">
                   <div>Delivery Details</div>
-                  <div><a href="https://{{domain}}/reservation/{{reservation.id}}/edit" style="color:white;">Edit</a></div>
                </td>
-               <td class="col" align="right">
-                  <div style="font-style: italic;">Your Baxter Box will be delivered to:</div>
+               <td align="right">
                   <div>
                      {% with user=reservation.user.user work_place=reservation.reservation_to_work_place.work_place %}
                         <div>{{user.get_full_name}}</div>
@@ -67,7 +61,8 @@
                                  {{work_place.zip_code}}
                               {% endif %}
                            </div>
-                           <div style="font-style: italic;">Note: If your information has changed, please update your profile and also send us a message.</div>
+                           <br>
+                           <div class="warning">Note: If your information has changed, please update your profile and also send us a message.</div>
                         {% else %}
                            <div style="font-style: italic; color: red;">Note: Your workplace information is missing. Please update your profile and also send us a message.</div>
                         {% endif %}
@@ -75,9 +70,14 @@
                   </div>
                </td>
             </tr>
+            <tr >
+               <td class="title" align="left">Questions about your Reservation?</td>
+               <td  align="right"><a href="https://{{domain}}/reservation/{{reservation.id}}/view">MESSAGE US</a></td>
+            </tr>
          </tbody>
       </table>
    </div>
+   <br>
    {% if reservation.activity and not reservation.activity_kit_not_needed or reservation.equipment %}
      <div id="equipment">
         <div>
@@ -86,8 +86,8 @@
         <table cellspacing="0">
            <tbody>
               {% if reservation.activity and not reservation.activity_kit_not_needed %}
-                <tr class="kit row">
-                   <td class="col details" align="left">
+                <tr class="kit">
+                   <td class="details" align="left">
                       <div class="title"> {{reservation.activity.kit_name}} x
                         {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
                           {{reservation.num_of_classes}}
@@ -96,38 +96,15 @@
                         {% endif %}
                      </div>
                    </td>
-                   <td class="col" align="center">
-                      <div class="tile">
-                         <div class="title">{{reservation.activity.kit_name}}</div>
-                         <div class="image">
-                           {% if reservation.activity.image %}
-                              <img class="preview" src="{{reservation.activity.image.url}}">
-                           {% else %}
-                              <img class="preview" src="https://{{domain}}{% staticfile 'img/baxter_activity.png' %}">
-                           {% endif %}
-                        </div>
-                      </div>
-                   </td>
                 </tr>
               {% endif %}
               {% if reservation.equipment %}
                 {% for equipment in reservation.equipment.all %}
-                  <tr class="kit row">
-                     <td class="col details" align="left">
+                  <tr class="kit">
+                     <td class="details" align="left">
                         <div class="title">{{equipment.equipment_type.name}} </div>
                         <div class="description">
                            {{equipment.equipment_type.description|safe}}
-                        </div>
-                     </td>
-                     <td class="col" align="center">
-                        <div class="tile">
-                           <div class="image">
-                              {% if equipment.equipment_type.image and equipment.equipment_type.image.url %}
-                                 <img class="preview" src="{{equipment.equipment_type.image.url}}"></div>
-                              {% else %}
-                                 <img class="preview" src="https://{{domain}}{% staticfile 'img/supplies.png' %}">
-                              {% endif %}
-                           <div class="title">{{equipment.equipment_type.name}}</div>
                         </div>
                      </td>
                   </tr>
@@ -137,12 +114,6 @@
         </table>
      </div>
    {% endif %}
-   <div id="question">
-      <div id="placeholder_logo">? </div>
-      <h3>Questions about your Reservation?</h3>
-      <h3>Need some help in the classroom?</h3>
-      <div id="mail"><a href="https://{{domain}}/reservation/{{reservation.id}}/view" style="color:white;">MESSAGE US</a> </div>
-   </div>
 
 {% endblock %}
 

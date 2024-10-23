@@ -1,0 +1,12 @@
+{% extends "bcse_app/EmailBase.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block emailbody %}
+   <div id="text">
+      <div>
+         {{email_body|safe}}
+      </div>
+   </div>
+{% endblock %}
+
