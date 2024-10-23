@@ -32,24 +32,28 @@
               <div><i class="far fa-fw fa-calendar-alt" aria-hidden="true" title="Workshop Date(s)"></i></div>
               <div>{{workshop.display_date|linebreaks}}</div>
             </div>
-          {% elif workshop.start_date == workshop.end_date %}
-            <div class="date">
-              <div><i class="far fa-fw fa-calendar-alt" aria-hidden="true" title="Workshop Date"></i></div>
-              <div>{{workshop.start_date|date}}</div>
-            </div>
-            <div class="date">
-              <div><i class="far fa-fw fa-clock" aria-hidden="true" title="Workshop Time"></i></div>
-              <div>{{workshop.start_time|default_if_none:""}} - {{workshop.end_time|default_if_none:""}}</div>
-            </div>
           {% else %}
-            <div class="date">
-              <div><i class="far fa-fw fa-calendar-alt" aria-hidden="true" title="Workshop Date(s)"></i></div>
-              <div>{{workshop.start_date|date}} - {{workshop.end_date|date}}</div>
-            </div>
-            <div class="date">
-              <div><i class="far fa-fw fa-clock" aria-hidden="true" title="Workshop Time"></i></div>
-              <div>{{workshop.start_time|default_if_none:""}} - {{workshop.end_time|default_if_none:""}}</div>
-            </div>
+            {% if workshop.start_date == workshop.end_date %}
+              <div class="date">
+                <div><i class="far fa-fw fa-calendar-alt" aria-hidden="true" title="Workshop Date"></i></div>
+                <div>{{workshop.start_date|date}}</div>
+              </div>
+            {% else %}
+              <div class="date">
+                <div><i class="far fa-fw fa-calendar-alt" aria-hidden="true" title="Workshop Date(s)"></i></div>
+                <div>{{workshop.start_date|date}} - {{workshop.end_date|date}}</div>
+              </div>
+            {% endif %}
+              <div class="date">
+                <div><i class="far fa-fw fa-clock" aria-hidden="true" title="Workshop Time"></i></div>
+                <div>
+                  {% if workshop.start_time and workshop.end_time %}
+                    {{workshop.start_time|date:"g:i A"}} - {{workshop.end_time|date:"g:i A"}} CST
+                  {% elif workshop.start_time %}
+                    {{workshop.start_time|date:"g:i A"}} CST
+                  {% endif %}
+                </div>
+              </div>
           {% endif %}
           <div class="location">
             <div><i class="fas fa-fw fa-map-marker-alt" aria-hidden="true" title="Workshop Location"></i></div>
