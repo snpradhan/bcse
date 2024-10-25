@@ -1800,7 +1800,8 @@ def reservationsSearch(request):
 
       if return_before:
         return_before = datetime.datetime.strptime(return_before, '%B %d, %Y')
-        return_before_filter = Q(Q(return_date__lte=return_before) | Q(return_date__isnull=True))
+        return_before_filter = Q(delivery_date__lte=return_before)
+        return_before_filter = return_before_filter & Q(Q(return_date__lte=return_before) | Q(return_date__isnull=True))
 
       if color:
         color_filter = Q(color__id__in=color)
