@@ -757,8 +757,6 @@ class ReservationUpdateForm(ModelForm):
   work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
                                                                                      attrs={'data-placeholder': 'Start typing the name of the work place ...'}))
-
-
   class Meta:
     model = models.Reservation
     fields = ['color', 'status']
@@ -952,6 +950,9 @@ class WorkshopRegistrationSettingForm(ModelForm):
 ####################################
 class WorkshopRegistrationForm(ModelForm):
 
+  work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+                                                     widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}))
   class Meta:
     model = models.Registration
     exclude = ('created_date', 'modified_date')
@@ -962,6 +963,9 @@ class WorkshopRegistrationForm(ModelForm):
   def __init__(self, *args, **kwargs):
 
     super(WorkshopRegistrationForm, self).__init__(*args, **kwargs)
+
+    if self.instance.id:
+      self.fields['work_place'].initial = self.instance.registration_to_work_place.work_place
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'

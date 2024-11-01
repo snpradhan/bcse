@@ -3486,7 +3486,11 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
       data = request.POST.copy()
       form = forms.WorkshopRegistrationForm(data, instance=registration)
       if form.is_valid():
+        registration_work_place = form.cleaned_data['work_place']
         savedRegistration = form.save()
+        savedRegistration.registration_to_work_place.work_place = registration_work_place
+        savedRegistration.registration_to_work_place.save()
+
         messages.success(request, "Registration saved")
         response_data['success'] = True
       else:

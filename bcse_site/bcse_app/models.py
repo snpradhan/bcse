@@ -462,7 +462,7 @@ class Registration(models.Model):
 # Workplace associated with creating the registration record
 #############################################################
 class RegistrationWorkPlace(models.Model):
-  registration = models.ForeignKey(Registration, unique=True, on_delete=models.CASCADE, related_name='registration_to_work_place')
+  registration = models.OneToOneField(Registration, on_delete=models.CASCADE, related_name='registration_to_work_place')
   work_place = models.ForeignKey(WorkPlace, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_registration')
 
 
