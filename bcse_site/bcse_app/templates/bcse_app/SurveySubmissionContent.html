@@ -32,7 +32,7 @@
         <td>{{submission.user.id|default_if_none:""}}</td>
         <td>{{submission.user.user.email|default_if_none:""}}</td>
         <td>{{submission.user.user.get_full_name|default_if_none:""}}</td>
-        <td>{{submission.survey_submission_to_work_place.first.work_place|default_if_none:""}}</td>
+        <td>{{submission.survey_submission_to_work_place.work_place|default_if_none:""}}</td>
         <td>
           {% get_submission_connected_entity submission.UUID as survey_entity %}
           {% if survey_entity %}

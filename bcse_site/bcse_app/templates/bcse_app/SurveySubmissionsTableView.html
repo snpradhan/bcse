@@ -72,7 +72,7 @@
             <td>{{submission.user.user.get_full_name|default_if_none:""}}</td>
           {% endif %}
           {% if 'WP' in columns %}
-            <td>{{submission.survey_submission_to_work_place.first.work_place|default_if_none:""}}</td>
+            <td>{{submission.survey_submission_to_work_place.work_place|default_if_none:""}}</td>
           {% endif %}
           {% if 'AN' in columns %}
             <td> {{submission.admin_notes|default_if_none:""}}</td>

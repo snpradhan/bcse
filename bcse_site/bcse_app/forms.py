@@ -1279,7 +1279,9 @@ class SurveyResponseForm(ModelForm):
 # SurveySubmission Form
 ####################################
 class SurveySubmissionForm(ModelForm):
-
+  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}))
   class Meta:
     model = models.SurveySubmission
     fields = ['status', 'admin_notes']
@@ -1289,6 +1291,9 @@ class SurveySubmissionForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(SurveySubmissionForm, self).__init__(*args, **kwargs)
+
+    if self.instance.UUID and hasattr(self.instance, 'survey_submission_to_work_place'):
+      self.fields['work_place'].initial = self.instance.survey_submission_to_work_place.work_place
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'

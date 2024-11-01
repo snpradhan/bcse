@@ -778,7 +778,7 @@ class SurveySubmission(models.Model):
 # Workplace associated with Survey Submission
 #############################################################
 class SurveySubmissionWorkPlace(models.Model):
-  submission = models.ForeignKey(SurveySubmission, unique=True, on_delete=models.CASCADE, related_name='survey_submission_to_work_place')
+  submission = models.OneToOneField(SurveySubmission, on_delete=models.CASCADE, related_name='survey_submission_to_work_place')
   work_place = models.ForeignKey(WorkPlace, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_survey_submission')
 
 

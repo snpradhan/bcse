@@ -6957,7 +6957,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
       row = [submission.user.id if submission.user else '',
              submission.user.user.email if submission.user else '',
              submission.user.user.get_full_name() if submission.user else '',
-             submission.survey_submission_to_work_place.first().work_place.name if submission.survey_submission_to_work_place else '',
+             submission.survey_submission_to_work_place.work_place.name if submission.survey_submission_to_work_place else '',
              connected_entity_name,
              str(submission.UUID),
              submission.ip_address
@@ -7449,7 +7449,13 @@ def surveySubmissionEdit(request, id='', submission_uuid=''):
       form = forms.SurveySubmissionForm(data, instance=submission)
       response_data = {}
       if form.is_valid():
-        form.save()
+        survey_submission_work_place = form.cleaned_data['work_place']
+        savedSubmission = form.save()
+        if hasattr(savedSubmission, 'survey_submission_to_work_place'):
+          savedSubmission.survey_submission_to_work_place.work_place = survey_submission_work_place
+          savedSubmission.survey_submission_to_work_place.save()
+        else:
+          models.SurveySubmissionWorkPlace.objects.create(submission=savedSubmission, work_place=survey_submission_work_place)
         response_data['success'] = True
       else:
         context = {'survey': survey, 'submission': submission, 'form': form}
