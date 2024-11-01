@@ -11,7 +11,9 @@
         {% for member in members %}
         <div class="row member">
           <div class="col-md-2 picture">
-            <img src="{{member.image.url}}" class="circle staff">
+            {% if member.image %}
+              <img src="{{member.image.url}}" class="circle staff">
+            {% endif %}
           </div>
           <div class="col-md-10">
             <div class="intro">
@@ -31,7 +33,9 @@
           {% for former_member in former_members %}
             <div class="alumnus modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:teamMemberView' former_member.id %}">
               <div class="picture">
-                <img src="{{former_member.image.url}}" class="circle staff">
+                {% if former_member.image %}
+                  <img src="{{former_member.image.url}}" class="circle staff">
+                {% endif %}
               </div>
               <br>
               <div class="details">
