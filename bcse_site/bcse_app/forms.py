@@ -598,7 +598,9 @@ class EquipmentAvailabilityForm (forms.Form):
 class ReservationForm(ModelForm):
   equipment_types = forms.MultipleChoiceField(required=False,
                                   choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.CheckboxSelectMultiple())
-
+  work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+                                                     widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}))
 
   class Meta:
     model = models.Reservation
@@ -647,8 +649,16 @@ class ReservationForm(ModelForm):
         self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A') | models.Activity.objects.all().filter(id=self.instance.activity.id)
       else:
         self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
+
+      if user.user_role in ['T', 'P'] and self.instance.status != 'U':
+        self.fields.pop('work_place')
+      else:
+        self.fields['work_place'].initial = self.instance.reservation_to_work_place.work_place
+
     else:
       self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
+      if user.user_role in ['T', 'P']:
+        self.fields['work_place'].initial = user.work_place.id
 
     self.fields['equipment_types'].label = 'Select one or more equipment.'
     #self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
@@ -670,11 +680,13 @@ class ReservationForm(ModelForm):
       self.fields.pop('admin_notes')
       self.fields.pop('color')
       self.fields.pop('consumables')
+      self.fields['work_place'].label = 'Confirm your work place'
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
       self.fields['activity'].queryset = models.Activity.objects.all()
       self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
       self.fields['consumables'].queryset = models.Consumable.objects.all().filter(status='A')
+      self.fields['work_place'].label = "Confirm user's work place"
 
 
   def is_valid(self):
@@ -714,12 +726,38 @@ class ReservationForm(ModelForm):
 
     return valid
 
+##########################################################
+# Reservation Workplace Form
+# to update reservation workplace association
+##########################################################
+class ReservationWorkPlaceForm(ModelForm):
+
+  class Meta:
+    model = models.ReservationWorkPlace
+    fields = ['reservation', 'work_place']
+    widgets = {
+      'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                              attrs={'data-placeholder': 'Start typing the name if your work place ...'}),
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(ReservationWorkPlaceForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
 
 ##########################################################
 # Reservation Update Form
 # For to update select few fields in a reservation
 ##########################################################
 class ReservationUpdateForm(ModelForm):
+
+  work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+                                                     widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}))
+
 
   class Meta:
     model = models.Reservation
@@ -729,6 +767,8 @@ class ReservationUpdateForm(ModelForm):
     super(ReservationUpdateForm, self).__init__(*args, **kwargs)
 
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
+    if self.instance.id:
+      self.fields['work_place'].initial = self.instance.reservation_to_work_place.work_place
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'

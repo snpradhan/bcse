@@ -289,7 +289,7 @@
                 {% endif %}
                 {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
               {% else %}
-                {% with work_place=reservation.reservation_to_work_place.first.work_place %}
+                {% with work_place=reservation.reservation_to_work_place.work_place %}
                   {{work_place.name}}<br>
                   {{work_place.street_address_1}}<br>
                   {% if work_place.street_address_2 %}
@@ -374,7 +374,7 @@
                 </li>
                 {% if user.userProfile.user_role in 'AS' %}
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Update Color/Status</a></li>
+                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Update Color/Status/Workplace</a></li>
                   {% if reservation.activity %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
@@ -417,7 +417,7 @@
                   {% if reservation.status != 'D' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel</a>
+                      <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
                     </li>
                   {% endif %}
                     <li><hr class="dropdown-divider"></li>
@@ -429,11 +429,11 @@
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       {% if reservation.status in 'IO' %}
-                        <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel</a>
+                        <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel Reservation</a>
                       {% elif reservation.delivery_date|is_past %}
-                        <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel</a>
+                        <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel Reservation</a>
                       {% else %}
-                        <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel</a>
+                        <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
                       {% endif %}
                     </li>
                   {% endif %}

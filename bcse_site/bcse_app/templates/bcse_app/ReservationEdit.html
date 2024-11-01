@@ -36,6 +36,13 @@
               <div>{{form.user.as_hidden}}</div>
             {% endif %}
             <div class="form-group mb-4">
+              <label for="id_{{form.work_place.name}}" class="form-label"> {{form.work_place.label}}
+                <span>(<span class="required">*</span>)</span>
+              </label>
+              <div>{{form.work_place}}</div>
+              <div class="error">{{ form.work_place.errors }}</div>
+            </div>
+            <div class="form-group mb-4">
               <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}
                 <span>(<span class="required">*</span>)</span>
               </label>
@@ -854,6 +861,42 @@
           });
         }
 
+        function bindUserSelection() {
+          $('select#id_user').on('select2:select', function(e){
+            var data = e.params.data;
+            console.log(data);
+            var url = '/userProfile/'+data.id+'/workplace';
+            $.ajax({
+              type: 'GET',
+              url: url,
+              success: function(data){
+                console.log(data);
+                if (data['success'] = true) {
+                  if(data['work_place_id'] != 'None') {
+                    // Set the value, creating a new option if necessary
+                    if ($('#id_work_place').find("option[value='" + data['work_place_id'] + "']").length) {
+                      $('#id_work_place').val(data['work_place_id']).trigger('change');
+                    } else {
+                      // Create a DOM Option and pre-select by default
+                      var newOption = new Option(data['work_place_name'], data['work_place_id'], true, true);
+                      // Append it to the select
+                      $('#id_work_place').append(newOption).trigger('change');
+                    }
+
+                  }
+                }
+                else {
+                  displayWarningDialog(data['message']);
+                }
+                return false;
+              },
+              error: function(xhr, ajaxOptions, thrownError){
+                displayErrorDialog();
+              },
+            });
+          });
+        }
+
         function init() {
           //hide other activity name field
           $('input#id_other_activity_name').closest('form-group').hide();
@@ -877,6 +920,7 @@
         bindActivityChange();
         bindReservationSubmit();
         bindClearDates();
+        bindUserSelection();
         init();
       }
     });

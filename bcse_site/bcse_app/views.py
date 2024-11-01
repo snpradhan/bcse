@@ -1398,9 +1398,11 @@ def reservationEdit(request, id=''):
 
       data = request.POST.copy()
       form = forms.ReservationForm(data, instance=reservation, user=request.user.userProfile)
+
       if form.is_valid():
 
         equipment_types = form.cleaned_data['equipment_types']
+        reservation_work_place = form.cleaned_data['work_place']
         savedReservation = None
 
         if equipment_types:
@@ -1441,18 +1443,18 @@ def reservationEdit(request, id=''):
           if current_date <= savedReservation.delivery_date:
             if original_status == 'U' and savedReservation.status == 'R':
               reservationConfirmationEmailSend(request, savedReservation.id)
+
+        #new reservations
         else:
           messages.success(request, "Reservation request received")
-          #create reservation <-> work place association
-          if savedReservation.user.work_place:
-            reservation_work_place = models.ReservationWorkPlace(reservation=savedReservation, work_place=savedReservation.user.work_place)
-            reservation_work_place.save()
 
           if current_date <= savedReservation.delivery_date:
             if savedReservation.status == 'U':
               reservationReceiptEmailSend(request, savedReservation.id)
             elif savedReservation.status == 'R':
               reservationConfirmationEmailSend(request, savedReservation.id)
+
+        reservationWorkplaceUpdate(request, savedReservation.id, reservation_work_place.id)
 
         return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
 
@@ -1476,6 +1478,79 @@ def reservationEdit(request, id=''):
     else:
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
+####################################
+# UPDATE RESERVATION WORKPLACE ASSOCIATION
+####################################
+def reservationWorkplaceUpdate(request, reservation_id, work_place_id):
+  try:
+
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to update a reservation')
+
+    reservation = models.Reservation.objects.get(id=reservation_id)
+    work_place = models.WorkPlace.objects.get(id=work_place_id)
+    user = reservation.user
+
+    if request.user.userProfile.user_role in ['T', 'P'] and request.user.userProfile != user:
+      raise CustomException('You do not have the permission to update this reservation')
+
+    if reservation.status == 'U':
+      try:
+        reservation_work_place = models.ReservationWorkPlace.objects.get(reservation=reservation)
+        reservation_work_place.work_place = work_place
+        reservation_work_place.save()
+      except models.ReservationWorkPlace.DoesNotExist as e:
+        reservation_work_place = models.ReservationWorkPlace.objects.create(reservation=reservation, work_place=work_place)
+
+      user.work_place = work_place
+      user.save()
+
+    elif request.user.userProfile.user_role in ['A', 'S']:
+      reservation_work_place = models.ReservationWorkPlace.objects.get(reservation=reservation)
+      reservation_work_place.work_place = work_place
+      reservation_work_place.save()
+
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
+
+def reservationWorkPlaceEdit(request, id):
+  try:
+    reservation = models.Reservation.objects.get(id=id)
+    if request.method == 'GET':
+      form = forms.ReservationWorkPlaceForm(instance=reservation.reservation_to_work_place)
+      context = {'form': form, 'reservation_id': id}
+      return render(request, 'bcse_app/ReservationWorkPlaceModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.ReservationWorkPlaceForm(data, instance=reservation.reservation_to_work_place)
+      response_data = {}
+      if form.is_valid():
+        reservation = form.cleaned_data['reservation']
+        work_place = form.cleaned_data['work_place']
+        reservationWorkplaceUpdate(request, reservation.id, work_place.id)
+        messages.success(request, "Workplace association has been updated")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        response_data['success'] = False
+        context = {'form': form, 'reservation_id': id}
+        response_data['html'] = render_to_string('bcse_app/ReservationWorkPlaceModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 ####################################
 # VIEW RESERVATION
 ####################################
@@ -2103,7 +2178,9 @@ def reservationUpdate(request, reservation_id):
       form = forms.ReservationUpdateForm(data, instance=reservation)
       response_data = {}
       if form.is_valid():
+        reservation_work_place = form.cleaned_data['work_place']
         savedReservation = form.save()
+        reservationWorkplaceUpdate(request, savedReservation.id, reservation_work_place.id)
         response_data['success'] = True
         messages.success(request, 'Reservation %s updated' % reservation_id)
         if current_date <= savedReservation.delivery_date:
@@ -2160,7 +2237,7 @@ def reservationDeliveryAddressEdit(request, reservation_id):
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
-    return http.HttpResponseNotAllowed(['GET'])
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
 
   except models.Reservation.DoesNotExist as e:
     messages.error(request, 'Reservation does not exists')
@@ -3646,6 +3723,30 @@ def userRegistration(request, workshop_id, user_id):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################
+# GET USER WORKPLACE
+################################################
+def userProfileWorkPlace(request, id):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to get user workplace')
+    elif request.user.userProfile.user_role in ['T', 'P'] and request.user.userProfile.id != id:
+      raise CustomException('You do not have the permission to get this user''s workplace')
+
+    user = models.UserProfile.objects.get(id=id)
+    if request.method == 'GET':
+      if user.work_place:
+        work_place_id = str(user.work_place.id)
+        work_place_name = user.work_place.name
+      else:
+        work_place_id = work_place_name = None
+      response_data = {'success': True, 'work_place_id': work_place_id, 'work_place_name': work_place_name}
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  except CustomException as ce:
+    response_data = {'success': False, 'message': ce}
+    return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
 ################################################
 # WORKSHOPS BASE QUERY BEFORE APPLYING FILTERS

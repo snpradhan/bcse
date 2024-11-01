@@ -35,6 +35,16 @@
           <div>{{form.status}}</div>
           <div class="error">{{ form.status.errors }}</div>
         </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.work_place.name}}">
+            {{ form.work_place.label }}
+            {% if form.work_place.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.work_place}}</div>
+          <div class="error">{{ form.work_place.errors }}</div>
+        </div>
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
         </div>

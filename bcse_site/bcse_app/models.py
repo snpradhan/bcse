@@ -600,7 +600,7 @@ class Reservation(models.Model):
 # LINK BETWEEN RESERVATION AND WORKPLACE WHEN THE RESERVATION IS MADE
 ###############################################################################
 class ReservationWorkPlace(models.Model):
-  reservation = models.ForeignKey(Reservation, unique=True, on_delete=models.CASCADE, related_name='reservation_to_work_place')
+  reservation = models.OneToOneField(Reservation, on_delete=models.CASCADE, related_name='reservation_to_work_place')
   work_place = models.ForeignKey(WorkPlace, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_reservation')
 
 

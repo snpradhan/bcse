@@ -1,0 +1,86 @@
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Update Workplace Association</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="workplaceyMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <form class="form" id="formWorkplaceAssociation" method="post" enctype="multipart/form-data" action="{% url 'bcse:reservationWorkPlaceEdit' reservation_id %}">
+      {% csrf_token %}
+      <div class="modal-body">
+
+        <div class="row mb-3">
+          {{ form.reservation.as_hidden}}
+          <div class="form-group">
+            <label for="id_{{form.work_place.name}}">
+              {{ form.work_place.label|title }}
+              {% if form.work_place.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.work_place}}</div>
+            <div class="error">{{ form.work_place.errors }}</div>
+          </div>         
+        </div>      
+
+        <div class="form-group" id="spinner">
+          <img src="/static/img/page-loader.gif" class="icon"/>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="form-group">
+          <button type="submit" class="btn btn-success" id="submit">Save</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function (){
+
+    $("#formWorkplaceAssociation").submit(function(e){
+      e.preventDefault();
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        beforeSend: function(){
+          $('#formWorkplaceAssociation #spinner').show();
+        },
+        complete: function(){
+          $('#formWorkplaceAssociation #spinner').hide();
+        },
+        success: function(data, status) {
+          if(data['success'] == true){
+            window.parent.location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+
+
