@@ -1,7 +1,15 @@
 {% load bcse_extras %}
 <ul class="nav nav-tabs mb-3">
   <li class="nav-item">
-    <label><a class="nav-link {% if period == 'current' %} active {% endif %}" aria-current="page" href="{% url 'bcse:workshops' display 'current' %}">Current Workshops</a></label>
+    <label>
+      <a class="nav-link {% if period == 'current' %} active {% endif %}" aria-current="page" href="{% url 'bcse:workshops' display 'current' %}">
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          Workshops
+        {% else %}
+          Current Workshops
+        {% endif %}
+      </a>
+    </label>
   </li>
   <li class="nav-item">
     <label><a class="nav-link {% if period != 'current' %} active {% endif %}" aria-current="page" href="{% url 'bcse:workshops' display 'previous' %}">Past Workshop Examples</a></label>

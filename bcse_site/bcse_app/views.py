@@ -3933,7 +3933,8 @@ def workshopsSearch(request, display='list', period='current', extra=''):
       filters_applied = True
 
     if period == 'current':
-      workshops = workshops.filter(featured=False)
+      if not request.user.is_authenticated or not request.user.userProfile.user_role in 'AS':
+        workshops = workshops.filter(featured=False)
     elif period == 'previous':
       workshops = workshops.filter(featured=True)
 

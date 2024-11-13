@@ -10,6 +10,12 @@
 {% include "bcse_app/WorkshopTabs.html" with tab='view' %}
 <div class="tile workshop_tile workshop_header">
   <div class="image">
+    {% if workshop.featured %}
+      <div class="shelf"></div>
+      <div class="featured">
+        <i class="fa-solid fa-star" title="Past Workshop Example" aria-hidden="true"></i><span class="sr-only">Past Workshop Example</span>
+      </div>
+    {% endif %}
     {% if workshop.image %}
       <img src="{{workshop.image.url}}">
     {% endif %}

@@ -8,8 +8,14 @@
     <div class="workshop_container">
       <div class="tile workshop_tile">
         <div class="image">
+          {% if workshop.featured %}
+            <div class="shelf"></div>
+            <div class="featured">
+              <i class="fa-solid fa-star" title="Past Workshop Example" aria-hidden="true"></i><span class="sr-only">Past Workshop Example</span>
+            </div>
+          {% endif %}
           {% if workshop.image %}
-          <img src="{{workshop.image.url}}"/>
+            <img src="{{workshop.image.url}}"/>
           {% endif %}
         </div>
         <div class="details">

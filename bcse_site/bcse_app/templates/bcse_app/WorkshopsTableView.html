@@ -23,6 +23,7 @@
         <th> Location </th>
         {% if user.is_authenticated %}
           {% if user.userProfile.user_role in 'AS' and tag == 'workshops' %}
+            <th> Past Example </th>
             <th> Registration Enabled? </th>
             <th> Registration Type </th>
             <th> Capacity </th>
@@ -51,6 +52,7 @@
         <td style="background-color: #767676; color: white;"> Location </td>
         {% if user.is_authenticated %}
           {% if user.userProfile.user_role in 'AS' and tag == 'workshops' %}
+            <td style="background-color: #767676; color: white;"> Past Example </td>
             <td style="background-color: #767676; color: white;"> Registration Enabled? </td>
             <td style="background-color: #767676; color: white;"> Registration Type </td>
             <td style="background-color: #767676; color: white;"> Capacity </td>
@@ -95,6 +97,7 @@
           <td> {{workshop.location}} </td>
           {% if user.is_authenticated %}
             {% if user.userProfile.user_role in 'AS' and tag == 'workshops' %}
+               <td> {{workshop.featured|yesno|title}} </td>
               <td> {{workshop.enable_registration|yesno|title}} </td>
               <td> {{workshop.registration_setting.get_registration_type_display|default_if_none:""}}</td>
               <td> {{workshop.registration_setting.capacity|default_if_none:""}} </td>
