@@ -2,7 +2,7 @@
   <div class="modal-content">
     <div class="modal-header">
       {% if userForm.instance.id %}
-        <h3 class="left"> {{userForm.instance.get_full_name}} </h3>
+        <h3 class="left"> Update User Profile </h3>
       {% else %}
         <h3 class="left"> Create User </h3>
       {% endif %}
@@ -178,6 +178,11 @@
 </div>
 <script type="text/javascript">
   $(function (){
+
+    if($('#reservationForm').length){
+      $('.btn-close').hide();
+    }
+
     $('select[name="user_profile-user_role"]').on('change', function(){
       if($(this).val() == "T"){
         $('.school_related').show();
@@ -230,10 +235,17 @@
           console.log(status);
           if(data['success'] == true){
             console.log('success');
-            $('#profile').modal('toggle');
-            //location.reload();
-            var redirect_url = window.parent.location.href.split('?')[0];
-            window.parent.location.href = redirect_url;
+            if($('select#id_confirm_workplace').length){
+              $('span#confirm_workplace_label > span').html(data['work_place']);
+              $('select#id_confirm_workplace').val('Y').trigger('change');
+              $('#profile').modal('toggle');
+              displayInfoDialog('Workplace Update', 'The work place has been updated to <b>'+data['work_place']+'</b>', false);
+            }
+            else{
+              //location.reload();
+              var redirect_url = window.parent.location.href.split('?')[0];
+              window.parent.location.href = redirect_url;
+            }
           }
           else{
             $('#profile').html(data['html']);

@@ -1402,7 +1402,6 @@ def reservationEdit(request, id=''):
       if form.is_valid():
 
         equipment_types = form.cleaned_data['equipment_types']
-        reservation_work_place = form.cleaned_data['work_place']
         savedReservation = None
 
         if equipment_types:
@@ -1454,7 +1453,7 @@ def reservationEdit(request, id=''):
             elif savedReservation.status == 'R':
               reservationConfirmationEmailSend(request, savedReservation.id)
 
-        reservationWorkplaceUpdate(request, savedReservation.id, reservation_work_place.id)
+          reservationWorkplaceUpdate(request, savedReservation.id, savedReservation.user.work_place.id)
 
         return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
 
@@ -4603,6 +4602,7 @@ def userProfileEdit(request, id=''):
 
         messages.success(request, "User profile saved successfully")
         response_data['success'] = True
+        response_data['work_place'] = savedUserProfile.work_place.name
       else:
         print(userForm.errors)
         print(userProfileForm.errors)

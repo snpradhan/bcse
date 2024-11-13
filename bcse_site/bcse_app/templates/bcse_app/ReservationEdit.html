@@ -35,13 +35,19 @@
             {% else %}
               <div>{{form.user.as_hidden}}</div>
             {% endif %}
-            <div class="form-group mb-4">
-              <label for="id_{{form.work_place.name}}" class="form-label"> {{form.work_place.label}}
-                <span>(<span class="required">*</span>)</span>
-              </label>
-              <div>{{form.work_place}}</div>
-              <div class="error">{{ form.work_place.errors }}</div>
-            </div>
+
+            {% if form.confirm_workplace %}
+              <div class="form-group mb-4" id="confirm_workplace">
+                <label for="id_{{form.confirm_workplace.name}}" class="form-label">
+                  <span id="confirm_workplace_label">{{form.confirm_workplace.label|safe}}</span>
+                  <span>(<span class="required">*</span>)</span>
+                </label>
+                <div>{{form.confirm_workplace}}</div>
+                <div class="error">{{ form.confirm_workplace.errors }}</div>
+              </div>
+              <a id="update_workplace" class="modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' user.userProfile.id %}" href="#" style="display:none;">Edit Profile</a>
+            {% endif %}
+
             <div class="form-group mb-4">
               <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}
                 <span>(<span class="required">*</span>)</span>
@@ -318,6 +324,7 @@
         var current_timestamp = Math.floor(Date.now() / 1000);
         var min_reservation_unixdate = current_timestamp + reservation_min_advance_days * 24 * 60 * 60;
         var max_reservation_unixdate = current_timestamp + reservation_max_advance_days * 24 * 60 * 60;
+
 
 
         /* Set date restriction based on user role */
@@ -863,38 +870,57 @@
 
         function bindUserSelection() {
           $('select#id_user').on('select2:select', function(e){
-            var data = e.params.data;
-            console.log(data);
-            var url = '/userProfile/'+data.id+'/workplace';
-            $.ajax({
-              type: 'GET',
-              url: url,
-              success: function(data){
-                console.log(data);
-                if (data['success'] = true) {
-                  if(data['work_place_id'] != 'None') {
-                    // Set the value, creating a new option if necessary
-                    if ($('#id_work_place').find("option[value='" + data['work_place_id'] + "']").length) {
-                      $('#id_work_place').val(data['work_place_id']).trigger('change');
-                    } else {
-                      // Create a DOM Option and pre-select by default
-                      var newOption = new Option(data['work_place_name'], data['work_place_id'], true, true);
-                      // Append it to the select
-                      $('#id_work_place').append(newOption).trigger('change');
-                    }
-
-                  }
-                }
-                else {
-                  displayWarningDialog(data['message']);
-                }
-                return false;
-              },
-              error: function(xhr, ajaxOptions, thrownError){
-                displayErrorDialog();
-              },
-            });
+            var user_id = e.params.data.id;
+            displayUserWorkplace(user_id);
           });
+        }
+
+        function displayUserWorkplace(user_id) {
+          var url = '/userProfile/'+user_id+'/workplace';
+          var user_profile_url = '/userProfile/'+user_id+'/edit';
+          $('a#update_workplace').attr('data-href', user_profile_url);
+
+          $.ajax({
+            type: 'GET',
+            url: url,
+            success: function(data){
+              console.log(data);
+              if (data['success'] = true) {
+                if(data['work_place_id'] != 'None') {
+
+                  $('#confirm_workplace_label > span').html(data['work_place_name']);
+                  $('#confirm_workplace').show();
+                }
+              }
+              else {
+                displayWarningDialog(data['message']);
+              }
+              return false;
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+              displayErrorDialog();
+            },
+          });
+        }
+
+        function bindConfirmWorkplace() {
+          $('select#id_confirm_workplace').on('change', function(e){
+            if($(this).val() == 'N'){
+              $('a#update_workplace')[0].click();
+            }
+          });
+        }
+
+        function toggleConfirmWorkplace() {
+           if(!["A", "S"].includes(user_role)) {
+            $('#confirm_workplace').show();
+           }
+           else if ($('select#id_user').val()) {
+            displayUserWorkplace($('select#id_user').val());
+           }
+           else {
+            $('#confirm_workplace').hide();
+           }
         }
 
         function init() {
@@ -921,6 +947,8 @@
         bindReservationSubmit();
         bindClearDates();
         bindUserSelection();
+        bindConfirmWorkplace()
+        toggleConfirmWorkplace()
         init();
       }
     });

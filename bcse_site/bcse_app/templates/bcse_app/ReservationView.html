@@ -19,6 +19,12 @@
             <h3 class="underline">Reservation Details</h3>
             <table class="table table-striped">
               <tbody>
+                {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                  <tr>
+                    <th>User:</th>
+                    <td>{{reservation.user.user.get_full_name}}</td>
+                  </tr>
+                {% endif %}
                 <tr>
                   <th>Activity Name:</th>
                   <td>

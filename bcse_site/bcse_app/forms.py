@@ -598,9 +598,7 @@ class EquipmentAvailabilityForm (forms.Form):
 class ReservationForm(ModelForm):
   equipment_types = forms.MultipleChoiceField(required=False,
                                   choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.CheckboxSelectMultiple())
-  work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
-                                                     widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}))
+  confirm_workplace = forms.ChoiceField(required=True, choices=[('', '---------'), ('Y', 'Yes'),('N', 'No, update my workplace'),],)
 
   class Meta:
     model = models.Reservation
@@ -650,15 +648,16 @@ class ReservationForm(ModelForm):
       else:
         self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
 
-      if user.user_role in ['T', 'P'] and self.instance.status != 'U':
-        self.fields.pop('work_place')
-      else:
-        self.fields['work_place'].initial = self.instance.reservation_to_work_place.work_place
+      self.fields.pop('confirm_workplace')
 
     else:
       self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
       if user.user_role in ['T', 'P']:
-        self.fields['work_place'].initial = user.work_place.id
+        if user.work_place:
+          self.fields['confirm_workplace'].label = 'Is "<span>%s</span>" your current work place?' % user.work_place
+      else:
+        self.fields['confirm_workplace'].label = 'Is "<span></span>" the user\'s current work place?'
+
 
     self.fields['equipment_types'].label = 'Select one or more equipment.'
     #self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
@@ -680,14 +679,11 @@ class ReservationForm(ModelForm):
       self.fields.pop('admin_notes')
       self.fields.pop('color')
       self.fields.pop('consumables')
-      self.fields['work_place'].label = 'Confirm your work place'
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
       self.fields['activity'].queryset = models.Activity.objects.all()
       self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
       self.fields['consumables'].queryset = models.Consumable.objects.all().filter(status='A')
-      self.fields['work_place'].label = "Confirm user's work place"
-
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()
