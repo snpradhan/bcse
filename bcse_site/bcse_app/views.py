@@ -1532,7 +1532,7 @@ def reservationWorkPlaceEdit(request, id):
         reservation = form.cleaned_data['reservation']
         work_place = form.cleaned_data['work_place']
         reservationWorkplaceUpdate(request, reservation.id, work_place.id)
-        messages.success(request, "Workplace association has been updated")
+        messages.success(request, "Work place association has been updated")
         response_data['success'] = True
       else:
         print(form.errors)
@@ -3731,9 +3731,9 @@ def userRegistration(request, workshop_id, user_id):
 def userProfileWorkPlace(request, id):
   try:
     if request.user.is_anonymous:
-      raise CustomException('You do not have the permission to get user workplace')
+      raise CustomException('You do not have the permission to get user work place')
     elif request.user.userProfile.user_role in ['T', 'P'] and request.user.userProfile.id != id:
-      raise CustomException('You do not have the permission to get this user''s workplace')
+      raise CustomException('You do not have the permission to get this user''s work place')
 
     user = models.UserProfile.objects.get(id=id)
     if request.method == 'GET':
@@ -4531,7 +4531,7 @@ def userProfileEdit(request, id=''):
         profile_modified = userProfile.modified_date
         cutoff = settings.PROFILE_UPDATE_CUTOFF
         if profile_modified < cutoff:
-          messages.warning(request, "Please confirm or update your workplace below.")
+          messages.warning(request, "Please confirm or update your work place below.")
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
@@ -5807,7 +5807,7 @@ def workPlacesUpload(request):
             logging.error(e)
 
           response_data['success'] = True
-          response_data['message'] = "%s out of %s workplaces were successfully uploaded. \
+          response_data['message'] = "%s out of %s work places were successfully uploaded. \
           You may review you uploaded file <u><strong><a href='%s' download>here</a></strong></u>. \
           This link will not be available after you close this dialog." % (new_schools, total_rows, file_url)
         else:
@@ -6863,7 +6863,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
     row_num += 3
 
     #user info header
-    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Submission ID', 'IP Address']
+    columns = ['User ID', 'Email', 'Full Name', 'Work place', connected_entity_type, 'Submission ID', 'IP Address']
     font_styles = [font_style,font_style,font_style,font_style,font_style, font_style, font_style]
     question_col_num = len(columns)
 
@@ -6956,7 +6956,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
       row = [submission.user.id if submission.user else '',
              submission.user.user.email if submission.user else '',
              submission.user.user.get_full_name() if submission.user else '',
-             submission.survey_submission_to_work_place.work_place.name if submission.survey_submission_to_work_place else '',
+             submission.survey_submission_to_work_place.work_place.name if hasattr(submission, 'survey_submission_to_work_place') else '',
              connected_entity_name,
              str(submission.UUID),
              submission.ip_address

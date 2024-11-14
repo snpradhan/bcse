@@ -117,7 +117,7 @@ class SignUpForm (forms.Form):
     user_role = cleaned_data.get('user_role')
     work_place = cleaned_data.get('work_place')
     new_work_place_flag = cleaned_data.get('new_work_place_flag')
-    print(new_work_place_flag, 'new workplace flag')
+    print(new_work_place_flag, 'new work place flag')
 
     if email is None:
       self.fields['email'].widget.attrs['class'] += ' error'
@@ -327,7 +327,7 @@ class UsersUploadForm(forms.Form):
 # Work Place Upload Form
 ####################################
 class WorkPlacesUploadForm(forms.Form):
-  file = forms.FileField(required=True, help_text="Upload the workplace template")
+  file = forms.FileField(required=True, help_text="Upload the work place template")
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -598,7 +598,7 @@ class EquipmentAvailabilityForm (forms.Form):
 class ReservationForm(ModelForm):
   equipment_types = forms.MultipleChoiceField(required=False,
                                   choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.CheckboxSelectMultiple())
-  confirm_workplace = forms.ChoiceField(required=True, choices=[('', '---------'), ('Y', 'Yes'),('N', 'No, update my workplace'),],)
+  confirm_workplace = forms.ChoiceField(required=True, choices=[('', '---------'), ('Y', 'Yes'),('N', 'No, update my work place'),],)
 
   class Meta:
     model = models.Reservation

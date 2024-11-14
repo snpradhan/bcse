@@ -131,7 +131,7 @@
                         <div>{{reservation.reservation_to_work_place.work_place.name}}</div>
                         {% if user.is_authenticated and user.userProfile.user_role in 'AS'%}
                           <div>
-                            <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' reservation.id %}" href="#">Update Workplace Association</a>
+                            <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' reservation.id %}" href="#">Update Work Place Association</a>
                           </div>
                         {% endif %}
                       </div>
@@ -258,60 +258,6 @@
             </table>
           </div>
           <hr>
-          <!--div class="contact_details">
-            <div class="header">
-              <h3 class="underline">Contact Information</h3>
-              <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' reservation.user.id %}" href="#">Update Profile</a>
-            </div>
-            <table class="table table-striped">
-              <tbody>
-                <tr>
-                  <th>User Full Name:</th>
-                  <td>{{reservation.user.user.get_full_name}}</td>
-                </tr>
-                <tr>
-                  <th>Email:</th>
-                  <td>{{reservation.user.user.email}}</td>
-                </tr>
-                <tr>
-                  <th>Phone:</th>
-                  <td>{{reservation.user.phone_number}}</td>
-                </tr>
-                <tr>
-                  <th>Workplace:</th>
-                  <td>{{reservation.user.work_place.name}}</td>
-                </tr>
-                {% if reservation.user.work_place.district_number %}
-                <tr>
-                  <th>District #:</th>
-                  <td>{{reservation.user.work_place.district_number}}</td>
-                </tr>
-                {% endif %}
-                <tr>
-                  <th>Street Address:</th>
-                  <td>
-                    {{reservation.user.work_place.street_address_1}}
-                    {% if reservation.user.work_place.street_address_2 %}
-                      <br>
-                      {{reservation.user.work_place.street_address_2}}
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <th>City:</th>
-                  <td>{{reservation.user.work_place.city}}</td>
-                </tr>
-                <tr>
-                  <th>State:</th>
-                  <td>{{reservation.user.work_place.state}}</td>
-                </tr>
-                <tr>
-                  <th>Zip Code:</th>
-                  <td>{{reservation.user.work_place.zip_code}}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div-->
         </div>
         <div class="reservation_messages">
           <h3 class="underline">
