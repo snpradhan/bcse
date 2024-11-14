@@ -750,9 +750,6 @@ class ReservationWorkPlaceForm(ModelForm):
 ##########################################################
 class ReservationUpdateForm(ModelForm):
 
-  work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
-                                                     widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}))
   class Meta:
     model = models.Reservation
     fields = ['color', 'status']
@@ -761,8 +758,6 @@ class ReservationUpdateForm(ModelForm):
     super(ReservationUpdateForm, self).__init__(*args, **kwargs)
 
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
-    if self.instance.id:
-      self.fields['work_place'].initial = self.instance.reservation_to_work_place.work_place
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
@@ -948,7 +943,8 @@ class WorkshopRegistrationForm(ModelForm):
 
   work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}))
+                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}),
+                                                     help_text="Updating the work place here only updates the workshop registration - work place association and not the work place on the user profile")
   class Meta:
     model = models.Registration
     exclude = ('created_date', 'modified_date')
@@ -1277,7 +1273,8 @@ class SurveyResponseForm(ModelForm):
 class SurveySubmissionForm(ModelForm):
   work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                       widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}))
+                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}),
+                                                      help_text="Updating the work place here only updates the survey submission - work place association and not the work place on the user profile")
   class Meta:
     model = models.SurveySubmission
     fields = ['status', 'admin_notes']

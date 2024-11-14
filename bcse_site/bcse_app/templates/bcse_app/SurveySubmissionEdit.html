@@ -34,7 +34,10 @@
           <div class="error">{{ form.status.errors }}</div>
         </div>
         <div class="form-group mb-3">
-          <label for="id_{{form.work_place.name}}" class="form-label"> {{form.work_place.label}}</label>
+          <label for="id_{{form.work_place.name}}" class="form-label">
+            {{form.work_place.label}}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.work_place.help_text}}"></i>
+          </label>
           <div>{{form.work_place}}</div>
           <div class="error">{{ form.work_place.errors }}</div>
         </div>

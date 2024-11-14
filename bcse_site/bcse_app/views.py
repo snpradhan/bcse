@@ -2177,9 +2177,7 @@ def reservationUpdate(request, reservation_id):
       form = forms.ReservationUpdateForm(data, instance=reservation)
       response_data = {}
       if form.is_valid():
-        reservation_work_place = form.cleaned_data['work_place']
         savedReservation = form.save()
-        reservationWorkplaceUpdate(request, savedReservation.id, reservation_work_place.id)
         response_data['success'] = True
         messages.success(request, 'Reservation %s updated' % reservation_id)
         if current_date <= savedReservation.delivery_date:
