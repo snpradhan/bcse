@@ -507,18 +507,16 @@ def userSignin(request, user_email=''):
       if user.is_active:
         login(request, user)
 
-        #if asking user to update their profile on login
-        if settings.VERIFY_PROFILE_ON_LOGIN:
-          profile_modified = user.userProfile.modified_date
-          cutoff = settings.PROFILE_UPDATE_CUTOFF
+        #if asking user to update their profile on login if the profile
+        #hasn't been updated after Sept 1
 
-          if profile_modified < cutoff:
-            if redirect_url:
-              redirect_url = '?next=/userProfile/%s/edit?next=%s' %(user.userProfile.id, redirect_url)
-            else:
-              redirect_url = '?next=/userProfile/%s/edit' % user.userProfile.id
+        if profile_update_required(user.userProfile):
+          if redirect_url:
+            redirect_url = '?next=/userProfile/%s/edit?next=%s' %(user.userProfile.id, redirect_url)
+          else:
+            redirect_url = '?next=/userProfile/%s/edit' % user.userProfile.id
 
-          messages.success(request, "You have signed in")
+        messages.success(request, "You have signed in")
 
         response_data['success'] = True
         response_data['redirect_url'] = redirect_url
@@ -4526,12 +4524,8 @@ def userProfileEdit(request, id=''):
         userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile")
       context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form}
 
-      #if asking user to update their profile on login
-      if settings.VERIFY_PROFILE_ON_LOGIN:
-        profile_modified = userProfile.modified_date
-        cutoff = settings.PROFILE_UPDATE_CUTOFF
-        if profile_modified < cutoff:
-          messages.warning(request, "Please confirm or update your work place below.")
+      if profile_update_required(userProfile):
+        messages.warning(request, "Your profile was last update on %s. <br> Please confirm or update your work place below." % userProfile.modified_date.strftime('%b %d, %Y'))
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
@@ -8249,3 +8243,28 @@ def remove_html_tags(request, text):
   text_re = html_re.sub('', text)
   plain_text = html.unescape(text_re)
   return plain_text
+
+################################
+# CHECK IF USER PROFILE NEEDS TO BE UPDATED
+################################
+@login_required
+def profile_update_required(userProfile):
+  if settings.VERIFY_PROFILE_ON_LOGIN:
+    profile_modified = userProfile.modified_date
+
+    current_month = datetime.datetime.now().month
+    current_year = datetime.datetime.now().year
+
+    if current_month >= 7 and current_month <=12:
+      cutoff = datetime.datetime.strptime("%s-09-01 00:00"%current_year, "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+    else:
+      cutoff = datetime.datetime.strptime("%s-09-01 00:00"%(current_year-1), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+
+    if profile_modified < cutoff:
+      return True
+    else:
+      return False
+
+  else:
+    return False
+
