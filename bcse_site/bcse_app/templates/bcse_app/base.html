@@ -257,21 +257,27 @@
         </nav>
 
         <div class="anniversary_banner">
-          {% if request.domain %}
-            {% if request.domain == 'localhost' %}
-              ****** Local ******
-            {% elif request.domain == 'stage' %}
-              ****** Stage ******
+          <div class="domain">
+            {% if request.domain %}
+              {% if request.domain == 'localhost' %}
+                *** Local ***
+              {% elif request.domain == 'stage' %}
+                *** Stage ***
+              {% endif %}
             {% endif %}
-          {% endif %}
-          Celebrating 15 Years of Fostering Tomorrow’s Innovators
-          {% if request.domain %}
-            {% if request.domain == 'localhost' %}
-             ****** Local ******
-            {% elif request.domain == 'stage' %}
-             ****** Stage ******
+          </div>
+          <div class="image">
+            <img src="{% staticfile 'img/15thAnniversaryBanner.png' %}"/>
+          </div>
+          <div class="domain">
+            {% if request.domain %}
+              {% if request.domain == 'localhost' %}
+                *** Local ***
+              {% elif request.domain == 'stage' %}
+                *** Stage ***
+              {% endif %}
             {% endif %}
-          {% endif %}
+          </div>
         </div>
 
         <ul class="messages bg-light-gray">

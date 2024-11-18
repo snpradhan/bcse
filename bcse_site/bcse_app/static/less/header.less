@@ -76,6 +76,29 @@ header {
     position: sticky;
     top: 65px;
     z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    div.domain {
+      flex: 0 0 20%;
+      @media only screen and (min-width: 320px) and (max-width: 767px) {
+        flex: 0 0 5%;
+      }
+      @media only screen and (min-width: 768px) and (max-width: 1199px) {
+        flex: 0 0 10%;
+      }
+    }
+    div.image {
+      flex: 0 0 35%;
+      @media only screen and (min-width: 320px) and (max-width: 767px) {
+        flex: 0 0 80%;
+      }
+      @media only screen and (min-width: 768px) and (max-width: 1199px) {
+        flex: 0 0 70%;
+      }
+    }
+
   }
 
 }
