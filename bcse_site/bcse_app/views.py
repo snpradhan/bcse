@@ -614,7 +614,7 @@ def userSignup(request):
       if form.cleaned_data['user_role'] in ['A', 'S', 'T','P']:
         if form.cleaned_data['user_role'] in ['T','P']:
           newUser.validation_code = get_random_string(length=5)
-          #get the work place id
+          #get the workplace id
           selected_work_place = form.cleaned_data['work_place']
           new_work_place_flag = form.cleaned_data['new_work_place_flag']
           if new_work_place_flag:
@@ -1520,7 +1520,7 @@ def reservationWorkPlaceEdit(request, id):
         reservation = form.cleaned_data['reservation']
         work_place = form.cleaned_data['work_place']
         reservationWorkplaceUpdate(request, reservation.id, work_place.id)
-        messages.success(request, "Work place association has been updated")
+        messages.success(request, "Workplace association has been updated")
         response_data['success'] = True
       else:
         print(form.errors)
@@ -3280,7 +3280,7 @@ def workshopRegistration(request, workshop_id):
         registration['instance'] = saved_registration
         registration['current_status'] = saved_registration.status
 
-      #create registration - work place association
+      #create registration - workplace association
       if saved_registration.user.work_place:
         registration_work_place = models.RegistrationWorkPlace(registration=saved_registration, work_place=saved_registration.user.work_place)
         registration_work_place.save()
@@ -3719,9 +3719,9 @@ def userRegistration(request, workshop_id, user_id):
 def userProfileWorkPlace(request, id):
   try:
     if request.user.is_anonymous:
-      raise CustomException('You do not have the permission to get user work place')
+      raise CustomException('You do not have the permission to get user workplace')
     elif request.user.userProfile.user_role in ['T', 'P'] and request.user.userProfile.id != id:
-      raise CustomException('You do not have the permission to get this user''s work place')
+      raise CustomException('You do not have the permission to get this user''s workplace')
 
     user = models.UserProfile.objects.get(id=id)
     if request.method == 'GET':
@@ -4522,7 +4522,7 @@ def userProfileEdit(request, id=''):
 
       context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
       if update_required:
-        messages.warning(request, "Your profile was last update on %s. <br> Please confirm or update your work place below." % userProfile.modified_date.strftime('%b %d, %Y'))
+        messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
@@ -4566,7 +4566,7 @@ def userProfileEdit(request, id=''):
             print(work_place_form.errors)
             context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
             if update_required:
-              messages.warning(request, "Your profile was last update on %s. <br> Please confirm or update your work place below." % userProfile.modified_date.strftime('%b %d, %Y'))
+              messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
 
             response_data['success'] = False
             response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
@@ -4602,7 +4602,7 @@ def userProfileEdit(request, id=''):
         print(userProfileForm.errors)
         context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
         if update_required:
-          messages.warning(request, "Your profile was last update on %s. <br> Please confirm or update your work place below." % userProfile.modified_date.strftime('%b %d, %Y'))
+          messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
 
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
@@ -5347,7 +5347,7 @@ def usersExport(request):
       date_time_format = xlwt.XFStyle()
       date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
 
-      columns = ['User ID', 'Email', 'Full Name', 'Role', 'Work Place', 'Phone Number', 'IEIN', 'Grades Taught', 'Instagram Handle', 'Twitter Handle', 'Subscribed?', 'Photo Release Complete?', 'Status', 'Joined On', 'Last Login']
+      columns = ['User ID', 'Email', 'Full Name', 'Role', 'Workplace', 'Phone Number', 'IEIN', 'Grades Taught', 'Instagram Handle', 'Twitter Handle', 'Subscribed?', 'Photo Release Complete?', 'Status', 'Joined On', 'Last Login']
       font_styles = [font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_time_format]
 
       ws = wb.add_sheet('BCSE Users')
@@ -5499,7 +5499,7 @@ def workPlaces(request):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view work places')
+      raise CustomException('You do not have the permission to view workplaces')
 
     if request.session.get('workplaces_search', False):
       searchForm = forms.WorkPlacesSearchForm(user=request.user, initials=request.session['workplaces_search'], prefix="work_place_search")
@@ -5516,7 +5516,7 @@ def workPlaces(request):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################################
-# FILTER WORK PLACES LIST BASED ON FILTER CRITERIA
+# FILTER WORKPLACES LIST BASED ON FILTER CRITERIA
 ####################################################
 @login_required
 def workPlacesSearch(request):
@@ -5528,7 +5528,7 @@ def workPlacesSearch(request):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to search work places')
+      raise CustomException('You do not have the permission to search workplaces')
 
     if request.method == 'GET':
 
@@ -5655,7 +5655,7 @@ def workPlacesSearch(request):
 
 
 ##########################################################
-# EDIT WORK PLACE
+# EDIT WORKPLACE
 ##########################################################
 @login_required
 def workPlaceEdit(request, id=''):
@@ -5668,7 +5668,7 @@ def workPlaceEdit(request, id=''):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to edit work place')
+      raise CustomException('You do not have the permission to edit workplace')
     if '' != id:
       work_place = models.WorkPlace.objects.get(id=id)
     else:
@@ -5684,7 +5684,7 @@ def workPlaceEdit(request, id=''):
       response_data = {}
       if form.is_valid():
         savedWorkPlace = form.save()
-        messages.success(request, "Work place saved successfully")
+        messages.success(request, "Workplace saved successfully")
         response_data['success'] = True
       else:
         print(form.errors)
@@ -5702,7 +5702,7 @@ def workPlaceEdit(request, id=''):
 
 
 ##########################################################
-# DELETE WORK PLACE
+# DELETE WORKPLACE
 ##########################################################
 @login_required
 def workPlaceDelete(request, id=''):
@@ -5716,23 +5716,23 @@ def workPlaceDelete(request, id=''):
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to delete work place')
+      raise CustomException('You do not have the permission to delete workplace')
     if '' != id:
       work_place = models.WorkPlace.objects.get(id=id)
       work_place.delete()
-      messages.success(request, "Work place deleted")
+      messages.success(request, "Workplace deleted")
 
     return shortcuts.redirect('bcse:workPlaces')
 
   except models.WorkPlace.DoesNotExist:
-    messages.success(request, "Work place not found")
+    messages.success(request, "Workplace not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
-# UPLOAD WORK PLACES VIA AN EXCEL TEMPLATE
+# UPLOAD WORKPLACES VIA AN EXCEL TEMPLATE
 ##########################################################
 @login_required
 def workPlacesUpload(request):
@@ -5744,7 +5744,7 @@ def workPlacesUpload(request):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to upload work places')
+      raise CustomException('You do not have the permission to upload workplaces')
 
     if request.method == 'GET':
       form = forms.WorkPlacesUploadForm(user=request.user)
@@ -5780,14 +5780,14 @@ def workPlacesUpload(request):
             term_id = row[8]
             if name and work_place_type: # and street_address_1 and city and state and zip_code:
               if models.WorkPlace.objects.all().filter(name=name, work_place_type=work_place_types[work_place_type]).count() > 0:
-                upload_status.append("Work place already exists")
+                upload_status.append("Workplace already exists")
               else:
                 work_place = models.WorkPlace(name=name, work_place_type=work_place_types[work_place_type], district_number=district_number, street_address_1=street_address_1, street_address_2=street_address_2, city=city, state=state, zip_code=zip_code, status='A')
                 if term_id:
                   work_place.term_id = term_id
                 work_place.save()
                 new_schools += 1
-                upload_status.append("Work place created")
+                upload_status.append("Workplace created")
             else:
               upload_status.append("One of the mandatory fields is missing")
 
@@ -5805,7 +5805,7 @@ def workPlacesUpload(request):
             logging.error(e)
 
           response_data['success'] = True
-          response_data['message'] = "%s out of %s work places were successfully uploaded. \
+          response_data['message'] = "%s out of %s workplaces were successfully uploaded. \
           You may review you uploaded file <u><strong><a href='%s' download>here</a></strong></u>. \
           This link will not be available after you close this dialog." % (new_schools, total_rows, file_url)
         else:
@@ -5827,7 +5827,7 @@ def workPlacesUpload(request):
 
 
 ##########################################################
-# EXPORT WORK PLACES ON AN EXCEL DOC
+# EXPORT WORKPLACES ON AN EXCEL DOC
 ##########################################################
 @login_required
 def workPlacesExport(request):
@@ -5839,7 +5839,7 @@ def workPlacesExport(request):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to export work places')
+      raise CustomException('You do not have the permission to export workplaces')
 
     if request.method == 'GET':
       workplaces = models.WorkPlace.objects.all().order_by('name')
@@ -5855,10 +5855,10 @@ def workPlacesExport(request):
       date_time_format = xlwt.XFStyle()
       date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
 
-      columns = ['ID', 'Name', 'Work Place Type', 'District #', 'Street Address 1', 'Street Address 2', 'City', 'State', 'Zip Code', 'Latitude', 'Longitude', 'Distance (miles)', 'Travel Time (mins)', 'Status', 'Created Date', 'Modified Date']
+      columns = ['ID', 'Name', 'Workplace Type', 'District #', 'Street Address 1', 'Street Address 2', 'City', 'State', 'Zip Code', 'Latitude', 'Longitude', 'Distance (miles)', 'Travel Time (mins)', 'Status', 'Created Date', 'Modified Date']
       font_styles = [font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_time_format, date_time_format]
 
-      ws = wb.add_sheet('Work Places')
+      ws = wb.add_sheet('Workplaces')
       row_num = 0
       #write the headers
       for col_num in range(len(columns)):
@@ -6861,7 +6861,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
     row_num += 3
 
     #user info header
-    columns = ['User ID', 'Email', 'Full Name', 'Work place', connected_entity_type, 'Submission ID', 'IP Address']
+    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Submission ID', 'IP Address']
     font_styles = [font_style,font_style,font_style,font_style,font_style, font_style, font_style]
     question_col_num = len(columns)
 
@@ -7448,11 +7448,16 @@ def surveySubmissionEdit(request, id='', submission_uuid=''):
       if form.is_valid():
         survey_submission_work_place = form.cleaned_data['work_place']
         savedSubmission = form.save()
-        if hasattr(savedSubmission, 'survey_submission_to_work_place'):
-          savedSubmission.survey_submission_to_work_place.work_place = survey_submission_work_place
-          savedSubmission.survey_submission_to_work_place.save()
+        if survey_submission_work_place:
+          if hasattr(savedSubmission, 'survey_submission_to_work_place'):
+            savedSubmission.survey_submission_to_work_place.work_place = survey_submission_work_place
+            savedSubmission.survey_submission_to_work_place.save()
+          else:
+            models.SurveySubmissionWorkPlace.objects.create(submission=savedSubmission, work_place=survey_submission_work_place)
         else:
-          models.SurveySubmissionWorkPlace.objects.create(submission=savedSubmission, work_place=survey_submission_work_place)
+          if hasattr(savedSubmission, 'survey_submission_to_work_place'):
+            savedSubmission.survey_submission_to_work_place.delete()
+        messages.success(request, "Survey submission updated.")
         response_data['success'] = True
       else:
         context = {'survey': survey, 'submission': submission, 'form': form}

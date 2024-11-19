@@ -240,7 +240,7 @@
               $('span#confirm_workplace_label > span').html(data['work_place']);
               $('select#id_confirm_workplace').val('Y').trigger('change');
               $('#profile').modal('toggle');
-              displayInfoDialog('Work Place Update', 'The work place has been updated to <b>'+data['work_place']+'</b>', false);
+              displayInfoDialog('Workplace Update', 'The workplace has been updated to <b>'+data['work_place']+'</b>', false);
             }
             else if(data['redirect_url']){
               //var redirect_url = window.parent.location.href.split('?')[0];

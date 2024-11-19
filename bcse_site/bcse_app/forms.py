@@ -64,17 +64,17 @@ class SignUpForm (forms.Form):
   password1 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Password')
   password2 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Confirm Password')
   user_role = forms.ChoiceField(required=True, choices=(('', '---------'),)+models.USER_ROLE_CHOICES, label='I am a')
-  work_place = forms.ModelChoiceField(required=False,
-                                  queryset=models.WorkPlace.objects.all(), label='Work Place',
+  work_place = forms.ModelChoiceField(required=False, label=u"Workplace",
+                                  queryset=models.WorkPlace.objects.all(),
                                   widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                  attrs={'data-placeholder': 'Start typing the name if your work place ...', 'dropdownParent': '#signup_workplace_select'}),
+                                                                  attrs={'data-placeholder': 'Start typing the name if your workplace ...', 'dropdownParent': '#signup_workplace_select'}),
                                   )
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
   iein = forms.CharField(required=False, max_length=20, label='IEIN #')
   grades_taught = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.GRADES_CHOICES, label='Grades Taught')
   twitter_handle = forms.CharField(required=False, max_length=20, label='Twitter ID')
   instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
-  new_work_place_flag = forms.BooleanField(required=False, label='My Work Place Is Not Listed')
+  new_work_place_flag = forms.BooleanField(required=False, label='My Workplace Is Not Listed')
   subscribe = forms.BooleanField(required=False, label='Subscribe To Our Mailing List')
   image = forms.ImageField(required=False)
 
@@ -83,9 +83,10 @@ class SignUpForm (forms.Form):
     user = kwargs.pop('user')
 
     super(SignUpForm, self).__init__(*args, **kwargs)
+
     if user.is_authenticated and user.userProfile.user_role in ['A', 'S']:
       self.fields['user_role'].label = 'User Role'
-      self.fields['new_work_place_flag'].label = 'Work Place Not Listed'
+      self.fields['new_work_place_flag'].label = 'Workplace Not Listed'
     else:
       self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
 
@@ -117,7 +118,7 @@ class SignUpForm (forms.Form):
     user_role = cleaned_data.get('user_role')
     work_place = cleaned_data.get('work_place')
     new_work_place_flag = cleaned_data.get('new_work_place_flag')
-    print(new_work_place_flag, 'new work place flag')
+    print(new_work_place_flag, 'new workplace flag')
 
     if email is None:
       self.fields['email'].widget.attrs['class'] += ' error'
@@ -146,7 +147,7 @@ class SignUpForm (forms.Form):
     #check fields for Teacher, Student and School Administrator
     if work_place is None and not new_work_place_flag:
       self.fields['work_place'].widget.attrs['class'] += ' error'
-      self.add_error('work_place', 'Work Place is required.')
+      self.add_error('work_place', 'Workplace is required.')
 
 
 ####################################
@@ -231,7 +232,7 @@ class UserForm(ModelForm):
 ####################################
 class UserProfileForm (ModelForm):
 
-  new_work_place_flag = forms.BooleanField(required=False, label='My Work Place Is Not Listed')
+  new_work_place_flag = forms.BooleanField(required=False, label='My Workplace Is Not Listed')
 
   class Meta:
     model = models.UserProfile
@@ -239,7 +240,7 @@ class UserProfileForm (ModelForm):
     widgets = {
       'image': widgets.ClearableFileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                              attrs={'data-placeholder': 'Start typing the name if your work place ...', 'dropdownparent': '#profile_workplace_select'}),
+                                              attrs={'data-placeholder': 'Start typing the name if your workplace ...', 'dropdownparent': '#profile_workplace_select'}),
     }
 
   def __init__(self, *args, **kwargs):
@@ -249,6 +250,7 @@ class UserProfileForm (ModelForm):
     self.fields['twitter_handle'].label = 'Twitter ID'
     self.fields['instagram_handle'].label = 'Instagram ID'
     self.fields['subscribe'].label = 'Subscribe To Our Mailing List'
+    self.fields['work_place'].label = 'Workplace'
 
     if user.is_authenticated:
       if user.userProfile.user_role not in ['A', 'S']:
@@ -276,7 +278,7 @@ class UserProfileForm (ModelForm):
       if user.userProfile.user_role not in ['A', 'S']:
         if work_place is None and not new_work_place_flag:
           self.fields['work_place'].widget.attrs['class'] += ' error'
-          self.add_error('work_place', 'Work Place is required.')
+          self.add_error('work_place', 'Workplace is required.')
 
 
 
@@ -324,10 +326,10 @@ class UsersUploadForm(forms.Form):
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
-# Work Place Upload Form
+# Workplace Upload Form
 ####################################
 class WorkPlacesUploadForm(forms.Form):
-  file = forms.FileField(required=True, help_text="Upload the work place template")
+  file = forms.FileField(required=True, help_text="Upload the workplace template")
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -598,7 +600,7 @@ class EquipmentAvailabilityForm (forms.Form):
 class ReservationForm(ModelForm):
   equipment_types = forms.MultipleChoiceField(required=False,
                                   choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.CheckboxSelectMultiple())
-  confirm_workplace = forms.ChoiceField(required=True, choices=[('', '---------'), ('Y', 'Yes'),('N', 'No, update my work place'),],)
+  confirm_workplace = forms.ChoiceField(required=True, choices=[('', '---------'), ('Y', 'Yes'),('N', 'No, update my workplace'),],)
 
   class Meta:
     model = models.Reservation
@@ -654,9 +656,9 @@ class ReservationForm(ModelForm):
       self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
       if user.user_role in ['T', 'P']:
         if user.work_place:
-          self.fields['confirm_workplace'].label = 'Is "<span>%s</span>" your current work place?' % user.work_place
+          self.fields['confirm_workplace'].label = 'Is "<span>%s</span>" your current workplace?' % user.work_place
       else:
-        self.fields['confirm_workplace'].label = 'Is "<span></span>" the user\'s current work place?'
+        self.fields['confirm_workplace'].label = 'Is "<span></span>" the user\'s current workplace?'
 
 
     self.fields['equipment_types'].label = 'Select one or more equipment.'
@@ -733,12 +735,13 @@ class ReservationWorkPlaceForm(ModelForm):
     fields = ['reservation', 'work_place']
     widgets = {
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                              attrs={'data-placeholder': 'Start typing the name if your work place ...'}),
+                                              attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
     }
 
   def __init__(self, *args, **kwargs):
     super(ReservationWorkPlaceForm, self).__init__(*args, **kwargs)
 
+    self.fields['work_place'].label = 'Workplace'
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
@@ -941,10 +944,10 @@ class WorkshopRegistrationSettingForm(ModelForm):
 ####################################
 class WorkshopRegistrationForm(ModelForm):
 
-  work_place = forms.ModelChoiceField(required=True, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+  work_place = forms.ModelChoiceField(required=True, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                     attrs={'data-placeholder': 'Start typing the name of the work place ...'}),
-                                                     help_text="Updating the work place here only updates the workshop registration - work place association and not the work place on the user profile")
+                                                                                     attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
+                                                     help_text="Updating the workplace here only updates the workshop registration - workplace association and not the workplace on the user profile")
   class Meta:
     model = models.Registration
     exclude = ('created_date', 'modified_date')
@@ -1056,7 +1059,7 @@ class WorkshopCategoriesSearchForm(forms.Form):
           field.initial = initials[field_name]
 
 ####################################
-# Work Place Form
+# Workplace Form
 ####################################
 class WorkPlaceForm(ModelForm):
 
@@ -1071,7 +1074,7 @@ class WorkPlaceForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
       if field_name == 'name':
-        field.label = 'Work Place Name'
+        field.label = 'Workplace Name'
       if field_name == 'district_number':
         field.label = 'District #'
 
@@ -1271,10 +1274,10 @@ class SurveyResponseForm(ModelForm):
 # SurveySubmission Form
 ####################################
 class SurveySubmissionForm(ModelForm):
-  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                       widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}),
-                                                      help_text="Updating the work place here only updates the survey submission - work place association and not the work place on the user profile")
+                                                                                       attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
+                                                      help_text="Updating the workplace here only updates the survey submission - workplace association and not the workplace on the user profile")
   class Meta:
     model = models.SurveySubmission
     fields = ['status', 'admin_notes']
@@ -1301,9 +1304,9 @@ class SurveySubmissionsSearchForm(forms.Form):
   first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
   last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
   user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
-  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                       widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}))
+                                                                                       attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
 
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.SURVEY_SUBMISSION_STATUS_CHOICES)
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
@@ -1359,7 +1362,7 @@ class VignetteForm(ModelForm):
 class ReservationsSearchForm(forms.Form):
 
   user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
-  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Work Place", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the work place ...'}),
+  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                   )
   assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
@@ -1529,9 +1532,9 @@ class UsersSearchForm(forms.Form):
   first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
   last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
   user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
-  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+  work_place = forms.ModelChoiceField(required=False, label=u"Workplace", queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                       widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}))
+                                                                                       attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
   joined_after = forms.DateField(required=False, label=u'Joined on/after')
   joined_before = forms.DateField(required=False, label=u'Joined on/before')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
@@ -1564,7 +1567,7 @@ class UsersSearchForm(forms.Form):
 
 
 ####################################
-# Work Place Search Form
+# Workplace Search Form
 ####################################
 class WorkPlacesSearchForm(ModelForm):
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
@@ -1588,6 +1591,8 @@ class WorkPlacesSearchForm(ModelForm):
 
     super(WorkPlacesSearchForm, self).__init__(*args, **kwargs)
 
+    self.fields['work_place_type'].label = 'Workplace Type'
+
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       if field_name == 'district_number':
@@ -1604,7 +1609,7 @@ class WorkPlacesSearchForm(ModelForm):
 class BaxterBoxUsageSearchForm(forms.Form):
   from_date = forms.DateField(required=False, label=u'From')
   to_date = forms.DateField(required=False, label=u'To')
-  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Work Place", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the work place ...'}),)
+  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),)
   user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
   activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':7}))
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':7}))
@@ -1641,9 +1646,9 @@ class WorkshopRegistrantsSearchForm(forms.Form):
   first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
   last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
   user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
-  work_place = forms.ModelChoiceField(required=False, queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                       widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
-                                                                                       attrs={'data-placeholder': 'Start typing the name if your work place ...'}))
+                                                                                       attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
   registration_status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   subscribed = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
   photo_release_complete = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))

@@ -12,7 +12,7 @@
           <th> Name </th>
         {% endif %}
         {% if 'WT' in columns %}
-          <th> Work Place Type </th>
+          <th> Workplace Type </th>
         {% endif %}
         {% if 'DN' in columns %}
           <th> District # </th>
@@ -126,7 +126,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <a class="dropdown-item delete action" data-href="{% url 'bcse:workPlaceDelete' work_place.id %}"
-                  data-title="the work place <strong>{{work_place.name}}</strong>">
+                  data-title="the workplace <strong>{{work_place.name}}</strong>">
                     Delete
                   </a>
                 </li>
@@ -139,5 +139,5 @@
   </table>
   {% include "bcse_app/Pagination.html" with model=work_places location='bottom' %}
 {% else %}
-  <div class="warning center">No work places matching your search criteria found</div>
+  <div class="warning center">No workplaces matching your search criteria found</div>
 {% endif %}

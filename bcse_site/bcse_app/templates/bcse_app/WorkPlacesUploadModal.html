@@ -2,7 +2,7 @@
 <div class="modal-dialog modal-md">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 class="left">Upload Work Places</h3>
+      <h3 class="left">Upload Workplaces</h3>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div id="uploadMsg" class="msg">
@@ -62,7 +62,7 @@
         success: function(data, status) {
           if(data['success'] == true){
             $('#upload').modal('toggle');
-            displayInfoDialog('Work Place Upload Status', data['message'], true);
+            displayInfoDialog('Workplace Upload Status', data['message'], true);
             //location.reload();
           }
           else{

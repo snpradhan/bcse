@@ -157,7 +157,7 @@ USER_TABLE_COLUMN_CHOICES = (
   ('FN', 'Full Name'),
   ('EM', 'Email'),
   ('RL', 'Role'),
-  ('WP', 'Work Place'),
+  ('WP', 'Workplace'),
   ('JD', 'Joined Date'),
   ('LL', 'Last Login'),
   ('PN', 'Phone Number'),
@@ -174,7 +174,7 @@ USER_TABLE_COLUMN_CHOICES = (
 WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('ID', 'ID'),
   ('NM', 'Name'),
-  ('WT', 'Work Place Type'),
+  ('WT', 'Workplace Type'),
   ('DN', 'District #'),
   ('S1', 'Street Address 1'),
   ('S2', 'Street Address 2'),
@@ -198,7 +198,7 @@ SURVEY_SUBMISSION_TABLE_COLUMN_CHOICES = (
   ('UI', 'User ID'),
   ('FN', 'Full Name'),
   ('EM', 'Email'),
-  ('WP', 'Work Place'),
+  ('WP', 'Workplace'),
   ('CE', 'Connected Entity'),
   ('AN', 'Admin Notes'),
   ('ST', 'Status'),
@@ -274,14 +274,14 @@ def upload_file_to(instance, filename):
 
 
 class WorkPlace(models.Model):
-  name = models.CharField(null=False, blank=False, max_length=256, help_text='Name of Work Place')
+  name = models.CharField(null=False, blank=False, max_length=256, help_text='Name of Workplace')
   work_place_type = models.CharField(max_length=1, choices=WORKPLACE_CHOICES)
   district_number = models.CharField(null=True, blank=True, max_length=256, help_text='District Number for School')
   street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
   street_address_2 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 2')
   city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
   state = USStateField(null=False, blank=False, help_text='State')
-  zip_code = models.CharField(null=False, blank=False, max_length=256, help_text='Zip Code of Work Place')
+  zip_code = models.CharField(null=False, blank=False, max_length=256, help_text='Zip Code of Workplace')
   latitude = models.CharField(null=True, blank=True, max_length=256)
   longitude = models.CharField(null=True, blank=True, max_length=256)
   time_from_base = models.CharField(null=True, blank=True, max_length=256)
@@ -301,7 +301,7 @@ class WorkPlace(models.Model):
 # Placeholder workplace to assign to users when the users' workplace is deleted
 #
 def get_placeholder_workplace():
-  return WorkPlace.objects.all().filter(name='Placeholder work place')[0].id
+  return WorkPlace.objects.all().filter(name='Placeholder workplace')[0].id
 
 
 
