@@ -2,7 +2,7 @@ from datetime import datetime
 from django.core.cache import cache
 from django.conf import settings
 from django.contrib import auth, messages
-from bcse_app import models
+from bcse_app import models, views
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponse
 from django import shortcuts
@@ -62,8 +62,8 @@ class OnlineNowMiddleware(MiddlewareMixin):
 class NextParameterMiddleware(MiddlewareMixin):
 
   def process_request(self, request):
+
     redirect_url = request.GET.get('next', '')
-    print(redirect_url, 'in middleware')
     target = None
     if redirect_url.find('password_reset') == 1:
       target = '#password'
@@ -83,6 +83,13 @@ class NextParameterMiddleware(MiddlewareMixin):
     if request.user.is_authenticated and redirect_url.find('signin') == 1 and redirect_url.find('survey') > 1:
       redirect_url = redirect_url.replace('/signin/?next=/?next=', '')
       target = '#general'
+
+    if request.user.is_authenticated and views.profile_update_required(request.user.userProfile):
+      target = '#profile'
+      if redirect_url:
+        redirect_url = '/userProfile/%s/edit?next=/?next=%s' % (request.user.userProfile.id, redirect_url)
+      else:
+        redirect_url = '/userProfile/%s/edit' % request.user.userProfile.id
 
 
     if target and redirect_url:

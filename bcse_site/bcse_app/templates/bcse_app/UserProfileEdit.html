@@ -15,7 +15,7 @@
         {% endfor %}
       </ul>
     </div>
-    <form class="form" method="post" enctype="multipart/form-data" action="{% url 'bcse:userProfileEdit' userProfileForm.instance.id %}" id="formUserProfile">
+    <form class="form" method="post" enctype="multipart/form-data" action="{% url 'bcse:userProfileEdit' userProfileForm.instance.id %}{% if redirect_url %}?next={{redirect_url}}{% endif %}" id="formUserProfile">
       {% csrf_token %}
       {{form.management_form}}
       <div class="modal-body">
@@ -179,7 +179,8 @@
 <script type="text/javascript">
   $(function (){
 
-    if($('#reservationForm').length || $('#home').length){
+    var profile_update_required = '{{update_required}}';
+    if($('#reservationForm').length || profile_update_required == 'True'){
       $('.btn-close').hide();
     }
 
@@ -241,10 +242,13 @@
               $('#profile').modal('toggle');
               displayInfoDialog('Work Place Update', 'The work place has been updated to <b>'+data['work_place']+'</b>', false);
             }
-            else{
-              //location.reload();
-              var redirect_url = window.parent.location.href.split('?')[0];
+            else if(data['redirect_url']){
+              //var redirect_url = window.parent.location.href.split('?')[0];
+              var redirect_url = data['redirect_url'];
               window.parent.location.href = redirect_url;
+            }
+            else {
+              location.reload();
             }
           }
           else{

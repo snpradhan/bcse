@@ -66,6 +66,7 @@ MIDDLEWARE = [
     'bcse_app.middleware.OnlineNowMiddleware',
     'bcse_app.middleware.NextParameterMiddleware',
     'bcse_app.middleware.DomainMiddleware',
+
 ]
 
 ROOT_URLCONF = 'bcse_site.urls'
@@ -271,8 +272,6 @@ BAXTER_BOX_MAX_ADVANCE_RESERVATION_DAYS = 180
 BAXTER_BOX_RESERVATION_REMINDER_DAYS = 30
 
 VERIFY_PROFILE_ON_LOGIN = True
-PROFILE_UPDATE_CUTOFF = datetime.datetime.strptime("2024-02-27 00:00", "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(TIME_ZONE))
-
 
 CRONJOBS = [
     # run cron at 1 am to backup database

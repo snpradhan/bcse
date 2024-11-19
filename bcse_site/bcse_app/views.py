@@ -506,16 +506,6 @@ def userSignin(request, user_email=''):
 
       if user.is_active:
         login(request, user)
-
-        #if asking user to update their profile on login if the profile
-        #hasn't been updated after Sept 1
-
-        if profile_update_required(user.userProfile):
-          if redirect_url:
-            redirect_url = '?next=/userProfile/%s/edit?next=%s' %(user.userProfile.id, redirect_url)
-          else:
-            redirect_url = '?next=/userProfile/%s/edit' % user.userProfile.id
-
         messages.success(request, "You have signed in")
 
         response_data['success'] = True
@@ -4514,6 +4504,13 @@ def userProfileEdit(request, id=''):
     if request.user.userProfile.user_role != 'A' and request.user.id != userProfile.user.id:
       raise CustomException('You do not have the permission to edit this user profile')
 
+    if profile_update_required(userProfile):
+      update_required = True
+    else:
+      update_required = False
+
+    redirect_url = request.GET.get('next', '')
+
     if request.method == 'GET':
       userForm = forms.UserForm(instance=userProfile.user, user=request.user, prefix="user")
       work_place_form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
@@ -4522,9 +4519,9 @@ def userProfileEdit(request, id=''):
         userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile", initial={'work_place': None})
       else:
         userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile")
-      context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form}
 
-      if profile_update_required(userProfile):
+      context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
+      if update_required:
         messages.warning(request, "Your profile was last update on %s. <br> Please confirm or update your work place below." % userProfile.modified_date.strftime('%b %d, %Y'))
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
@@ -4567,7 +4564,10 @@ def userProfileEdit(request, id=''):
             savedUserProfile.work_place = new_work_place
           else:
             print(work_place_form.errors)
-            context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form}
+            context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
+            if update_required:
+              messages.warning(request, "Your profile was last update on %s. <br> Please confirm or update your work place below." % userProfile.modified_date.strftime('%b %d, %Y'))
+
             response_data['success'] = False
             response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
             return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -4596,10 +4596,14 @@ def userProfileEdit(request, id=''):
         messages.success(request, "User profile saved successfully")
         response_data['success'] = True
         response_data['work_place'] = savedUserProfile.work_place.name
+        response_data['redirect_url'] =  redirect_url
       else:
         print(userForm.errors)
         print(userProfileForm.errors)
-        context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form}
+        context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
+        if update_required:
+          messages.warning(request, "Your profile was last update on %s. <br> Please confirm or update your work place below." % userProfile.modified_date.strftime('%b %d, %Y'))
+
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
 
@@ -8255,10 +8259,10 @@ def profile_update_required(userProfile):
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
 
-    if current_month >= 7 and current_month <=12:
-      cutoff = datetime.datetime.strptime("%s-09-01 00:00"%current_year, "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+    if current_month >= 8 and current_month <=12:
+      cutoff = datetime.datetime.strptime("%s-08-01 00:00"%current_year, "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
     else:
-      cutoff = datetime.datetime.strptime("%s-09-01 00:00"%(current_year-1), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+      cutoff = datetime.datetime.strptime("%s-08-01 00:00"%(current_year-1), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
 
     if profile_modified < cutoff:
       return True
