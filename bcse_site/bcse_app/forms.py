@@ -944,7 +944,7 @@ class WorkshopRegistrationSettingForm(ModelForm):
 ####################################
 class WorkshopRegistrationForm(ModelForm):
 
-  work_place = forms.ModelChoiceField(required=True, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
+  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
                                                                                      attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                                      help_text="Updating the workplace here only updates the workshop registration - workplace association and not the workplace on the user profile")
