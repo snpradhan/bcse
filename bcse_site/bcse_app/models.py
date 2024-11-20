@@ -869,7 +869,7 @@ def check_registration_status_change(sender, instance, **kwargs):
 
       email_body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
 
-      context = {'email_body': email_body}
+      context = {'email_body': email_body, 'domain': domain}
       body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
       email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])

@@ -7300,7 +7300,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                     subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
                   email_body = survey.email_confirmation_message
-                  context = {'email_body': email_body}
+                  context = {'email_body': email_body, 'domain': domain}
                   body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
                   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [respondant_email])
