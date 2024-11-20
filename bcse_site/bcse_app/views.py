@@ -8258,18 +8258,21 @@ def remove_html_tags(request, text):
 ################################
 @login_required
 def profile_update_required(userProfile):
-  if settings.VERIFY_PROFILE_ON_LOGIN:
+  if settings.REQUIRE_PROFILE_UPDATE:
+
     profile_modified = userProfile.modified_date
 
     current_month = datetime.datetime.now().month
     current_year = datetime.datetime.now().year
+    cutoff_month = settings.PROFILE_UPDATE_CUTOFF_MONTH
+    cutoff_day = settings.PROFILE_UPDATE_CUTOFF_DAY
 
     if current_month >= 8 and current_month <=12:
-      cutoff = datetime.datetime.strptime("%s-08-01 00:00"%current_year, "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+      cutoff_date = datetime.datetime.strptime("%s-%s-%s 00:00"%(current_year, cutoff_month, cutoff_day), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
     else:
-      cutoff = datetime.datetime.strptime("%s-08-01 00:00"%(current_year-1), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+      cutoff_date = datetime.datetime.strptime("%s-%s-%s 00:00"%(current_year-1, cutoff_month, cutoff_day), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
 
-    if profile_modified < cutoff:
+    if profile_modified < cutoff_date:
       return True
     else:
       return False
