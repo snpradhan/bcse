@@ -4649,7 +4649,23 @@ def userProfileDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+##########################################################
+# EMAIL LINK TO SUBSCRIBE USER TO MAILCHIMP
+##########################################################
+def subscribeFromEmail(request):
+  """
+  subscribeFromEmail is called from an email link in the footer
+  :param request: request from the browser
+  :returns: rendered template 'bcse_app/SubscribeModal.html' if user is anonymous, subscription status if user is logged in
+  """
+  if request.user.is_authenticated:
+    return subscribe(request)
+  else:
+    return http.HttpResponseRedirect('/?next=/subscribe')
 
+##########################################################
+# SUBSCRIBE USER TO MAILCHIMP
+##########################################################
 def subscribe(request):
   """
   subscribe is called from the path 'about/contact'
@@ -4673,7 +4689,10 @@ def subscribe(request):
           userProfile.save()
           messages.success(request, "You have successfully subscribed to our mailing list")
 
-        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        if request.META.get('HTTP_REFERER'):
+          return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+          return shortcuts.redirect('bcse:home')
       else:
         form = forms.SubscriptionForm(user=request.user)
         context = {'form': form}

@@ -199,6 +199,7 @@ urlpatterns = [
     path('about/teacherLeaders', views.aboutTeacherLeaders, name='aboutTeacherLeaders'),
     path('about/leadershipopportunities', views.teacherLeadershipOpportunities, name='teacherLeadershipOpportunities'),
     path('subscribe', views.subscribe, name='subscribe'),
+    path('subscribe/email', views.subscribeFromEmail, name='subscribeFromEmail'),
     path('load_equipment_options/<int:activity_id>/', views.load_equipment_options, name='load_activity_equipment_options'),
     path('load_equipment_options/', views.load_equipment_options, name='load_all_equipment_options')
 

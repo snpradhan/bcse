@@ -69,8 +69,10 @@
         },
         success: function(data, status) {
           if(data['success'] == true){
-            location.reload();
-            //displayInfoDialog('Subscription', "You have successfully subscribed to our mailing list", true);
+            //location.reload();
+            $('#general').modal('toggle');
+            var redirect_url = window.parent.location.href.split('?')[0];
+            window.parent.location.href = redirect_url;
           }
           else{
             $('#general').html(data['html']);
