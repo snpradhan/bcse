@@ -319,7 +319,7 @@ def blackoutDateDelete(request, id=''):
       blackout_date.delete()
       messages.success(request, "Blackout Date deleted")
 
-    return shortcuts.redirect('bcse:blackoutDates')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
   except models.BaxterBoxBlackoutDate.DoesNotExist:
     messages.success(request, "Blackout Date not found")
