@@ -1545,8 +1545,10 @@ class UsersSearchForm(forms.Form):
                                                       ('first_name', 'First Name'),
                                                       ('last_name', 'Last Name'),
                                                       ('date_joined_desc', 'Date Joined (Desc)'),
-                                                      ('date_joined_asc', 'Date Joined (Asc)')), initial='date_joined_desc')
-  columns = forms.MultipleChoiceField(required=False, choices=models.USER_TABLE_COLUMN_CHOICES, initial=['ID', 'EM', 'FN', 'RL', 'WP', 'ST', 'JD', 'LL'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+                                                      ('date_joined_asc', 'Date Joined (Asc)'),
+                                                      ('last_updated_desc', 'Last Updated (Desc)'),
+                                                      ('last_updated_asc', 'Last Updated (Asc)')), initial='date_joined_desc')
+  columns = forms.MultipleChoiceField(required=False, choices=models.USER_TABLE_COLUMN_CHOICES, initial=['ID', 'EM', 'FN', 'RL', 'WP', 'ST', 'JD', 'LL', 'LU'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
 

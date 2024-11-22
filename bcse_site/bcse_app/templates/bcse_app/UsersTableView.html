@@ -54,6 +54,9 @@
         {% if 'LL' in columns %}
           <th> Last Login </th>
         {% endif %}
+        {% if 'LU' in columns %}
+          <th> Last Updated </th>
+        {% endif %}
         <th> Action </th>
       </tr>
     </thead>
@@ -113,6 +116,9 @@
                 {{user_profile.user.last_login|date:"F j, Y g:i A"}}
               {% endif %}
             </td>
+          {% endif %}
+          {% if 'LU' in columns %}
+            <td> {{user_profile.modified_date|date:"F j, Y g:i A"}}</td>
           {% endif %}
 
           <td>

@@ -169,6 +169,7 @@ USER_TABLE_COLUMN_CHOICES = (
   ('PC', 'Photo Release Complete'),
   ('DP', 'Dietary Preference'),
   ('ST', 'Status'),
+  ('LU', 'Last Updated'),
 )
 
 WORKPLACE_TABLE_COLUMN_CHOICES = (

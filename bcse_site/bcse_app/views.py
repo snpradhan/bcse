@@ -5295,6 +5295,12 @@ def usersSearch(request):
         elif sort_by == 'date_joined_asc':
           order_by = 'created_date'
           direction = 'asc'
+        elif sort_by == 'last_updated_desc':
+          order_by = 'modified_date'
+          direction = 'desc'
+        elif sort_by == 'last_updated_asc':
+          order_by = 'modified_date'
+          direction = 'asc'
       else:
         order_by = 'user__email'
 
