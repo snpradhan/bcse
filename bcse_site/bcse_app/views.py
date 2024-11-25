@@ -1481,21 +1481,16 @@ def reservationWorkplaceUpdate(request, reservation_id, work_place_id):
     if request.user.userProfile.user_role in ['T', 'P'] and request.user.userProfile != user:
       raise CustomException('You do not have the permission to update this reservation')
 
-    if reservation.status == 'U':
-      try:
-        reservation_work_place = models.ReservationWorkPlace.objects.get(reservation=reservation)
-        reservation_work_place.work_place = work_place
-        reservation_work_place.save()
-      except models.ReservationWorkPlace.DoesNotExist as e:
-        reservation_work_place = models.ReservationWorkPlace.objects.create(reservation=reservation, work_place=work_place)
-
-      user.work_place = work_place
-      user.save()
-
-    elif request.user.userProfile.user_role in ['A', 'S']:
+    try:
       reservation_work_place = models.ReservationWorkPlace.objects.get(reservation=reservation)
       reservation_work_place.work_place = work_place
       reservation_work_place.save()
+    except models.ReservationWorkPlace.DoesNotExist as e:
+      reservation_work_place = models.ReservationWorkPlace.objects.create(reservation=reservation, work_place=work_place)
+
+    if reservation.status == 'U':
+      user.work_place = work_place
+      user.save()
 
   except CustomException as ce:
     if request.META.get('HTTP_REFERER'):
