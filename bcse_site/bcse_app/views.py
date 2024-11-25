@@ -1435,13 +1435,13 @@ def reservationEdit(request, id=''):
         else:
           messages.success(request, "Reservation request received")
 
+          reservationWorkplaceUpdate(request, savedReservation.id, savedReservation.user.work_place.id)
+
           if current_date <= savedReservation.delivery_date:
             if savedReservation.status == 'U':
               reservationReceiptEmailSend(request, savedReservation.id)
             elif savedReservation.status == 'R':
               reservationConfirmationEmailSend(request, savedReservation.id)
-
-          reservationWorkplaceUpdate(request, savedReservation.id, savedReservation.user.work_place.id)
 
         return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
 
