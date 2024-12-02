@@ -43,7 +43,13 @@
               {% if activity.consumables %}
               <ul>
                 {% for consumable in activity.consumables.all %}
-                  <li> {{consumable.name}}</li>
+                  {% if consumable.color %}
+                    <li style="background-color: {{consumable.color.color}};" title="{{consumable.color.description}}">
+                  {% else %}
+                    <li>
+                  {% endif %}
+                      {{consumable.name}}
+                    </li>
                 {% endfor %}
               </ul>
               {% endif %}
