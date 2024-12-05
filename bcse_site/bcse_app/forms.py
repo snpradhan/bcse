@@ -851,9 +851,10 @@ class BaxterBoxMessageForm(ModelForm):
 class ReservationColorForm(ModelForm):
   class Meta:
     model = models.ReservationColor
-    fields = ['name', 'color', 'description', 'low_stock', 'target']
+    fields = ['name', 'color', 'description', 'low_stock', 'low_stock_message', 'rank', 'target']
     widgets = {
         'color': TextInput(attrs={'type': 'color'}),
+        'low_stock_message': forms.Textarea(attrs={'rows':2}),
     }
 
   def __init__(self, *args, **kwargs):

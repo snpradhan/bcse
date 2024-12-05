@@ -50,8 +50,8 @@
           </div>
           <div class="error">{{ form.description.errors }}</div>
         </div>
-         <div class="form-group mb-3">
-          <label for="id_{{form.low_stock.name}}" class="form-label"> {{form.low_stock.label}}
+        <div class="form-group mb-3">
+          <label for="id_{{form.low_stock.name}}" class="form-label"> {{form.low_stock.label|title}}
             {% if form.low_stock.field.required %}
               (<span class="required">*</span>)
             {% endif %}
@@ -62,7 +62,31 @@
           <div class="error">{{ form.low_stock.errors }}</div>
         </div>
         <div class="form-group mb-3">
-          <label for="id_{{form.target.name}}" class="form-label"> {{form.target.label}}
+          <label for="id_{{form.low_stock_message.name}}" class="form-label"> {{form.low_stock_message.label|title}}
+            {% if form.low_stock_message.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.low_stock_message.help_text}}"></i>
+          </label>
+          <div class="input-group">
+            {{form.low_stock_message}}
+          </div>
+          <div class="error">{{ form.low_stock_message.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.rank.name}}" class="form-label"> {{form.rank.label}}
+            {% if form.rank.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.rank.help_text}}"></i>
+          </label>
+          <div class="input-group">
+            {{form.rank}}
+          </div>
+          <div class="error">{{ form.rank.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.target.name}}" class="form-label"> {{form.target.label|title}}
             {% if form.target.field.required %}
               (<span class="required">*</span>)
             {% endif %}
@@ -86,6 +110,19 @@
 </div>
 <script type="text/javascript">
   $(function (){
+
+     $('input#id_low_stock').on('change', function(e){
+      //checkbox checked
+      if($(this).is(':checked')){
+        $('#id_low_stock_message, #id_rank').closest('.form-group').show();
+      }
+      else{
+        $('#id_low_stock_message').val('').closest('.form-group').hide();
+        $('#id_rank').val('').closest('.form-group').hide();
+      }
+     });
+
+
     $('#formReservationColor').submit(function(e){
       e.preventDefault();
 
@@ -110,6 +147,8 @@
         }
       });
     });
+
+    $('input#id_low_stock').trigger('change');
 
   });
 </script>

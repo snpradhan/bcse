@@ -397,7 +397,7 @@ def reservationColors(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view Baxter Box colors')
 
-    colors = models.ReservationColor.objects.all()
+    colors = models.ReservationColor.objects.all().order_by('name')
     context = {'colors': colors}
     return render(request, 'bcse_app/ReservationColors.html', context)
 
