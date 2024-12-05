@@ -2,9 +2,9 @@
   <div class="modal-content">
     <div class="modal-header">
       {% if form.instance.id %}
-        <h3 class="left"> Edit Reservation/Kit Color </h3>
+        <h3 class="left"> Edit Baxter Box Color </h3>
       {% else %}
-        <h3 class="left"> Create Reservation/Kit Color  </h3>
+        <h3 class="left"> Create Baxter Box Color  </h3>
       {% endif %}
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
@@ -66,6 +66,7 @@
             {% if form.target.field.required %}
               (<span class="required">*</span>)
             {% endif %}
+             <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.target.help_text}}"></i>
           </label>
           <div class="input-group">
             {{form.target}}

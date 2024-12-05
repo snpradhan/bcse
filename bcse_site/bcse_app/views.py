@@ -383,7 +383,7 @@ def baxterBoxMessageEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
-# LIST OF RESERVATION COLORS
+# LIST OF BAXTER BOX COLORS
 ##########################################################
 @login_required
 def reservationColors(request):
@@ -395,7 +395,7 @@ def reservationColors(request):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view reservation colors')
+      raise CustomException('You do not have the permission to view Baxter Box colors')
 
     colors = models.ReservationColor.objects.all()
     context = {'colors': colors}
@@ -406,7 +406,7 @@ def reservationColors(request):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
-# EDIT RESERVATION COLOR
+# EDIT BAXTER BOX COLOR
 ##########################################################
 @login_required
 def reservationColorEdit(request, id=''):
@@ -419,7 +419,7 @@ def reservationColorEdit(request, id=''):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to edit reservation color')
+      raise CustomException('You do not have the permission to edit Baxter Box color')
     if '' != id:
       color = models.ReservationColor.objects.get(id=id)
     else:
@@ -435,11 +435,11 @@ def reservationColorEdit(request, id=''):
       response_data = {}
       if form.is_valid():
         savedReservationColor = form.save()
-        messages.success(request, "Reservation color saved")
+        messages.success(request, "Baxter Box color saved")
         response_data['success'] = True
       else:
         print(form.errors)
-        messages.error(request, "Reservation color could not be saved. Check the errors below.")
+        messages.error(request, "Baxter Box  color could not be saved. Check the errors below.")
         context = {'form': form}
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/ReservationColorEdit.html', context, request)
@@ -467,16 +467,16 @@ def reservationColorDelete(request, id=''):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to delete reservation Color')
+      raise CustomException('You do not have the permission to delete Baxter Box Color')
     if '' != id:
       color = models.ReservationColor.objects.get(id=id)
       color.delete()
-      messages.success(request, "Reservation color deleted")
+      messages.success(request, "Baxter Box color deleted")
 
     return shortcuts.redirect('bcse:reservationColors')
 
   except models.ReservationColor.DoesNotExist:
-    messages.success(request, "Reservation color not found")
+    messages.success(request, "Baxter Box color not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)

@@ -860,6 +860,7 @@ class ReservationColorForm(ModelForm):
 
     super(ReservationColorForm, self).__init__(*args, **kwargs)
 
+    self.fields['target'].label = 'Applicable Entity(s)'
     for field_name, field in list(self.fields.items()):
       if field_name in ['low_stock']:
         field.widget.attrs['class'] = 'form-check-input'

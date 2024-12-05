@@ -208,8 +208,8 @@ SURVEY_SUBMISSION_TABLE_COLUMN_CHOICES = (
 
 COLOR_TARGET_CHOICES = (
   ('R', 'Reservation'),
-  ('K', 'Activity Kit'),
-  ('B', 'Both'),
+  ('K', 'Activity and Consumable'),
+  ('B', 'Reservation, Activity and Consumable'),
 )
 
 BAXTER_BOX_MESSAGE_TYPE_CHOICES = (
@@ -665,9 +665,9 @@ class BaxterBoxMessage(models.Model):
 class ReservationColor(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Color')
   color = models.CharField(null=False, max_length=8, unique=True, help_text='Hex code of the Color')
-  description = models.CharField(null=False, blank=False, max_length=512, help_text='Describe the types of reservations/kit this color will be applied to')
+  description = models.CharField(null=False, blank=False, max_length=512, help_text='Describe the types of reservations/labs/consumables this color will be applied to')
   low_stock = models.BooleanField(default=False)
-  target = models.CharField(default='R', max_length=1, choices=COLOR_TARGET_CHOICES)
+  target = models.CharField(default='R', max_length=1, choices=COLOR_TARGET_CHOICES, help_text='The entities this color is applicable to')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
