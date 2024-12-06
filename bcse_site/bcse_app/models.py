@@ -668,7 +668,7 @@ class ReservationColor(models.Model):
   description = models.CharField(null=False, blank=False, max_length=512, help_text='Describe the types of reservations/labs/consumables this color will be applied to')
   low_stock = models.BooleanField(default=False)
   low_stock_message = models.CharField(null=True, blank=True, max_length=2048, help_text='Message to display to the user when they pick an activity/consumable marked as low stock')
-  rank = models.IntegerField(null=True, blank=True, help_text='Rank to determine the low stock message to display')
+  rank = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1)], help_text='Rank to determine the low stock message to display')
   target = models.CharField(default='R', max_length=1, choices=COLOR_TARGET_CHOICES, help_text='The entities this color is applicable to')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

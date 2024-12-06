@@ -3,8 +3,8 @@
     <h3 class="center underline">
       You have selected {{activity}}
     </h3>
-    {% if is_low_stock %}
-      <div class="warning center">Note: This lab is low in stock. Once the reservation request is received, we will reach out to confirm availability and timing.</div>
+    {% if low_stock_message %}
+      <div class="warning center">Note: {{low_stock_message}}</div>
       <br>
     {% endif %}
 

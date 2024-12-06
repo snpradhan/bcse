@@ -542,8 +542,8 @@
                         $('div.form-group.equipment_info').html(data['materials_equipment']);
                         $('div.form-group.equipment_info').show();
                       }
-                      if(data['is_low_stock']) {
-                        displayWarningDialog('This lab is low in stock. Once the reservation request is received, we will reach out to confirm availability and timing.');
+                      if(data['low_stock_message']) {
+                        displayWarningDialog(data['low_stock_message']);
                       }
                     }
                     if (data['consumable_options'] && data['consumable_mapping']) {

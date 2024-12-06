@@ -44,6 +44,7 @@ import re
 import html
 from django.utils.encoding import smart_str
 import pytz
+import sys
 
 # Create your views here.
 
@@ -787,7 +788,6 @@ def activityUpdate(request, id='', reservation_id=''):
       return render(request, 'bcse_app/ActivityUpdateModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      print(data)
       form = forms.ActivityUpdateForm(data, instance=activity, prefix="activity")
       if '' != reservation_id:
         reservation = models.Reservation.objects.get(id=reservation_id)
@@ -849,9 +849,15 @@ def activityView(request, id=''):
             response_data['materials_equipment'] = activity.materials_equipment
             response_data['manuals_resources'] = activity.manuals_resources
             response_data['equipment_mapping'] = list(activity.equipment_mapping.all().values_list('name', flat=True))
-            is_low_stock = isActivityLowInStock(id)
+            is_low_stock = is_activity_low_in_stock(id)
+            if is_low_stock:
+              low_stock_message = get_low_stock_message(id)
+              response_data['low_stock_message'] = low_stock_message
+              context['low_stock_message'] = low_stock_message
+
             response_data['is_low_stock'] = is_low_stock
             context['is_low_stock'] = is_low_stock
+
             response_data['html'] = render_to_string('bcse_app/ActivityView.html', context, request)
             response_data['equipment_options'] = load_equipment_options(request, activity.id)
 
@@ -872,7 +878,28 @@ def activityView(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-def isActivityLowInStock(id=''):
+def get_low_stock_message(id=''):
+  try:
+    if '' != id:
+      activity = models.Activity.objects.get(id=id)
+      rank = sys.maxsize
+      low_stock_message = None
+      if activity.color and activity.color.low_stock and activity.color.low_stock_message and activity.color.rank:
+        rank = activity.color.rank
+        low_stock_message = activity.color.low_stock_message
+      for consumable in activity.consumables.all():
+        if consumable.color and consumable.color.low_stock and consumable.color.low_stock_message and consumable.color.rank:
+          if consumable.color.rank < rank:
+            rank = consumable.color.rank
+            low_stock_message = consumable.color.low_stock_message
+      return low_stock_message
+    else:
+      raise CustomException('Activity does not exist')
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def is_activity_low_in_stock(id=''):
   try:
     if '' != id:
       activity = models.Activity.objects.get(id=id)
