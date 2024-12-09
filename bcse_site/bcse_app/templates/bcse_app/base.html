@@ -172,6 +172,9 @@
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'lab_grant' %}">
                       <a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Lab Grants Program</a>
                     </li>
+                     <li class="{% navactive request 'bcse:giveawayInfo' %}">
+                      <a class="dropdown-item" href="{% url 'bcse:giveawayInfo' %}">Lab Giveaway Program</a>
+                    </li>
                     {% if user.is_authenticated %}
                       <li class="{% navactive request 'bcse:reservations' %}">
                         <a class="dropdown-item" href="{% url 'bcse:reservations' %}">

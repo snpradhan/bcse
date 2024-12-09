@@ -1,0 +1,24 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Giveaway Requests </h1>
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:giveawayNew' %}" href="#">Create Giveaway</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:giveawayRequestNew' %}" href="#">Create Giveaway Request</a>
+  </div>
+  {% include "bcse_app/GiveawayTabs.html" with tab='requests' %}
+  {% include "bcse_app/GiveawayRequestsSearch.html" %}
+  <div class="form-group" id="spinner">
+    <img src="/static/img/page-loader.gif" class="icon"/>
+  </div>
+  <div class="giveaway_requests search_results">
+  </div>
+  <script type="text/javascript">
+    $(function (){
+      $('form#giveaway_request_filter_form').submit();
+    });
+  </script>
+
+{% endblock %}

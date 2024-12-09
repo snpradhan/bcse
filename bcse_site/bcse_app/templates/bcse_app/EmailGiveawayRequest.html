@@ -1,0 +1,12 @@
+{% extends "bcse_app/EmailBase.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block emailbody %}
+   <div id="text">
+      <h3>Hi!</h3>
+      <div>Your request for <b>{{name}}</b> x {{quantity}} has been received.</div>
+      <div>We will review your request and you will receive another email with updates.</div>      
+   </div>
+{% endblock %}
+

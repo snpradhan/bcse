@@ -2299,3 +2299,199 @@ class VignettesSearchForm(forms.Form):
         if field_name in initials:
           field.initial = initials[field_name]
 
+##################################################
+# Giveaway Form
+##################################################
+class GiveawayForm(ModelForm):
+
+  class Meta:
+    model = models.Giveaway
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.ClearableFileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(GiveawayForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+      if field_name in ['on_hold_quantity', 'given_quantity']:
+        field.widget.attrs['readonly'] = True
+
+##################################################
+# Giveaway Request Form
+##################################################
+class GiveawayRequestForm(ModelForm):
+
+  class Meta:
+    model = models.GiveawayRequest
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
+      'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                              attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
+    }
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(GiveawayRequestForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      if field_name == 'delivery_date':
+        field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+    if user.user_role not in ['A', 'S']:
+      self.fields.pop('delivery_status')
+      self.fields.pop('delivery_date')
+      self.fields.pop('status')
+    elif self.instance.id is None:
+      self.fields.pop('delivery_status')
+      self.fields.pop('delivery_date')
+
+
+    if user.user_role in ['A', 'S']:
+      self.fields['work_place'].label = 'Please confirm user''s workplace'
+    else:
+      self.fields['work_place'].label = 'Please confirm your workplace'
+      self.fields['work_place'].initial = user.work_place
+
+    if self.instance.id:
+      self.fields['giveaway'].queryset = models.Giveaway.objects.all().filter(id=self.instance.giveaway.id)
+    else:
+      self.fields['giveaway'].queryset = models.Giveaway.objects.all().filter(status='A', available_quantity__gt=0)
+
+    if self.instance.id:
+      self.fields['user'].widget.attrs['disabled'] = True
+      self.fields['giveaway'].widget.attrs['disabled'] = True
+      #self.fields['requested_quantity'].widget.attrs['disabled'] = True
+
+  def is_valid(self):
+    valid = super(GiveawayRequestForm, self).is_valid()
+    if not valid:
+      return valid
+
+    cleaned_data = super(GiveawayRequestForm, self).clean()
+
+
+    giveaway = cleaned_data.get('giveaway')
+    requested_quantity = cleaned_data.get('requested_quantity')
+    delivery_status = cleaned_data.get('delivery_status')
+    delivery_date = cleaned_data.get('delivery_date')
+    current_status = cleaned_data.get('status')
+
+    #check if requested quantity meets the max quantity allowed contraint
+    max_quantity = None
+    #creating a new request
+    if self.instance.id is None:
+      if current_status is None or current_status in ['A', 'P']:
+        if giveaway.max_quantity_allowed:
+          max_quantity = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
+        else:
+          max_quantity = giveaway.available_quantity
+
+    #editing and existing request
+    else:
+      initial_data = self.initial
+      initial_status = initial_data['status']
+      initial_requested_quantity = initial_data['requested_quantity']
+
+      # if status moves between pending and approved and the requested quantity increases
+      if initial_status in ['P', 'A'] and current_status in ['P', 'A'] and requested_quantity > initial_requested_quantity:
+        if giveaway.max_quantity_allowed:
+          max_quantity = min(giveaway.max_quantity_allowed, giveaway.available_quantity+initial_requested_quantity)
+        else:
+          max_quantity = giveaway.available_quantity+initial_requested_quantity
+
+      # if cancelled/denied request is changed to pending or approved, treat this like a new request
+      elif initial_status in ['C', 'D'] and current_status in ['P', 'A']:
+        if giveaway.max_quantity_allowed:
+          max_quantity = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
+        else:
+          max_quantity = giveaway.available_quantity
+
+    if max_quantity and requested_quantity > max_quantity:
+      self.add_error('requested_quantity', 'Please select a quantity not more than %s' % max_quantity)
+      valid = False
+
+    if delivery_status and delivery_status in ['S', 'D']:
+      if not delivery_date:
+        self.add_error('delivery_date', 'Please select a delivery date')
+        valid = False
+
+    return valid
+
+##################################################
+# Giveaway Search Form
+##################################################
+class GiveawaysSearchForm(forms.Form):
+
+  name = forms.CharField(required=False, max_length=256, label=u'Name')
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('name', 'Name'),
+                                                       ('status', 'Status'),
+                                                       ))
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
+    super(GiveawaysSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
+
+##################################################
+# GiveawayRequest Search Form
+##################################################
+class GiveawayRequestsSearchForm(forms.Form):
+
+  user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
+  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}))
+  giveaway = forms.ModelMultipleChoiceField(required=False, queryset=models.Giveaway.objects.all(), widget=forms.SelectMultiple(attrs={'size':6}))
+  delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
+  delivery_before = forms.DateField(required=False, label=u'Delivery on/before')
+  request_status = forms.MultipleChoiceField(required=False, choices=models.GIVEAWAY_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+  delivery_status = forms.MultipleChoiceField(required=False, choices=models.GIVEAWAY_DELIVERY_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+  keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('user', 'User'),
+                                                       ('work_place', 'Workplace'),
+                                                       ('giveaway', 'Giveaway'),
+                                                       ('delivery_date_desc', 'Delivery Date (Desc)'),
+                                                       ('delivery_date_asc', 'Delivery Date (Asc)'),
+                                                       ('created_date_desc', 'Created Date (Desc)'),
+                                                       ('created_date_asc', 'Created Date (Asc)'),
+                                                       ('request_status', 'Request Status'),
+                                                       ('delivery_status', 'Delivery Status')))
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
+    super(GiveawayRequestsSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      if field_name in ['delivery_after', 'delivery_before']:
+        field.widget.attrs['class'] = 'form-control datepicker'
+      elif field_name in ['giveaway', 'request_status', 'delivery_status']:
+        field.widget.attrs['class'] = 'form-control select2'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+      if field.help_text:
+        field.widget.attrs['placeholder'] = field.help_text
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+

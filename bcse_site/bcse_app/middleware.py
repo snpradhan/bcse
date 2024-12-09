@@ -81,6 +81,10 @@ class NextParameterMiddleware(MiddlewareMixin):
       target = '#kit'
     elif redirect_url.find('subscribe') == 1:
       target = '#general'
+    elif redirect_url.find('giveaway') == 1:
+      target = '#general'
+      print(target)
+      print(redirect_url)
 
     if request.user.is_authenticated and redirect_url.find('signin') == 1 and redirect_url.find('survey') > 1:
       redirect_url = redirect_url.replace('/signin/?next=/?next=', '')
@@ -95,6 +99,7 @@ class NextParameterMiddleware(MiddlewareMixin):
 
 
     if target and redirect_url:
+      print('setting ', target, redirect_url)
       request.target = target
       request.redirect_url = redirect_url
 

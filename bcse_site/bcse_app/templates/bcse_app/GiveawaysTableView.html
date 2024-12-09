@@ -1,0 +1,72 @@
+{% if giveaways %}
+  {% include "bcse_app/Pagination.html" with model=giveaways location='top' %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th rowspan="2"> ID</th>
+        <th rowspan="2"> Name </th>
+        <th rowspan="2"> Description </th>
+        <th rowspan="2"> Max Qty. </th>
+        <th rowspan="2"> Available Qty. </th>
+        <th rowspan="2"> On Hold Qty. </th>
+        <th rowspan="2"> Given Qty. </th>
+        <th colspan="2" class="center"> # of Requests</th>
+        <th rowspan="2"> Status </th>
+        <th rowspan="2"> Created Date</th>
+        <th rowspan="2"> Modified Date </th>
+        <th rowspan="2"> Action </th>
+      </tr>
+      <tr>
+        <th> Pending </th>
+        <th> Approved </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for giveaway in giveaways %}
+        <tr>
+          <td> {{giveaway.id}}</td>
+          <td> {{giveaway.name}} </td>
+          <td> {{giveaway.description|safe}} </td>
+          <td> {{giveaway.max_quantity_allowed|default_if_none:""}} </td>
+          <td> {{giveaway.available_quantity|default_if_none:""}} </td>
+          <td> {{giveaway.on_hold_quantity|default_if_none:""}} </td>
+          <td> {{giveaway.given_quantity|default_if_none:""}} </td>
+          <td> {{giveaway.pending}}</td>
+          <td> {{giveaway.approved}}</td>
+          <td> {{giveaway.get_status_display}} </td>
+          <td> {{giveaway.created_date|date:"F j, Y g:i A"}}</td>
+          <td> {{giveaway.modified_date|date:"F j, Y g:i A"}} </td>
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:giveawayEdit' giveaway.id %}" href="#">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  {% if giveaway.request_detail.count > 0 %}
+                    <a class="dropdown-item action" onclick="displayWarningDialog('<strong>{{giveaway.name}}</strong> is associated with {{ giveaway.request_detail.count }} requests and cannot be deleted');">
+                      Delete
+                    </a>
+                  {% else %}
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:giveawayDelete' giveaway.id %}"
+                    data-title="<strong>{{giveaway.name}}</strong>">
+                      Delete
+                    </a>
+                  {% endif %}
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=giveaways location='bottom' %}
+
+{% else %}
+  <div class="warning center">No giveaways matching your search criteria found</div>
+{% endif %}

@@ -14,7 +14,7 @@
             </li>
             <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'workshops' in request.path or  'workshop/' in request.path or 'workshopCategories' in request.path or 'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}active{% endif %}">
-              {% if 'workshops' in request.path or  'workshop/' in request.path or 'workshopCategories' in request.path or  'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %}
+              {% if 'workshops' in request.path or  'workshop/' in request.path or 'workshopCategories' in request.path or  'workshopCategory' in request.path or 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path or 'teacherLeaders' in request.path %}
                 <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#workshop_config" aria-controls="workshop_config">
                   Workshop Configuration
                 </a>
@@ -54,7 +54,7 @@
             <li><hr class="dropdown-divider"></li>
 
             <li class="nav-item">
-              {% if 'activities' in request.path or  'activity' in request.path  or 'equipmentType' in request.path %}
+              {% if 'activities' in request.path or 'activity' in request.path  or 'equipment' in request.path or 'consumable' in request.path or 'reservation' in request.path or 'baxter_box' in request.path %}
                 <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#baxter_box_config" aria-controls="baxter_box_config">Baxter Box Configuration</a>
               {% else %}
                 <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#baxter_box_config" aria-controls="baxter_box_config">Baxter Box Configuration</a>
@@ -152,6 +152,24 @@
             <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'vignette' in request.path or  'vignettes' in request.path %} active {% endif %}">
               <a class="nav-link" href="{% url 'bcse:vignettes' 'table' %}">Vignettes</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="nav-item">
+              {% if 'giveaway' in request.path %}
+                <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="true" href="#giveaway" aria-controls="giveaway">Lab Giveaway</a>
+              {% else %}
+                <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#giveaway" aria-controls="giveaway">Lab Giveaway</a>
+              {% endif %}
+               <ul class="collapse navbar-nav {% leftnavactive request 'giveaways' %}
+                                              {% leftnavactive request 'giveaway/requests' %}"
+                                              id="giveaway">
+                <li class="{% if 'giveaways' in request.path%} active {% endif %}">
+                  <a href="{% url 'bcse:giveaways' %}">Inventory</a>
+                </li>
+                <li class="{% if 'giveaway/requests' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:giveawayRequests' %}">Requests</a>
+                </li>
+              </ul>
             </li>
           </ul>
         </div>

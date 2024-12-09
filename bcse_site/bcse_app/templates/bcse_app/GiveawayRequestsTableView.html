@@ -1,0 +1,83 @@
+  {% if giveaway_requests %}
+    {% include "bcse_app/Pagination.html" with model=giveaway_requests location='top' %}
+    <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th> ID</th>
+        <th> User </th>
+        <th> Email </th>
+        <th> Workplace </th>
+        <th> Requested Item </th>
+        <th> Max Qty. </th>
+        <th> Available Qty. </th>
+        <th> On Hold Qty. </th>
+        <th> Requested Qty. </th>
+        <th> Request Status </th>
+        <th> Delivery Status </th>
+        <th> Delivery Date </th>
+        <th> Created Date</th>
+        <th> Modified Date </th>
+        <th> Action </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for giveaway_request in giveaway_requests %}
+        <tr>
+          <td> {{giveaway_request.id}}</td>
+          <td> {{giveaway_request.user.user.get_full_name}} </td>
+          <td> {{giveaway_request.user.user.email}} </td>
+          <td>
+            {% with work_place=giveaway_request.work_place %}
+              {{work_place.name}}<br>
+              {{work_place.street_address_1}}<br>
+              {% if work_place.street_address_2 %}
+                {{work_place.street_address_2}}<br>
+              {% endif %}
+              {% if work_place.city %}
+                {{work_place.city}},
+              {% endif %}
+              {{work_place.state}} {{work_place.zip_code}}
+            {% endwith %}
+          </td>
+          <td> {{giveaway_request.giveaway.name}}</td>
+          <td> {{giveaway_request.giveaway.max_quantity_allowed}}</td>
+          <td> {{giveaway_request.giveaway.available_quantity}}</td>
+          <td> {{giveaway_request.giveaway.on_hold_quantity}}</td>
+          <td> {{giveaway_request.requested_quantity}}</td>
+          <td> {{giveaway_request.get_status_display}} </td>
+          <td> {{giveaway_request.get_delivery_status_display|default_if_none:""}} </td>
+          <td> {{giveaway_request.delivery_date|date:"F j, Y"}}</td>
+          <td> {{giveaway_request.created_date|date:"F j, Y g:i A"}}</td>
+          <td> {{giveaway_request.modified_date|date:"F j, Y g:i A"}} </td>
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:giveawayRequestEdit' giveaway_request.id %}" href="#">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:giveawayRequestDelete' giveaway_request.id %}"
+                  data-title="this giveaway request">
+                    Delete
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' giveaway_request.user.id %}">View User Profile</a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=giveaway_requests location='bottom' %}
+{% else %}
+  <div class="warning center">No giveaway requests matching your search criteria found</div>
+{% endif %}
+

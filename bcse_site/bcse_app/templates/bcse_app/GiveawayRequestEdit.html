@@ -1,0 +1,255 @@
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3> Edit Giveaway Request </h3>
+      {% else %}
+        <h3> Create Giveaway Request </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="giveawayMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form method="post" id="formGiveawayRequest" action="{% if form.instance.id %}{% url 'bcse:giveawayRequestEdit' form.instance.id %} {% else %} {% url 'bcse:giveawayRequestNew' %}{% endif %}">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="modal-body">
+
+        {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+          <div class="form-group mb-3">
+            <label for="id_{{form.user.name}}" class="form-label">
+              {{form.user.label}}
+              {% if form.user.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.user}}</div>
+            <div class="error">{{ form.user.errors }}</div>
+          </div>
+          {% if form.instance.id %}
+            <div>{{form.user.as_hidden}}</div>
+          {% endif %}
+        {% else %}
+          <div>{{form.user.as_hidden}}</div>
+        {% endif %}
+        <div class="form-group mb-3" {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %} style="display:none;" {% endif %} >
+          <label for="id_{{form.work_place.name}}">{{ form.work_place.label }}</label>
+          <div>{{form.work_place}}</div>
+          <div class="error">{{ form.work_place.errors }}</div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.giveaway.name}}">{{ form.giveaway.label }}</label>
+          <div>
+            {{form.giveaway}}
+            {% if form.instance.id %}
+              {{form.giveaway.as_hidden}}
+            {% endif %}
+          </div>
+          <div class="error">{{ form.giveaway.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.requested_quantity.name}}">{{ form.requested_quantity.label }}</label>
+          <div>{{form.requested_quantity}}</div>
+          <div class="warning"></div>
+          <div class="error">{{ form.requested_quantity.errors }}</div>
+        </div>
+
+        {% if form.status %}
+          <div class="form-group mb-3">
+            <label for="id_{{form.status.name}}">{{ form.status.label }}</label>
+            <div>{{form.status}}</div>
+            <div class="error">{{ form.status.errors }}</div>
+          </div>
+        {% endif %}
+
+        {% if form.delivery_status %}
+          <div class="form-group mb-3">
+            <label for="id_{{form.delivery_status.name}}">{{ form.delivery_status.label }}</label>
+            <div>{{form.delivery_status}}</div>
+            <div class="error">{{ form.delivery_status.errors }}</div>
+          </div>
+        {% endif %}
+        {% if form.delivery_date %}
+          <div class="form-group mb-3">
+            <label for="id_{{form.delivery_date.name}}">{{ form.delivery_date.label }}</label>
+            <div class="input-group">
+              {{form.delivery_date}}
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="error">{{ form.delivery_date.errors }}</div>
+          </div>
+        {% endif %}
+
+
+
+        <div class="form-group" id="spinner">
+          <img src="/static/img/page-loader.gif" class="icon"/>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+
+    $(".datepicker").datepicker({
+      dateFormat: "MM dd, yy",
+      changeMonth: true,
+      changeYear: true
+    });
+
+    var user_id = "{{user.userProfile.id}}";
+    var user_role = "{{user.userProfile.user_role}}";
+    var request_id = "{{form.instance.id}}";
+
+    $('#formGiveawayRequest').submit(function(e){
+      e.preventDefault();
+
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        beforeSend: function(){
+          $('#formGiveawayRequest #spinner').show();
+        },
+        complete: function(){
+          $('#formGiveawayRequest #spinner').hide();
+        },
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#general').modal('toggle');
+            var redirect_url = window.parent.location.href.split('?')[0];
+            window.parent.location.href = redirect_url;
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+    function bindUserSelection() {
+      $('select#id_user').on('select2:select', function(e){
+        var user_id = e.params.data.id;
+        loadUserWorkplace(user_id);
+      });
+    }
+
+    function bindGiveawayMaxQuantityMsg(){
+       $('select#id_giveaway').on('change', function(e){
+        var giveaway_id = $(this).val()
+        loadGiveawayMax(giveaway_id);
+      });
+    }
+
+    function bindDeliveryStatusDate(){
+      $('select#id_status').on('change', function(e){
+        if($(this).val() == 'A') {
+          $('#id_delivery_status, #id_delivery_date').closest('.form-group').show();
+        }
+        else {
+          $('#id_delivery_status, #id_delivery_date').val('').closest('.form-group').hide();
+        }
+      })
+    }
+
+    function loadUserWorkplace(user_id) {
+      var url = '/userProfile/'+user_id+'/workplace';
+      //var user_profile_url = '/userProfile/'+user_id+'/edit';
+      //$('a#update_workplace').attr('data-href', user_profile_url);
+
+      $.ajax({
+        type: 'GET',
+        url: url,
+        success: function(data){
+          console.log(data);
+          if (data['success'] = true) {
+            if(data['work_place_id'] != 'None') {
+
+              if ($('select#id_work_place').find("option[value='" + data['work_place_id'] + "']").length) {
+                  $('select#id_work_place').val(data['work_place_id']).trigger('change');
+              } else {
+                // Create a DOM Option and pre-select by default
+                var newOption = new Option(data['work_place_name'], data['work_place_id'], true, true);
+                // Append it to the select
+                $('select#id_work_place').append(newOption).trigger('change');
+                $('select#id_work_place').val(data['work_place_id']).trigger('change');
+              }
+              $('select#id_work_place').closest('.form-group').show();
+            }
+          }
+          else {
+            displayWarningDialog(data['message']);
+          }
+          return false;
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+          displayErrorDialog();
+        },
+      });
+    }
+
+    function loadGiveawayMax(giveaway_id) {
+      var url = '/giveaway/'+giveaway_id+'/max_quantity';
+      $.ajax({
+        type: 'GET',
+        url: url,
+        success: function(data){
+          console.log(data);
+          if (data['success'] = true) {
+            if(data['max_quantity'] != 'None') {
+              var requested_quantity_group = $('#id_requested_quantity').closest('.form-group');
+              $(requested_quantity_group).find('.warning').html("Please select a quantity not more than "+data['max_quantity']);
+              $(requested_quantity_group).find('.error').html("");
+            }
+          }
+          else {
+            displayErrorDialog();
+          }
+          return false;
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+          displayErrorDialog();
+        },
+      });
+    }
+
+    bindUserSelection();
+    bindGiveawayMaxQuantityMsg();
+    bindDeliveryStatusDate();
+    if(!["A", "S"].includes(user_role)) {
+      loadUserWorkplace(user_id)
+    }
+    $('select#id_status').trigger('change');
+    if(request_id != 'None' && ["A", "S"].includes(user_role)) {
+      loadUserWorkplace('{{form.instance.user.id}}');
+    }
+  });
+</script>
+

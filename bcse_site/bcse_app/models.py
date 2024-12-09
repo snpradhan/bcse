@@ -266,6 +266,19 @@ INVENTORY_STORAGE_LOCATION = (
   ('FR', 'Freezer')
 )
 
+GIVEAWAY_STATUS_CHOICES = (
+  ('P', 'Pending'),
+  ('A', 'Approved'),
+  ('D', 'Denied'),
+  ('C', 'Cancelled')
+)
+
+GIVEAWAY_DELIVERY_STATUS_CHOICES = (
+  ('P', 'Packed'),
+  ('S', 'Scheduled'),
+  ('D', 'Delivered'),
+)
+
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
   YEAR_CHOICES.append((x, x))
@@ -301,6 +314,8 @@ def upload_file_to(instance, filename):
     file_path = 'collaborator'
   elif isinstance(instance, SurveyResponse):
     file_path = 'surveyResponse'
+  elif isinstance(instance, Giveaway):
+    file_path = 'giveaway'
   elif isinstance(instance, Vignette):
     if(filename_ext.lower() == 'pdf'):
       file_path = 'vignette/attachment'
@@ -1023,6 +1038,39 @@ class Vignette(models.Model):
   def __str__(self):
       return '%s' % (self.title)
 
+class Giveaway(models.Model):
+  name = models.CharField(null=False, max_length=256, help_text='Name of the Giveaway')
+  description = RichTextField(null=True, blank=True)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this Giveaway')
+  max_quantity_allowed = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
+  available_quantity = models.IntegerField(null=True, blank=True, default=0, validators=[MinValueValidator(0)])
+  on_hold_quantity = models.IntegerField(null=True, blank=True, default=0, validators=[MinValueValidator(0)])
+  given_quantity = models.IntegerField(null=True, blank=True, default=0, validators=[MinValueValidator(0)])
+  status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+
+  class Meta:
+    ordering = ['name']
+
+  def __str__(self):
+    return '%s' % (self.name)
+
+class GiveawayRequest(models.Model):
+  user = models.ForeignKey(UserProfile, blank=False, null=False, related_name='user_giveaway_request', on_delete=models.CASCADE)
+  work_place = models.ForeignKey(WorkPlace, blank=False, null=False, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_giveaway_request')
+  giveaway = models.ForeignKey(Giveaway, null=False, blank=False, related_name="request_detail", on_delete=models.CASCADE)
+  requested_quantity = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(1)])
+  status = models.CharField(default='P', max_length=1, choices=GIVEAWAY_STATUS_CHOICES)
+  delivery_status = models.CharField(null=True, blank=True, max_length=1, choices=GIVEAWAY_DELIVERY_STATUS_CHOICES)
+  delivery_date = models.DateTimeField(null=True, blank=True)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    ordering = ['created_date', 'user__user__last_name']
+
 # signal to check if registration status has changed
 # and then send an email to the registrant
 @receiver(post_save, sender=Registration)
@@ -1215,4 +1263,156 @@ def create_calendar_invite(workshop, userProfile):
     f.write(cal.to_ical())
     f.close()
   return filename
+
+
+# signal to check if giveaway request status has changed
+# then update giveaway inventory
+'''
+  ('P', 'Pending'),
+  ('A', 'Approved'),
+  ('D', 'Denied'),
+  ('C', 'Cancelled')
+  '''
+@receiver(pre_save, sender=GiveawayRequest)
+def check_giveaway_request_status_change(sender, instance, **kwargs):
+  try:
+    obj = sender.objects.get(pk=instance.pk)
+    #check if status has changed
+    #obj is old object, instance is updated object
+    if instance.status != obj.status:
+      #old status is Pending
+      if obj.status == 'P':
+        #new status is Approved
+        if instance.status == 'A':
+          print('old is pending, new is approved')
+          instance.giveaway.on_hold_quantity -= obj.requested_quantity
+          instance.giveaway.given_quantity += instance.requested_quantity
+          instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
+          instance.giveaway.save()
+        #new status is Denied or Cancelled
+        elif instance.status in ['D', 'C']:
+          print('old is pending, new is denied or cancelled')
+          instance.giveaway.on_hold_quantity -= obj.requested_quantity
+          instance.giveaway.available_quantity += obj.requested_quantity
+          instance.giveaway.save()
+
+      #old status is Approved
+      elif obj.status == 'A':
+        #new status is Pending
+        if instance.status == 'P':
+          print('old is approved, new is pending')
+          instance.giveaway.on_hold_quantity += instance.requested_quantity
+          instance.giveaway.given_quantity -= obj.requested_quantity
+          instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
+          instance.giveaway.save()
+
+        #new status is Denied or Cancelled
+        elif instance.status in ['D', 'C']:
+          print('old is approved, new is denied or cancelled')
+          instance.giveaway.given_quantity -= obj.requested_quantity
+          instance.giveaway.available_quantity += obj.requested_quantity
+          instance.giveaway.save()
+
+      #old status is Denied or Cancelled
+      elif obj.status in ['D', 'C']:
+        #new status is Approved
+        if instance.status == 'A':
+          print('old is denied or cancelled, new is approved')
+          instance.giveaway.given_quantity += instance.requested_quantity
+          instance.giveaway.available_quantity -= instance.requested_quantity
+          instance.giveaway.save()
+
+        #new status is Pending
+        elif instance.status == 'P':
+          print('old is denied or cancelled, new is pending')
+          instance.giveaway.on_hold_quantity += instance.requested_quantity
+          instance.giveaway.available_quantity -= instance.requested_quantity
+          instance.giveaway.save()
+
+    elif instance.requested_quantity != obj.requested_quantity:
+      if instance.status == 'P':
+        print('existing pending, quantity changed')
+        instance.giveaway.on_hold_quantity = instance.giveaway.on_hold_quantity - obj.requested_quantity + instance.requested_quantity
+        instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
+        instance.giveaway.save()
+
+      elif instance.status == 'A':
+        print('existing approved, quantity changed')
+        instance.giveaway.given_quantity = instance.giveaway.given_quantity  - obj.requested_quantity + instance.requested_quantity
+        instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
+        instance.giveaway.save()
+
+  except sender.DoesNotExist:
+    # Object is new, so field hasn't technically changed, but you may want to do something else here.
+    #new giveaway request with status Pending
+    if instance.status == 'P':
+      print('new is pending')
+      instance.giveaway.on_hold_quantity += instance.requested_quantity
+      instance.giveaway.available_quantity -= instance.requested_quantity
+      instance.giveaway.save()
+
+    #new giveaway request with status 'Approved'
+    elif instance.status == 'A':
+      print('new is approved')
+      instance.giveaway.given_quantity += instance.requested_quantity
+      instance.giveaway.available_quantity -= instance.requested_quantity
+      instance.giveaway.save()
+
+  send_giveaway_request_email(instance, instance.status)
+
+
+# signal to check if giveaway request has been deleted
+# and update the inventory
+@receiver(pre_delete, sender=GiveawayRequest)
+def check_giveaway_request_delete(sender, instance, **kwargs):
+  if instance.status == 'P':
+    print('pending deleted')
+    instance.giveaway.on_hold_quantity -= instance.requested_quantity
+    instance.giveaway.available_quantity += instance.requested_quantity
+    instance.giveaway.save()
+
+  elif instance.status == 'A':
+    print('approved deleted')
+    instance.giveaway.given_quantity -= instance.requested_quantity
+    instance.giveaway.available_quantity += instance.requested_quantity
+    instance.giveaway.save()
+
+  send_giveaway_request_email(instance, 'X')
+
+
+def send_giveaway_request_email(giveawayRequest, status):
+  if status == 'P':
+    subject = 'Lab giveaway request received'
+    context = {'name': giveawayRequest.giveaway.name, 'quantity': giveawayRequest.requested_quantity}
+    body = get_template('bcse_app/EmailGiveawayRequest.html').render(context)
+  else:
+    context = {'name': giveawayRequest.giveaway.name, 'quantity': giveawayRequest.requested_quantity, 'status': None}
+    if status == 'A':
+      subject = 'Lab giveaway request approved'
+      context['status'] = 'Approved'
+    elif status == 'D':
+      subject = 'Lab giveaway request denied'
+      context['status'] = 'Denied'
+    elif status == 'C':
+      subject = 'Lab giveaway request cancelled'
+      context['status'] = 'Cancelled'
+    elif status == 'X':
+      subject = 'Lab giveaway request deleted'
+      context['status'] = 'Deleted'
+
+    body = get_template('bcse_app/EmailGiveawayUpdate.html').render(context)
+
+  current_site = Site.objects.get_current()
+  domain = current_site.domain
+  if domain != 'bcse.northwestern.edu':
+    subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [giveawayRequest.user.user.email, settings.DEFAULT_FROM_EMAIL])
+  email.content_subtype = "html"
+  email.send(fail_silently=True)
+
+
+
+
+
 
