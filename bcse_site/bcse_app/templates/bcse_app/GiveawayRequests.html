@@ -1,0 +1,64 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Giveaway Requests </h1>
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:giveawayNew' %}" href="#">Create Giveaway</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:giveawayRequestNew' %}" href="#">Create Giveaway Request</a>
+  </div>
+  {% include "bcse_app/GiveawayTabs.html" with tab='requests' %}
+  <div class="search_results static">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> ID</th>
+          <th> User </th>
+          <th> Email </th>
+          <th> Workplace </th>
+          <th> Requested Item </th>
+          <th> Requested Qty. </th>
+          <th> Status </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for giveaway_request in giveaway_requests %}
+          <tr>
+            <td> {{giveaway_request.id}}</td>
+            <td> {{giveaway_request.user.user.get_full_name}} </td>
+            <td> {{giveaway_request.user.user.email}} </td>
+            <td> {{giveaway_request.user.work_place}} </td>
+            <td> {{giveaway_request.giveaway.name}}</td>
+            <td> {{giveaway_request.requested_quantity}}</td>
+            <td> {{giveaway_request.get_status_display}} </td>
+            <td> {{giveaway_request.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{giveaway_request.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:giveawayRequestEdit' giveaway_request.id %}" href="#">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:giveawayRequestDelete' giveaway_request.id %}"
+                    data-title="this request">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
