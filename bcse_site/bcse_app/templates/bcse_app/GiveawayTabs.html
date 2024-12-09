@@ -1,0 +1,11 @@
+{% load bcse_extras %}
+{% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <label><a class="nav-link {% if tab == 'inventory' %}active{% endif %}" aria-current="page" href="{% url 'bcse:giveaways' %}">Giveaway Inventory</a></label>
+    </li>
+    <li class="nav-item">
+      <label><a class="nav-link {% if tab == 'requests' %}active{% endif %}" aria-current="page" href="{% url 'bcse:giveawayRequests' %}">Giveaway Requests</a></label>
+    </li>    
+  </ul>
+{% endif %}
