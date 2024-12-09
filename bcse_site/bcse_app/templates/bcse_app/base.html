@@ -256,11 +256,11 @@
           </div>
         </nav>
 
-        <div class="anniversary_banner">
+        <div class="anniversary_banner {% if request.domain and request.domain != 'bcse@northwestern.edu' %} stage {% endif %}">
           <div class="domain">
             {% if request.domain %}
               {% if request.domain == 'localhost' %}
-                *** Local ***
+                *** Dev ***
               {% elif request.domain == 'stage' %}
                 *** Stage ***
               {% endif %}
@@ -272,7 +272,7 @@
           <div class="domain">
             {% if request.domain %}
               {% if request.domain == 'localhost' %}
-                *** Local ***
+                *** Dev ***
               {% elif request.domain == 'stage' %}
                 *** Stage ***
               {% endif %}
