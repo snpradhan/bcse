@@ -230,6 +230,14 @@ YES_NO_CHOICES = (
   (True, 'Yes'),
 )
 
+GIVEAWAY_STATUS_CHOICES = (
+  ('P', 'Pending'),
+  ('A', 'Approved'),
+  ('D', 'Denied'),
+  ('C', 'Cancelled')
+)
+
+
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
   YEAR_CHOICES.append((x, x))
@@ -265,6 +273,8 @@ def upload_file_to(instance, filename):
     file_path = 'collaborator'
   elif isinstance(instance, SurveyResponse):
     file_path = 'surveyResponse'
+  elif isinstance(instance, Giveaway):
+    file_path = 'giveaway'
   elif isinstance(instance, Vignette):
     if(filename_ext.lower() == 'pdf'):
       file_path = 'vignette/attachment'
@@ -854,6 +864,38 @@ class Vignette(models.Model):
 
   def __str__(self):
       return '%s' % (self.title)
+
+class Giveaway(models.Model):
+  name = models.CharField(null=False, max_length=256, help_text='Name of the Giveaway')
+  description = RichTextField(null=True, blank=True)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this Giveaway')
+  max_quantity_allowed = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
+  available_quantity = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(0)])
+  on_hold_quantity = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(0)])
+  given_quantity = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(0)])
+  status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+
+  class Meta:
+    ordering = ['name']
+
+  def __str__(self):
+    return '%s' % (self.name)
+
+class GiveawayRequest(models.Model):
+  user = models.ForeignKey(UserProfile, blank=False, null=False, related_name='user_giveaway_request', on_delete=models.CASCADE)
+  work_place = models.ForeignKey(WorkPlace, blank=False, null=False, on_delete=models.SET(get_placeholder_workplace), related_name='work_place_to_giveaway_request')
+  giveaway = models.ForeignKey(Giveaway, null=False, blank=False, related_name="request_detail", on_delete=models.CASCADE)
+  requested_quantity = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(1)])
+  status = models.CharField(default='P', max_length=1, choices=GIVEAWAY_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    ordering = ['created_date', 'user__user__last_name']
+
 
 # signal to check if registration status has changed
 # and then send an email to the registrant
