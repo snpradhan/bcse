@@ -45,6 +45,7 @@ import html
 from django.utils.encoding import smart_str
 import pytz
 import sys
+from django.urls import reverse
 
 # Create your views here.
 
@@ -7301,41 +7302,8 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               else:
                 messages.success(request, 'The survey has been submitted')
 
-              #check if email confirmation needs to be sent to the respondant
-              if survey.email_confirmation and survey.email_confirmation_message:
-                respondant_email = None
-                #check if email address is available
-                if user and user.user.email:
-                  #user is logged in, so email is available in their profile
-                  respondant_email = user.user.email
-                else:
-                  #check if email is part of the survey response
-                  email_responses = models.SurveyResponse.objects.all().filter(submission=submission, survey_component__component_type='EM')
-                  if email_responses:
-                    respondant_email = email_responses.first().response
-
-                if respondant_email:
-                  filename = "/tmp/survey_%s_submission_%s.xls"% (survey.id, submission.UUID)
-                  surveySubmissions = models.SurveySubmission.objects.all().filter(UUID=submission.UUID)
-                  wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
-                  wb.save(filename)
-
-                  subject = 'Survey %s submission confirmation' % survey.name
-
-                  current_site = Site.objects.get_current()
-                  domain = current_site.domain
-                  if domain != 'bcse.northwestern.edu':
-                    subject = '***** TEST **** '+ subject + ' ***** TEST **** '
-
-                  email_body = survey.email_confirmation_message
-                  context = {'email_body': email_body, 'domain': domain}
-                  body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
-
-                  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [respondant_email])
-                  email.attach_file(filename, 'application/ms-excel')
-
-                  email.content_subtype = "html"
-                  email.send(fail_silently=True)
+              #send survey submission confirmation email
+              surveySubmissionEmailSend(request, survey, user, submission)
 
               if request.is_ajax():
                 response_data = {}
@@ -7368,6 +7336,66 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+def surveySubmissionEmailSend(request, survey, user, submission):
+  """
+  surveySubmissionEmailSend is called from the path 'surveySubmission'
+  :param request: request from the browser
+  :param survey: the survey that is submitted
+  :param user: the user who submitted the survey
+  :param submission: the submission object
+  :returns
+  """
+  current_site = Site.objects.get_current()
+  domain = current_site.domain
+
+  #check if email confirmation needs to be sent to the respondant
+  if survey.email_confirmation and survey.email_confirmation_message:
+    respondant_email = None
+    #check if email address is available
+    if user and user.user.email:
+      #user is logged in, so email is available in their profile
+      respondant_email = user.user.email
+    else:
+      #check if email is part of the survey response
+      email_responses = models.SurveyResponse.objects.all().filter(submission=submission, survey_component__component_type='EM')
+      if email_responses:
+        respondant_email = email_responses.first().response
+
+    if respondant_email:
+      filename = "/tmp/survey_%s_submission_%s.xls"% (survey.id, submission.UUID)
+      surveySubmissions = models.SurveySubmission.objects.all().filter(UUID=submission.UUID)
+      wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
+      wb.save(filename)
+
+      subject = 'Survey %s submission confirmation' % survey.name
+
+      if domain != 'bcse.northwestern.edu':
+        subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+      email_body = survey.email_confirmation_message
+      context = {'email_body': email_body, 'domain': domain}
+      body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
+
+      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [respondant_email])
+      email.attach_file(filename, 'application/ms-excel')
+
+      email.content_subtype = "html"
+      email.send(fail_silently=True)
+
+  #send confirmation email to admins
+  subject = '%s - New Submission' % survey.name
+
+  if domain != 'bcse.northwestern.edu':
+    subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+  email_body = '%s has submitted <strong>%s</strong> survey.  Please click <a href="https://%s%s">here</a> to review the submission.' % (user.user.get_full_name() if user else 'A user', survey.name, domain, reverse('bcse:surveySubmissionView', args=[survey.id, submission.UUID]))
+
+  context = {'email_body': email_body, 'domain': domain}
+  body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
+
+  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.DEFAULT_FROM_EMAIL])
+  email.content_subtype = "html"
+  email.send(fail_silently=True)
 
 def getSurveyComponents(request, survey_id, submission, page_num):
   """
