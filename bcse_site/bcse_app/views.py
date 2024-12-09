@@ -31,7 +31,7 @@ from django.core.mail import EmailMessage
 import pyexcel
 import boto3
 from botocore.exceptions import ClientError
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, inlineformset_factory
 import uuid
 from urllib.request import urlretrieve, urlcleanup
 from django.core.files import File
@@ -7871,6 +7871,302 @@ def vignetteCopy(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+
+####################################
+# GIVEAWAY INFO PAGE
+####################################
+def giveawayInfo(request):
+  """
+    baxterBoxInfo is called from the path 'forClassrooms/giveawayInfo'
+    :param request: request from the browser
+    :returns: rendered template 'bcse_app/GiveawayInfo.html', a page about the giveaway program
+    :raises CustomException: raises an exception and redirects user to page they were on before encountering error
+  """
+  try:
+    giveaways = models.Giveaway.objects.all().filter(status='A')
+    context = {'giveaways': giveaways}
+    return render(request, 'bcse_app/GiveawayInfo.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# GIVEAWAY LIST
+####################################
+@login_required
+def giveaways(request):
+  """
+    giveaways is called from the path 'adminConfiguration/giveaways'
+    :param request: request from the browser
+    :returns: rendered template 'bcse_app/Giveaways.html'
+    :raises CustomException: redirects user to page they were on before encountering error
+    """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view giveaway inventory')
+
+    giveaways = models.Giveaway.objects.all()
+    context = {'giveaways': giveaways}
+    return render(request, 'bcse_app/Giveaways.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# EDIT GIVEAWAY
+####################################
+@login_required
+def giveawayEdit(request, id=''):
+  """
+  giveawayEdit is called from the path 'adminConfiguration/giveaways'
+  :param request: request from the browser
+  :param id='': id of the giveaway to edit
+  :returns: rendered template 'bcse_app/GiveawayEdit.html'
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit a giveaway')
+    if '' != id:
+      giveaway = models.Giveaway.objects.get(id=id)
+    else:
+      giveaway = models.Giveaway()
+
+    if request.method == 'GET':
+      form = forms.GiveawayForm(instance=giveaway)
+      context = {'form': form}
+      return render(request, 'bcse_app/GiveawayEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.GiveawayForm(data, files=request.FILES, instance=giveaway)
+      response_data = {}
+      if form.is_valid():
+        savedGiveaway = form.save()
+        messages.success(request, "Giveaway saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Giveaway could not be saved. Check the errors below.")
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/GiveawayEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE GIVEAWAY
+####################################
+@login_required
+def giveawayDelete(request, id=''):
+  """
+  giveawayDelete is called from the path 'adminConfiguration/giveaways'
+  :param request: request from the browser
+  :param id='': id of the giveaway to delete
+  :returns: redirects to giveaways page if giveaway successfully deleted
+  :raises models.Giveaway.DoesNotExist: redirects user to page they were on before encountering error due to giveaway id does not exist
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete a giveaway')
+    if '' != id:
+      giveaway = models.Giveaway.objects.get(id=id)
+      giveaway.delete()
+      messages.success(request, "Giveaway deleted")
+
+    return shortcuts.redirect('bcse:giveaways')
+
+  except models.Giveaway.DoesNotExist:
+    messages.success(request, "Giveaway not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# GIVEAWAY REQUEST LIST
+####################################
+@login_required
+def giveawayRequests(request):
+  """
+    giveawayRequests is called from the path 'adminConfiguration'
+    :param request: request from the browser
+    :returns: rendered template 'bcse_app/GiveawayRequests.html'
+    :raises CustomException: redirects user to page they navigated from
+    """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view giveaway requests')
+
+    giveaway_requests = models.GiveawayRequest.objects.all()
+    context = {'giveaway_requests': giveaway_requests}
+    return render(request, 'bcse_app/GiveawayRequests.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# GIVEAWAY REQUEST CREATE OR EDIT
+####################################
+@login_required
+def giveawayRequestEdit(request, id=''):
+  """
+    giveawayRequestEdit is called from the path 'adminConfiguration/giveaway/requests' or
+    :param request: request from the browser
+    :returns: rendered template 'bcse_app/GiveawayRequests.html'
+    :raises CustomException: redirects user to page they navigated from
+    """
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to create a giveaway request')
+
+    print(request.method, 'giveawayRequestEdit')
+
+    if id != '':
+      giveaway_request = models.GiveawayRequest.objects.get(id=id)
+    else:
+      giveaway_request = models.GiveawayRequest()
+
+    if request.method == 'GET':
+      if request.user.userProfile.user_role in ['T', 'P']:
+        form = forms.GiveawayRequestForm(instance=giveaway_request, user=request.user.userProfile, initial={'user': request.user.userProfile})
+      else:
+        form = forms.GiveawayRequestForm(instance=giveaway_request, user=request.user.userProfile)
+
+      context = {'form': form}
+      return render(request, 'bcse_app/GiveawayRequestEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.GiveawayRequestForm(data, instance=giveaway_request, user=request.user.userProfile)
+      response_data = {}
+      if form.is_valid():
+        savedGiveawayRequest = form.save()
+        messages.success(request, 'Your giveaway request has been successfully submitted.')
+        response_data['success'] = True
+      else:
+        print('form error', form.errors)
+        messages.error(request, "Giveaway request could not be saved. Check the errors below.")
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/GiveawayRequestEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# DELETE GIVEAWAY REQUEST
+####################################
+@login_required
+def giveawayRequestDelete(request, id=''):
+  """
+  giveawayDelete is called from the path 'adminConfiguration/giveaways'
+  :param request: request from the browser
+  :param id='': id of the giveaway to delete
+  :returns: redirects to giveaways page if giveaway successfully deleted
+  :raises models.Giveaway.DoesNotExist: redirects user to page they were on before encountering error due to giveaway id does not exist
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete a giveaway request')
+    if '' != id:
+      giveaway_request = models.GiveawayRequest.objects.get(id=id)
+      giveaway_request.delete()
+      messages.success(request, "Giveaway request deleted")
+
+    return shortcuts.redirect('bcse:giveawayRequests')
+
+  except models.GiveawayRequest.DoesNotExist:
+    messages.success(request, "Giveaway Request not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################
+# VIEW GIVEAWAY
+####################################
+def giveawayView(request, id=''):
+  """
+  giveawayView is called from the path 'forTeachers/giveawayInfo'
+  :param request: request from the browser
+  :param id='': id of the giveaway to view
+  :returns: rendered template 'bcse_app/GiveawayView.html'
+  :raises CustomException: redirects user to page they were on before encountering error due to giveaway not existing
+  """
+
+  try:
+    if '' != id:
+      giveaway = models.Giveaway.objects.get(id=id)
+    else:
+      raise CustomException('Giveaway does not exist')
+
+    if request.method == 'GET':
+
+      if request.is_ajax():
+        context = {'giveaway': giveaway}
+        return render(request, 'bcse_app/GiveawayView.html', context)
+      else:
+        context = {'giveaway': giveaway}
+        return render(request, 'bcse_app/ActivityBaseView.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# GET GIVEAWAY MAX QUANTITY
+####################################
+def get_giveaway_max_quantity(request, id=''):
+  """
+  get_giveaway_max_quantity is called from the path 'forTeachers/giveawayInfo'
+  :param request: request from the browser
+  :param id='': id of the giveaway to find max quantity
+  :returns: max quantity
+  :raises CustomException: redirects user to page they were on before encountering error due to giveaway not existing
+  """
+
+  try:
+    if '' != id:
+      giveaway = models.Giveaway.objects.get(id=id)
+    else:
+      raise CustomException('Giveaway does not exist')
+
+    if request.method == 'GET':
+      response_data = {}
+      response_data['success'] = True
+      response_data['max_quantity'] = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+########################################################################
+# TEACHER LEADER OPPORTUNITIES PAGE
+########################################################################
 def teacherLeadershipOpportunities(request):
 
   try:

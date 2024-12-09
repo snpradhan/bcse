@@ -1,0 +1,23 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">{{giveaway.name}}</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <div class="kit_info">
+        <div class="kit_details">
+          {% if giveaway.image and giveaway.image.url %}
+            <img class="curve left" src="{{giveaway.image.url}}">
+          {% else %}
+            <img class="curve left" src="{% staticfile 'img/baxter_activity.png' %}">
+          {% endif %}
+          <div class="wysiwyg_content">{{giveaway.description|safe}}</div>
+        </div>        
+      </div>
+    </div>
+  </div>
+</div>
