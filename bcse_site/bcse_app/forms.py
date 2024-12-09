@@ -1775,3 +1775,76 @@ class VignettesSearchForm(forms.Form):
         if field_name in initials:
           field.initial = initials[field_name]
 
+##################################################
+# Giveaway Form
+##################################################
+class GiveawayForm(ModelForm):
+
+  class Meta:
+    model = models.Giveaway
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.ClearableFileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(GiveawayForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+      if field_name in ['on_hold_quantity', 'given_quantity']:
+        field.widget.attrs['readonly'] = True
+
+##################################################
+# Giveaway Request Form
+##################################################
+class GiveawayRequestForm(ModelForm):
+
+  class Meta:
+    model = models.GiveawayRequest
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
+      'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                              attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
+    }
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    super(GiveawayRequestForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+
+    if user.user_role not in ['A', 'S']:
+      self.fields.pop('status')
+
+    if user.user_role in ['A', 'S']:
+      self.fields['work_place'].label = 'Please confirm user''s workplace'
+    else:
+      self.fields['work_place'].label = 'Please confirm your workplace'
+      self.fields['work_place'].initial = user.work_place
+
+    self.fields['giveaway'].queryset = models.Giveaway.objects.all().filter(status='A', available_quantity__gt=0)
+
+    if self.instance.id:
+      self.fields['user'].widget.attrs['disabled'] = True
+      self.fields['giveaway'].widget.attrs['disabled'] = True
+      self.fields['requested_quantity'].widget.attrs['disabled'] = True
+
+  def is_valid(self):
+    valid = super(GiveawayRequestForm, self).is_valid()
+    if not valid:
+      return valid
+
+    cleaned_data = super(GiveawayRequestForm, self).clean()
+    giveaway = cleaned_data.get('giveaway')
+    requested_quantity = cleaned_data.get('requested_quantity')
+
+    if requested_quantity > giveaway.max_quantity_allowed or requested_quantity > giveaway.available_quantity:
+      self.add_error('requested_quantity', 'Please select a quantity not more than %s' % min(giveaway.max_quantity_allowed, giveaway.available_quantity))
+      valid = False
+
+    return valid
+
+
