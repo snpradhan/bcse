@@ -4,7 +4,7 @@
 {% if activities %}
   <div class="tiles activity_tiles">
     {% for activity in activities %}
-    {% is_activity_low_in_stock activity.id as low_stock %}
+    {% get_low_stock_message activity.id as low_stock_message %}
       <div class="tile activity_tile modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityView' activity.id %}">
         <div class="image">
           {% if activity.image and activity.image.url %}
@@ -16,8 +16,8 @@
         <div class="title">
           <h5 class="center">{{activity.name}}</h5>
 
-          {% if low_stock %}
-            <div class="warning center">(<i>This lab is low in stock</i>)</div>
+          {% if low_stock_message %}
+            <div class="warning center">(<i>{{low_stock_message}}</i>)</div>
           {% endif %}
         </div>
 

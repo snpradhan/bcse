@@ -285,3 +285,7 @@ def is_activity_low_in_stock(context, id):
   return views.is_activity_low_in_stock(id)
 
 
+@register.simple_tag(takes_context=True)
+def get_low_stock_message(context, id):
+  request = context.get('request')
+  return views.get_low_stock_message(id)

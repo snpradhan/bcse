@@ -17,9 +17,9 @@
       </div>
       <div>
          {% if reservation.activity %}
-            {% is_activity_low_in_stock reservation.activity.id as low_stock %}
-            {% if low_stock %}
-               <span class="warning">Please note this lab is low in stock.</span>
+            {% get_low_stock_message reservation.activity.id as low_stock_message %}
+            {% if low_stock_message %}
+               <span class="warning">{{low_stock_message}}</span>
             {% endif %}
          {% endif %}
          <span>We will review your request and you will receive another email when we have confirmed your reservation.</span>
