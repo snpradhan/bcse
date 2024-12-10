@@ -557,9 +557,15 @@ class SubTag(models.Model):
   def __str__(self):
       return '%s - %s' % (self.tag.name, self.name)
 
+#
+# Placeholder assignee for a reservation
+#
+def get_placeholder_reservation_assignee():
+  return UserProfile.objects.get(user__email='bcse@northwestern.edu').id
+
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)
-  assignee = models.ForeignKey(UserProfile, null=True, related_name='assigned_reservations', on_delete=models.SET_NULL)
+  assignee = models.ForeignKey(UserProfile, null=True, blank=True, default=get_placeholder_reservation_assignee, related_name='assigned_reservations', on_delete=models.SET_NULL)
   activity = models.ForeignKey(Activity, null=True, blank=True, on_delete=models.CASCADE)
   consumables = models.ManyToManyField('Consumable', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   num_of_classes = models.CharField(null=False, blank=False, max_length=1, choices=NUM_OF_CLASS_CHOICES)
