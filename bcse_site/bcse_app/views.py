@@ -7866,7 +7866,7 @@ def giveawayInfo(request):
     :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
-    giveaways = models.Giveaway.objects.all()
+    giveaways = models.Giveaway.objects.all().filter(status='A')
     context = {'giveaways': giveaways}
     return render(request, 'bcse_app/GiveawayInfo.html', context)
 
@@ -8034,7 +8034,7 @@ def giveawayRequestEdit(request, id=''):
       form = forms.GiveawayRequestForm(data, instance=giveaway_request, user=request.user.userProfile)
       response_data = {}
       if form.is_valid():
-        form.save()
+        savedGiveawayRequest = form.save()
         messages.success(request, 'Your giveaway request has been successfully submitted.')
         response_data['success'] = True
       else:
@@ -8082,6 +8082,39 @@ def giveawayRequestDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+####################################
+# VIEW GIVEAWAY
+####################################
+def giveawayView(request, id=''):
+  """
+  giveawayView is called from the path 'forTeachers/giveawayInfo'
+  :param request: request from the browser
+  :param id='': id of the giveaway to view
+  :returns: rendered template 'bcse_app/GiveawayView.html'
+  :raises CustomException: redirects user to page they were on before encountering error due to giveaway not existing
+  """
+
+  try:
+    if '' != id:
+      giveaway = models.Giveaway.objects.get(id=id)
+    else:
+      raise CustomException('Giveaway does not exist')
+
+    if request.method == 'GET':
+
+      if request.is_ajax():
+        context = {'giveaway': giveaway}
+        return render(request, 'bcse_app/GiveawayView.html', context)
+      else:
+        context = {'giveaway': giveaway}
+        return render(request, 'bcse_app/ActivityBaseView.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ########################################################################
 # TEACHER LEADER OPPORTUNITIES PAGE

@@ -186,6 +186,7 @@ urlpatterns = [
     path('adminConfiguration/giveaway/requests', views.giveawayRequests, name='giveawayRequests'),
     path('giveaway/request/<int:id>/edit', views.giveawayRequestEdit, name='giveawayRequestEdit'),
     path('giveaway/request/new', views.giveawayRequestEdit, name='giveawayRequestNew'),
+    path('giveaway/<int:id>/view', views.giveawayView, name='giveawayView'),
     path('adminConfiguration/giveaway/request/<int:id>/delete', views.giveawayRequestDelete, name='giveawayRequestDelete'),
 
     path('adminConfiguration/vignette/<int:id>/edit', views.vignetteEdit, name='vignetteEdit'),

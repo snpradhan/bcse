@@ -1757,3 +1757,6 @@ class GiveawayRequestForm(ModelForm):
 
     if self.instance.id:
       self.fields['user'].widget.attrs['disabled'] = True
+      self.fields['giveaway'].widget.attrs['disabled'] = True
+      self.fields['requested_quantity'].widget.attrs['disabled'] = True
+

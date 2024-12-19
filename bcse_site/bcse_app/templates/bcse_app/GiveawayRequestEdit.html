@@ -45,12 +45,22 @@
 
         <div class="form-group mb-3">
           <label for="id_{{form.giveaway.name}}">{{ form.giveaway.label }}</label>
-          <div>{{form.giveaway}}</div>
+          <div>
+            {{form.giveaway}}
+            {% if form.instance.id %}
+              {{form.giveaway.as_hidden}}
+            {% endif %}
+          </div>
           <div class="error">{{ form.giveaway.errors }}</div>
         </div>
         <div class="form-group mb-3">
           <label for="id_{{form.requested_quantity.name}}">{{ form.requested_quantity.label }}</label>
-          <div>{{form.requested_quantity}}</div>
+          <div>
+            {{form.requested_quantity}}
+            {% if form.instance.id %}
+              {{form.requested_quantity.as_hidden}}
+            {% endif %}
+          </div>
           <div class="error">{{ form.requested_quantity.errors }}</div>
         </div>
 
