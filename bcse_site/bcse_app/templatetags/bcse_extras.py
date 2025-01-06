@@ -232,7 +232,7 @@ def get_registrant_application(context, registration_id):
 @register.simple_tag(takes_context=True)
 def get_reservation_feedback(context, reservation_id):
   request = context.get('request')
-  feedback = models.SurveySubmission.objects.all().filter(feedback_to_reservation__reservation__id=reservation_id)
+  feedback = models.SurveySubmission.objects.all().filter(feedback_to_reservation__reservation__id=reservation_id).order_by('-created_date')
   if feedback.count():
     return feedback[0]
   else:

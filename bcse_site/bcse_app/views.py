@@ -6736,7 +6736,7 @@ def surveySubmissionsSearch(request, id=''):
         status_filter = Q(status=status)
 
       if email_filter:
-        query_filter = email_filter
+        query_filter = query_filter & email_filter
       if first_name_filter:
         query_filter = query_filter & first_name_filter
       if last_name_filter:
@@ -6776,6 +6776,7 @@ def surveySubmissionsSearch(request, id=''):
       surveySubmissions = paginate(request, surveySubmissions, sort_order, rows_per_page, page)
 
       context = {'survey': survey, 'surveySubmissions': surveySubmissions, 'columns': columns}
+
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/SurveySubmissionsTableView.html', context, request)
@@ -7182,14 +7183,14 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
       if '' != submission_uuid:
         submission = models.SurveySubmission.objects.get(UUID=submission_uuid)
       else:
-        delete_incomplete_submission = False
+        #delete old incomplete submissions
         if survey.survey_type == 'W' and workshop_id:
-          delete_incomplete_submission = True
-        elif survey.survey_type == 'B' and reservation_id:
-          delete_incomplete_submission = True
-
-        if delete_incomplete_submission:
+          #for workshop applications, delete all previous submissions
           incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user)
+          incomplete_submissions.delete()
+        elif survey.survey_type == 'B' and reservation_id:
+          #for baxter box survey, delete all incomplete submissions
+          incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user, status='I')
           incomplete_submissions.delete()
 
         submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, user=user, ip_address=request.META['REMOTE_ADDR'])
