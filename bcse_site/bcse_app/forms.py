@@ -977,7 +977,11 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['dietary_preference']
+    fields = ['work_place', 'dietary_preference']
+    widgets = {
+      'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
+                                              attrs={'data-placeholder': 'Start typing the name if your workplace ...'}),
+    }
 
   def __init__(self, *args, **kwargs):
 
@@ -987,6 +991,10 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+      if field_name == 'work_place':
+        field.label = 'Confirm your workplace'
+
 
 ####################################
 # Registration Email Message Form

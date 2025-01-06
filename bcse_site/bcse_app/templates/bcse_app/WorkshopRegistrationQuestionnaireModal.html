@@ -17,6 +17,10 @@
       {{form.media}}
       <div class="modal-body">
         <div class="form-group mb-3">
+          <label for="id_{{form.work_place.name}}" class="form-label">{{form.work_place.label}}</label>
+          <div>{{form.work_place}}</div>
+        </div>
+        <div class="form-group mb-3">
           <label for="id_{{form.dietary_preference.name}}" class="form-label">
             {{form.dietary_preference.label}}
             <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.dietary_preference.help_text}}"></i>
