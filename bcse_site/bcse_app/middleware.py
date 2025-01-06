@@ -80,16 +80,25 @@ class NextParameterMiddleware(MiddlewareMixin):
     elif redirect_url.find('subscribe') == 1:
       target = '#general'
 
+    #survey link requiring login
     if request.user.is_authenticated and redirect_url.find('signin') == 1 and redirect_url.find('survey') > 1:
       redirect_url = redirect_url.replace('/signin/?next=/?next=', '')
       target = '#general'
 
-    if request.user.is_authenticated and views.profile_update_required(request.user.userProfile):
-      target = '#profile'
-      if redirect_url:
-        redirect_url = '/userProfile/%s/edit?next=/?next=%s' % (request.user.userProfile.id, redirect_url)
-      else:
-        redirect_url = '/userProfile/%s/edit' % request.user.userProfile.id
+    #users requiring profile update
+    update_profile = False
+    if request.user.is_authenticated:
+      if views.profile_update_required(request.user.userProfile):
+        update_profile = True
+      elif redirect_url.find('survey') == 1 and request.user.userProfile.modified_date.date() < datetime.now().date():
+        update_profile = True
+
+      if update_profile:
+        target = '#profile'
+        if redirect_url:
+          redirect_url = '/userProfile/%s/edit?next=/?next=%s' % (request.user.userProfile.id, redirect_url)
+        else:
+          redirect_url = '/userProfile/%s/edit' % request.user.userProfile.id
 
 
     if target and redirect_url:

@@ -4534,8 +4534,8 @@ def userProfileEdit(request, id=''):
     else:
       update_required = False
 
-    redirect_url = request.GET.get('next', '')
 
+    redirect_url = request.GET.get('next', '')
     if request.method == 'GET':
       userForm = forms.UserForm(instance=userProfile.user, user=request.user, prefix="user")
       work_place_form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
@@ -4548,6 +4548,8 @@ def userProfileEdit(request, id=''):
       context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
       if update_required:
         messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
+      elif 'survey' in redirect_url:
+        messages.warning(request, "Please confirm your workplace to proceed to the survey")
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
