@@ -3307,8 +3307,13 @@ def workshopRegistration(request, workshop_id):
 
       #create registration - workplace association
       if saved_registration.user.work_place:
-        registration_work_place = models.RegistrationWorkPlace(registration=saved_registration, work_place=saved_registration.user.work_place)
-        registration_work_place.save()
+        try:
+          registration_work_place = models.RegistrationWorkPlace.objects.get(registration=saved_registration)
+          registration_work_place.work_place = saved_registration.user.work_place
+          registration_work_place.save()
+        except models.RegistrationWorkPlace.DoesNotExist:
+          registration_work_place = models.RegistrationWorkPlace(registration=saved_registration, work_place=saved_registration.user.work_place)
+          registration_work_place.save()
 
       success = True
     else:
