@@ -3243,9 +3243,9 @@ def workshopRegistration(request, workshop_id):
     if request.user.is_anonymous:
       if registration_setting_status['registration_open']:
         if default_registration_status == 'R':
-          user_message = 'Please <u><a href="?next=/signin">login</a></u> to register for this workshop'
+          user_message = 'Please <u><a href="?next=/signin/">login</a></u> to register for this workshop'
         else:
-          user_message = 'Please <u><a href="?next=/signin">login</a></u> to apply to this workshop'
+          user_message = 'Please <u><a href="?next=/signin/">login</a></u> to apply to this workshop'
       elif registration_setting_status['message']:
         user_message = registration_setting_status['message']
 
@@ -3305,10 +3305,7 @@ def workshopRegistration(request, workshop_id):
         registration['instance'] = saved_registration
         registration['current_status'] = saved_registration.status
 
-      #create registration - workplace association
-      if saved_registration.user.work_place:
-        registration_work_place = models.RegistrationWorkPlace(registration=saved_registration, work_place=saved_registration.user.work_place)
-        registration_work_place.save()
+      saveRegistrationWorkPlace(request, saved_registration)
 
       success = True
     else:
@@ -4549,7 +4546,14 @@ def userProfileEdit(request, id=''):
       if update_required:
         messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
       elif 'survey' in redirect_url:
-        messages.warning(request, "Please confirm your workplace to proceed to the survey")
+        if 'workshop_id' in redirect_url:
+          warning = "Please confirm your workplace to proceed to the workshop application"
+        elif 'reservation_id' in redirect_url:
+          warning = "Please confirm your workplace to proceed to the Baxter Box feedback survey"
+        else:
+          warning = "Please confirm your workplace to proceed to the survey"
+
+        messages.warning(request, warning)
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
@@ -7294,6 +7298,9 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                   registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status='A')
 
                 models.WorkshopApplication.objects.create(registration=registration, application=submission)
+
+                saveRegistrationWorkPlace(request, registration)
+
                 messages.success(request, 'Your application has been submitted')
               #reservation feedback
               elif survey.survey_type == 'B' and reservation_id:
@@ -8298,6 +8305,17 @@ def load_consumable_options(request, activity_id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def saveRegistrationWorkPlace(request, registration):
+  #create registration - workplace association
+  if registration.user.work_place:
+    try:
+      registration_work_place = models.RegistrationWorkPlace.objects.get(registration=registration)
+      registration_work_place.work_place = registration.user.work_place
+      registration_work_place.save()
+    except models.RegistrationWorkPlace.DoesNotExist:
+      registration_work_place = models.RegistrationWorkPlace(registration=registration, work_place=registration.user.work_place)
+      registration_work_place.save()
 
 #####################################################
 # TERMS OF USE

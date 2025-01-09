@@ -96,7 +96,10 @@ class NextParameterMiddleware(MiddlewareMixin):
       if update_profile:
         target = '#profile'
         if redirect_url:
-          redirect_url = '/userProfile/%s/edit?next=/?next=%s' % (request.user.userProfile.id, redirect_url)
+          if 'workshop_id' in redirect_url:
+            redirect_url = '/userProfile/%s/edit?next=%s?next=%s' % (request.user.userProfile.id, request.get_full_path().split('?')[0], redirect_url)
+          else:
+            redirect_url = '/userProfile/%s/edit?next=/?next=%s' % (request.user.userProfile.id, redirect_url)
         else:
           redirect_url = '/userProfile/%s/edit' % request.user.userProfile.id
 

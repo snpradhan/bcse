@@ -49,7 +49,7 @@
               </button>
             {% else %}
               {% if workshop.registration_setting.application %}
-                <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" href="#">
+                <a class="btn" href="?next={% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" >
                   Apply
                 </a>
               {% else %}
