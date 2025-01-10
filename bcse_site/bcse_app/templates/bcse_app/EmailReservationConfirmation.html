@@ -35,9 +35,29 @@
                </td>
                <td align="right">
                   <div>
-                     {% with user=reservation.user.user work_place=reservation.reservation_to_work_place.work_place %}
+                     {% with user=reservation.user.user delivery_address=reservation.delivery_address work_place=reservation.reservation_to_work_place.work_place %}
                         <div>{{user.get_full_name}}</div>
-                        {% if work_place %}
+                        {% if delivery_address %}
+                           {% if delivery_address.street_address_1 %}
+                              <div>{{delivery_address.street_address_1}}</div>
+                           {% endif %}
+                           {% if delivery_address.street_address_2 %}
+                             <div>{{delivery_address.street_address_2}}</div>
+                           {% endif %}
+                           <div>
+                              {% if delivery_address.city %}
+                                 {{delivery_address.city}},
+                              {% endif %}
+                              {% if delivery_address.state %}
+                                 {{delivery_address.state}}
+                              {% endif %}
+                              {% if delivery_address.zip_code %}
+                                 {{delivery_address.zip_code}}
+                              {% endif %}
+                           </div>
+                           <br>
+                           <div class="warning">Note: If your information has changed, please update your profile and also send us a message.</div>
+                        {% elif work_place %}
                            {% if work_place.name %}
                               <div>{{work_place.name}}</div>
                            {% endif %}
