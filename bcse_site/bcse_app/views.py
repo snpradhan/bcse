@@ -5668,7 +5668,8 @@ def workPlacesSearch(request):
       if status_filter:
         query_filter = query_filter & status_filter
 
-      work_places = models.WorkPlace.objects.all().annotate(users_count=Count('users')).filter(query_filter)
+      work_places = models.WorkPlace.objects.all().filter(query_filter)
+
       ignorecase = 'false'
       direction = request.GET.get('direction') or 'asc'
       if sort_by:
@@ -5774,8 +5775,11 @@ def workPlaceDelete(request, id=''):
       raise CustomException('You do not have the permission to delete workplace')
     if '' != id:
       work_place = models.WorkPlace.objects.get(id=id)
-      work_place.delete()
-      messages.success(request, "Workplace deleted")
+      if work_place.users.count() > 0 or work_place.work_place_to_registration.count() > 0 or work_place.work_place_to_reservation.count() > 0:
+        messages.success(request, "%s is associated with %s user(s), %s workshop registration(s) and %s Baxter Box reservation(s) and cannot be deleted" % (work_place.name, work_place.users.count(), work_place.work_place_to_registration.count(), work_place.work_place_to_reservation.count()))
+      else:
+        work_place.delete()
+        messages.success(request, "Workplace deleted")
 
     return shortcuts.redirect('bcse:workPlaces')
 

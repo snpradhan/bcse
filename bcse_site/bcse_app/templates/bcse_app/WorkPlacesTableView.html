@@ -47,6 +47,12 @@
         {% if 'NU' in columns %}
           <th> # of Users </th>
         {% endif %}
+        {% if 'AR' in columns %}
+          <th> # of Reservations </th>
+        {% endif %}
+        {% if 'AW' in columns %}
+          <th> # of Workshop Registrations </th>
+        {% endif %}
         {% if 'ST' in columns %}
           <th> Status </th>
         {% endif %}
@@ -102,7 +108,13 @@
             <td> {{work_place.time_from_base|default_if_none:""}} </td>
           {% endif %}
           {% if 'NU' in columns %}
-            <td> {{work_place.users_count}} </td>
+            <td> {{work_place.users.count}} </td>
+          {% endif %}
+          {% if 'AR' in columns %}
+            <td> {{work_place.work_place_to_reservation.count}} </td>
+          {% endif %}
+          {% if 'AW' in columns %}
+            <td> {{work_place.work_place_to_registration.count}} </td>
           {% endif %}
           {% if 'ST' in columns %}
             <td> {{work_place.get_status_display}} </td>
@@ -125,10 +137,16 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:workPlaceDelete' work_place.id %}"
-                  data-title="the workplace <strong>{{work_place.name}}</strong>">
-                    Delete
-                  </a>
+                  {% if work_place.users.count or work_place.work_place_to_registration.count or work_place.work_place_to_registration.count %}
+                    <a class="dropdown-item action" onclick="displayWarningDialog('<strong>{{work_place.name}}</strong> is associated with  {% if work_place.users.count %} {{work_place.users.count}} user(s), {% endif %} {% if work_place.work_place_to_registration.count %} {{work_place.work_place_to_registration.count}} workshop registration(s) {% endif %} {% if work_place.work_place_to_reservation.count %} and {{work_place.work_place_to_reservation.count}} Baxter Box reservation(s) {% endif %} and cannot be deleted');">
+                      Delete
+                    </a>
+                  {% else %}
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:workPlaceDelete' work_place.id %}"
+                    data-title="the workplace <strong>{{work_place.name}}</strong>">
+                      Delete
+                    </a>
+                  {% endif %}
                 </li>
               </ul>
             </div>

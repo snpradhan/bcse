@@ -187,6 +187,8 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('TM', 'Travel Time'),
   ('DT', 'Distance'),
   ('NU', '# of Users'),
+  ('AR', '# of Reservations'),
+  ('AW', '# of Workshop Registrations'),
   ('ST', 'Status'),
   ('CD', 'Created Date'),
   ('MD', 'Modified Date'),
