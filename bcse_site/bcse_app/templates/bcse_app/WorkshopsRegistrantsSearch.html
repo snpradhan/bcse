@@ -25,6 +25,11 @@
           <div class="error">{{ searchForm.year.errors }}</div>
         </div>
         <div class="form-group">
+          <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
+          <div>{{searchForm.work_place}}</div>
+          <div class="error">{{ searchForm.work_place.errors }}</div>
+        </div>
+        <div class="form-group">
           <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
           <div>{{searchForm.status}}</div>
           <div class="error">{{ searchForm.status.errors }}</div>

@@ -1505,6 +1505,8 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
 
   workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
   workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
+  work_place = forms.ModelChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
+                                  )
   year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
   status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('year', 'Year'), ('status', 'Status')))

@@ -4280,11 +4280,13 @@ def workshopsRegistrantsSearch(request):
       query_filter = Q()
       workshop_category_filter = None
       workshop_filter = None
+      workplace_filter = None
       year_filter = None
       status_filter = None
 
       workshop_category = [int(i) for i in request.GET.getlist('registrants_search-workshop_category', '')]
       workshop = [int(i) for i in request.GET.getlist('registrants_search-workshop', '')]
+      work_place = request.GET.get('registrants_search-work_place', '')
       year = request.GET.get('registrants_search-year', '')
       status = request.GET.getlist('registrants_search-status', '')
       sort_by = request.GET.get('registrants_search-sort_by', '')
@@ -4294,6 +4296,7 @@ def workshopsRegistrantsSearch(request):
       request.session['workshops_registrants_search'] = {
         'workshop_category': workshop_category,
         'workshop': workshop,
+        'work_place': work_place,
         'year': year,
         'status': status,
         'sort_by': sort_by,
@@ -4307,6 +4310,9 @@ def workshopsRegistrantsSearch(request):
       if workshop:
         workshop_filter = Q(workshop_registration_setting__workshop__id__in=workshop)
         query_filter = query_filter & workshop_filter
+      if work_place:
+        workplace_filter = Q(registration_to_work_place__work_place=work_place)
+        query_filter = query_filter & workplace_filter
       if year:
         year_filter = Q(workshop_registration_setting__workshop__start_date__year=int(year))
         query_filter = query_filter & year_filter
