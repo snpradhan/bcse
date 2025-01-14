@@ -25,8 +25,9 @@
         </div>
         {% if not user.userProfile.photo_release_complete %}
           <div class="form-group mb-3">
-            <label class="form-label"> We do not have a photo release on file for you. Please click here to complete it before attending this event. </label>
-            <div><a href="{{photo_release_url}}" target="_blank">{{photo_release_url}}</a></div>
+            <label class="form-label">
+              We do not have a photo release on file for you. Please click <a href="{{photo_release_url}}" target="_blank">here</a> to complete it before attending this event.
+            </label>
           </div>
         {% endif %}
         {% if workshop.registration_setting.isbe_link %}
