@@ -1860,6 +1860,8 @@ def reservationsSearch(request):
         keyword_filter = keyword_filter | Q(user__user__first_name__icontains=keywords)
         keyword_filter = keyword_filter | Q(user__user__last_name__icontains=keywords)
         keyword_filter = keyword_filter | Q(notes__icontains=keywords)
+        if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+          keyword_filter = keyword_filter | Q(admin_notes__icontains=keywords)
 
       if user:
         user_filter = Q(user=user)
