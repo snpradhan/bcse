@@ -1222,21 +1222,22 @@ def check_giveaway_request_delete(sender, instance, **kwargs):
 def send_giveaway_request_email(giveawayRequest, status):
   if status == 'P':
     subject = 'Lab giveaway request received'
-    context = {'name': giveawayRequest.giveaway.name}
+    context = {'name': giveawayRequest.giveaway.name, 'quantity': giveawayRequest.requested_quantity}
     body = get_template('bcse_app/EmailGiveawayRequest.html').render(context)
   else:
+    context = {'name': giveawayRequest.giveaway.name, 'quantity': giveawayRequest.requested_quantity, 'status': None}
     if status == 'A':
       subject = 'Lab giveaway request approved'
-      context = {'name': giveawayRequest.giveaway.name, 'status': 'Approved'}
+      context['status'] = 'Approved'
     elif status == 'D':
       subject = 'Lab giveaway request denied'
-      context = {'name': giveawayRequest.giveaway.name, 'status': 'Denied'}
+      context['status'] = 'Denied'
     elif status == 'C':
       subject = 'Lab giveaway request cancelled'
-      context = {'name': giveawayRequest.giveaway.name, 'status': 'Cancelled'}
+      context['status'] = 'Cancelled'
     elif status == 'X':
       subject = 'Lab giveaway request deleted'
-      context = {'name': giveawayRequest.giveaway.name, 'status': 'Deleted'}
+      context['status'] = 'Deleted'
 
     body = get_template('bcse_app/EmailGiveawayUpdate.html').render(context)
 
