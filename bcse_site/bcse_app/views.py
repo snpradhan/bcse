@@ -7908,7 +7908,7 @@ def giveawayInfo(request):
     :raises CustomException: raises an exception and redirects user to page they were on before encountering error
   """
   try:
-    giveaways = models.Giveaway.objects.all().filter(status='A')
+    giveaways = models.Giveaway.objects.all().filter(status='A', available_quantity__gt=0)
     context = {'giveaways': giveaways}
     return render(request, 'bcse_app/GiveawayInfo.html', context)
 
