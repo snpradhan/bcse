@@ -8721,7 +8721,11 @@ def get_giveaway_max_quantity(request, id=''):
     if request.method == 'GET':
       response_data = {}
       response_data['success'] = True
-      response_data['max_quantity'] = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
+      if giveaway.max_quantity_allowed:
+        response_data['max_quantity'] = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
+      else:
+        response_data['max_quantity'] = giveaway.available_quantity
+
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET'])
