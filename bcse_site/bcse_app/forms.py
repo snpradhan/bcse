@@ -1771,8 +1771,13 @@ class GiveawayRequestForm(ModelForm):
     giveaway = cleaned_data.get('giveaway')
     requested_quantity = cleaned_data.get('requested_quantity')
 
-    if requested_quantity > giveaway.max_quantity_allowed or requested_quantity > giveaway.available_quantity:
-      self.add_error('requested_quantity', 'Please select a quantity not more than %s' % min(giveaway.max_quantity_allowed, giveaway.available_quantity))
+    if giveaway.max_quantity_allowed:
+      max_quantity = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
+    else:
+      max_quantity = giveaway.available_quantity
+
+    if requested_quantity > max_quantity:
+      self.add_error('requested_quantity', 'Please select a quantity not more than %s' % max_quantity)
       valid = False
 
     return valid
