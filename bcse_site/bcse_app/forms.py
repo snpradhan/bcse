@@ -1755,7 +1755,10 @@ class GiveawayRequestForm(ModelForm):
       self.fields['work_place'].label = 'Please confirm your workplace'
       self.fields['work_place'].initial = user.work_place
 
-    self.fields['giveaway'].queryset = models.Giveaway.objects.all().filter(status='A', available_quantity__gt=0)
+    if self.instance.id:
+      self.fields['giveaway'].queryset = models.Giveaway.objects.all().filter(id=self.instance.giveaway.id)
+    else:
+      self.fields['giveaway'].queryset = models.Giveaway.objects.all().filter(status='A', available_quantity__gt=0)
 
     if self.instance.id:
       self.fields['user'].widget.attrs['disabled'] = True
@@ -1776,7 +1779,7 @@ class GiveawayRequestForm(ModelForm):
     else:
       max_quantity = giveaway.available_quantity
 
-    if requested_quantity > max_quantity:
+    if not self.instance.id and requested_quantity > max_quantity:
       self.add_error('requested_quantity', 'Please select a quantity not more than %s' % max_quantity)
       valid = False
 
