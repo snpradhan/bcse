@@ -45,15 +45,15 @@
                   {% if form.instance.survey_component.component_type != 'IN' %}
                     <div class="response">
                       {% if form.instance.survey_component.component_type == 'TA' %}
-                        <textarea placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}>{{form.response.value}}</textarea>
+                        <textarea placeholder="Enter your response" class="form-control survey_input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}>{{form.response.value}}</textarea>
                       {% elif form.instance.survey_component.component_type == 'TF' %}
-                        <input type="text" placeholder="Enter your response" class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>
+                        <input type="text" placeholder="Enter your response" class="form-control survey_input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}" {% if form.instance.survey_component.is_required %}required{% endif %}/>
                       {% elif form.instance.survey_component.component_type == 'DD' or form.instance.survey_component.component_type == 'MC' or form.instance.survey_component.component_type == 'MS' %}
 
                         {% with options=form.instance.survey_component.options|splitlines display_other_option=form.instance.survey_component.display_other_option other_option_label=form.instance.survey_component.other_option_label %}
 
                         {% if form.instance.survey_component.component_type == 'DD' %}
-                          <select class="form-control" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" {% if form.instance.survey_component.is_required %}required{% endif %}>
+                          <select class="form-control survey_input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" {% if form.instance.survey_component.is_required %}required{% endif %}>
                             <option value="">--------</option>
                             {% for option in options%}
                               {% if option|slugify == form.response.value|slugify %}
@@ -72,13 +72,13 @@
                           </select>
                           {% if display_other_option and other_option_label %}
                             {% if not form.response.value or form.response.value|is_in:options %}
-                              <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
+                              <input type="text" placeholder="Enter your response" class="form-control other survey_input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="" disabled/>
                             {% else %}
-                               <input type="text" placeholder="Enter your response" class="form-control other" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
+                               <input type="text" placeholder="Enter your response" class="form-control other survey_input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
                             {% endif %}
                           {% endif %}
                         {% elif form.instance.survey_component.component_type == 'MC' %}
-                          <div>
+                          <div class="survey_input" tabindex="-1">
                             {% for option in options%}
                               {% if option|slugify == form.response.value|slugify %}
                                 <input type="radio" class="form-check-input" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{option}}"  checked="true" {% if form.instance.survey_component.is_required %}required{% endif %}/>  {{option}}
@@ -101,7 +101,7 @@
                             {% endif %}
                           </div>
                         {% elif form.instance.survey_component.component_type == 'MS' %}
-                          <div>
+                          <div class="survey_input" tabindex="-1">
                             <input type="hidden" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" value="{{form.response.value}}"/>
                             {% with chosen=form.response.value|split:',' %}
                             {% for option in options %}
@@ -120,20 +120,20 @@
                         {% endwith %}
 
                       {% elif form.instance.survey_component.component_type == 'FI' %}
-                        <div>
+                        <div class="survey_input">
                           {{form.responseFile}}
                           <div class="warning">Upload files that are less than 10MB in size.</div>
                         </div>
                       {% elif form.instance.survey_component.component_type == 'DT' %}
-                        <div>
+                        <div class="survey_input">
                           <input type="date" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if sform.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
                         </div>
                       {% elif form.instance.survey_component.component_type == 'EM' %}
-                        <div>
+                        <div class="survey_input">
                           <input type="email" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}" />
                         </div>
                       {% elif form.instance.survey_component.component_type == 'UL' %}
-                        <div>
+                        <div class="survey_input">
                           <input type="url" placeholder="Enter your response" name="{{form.response.html_name}}" id="{{form.response.auto_id}}" class="form-control" {% if form.instance.survey_component.is_required %}required{% endif %} value="{{form.response.value}}"/>
                         </div>
                       {% endif %}
@@ -149,6 +149,7 @@
           <div class="modal-footer button-row">
             <div class="form-group">
               <input type="hidden" id="back" name="back" value="0"/>
+              <input type="hidden" id="save" name="save" value="0"/>
               {% if page_num > 1 %}
                 <button class="btn back" type="button" id="back_bottom">
                     Back
@@ -212,6 +213,7 @@
       });
       $("#formSurvey").submit(function(e) {
         e.preventDefault();
+        $('input#save').val(0);
         var formData = new FormData(this);
 
         $.ajax({
@@ -252,6 +254,8 @@
           }
         });
       });
+
+
 
       $('.btn-close').on('click', function(e){
         e.preventDefault();
@@ -312,7 +316,53 @@
         }
       }
 
-      $('select, input[type="checkbox"].other, input[type="radio"].other').trigger('change');
+    //auto saving on focusout of form elements
+    function bindFocusOutSave() {
+
+      $('.survey_input').on('focusout', function(e){
+        if(e.target.id == 'submit_bottom_with_download' ||  e.target.id == 'save_button' || e.target.id == 'back_button'){
+          console.log('manual save');
+          return false;
+        }
+        else{
+          console.log('auto save');
+          autoSave();
+        }
+      });
+      /*//auto saving on ckeditor focusout
+      for ( instance in CKEDITOR.instances ) {
+        CKEDITOR.instances[instance].on('blur', function(e){
+          autoSave();
+        });
+      }*/
+    }
+
+    // ajax submit
+    function autoSave(){
+      /*
+      for ( instance in CKEDITOR.instances ) {
+        CKEDITOR.instances[instance].updateElement();
+      }*/
+      $('input#save').val(1);
+      $('#formSurvey').ajaxSubmit({
+        dataType : 'json',
+        success: function(data){
+          //message at the top of the page stating responses auto saved
+          display_messages('The responses were auto saved at '+ new Date().toLocaleTimeString(), "success");
+        },
+        error: function(data) {
+          display_messages('The responses could not auto saved. Please click the Next or Submit button at the bottom of the page.', 'error');
+        }
+      });
+      return false;
+    }
+
+    function display_messages(message, className){
+      $("ul.errorlist").html('<li class="'+className+'">'+message+'</li>');
+      $("ul.errorlist").show();
+    }
+    bindFocusOutSave();
+    $('select, input[type="checkbox"].other, input[type="radio"].other').trigger('change');
 
     });
   </script>

@@ -7239,6 +7239,9 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
       elif request.method == 'POST':
         data = request.POST.copy()
+        autosave = False
+        if data['save'][0] == '1':
+          autosave = True
 
         if page_num > 1 and data['back'][0] == '1':
           print('clicking back button')
@@ -7265,7 +7268,12 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
           if formset.is_valid():
             formset.save()
-            if page_num < total_pages:
+            if autosave:
+              print('autosave')
+              response_data = {}
+              response_data['success'] = True
+              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+            elif page_num < total_pages:
               print('clicking Next')
               messages.success(request, 'Page %s has been saved' % page_num)
               response_data = {}
@@ -7295,6 +7303,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               print('clicking Submit')
               submission.status = 'S'
               submission.save()
+
               #workshop application
               if survey.survey_type == 'W' and workshop_id:
                 workshop = models.Workshop.objects.get(id=workshop_id)
@@ -7305,6 +7314,17 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                   registration.save()
                 except models.Registration.DoesNotExist:
                   registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status='A')
+
+                #create registration - workplace association
+                if registration.user.work_place:
+                  try:
+                    registration_work_place = models.RegistrationWorkPlace.objects.get(registration=registration)
+                    registration_work_place.work_place = registration.user.work_place
+                    registration_work_place.save()
+                  except models.RegistrationWorkPlace.DoesNotExist:
+                    registration_work_place = models.RegistrationWorkPlace(registration=registration, work_place=registration.user.work_place)
+                    registration_work_place.save()
+
 
                 models.WorkshopApplication.objects.create(registration=registration, application=submission)
                 messages.success(request, 'Your application has been submitted')
@@ -7330,15 +7350,19 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               else:
                 return shortcuts.redirect('bcse:home')
           else:
-            messages.error(request, 'Please correct the errors below and resubmit')
-            context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
-            if survey.survey_type == 'W' and workshop_id:
-              context['workshop_id'] = workshop_id
-            elif survey.survey_type == 'B' and reservation_id:
-              context['reservation_id'] = reservation_id
-            response_data['success'] = False
-            response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
-            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+            if autosave:
+              response_data['success'] = False
+              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+            else:
+              messages.error(request, 'Please correct the errors below and resubmit')
+              context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+              if survey.survey_type == 'W' and workshop_id:
+                context['workshop_id'] = workshop_id
+              elif survey.survey_type == 'B' and reservation_id:
+                context['reservation_id'] = reservation_id
+              response_data['success'] = False
+              response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
+              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
       return http.HttpResponseNotAllowed(['GET', 'POST'])
 
