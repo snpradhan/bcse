@@ -245,6 +245,12 @@ GIVEAWAY_STATUS_CHOICES = (
   ('C', 'Cancelled')
 )
 
+GIVEAWAY_DELIVERY_STATUS_CHOICES = (
+  ('P', 'Packed'),
+  ('S', 'Scheduled'),
+  ('D', 'Delivered'),
+)
+
 
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
@@ -932,6 +938,8 @@ class GiveawayRequest(models.Model):
   giveaway = models.ForeignKey(Giveaway, null=False, blank=False, related_name="request_detail", on_delete=models.CASCADE)
   requested_quantity = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(1)])
   status = models.CharField(default='P', max_length=1, choices=GIVEAWAY_STATUS_CHOICES)
+  delivery_status = models.CharField(null=True, blank=True, max_length=1, choices=GIVEAWAY_DELIVERY_STATUS_CHOICES)
+  delivery_date = models.DateTimeField(null=True, blank=True)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

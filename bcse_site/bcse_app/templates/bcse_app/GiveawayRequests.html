@@ -19,7 +19,9 @@
           <th> Workplace </th>
           <th> Requested Item </th>
           <th> Requested Qty. </th>
-          <th> Status </th>
+          <th> Request Status </th>
+          <th> Delivery Status </th>
+          <th> Delivery Date </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -47,6 +49,8 @@
             <td> {{giveaway_request.giveaway.name}}</td>
             <td> {{giveaway_request.requested_quantity}}</td>
             <td> {{giveaway_request.get_status_display}} </td>
+            <td> {{giveaway_request.get_delivery_status_display|default_if_none:""}} </td>
+            <td> {{giveaway_request.delivery_date|date:"F j, Y"}}</td>
             <td> {{giveaway_request.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{giveaway_request.modified_date|date:"F j, Y g:i A"}} </td>
             <td>
