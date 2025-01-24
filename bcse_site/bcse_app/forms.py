@@ -1744,10 +1744,20 @@ class GiveawayRequestForm(ModelForm):
     super(GiveawayRequestForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'delivery_date':
+        field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
+      else:
+        field.widget.attrs['class'] = 'form-control'
 
     if user.user_role not in ['A', 'S']:
+      self.fields.pop('delivery_status')
+      self.fields.pop('delivery_date')
       self.fields.pop('status')
+    if self.instance.id is None:
+      self.fields.pop('delivery_status')
+      self.fields.pop('delivery_date')
+
 
     if user.user_role in ['A', 'S']:
       self.fields['work_place'].label = 'Please confirm user''s workplace'
@@ -1773,6 +1783,8 @@ class GiveawayRequestForm(ModelForm):
     cleaned_data = super(GiveawayRequestForm, self).clean()
     giveaway = cleaned_data.get('giveaway')
     requested_quantity = cleaned_data.get('requested_quantity')
+    delivery_status = cleaned_data.get('delivery_status')
+    delivery_date = cleaned_data.get('delivery_date')
 
     if giveaway.max_quantity_allowed:
       max_quantity = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
@@ -1782,6 +1794,11 @@ class GiveawayRequestForm(ModelForm):
     if not self.instance.id and requested_quantity > max_quantity:
       self.add_error('requested_quantity', 'Please select a quantity not more than %s' % max_quantity)
       valid = False
+
+    if delivery_status and delivery_status in ['S', 'D']:
+      if not delivery_date:
+        self.add_error('delivery_date', 'Please select a delivery date')
+        valid = False
 
     return valid
 

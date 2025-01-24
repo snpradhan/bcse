@@ -73,6 +73,26 @@
           </div>
         {% endif %}
 
+        {% if form.delivery_status %}
+          <div class="form-group mb-3">
+            <label for="id_{{form.delivery_status.name}}">{{ form.delivery_status.label }}</label>
+            <div>{{form.delivery_status}}</div>
+            <div class="error">{{ form.delivery_status.errors }}</div>
+          </div>
+        {% endif %}
+        {% if form.delivery_date %}
+          <div class="form-group mb-3">
+            <label for="id_{{form.delivery_date.name}}">{{ form.delivery_date.label }}</label>
+            <div class="input-group">
+              {{form.delivery_date}}
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="error">{{ form.delivery_date.errors }}</div>
+          </div>
+        {% endif %}
+
+
+
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
         </div>
@@ -91,6 +111,12 @@
 </div>
 <script type="text/javascript">
   $(function (){
+
+    $(".datepicker").datepicker({
+      dateFormat: "MM dd, yy",
+      changeMonth: true,
+      changeYear: true
+    });
 
     var user_id = "{{user.userProfile.id}}";
     var user_role = "{{user.userProfile.user_role}}";
