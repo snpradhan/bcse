@@ -34,7 +34,7 @@
             <th> Modified Date </th>
             <th> Status </th>
           {% else %}
-            {% if flag != 'teacher' %}
+            {% if extra != 'teacher' %}
               <th> Registration Status </th>
             {% endif %}
           {% endif %}
@@ -63,7 +63,7 @@
             <td style="background-color: #767676; color: white;"> Modified Date </td>
             <td style="background-color: #767676; color: white;"> Status </td>
           {% else %}
-            {% if flag != 'teacher' %}
+            {% if extra != 'teacher' %}
               <td style="background-color: #767676; color: white;"> Registration Status </td>
             {% endif %}
           {% endif %}
@@ -152,7 +152,7 @@
                 <!-- For User Profile page -->
                 {% get_user_registration workshop.id userProfile.id as registration %}
               {% endif %}
-              {% if flag != 'teacher' %}
+              {% if extra != 'teacher' %}
                 <td>{{registration.get_status_display}}</td>
                 <td width="15%" class='noExl'>
                   {% if workshop.status == 'A'%}
