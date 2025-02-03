@@ -1754,7 +1754,7 @@ class GiveawayRequestForm(ModelForm):
       self.fields.pop('delivery_status')
       self.fields.pop('delivery_date')
       self.fields.pop('status')
-    if self.instance.id is None:
+    elif self.instance.id is None:
       self.fields.pop('delivery_status')
       self.fields.pop('delivery_date')
 
@@ -1773,7 +1773,7 @@ class GiveawayRequestForm(ModelForm):
     if self.instance.id:
       self.fields['user'].widget.attrs['disabled'] = True
       self.fields['giveaway'].widget.attrs['disabled'] = True
-      self.fields['requested_quantity'].widget.attrs['disabled'] = True
+      #self.fields['requested_quantity'].widget.attrs['disabled'] = True
 
   def is_valid(self):
     valid = super(GiveawayRequestForm, self).is_valid()
@@ -1785,15 +1785,17 @@ class GiveawayRequestForm(ModelForm):
     requested_quantity = cleaned_data.get('requested_quantity')
     delivery_status = cleaned_data.get('delivery_status')
     delivery_date = cleaned_data.get('delivery_date')
+    status = cleaned_data.get('status')
 
     if giveaway.max_quantity_allowed:
       max_quantity = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
     else:
       max_quantity = giveaway.available_quantity
 
-    if not self.instance.id and requested_quantity > max_quantity:
-      self.add_error('requested_quantity', 'Please select a quantity not more than %s' % max_quantity)
-      valid = False
+    if requested_quantity > max_quantity:
+      if status in ['A', 'P'] or self.instance.id is None:
+        self.add_error('requested_quantity', 'Please select a quantity not more than %s' % max_quantity)
+        valid = False
 
     if delivery_status and delivery_status in ['S', 'D']:
       if not delivery_date:

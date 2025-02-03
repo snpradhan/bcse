@@ -1107,14 +1107,15 @@ def check_giveaway_request_status_change(sender, instance, **kwargs):
         #new status is Approved
         if instance.status == 'A':
           print('old is pending, new is approved')
-          instance.giveaway.on_hold_quantity -= instance.requested_quantity
+          instance.giveaway.on_hold_quantity -= obj.requested_quantity
           instance.giveaway.given_quantity += instance.requested_quantity
+          instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
           instance.giveaway.save()
         #new status is Denied or Cancelled
         elif instance.status in ['D', 'C']:
           print('old is pending, new is denied or cancelled')
-          instance.giveaway.on_hold_quantity -= instance.requested_quantity
-          instance.giveaway.available_quantity += instance.requested_quantity
+          instance.giveaway.on_hold_quantity -= obj.requested_quantity
+          instance.giveaway.available_quantity += obj.requested_quantity
           instance.giveaway.save()
 
       #old status is Approved
@@ -1123,14 +1124,15 @@ def check_giveaway_request_status_change(sender, instance, **kwargs):
         if instance.status == 'P':
           print('old is approved, new is pending')
           instance.giveaway.on_hold_quantity += instance.requested_quantity
-          instance.giveaway.given_quantity -= instance.requested_quantity
+          instance.giveaway.given_quantity -= obj.requested_quantity
+          instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
           instance.giveaway.save()
 
         #new status is Denied or Cancelled
         elif instance.status in ['D', 'C']:
           print('old is approved, new is denied or cancelled')
-          instance.giveaway.available_quantity += instance.requested_quantity
-          instance.giveaway.given_quantity -= instance.requested_quantity
+          instance.giveaway.given_quantity -= obj.requested_quantity
+          instance.giveaway.available_quantity += obj.requested_quantity
           instance.giveaway.save()
 
       #old status is Denied or Cancelled
@@ -1148,6 +1150,19 @@ def check_giveaway_request_status_change(sender, instance, **kwargs):
           instance.giveaway.on_hold_quantity += instance.requested_quantity
           instance.giveaway.available_quantity -= instance.requested_quantity
           instance.giveaway.save()
+
+    elif instance.requested_quantity != obj.requested_quantity:
+      if instance.status == 'P':
+        print('existing pending, quantity changed')
+        instance.giveaway.on_hold_quantity = instance.giveaway.on_hold_quantity - obj.requested_quantity + instance.requested_quantity
+        instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
+        instance.giveaway.save()
+
+      elif instance.status == 'A':
+        print('existing approved, quantity changed')
+        instance.giveaway.given_quantity = instance.giveaway.given_quantity  - obj.requested_quantity + instance.requested_quantity
+        instance.giveaway.available_quantity = instance.giveaway.available_quantity + obj.requested_quantity - instance.requested_quantity
+        instance.giveaway.save()
 
   except sender.DoesNotExist:
     # Object is new, so field hasn't technically changed, but you may want to do something else here.

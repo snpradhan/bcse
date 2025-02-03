@@ -8055,8 +8055,8 @@ def giveawayRequestEdit(request, id=''):
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to create a giveaway request')
-
-    print(request.method, 'giveawayRequestEdit')
+    elif request.user.userProfile.user_role in ['T', 'P'] and id != '':
+      raise CustomException('You do not have the permission to edit a giveaway request')
 
     if id != '':
       giveaway_request = models.GiveawayRequest.objects.get(id=id)
@@ -8077,7 +8077,10 @@ def giveawayRequestEdit(request, id=''):
       response_data = {}
       if form.is_valid():
         savedGiveawayRequest = form.save()
-        messages.success(request, 'Your giveaway request has been successfully submitted.')
+        if id != '':
+          messages.success(request, 'Your giveaway request has been saved.')
+        else:
+          messages.success(request, 'Your giveaway request has been successfully submitted.')
         response_data['success'] = True
       else:
         print('form error', form.errors)
