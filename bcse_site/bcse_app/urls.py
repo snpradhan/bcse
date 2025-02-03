@@ -180,10 +180,13 @@ urlpatterns = [
 
     path('giveaway/info', views.giveawayInfo, name='giveawayInfo'),
     path('adminConfiguration/giveaways', views.giveaways, name='giveaways'),
+    path('adminConfiguration/giveaways/search/', views.giveawaysSearch, name='giveawaysSearch'),
     path('adminConfiguration/giveaway/<int:id>/edit', views.giveawayEdit, name='giveawayEdit'),
     path('adminConfiguration/giveaway/<int:id>/delete', views.giveawayDelete, name='giveawayDelete'),
     path('adminConfiguration/giveaway/new', views.giveawayEdit, name='giveawayNew'),
     path('adminConfiguration/giveaway/requests', views.giveawayRequests, name='giveawayRequests'),
+    path('adminConfiguration/giveaway/requests/search', views.giveawayRequestsSearch, name='giveawayRequestsSearch'),
+
     path('giveaway/request/<int:id>/edit', views.giveawayRequestEdit, name='giveawayRequestEdit'),
     path('giveaway/request/new', views.giveawayRequestEdit, name='giveawayRequestNew'),
     path('giveaway/<int:id>/view', views.giveawayView, name='giveawayView'),
