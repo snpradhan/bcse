@@ -115,6 +115,7 @@
 
     var user_id = "{{user.userProfile.id}}";
     var user_role = "{{user.userProfile.user_role}}";
+    var request_id = "{{form.instance.id}}";
 
     $('#formGiveawayRequest').submit(function(e){
       e.preventDefault();
@@ -246,7 +247,9 @@
       loadUserWorkplace(user_id)
     }
     $('select#id_status').trigger('change');
-
+    if(request_id != 'None' && ["A", "S"].includes(user_role)) {
+      loadUserWorkplace('{{form.instance.user.id}}');
+    }
   });
 </script>
 

@@ -24,7 +24,7 @@
           <td> {{giveaway_request.user.user.get_full_name}} </td>
           <td> {{giveaway_request.user.user.email}} </td>
           <td>
-            {% with work_place=giveaway_request.user.work_place %}
+            {% with work_place=giveaway_request.work_place %}
               {{work_place.name}}<br>
               {{work_place.street_address_1}}<br>
               {% if work_place.street_address_2 %}
@@ -58,6 +58,10 @@
                   data-title="this giveaway request">
                     Delete
                   </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' giveaway_request.user.id %}">View User Profile</a>
                 </li>
               </ul>
             </div>
