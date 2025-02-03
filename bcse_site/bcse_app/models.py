@@ -906,7 +906,6 @@ class GiveawayRequest(models.Model):
   class Meta:
     ordering = ['created_date', 'user__user__last_name']
 
-
 # signal to check if registration status has changed
 # and then send an email to the registrant
 @receiver(post_save, sender=Registration)
