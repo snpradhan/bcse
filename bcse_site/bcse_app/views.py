@@ -8737,7 +8737,7 @@ def giveawayRequestsSearch(request):
         query_filter = query_filter & user_filter
 
       if work_place:
-        work_place_filter = Q(user__work_place=work_place)
+        work_place_filter = Q(work_place=work_place)
         query_filter = query_filter & work_place_filter
 
       if giveaway:
@@ -8851,6 +8851,10 @@ def giveawayRequestEdit(request, id=''):
         if id != '':
           messages.success(request, 'Your giveaway request has been saved.')
         else:
+          #if updating workplace on a new request, also update user profile
+          if savedGiveawayRequest.work_place != savedGiveawayRequest.user.work_place:
+            savedGiveawayRequest.user.work_place = savedGiveawayRequest.work_place
+            savedGiveawayRequest.user.save()
           messages.success(request, 'Your giveaway request has been successfully submitted.')
         response_data['success'] = True
       else:
