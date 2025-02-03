@@ -7931,9 +7931,96 @@ def giveaways(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view giveaway inventory')
 
-    giveaways = models.Giveaway.objects.all()
-    context = {'giveaways': giveaways}
+    if request.session.get('giveaways_search', False):
+      searchForm = forms.GiveawaysSearchForm(user=request.user, initials=request.session['giveaways_search'], prefix="giveaway_search")
+      page = request.session['giveaways_search']['page']
+    else:
+      searchForm = forms.GiveawaysSearchForm(user=request.user, initials=None, prefix="giveaway_search")
+      page = 1
+
+    context = {'searchForm': searchForm, 'page': page}
+
     return render(request, 'bcse_app/Giveaways.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################################
+# FILTER GIVEAWAYS LIST BASED ON FILTER CRITERIA
+################################################################
+@login_required
+def giveawaysSearch(request):
+  """
+  giveawaysSearch is called from the path 'adminConfiguration/giveaways/'
+  :param request: request from the browser
+  :returns: page view of filtered giveaways or an error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to search giveaways')
+
+    if request.method == 'GET':
+
+      query_filter = Q()
+      name_filter = None
+      status_filter = None
+
+      name = request.GET.get('giveaway_search-name', '')
+      status = request.GET.get('giveaway_search-status', '')
+      sort_by = request.GET.get('giveaway_search-sort_by', '')
+      rows_per_page = request.GET.get('giveaway_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+      #set session variable
+      request.session['giveaways_search'] = {
+        'name': name,
+        'status': status,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if name:
+        name_filter = Q(name__icontains=name)
+
+      if status:
+        status_filter = Q(status=status)
+
+      if name_filter:
+        query_filter = query_filter & name_filter
+
+      if status_filter:
+        query_filter = query_filter & status_filter
+
+      giveaways = models.Giveaway.objects.all().filter(query_filter)
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      if sort_by:
+        if sort_by == 'name':
+          order_by = 'name'
+        elif sort_by == 'status':
+          order_by = 'status'
+      else:
+        order_by = 'name'
+
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+      giveaways = paginate(request, giveaways, sort_order, rows_per_page, page)
+
+      context = {'giveaways': giveaways}
+
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/GiveawaysTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
 
   except CustomException as ce:
     messages.error(request, ce)
@@ -8032,14 +8119,156 @@ def giveawayRequests(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view giveaway requests')
 
-    giveaway_requests = models.GiveawayRequest.objects.all()
-    context = {'giveaway_requests': giveaway_requests}
+    if request.session.get('giveaway_requests_search', False):
+      searchForm = forms.GiveawayRequestsSearchForm(user=request.user, initials=request.session['giveaway_requests_search'], prefix="giveaway_request_search")
+      page = request.session['giveaway_requests_search']['page']
+    else:
+      searchForm = forms.GiveawayRequestsSearchForm(user=request.user, initials=None, prefix="giveaway_request_search")
+      page = 1
+
+    context = {'searchForm': searchForm, 'page': page}
+
     return render(request, 'bcse_app/GiveawayRequests.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+################################################################
+# FILTER GIVEAWAY REQUESTS LIST BASED ON FILTER CRITERIA
+################################################################
+@login_required
+def giveawayRequestsSearch(request):
+  """
+  giveawayRequestsSearch is called from the path 'adminConfiguration/giveaway/requests'
+  :param request: request from the browser
+  :returns: page view of filtered giveaway requests or an error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to search giveaway requests')
+
+    if request.method == 'GET':
+
+      query_filter = Q()
+      user_filter = None
+      work_place_filter = None
+      giveaway_filter = None
+      delivery_after_filter = None
+      delivery_before_filter = None
+      request_status_filter = None
+      delivery_status_filter = None
+      keyword_filter = None
+
+      user = request.GET.get('giveaway_request_search-user', '')
+      work_place = request.GET.get('giveaway_request_search-work_place', '')
+      giveaway = request.GET.getlist('giveaway_request_search-giveaway', '')
+      delivery_after = request.GET.get('giveaway_request_search-delivery_after', '')
+      delivery_before = request.GET.get('giveaway_request_search-delivery_before', '')
+      request_status = request.GET.getlist('giveaway_request_search-request_status', '')
+      delivery_status = request.GET.getlist('giveaway_request_search-delivery_status', '')
+      keywords = request.GET.get('giveaway_request_search-keywords', '')
+      sort_by = request.GET.get('giveaway_request_search-sort_by', '')
+      rows_per_page = request.GET.get('giveaway_request_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+      #set session variable
+      request.session['giveaway_requests_search'] = {
+        'user': user,
+        'work_place': work_place,
+        'giveaway': giveaway,
+        'delivery_after': delivery_after,
+        'delivery_before': delivery_before,
+        'request_status': request_status,
+        'delivery_status': delivery_status,
+        'keywords': keywords,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if user:
+        user_filter = Q(user=user)
+        query_filter = query_filter & user_filter
+
+      if work_place:
+        work_place_filter = Q(user__work_place=work_place)
+        query_filter = query_filter & work_place_filter
+
+      if giveaway:
+        giveaway_filter = Q(giveaway__in=giveaway)
+        query_filter = query_filter & giveaway_filter
+
+      if delivery_after:
+        delivery_after = datetime.datetime.strptime(delivery_after, '%B %d, %Y')
+        delivery_after_filter = Q(delivery_date__gte=delivery_after)
+        query_filter = query_filter & delivery_after_filter
+
+      if delivery_before:
+        delivery_before = datetime.datetime.strptime(delivery_before, '%B %d, %Y')
+        delivery_before_filter = Q(delivery_date__lte=delivery_before)
+        query_filter = query_filter & delivery_before_filter
+
+      if request_status:
+        request_status_filter = Q(status__in=request_status)
+        query_filter = query_filter & request_status_filter
+
+      if  delivery_status:
+        delivery_status_filter = Q(delivery_status__in=delivery_status)
+        query_filter = query_filter & delivery_status_filter
+
+      if keywords:
+        keyword_filter = Q(giveaway__name__icontains=keywords) | Q(giveaway__description__icontains=keywords)
+        keyword_filter = keyword_filter | Q(user__user__first_name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(user__user__last_name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(user__work_place__name__icontains=keywords)
+
+        query_filter = query_filter & keyword_filter
+
+
+      giveaway_requests = models.GiveawayRequest.objects.all().filter(query_filter)
+
+      sort_order = []
+      if sort_by:
+        if sort_by == 'user':
+          sort_order.append({'order_by': 'user__user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
+          sort_order.append({'order_by': 'user__user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'work_place':
+          sort_order.append({'order_by': 'user__work_place__name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'giveaway':
+          sort_order.append({'order_by': 'giveaway__name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'delivery_date_desc':
+          sort_order.append({'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'})
+        elif sort_by == 'delivery_date_asc':
+          sort_order.append({'order_by': 'delivery_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'created_date_asc':
+          sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'created_date_desc':
+          sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
+        elif sort_by == 'request_status':
+          sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'delivery_status':
+          sort_order.append({'order_by': 'delivery_status', 'direction': 'asc', 'ignorecase': 'false'})
+      else:
+        sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+
+      giveaway_requests = paginate(request, giveaway_requests, sort_order, rows_per_page, page)
+
+      context = {'giveaway_requests': giveaway_requests}
+
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/GiveawayRequestsTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
 # GIVEAWAY REQUEST CREATE OR EDIT
