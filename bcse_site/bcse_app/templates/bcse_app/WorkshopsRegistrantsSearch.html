@@ -9,42 +9,75 @@
 
     <div id="filter_content">
       <div id="filter_fields">
-        <div class="form-group">
-          <label for="id_{{searchForm.workshop_category.name}}" class="form-label"> {{searchForm.workshop_category.label|title}}</label>
-          <div>{{searchForm.workshop_category}}</div>
-          <div class="error">{{ searchForm.workshop_category.errors }}</div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.workshop_category.name}}" class="form-label"> {{searchForm.workshop_category.label|title}}</label>
+            <div>{{searchForm.workshop_category}}</div>
+            <div class="error">{{ searchForm.workshop_category.errors }}</div>
+          </div>
+          <!--div class="form-group">
+            <label for="id_{{searchForm.workshop.name}}" class="form-label"> {{searchForm.workshop.label|title}}</label>
+            <div>{{searchForm.workshop}}</div>
+            <div class="error">{{ searchForm.workshop.errors }}</div>
+          </div-->
+          <!--div class="form-group">
+            <label for="id_{{searchForm.year.name}}" class="form-label"> {{searchForm.year.label|title}}</label>
+            <div>{{searchForm.year}}</div>
+            <div class="error">{{ searchForm.year.errors }}</div>
+          </div-->
+          <div class="form-group">
+            <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
+            <div>{{searchForm.work_place}}</div>
+            <div class="error">{{ searchForm.work_place.errors }}</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.workshop.name}}" class="form-label"> {{searchForm.workshop.label|title}}</label>
-          <div>{{searchForm.workshop}}</div>
-          <div class="error">{{ searchForm.workshop.errors }}</div>
+        <div class="filter_fields">
+         <div class="form-group">
+            <label for="id_{{searchForm.starts_after.name}}" class="form-label"> {{searchForm.starts_after.label|title}}</label>
+            <div class="input-group">
+              {{searchForm.starts_after}}
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="error">{{ searchForm.starts_after.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.ends_before.name}}" class="form-label"> {{searchForm.ends_before.label|title}}</label>
+            <div class="input-group">
+              {{searchForm.ends_before}}
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="error">{{ searchForm.ends_before.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
+            <div>{{searchForm.status}}</div>
+            <div class="error">{{ searchForm.status.errors }}</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.year.name}}" class="form-label"> {{searchForm.year.label|title}}</label>
-          <div>{{searchForm.year}}</div>
-          <div class="error">{{ searchForm.year.errors }}</div>
+        <div class="filter_fields">
+          {% for field in searchForm %}
+            {% if 'tag' in field.name %}
+              <div class="form-group">
+                <label for="id_{{field.name}}" class="form-label">{{ field.label }}</label>
+                <div>{{field}}</div>
+                <div class="error">{{ field.errors }}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
-          <div>{{searchForm.work_place}}</div>
-          <div class="error">{{ searchForm.work_place.errors }}</div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
+            <div>{{searchForm.sort_by}}</div>
+            <div class="error">{{ searchForm.sort_by.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+            <div>{{searchForm.rows_per_page}}</div>
+            <div class="error">{{ searchForm.rows_per_page.errors }}</div>
+          </div>
+          <input type="hidden" name="page" id="page" value="{{page}}"/>
         </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
-          <div>{{searchForm.status}}</div>
-          <div class="error">{{ searchForm.status.errors }}</div>
-        </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
-          <div>{{searchForm.sort_by}}</div>
-          <div class="error">{{ searchForm.sort_by.errors }}</div>
-        </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
-          <div>{{searchForm.rows_per_page}}</div>
-          <div class="error">{{ searchForm.rows_per_page.errors }}</div>
-        </div>
-        <input type="hidden" name="page" id="page" value="{{page}}"/>
       </div>
       <div class="form-group right" id="filter_buttons">
         <button class="btn download" type="button">Download Registrants</button>

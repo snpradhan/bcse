@@ -4288,21 +4288,34 @@ def workshopsRegistrantsSearch(request):
       workshop = [int(i) for i in request.GET.getlist('registrants_search-workshop', '')]
       work_place = request.GET.get('registrants_search-work_place', '')
       year = request.GET.get('registrants_search-year', '')
+      starts_after = request.GET.get('registrants_search-starts_after', '')
+      ends_before = request.GET.get('registrants_search-ends_before', '')
       status = request.GET.getlist('registrants_search-status', '')
       sort_by = request.GET.get('registrants_search-sort_by', '')
       rows_per_page = request.GET.get('registrants_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
       page = request.GET.get('page', '')
 
-      request.session['workshops_registrants_search'] = {
+      registrants_search_vars = {
         'workshop_category': workshop_category,
         'workshop': workshop,
         'work_place': work_place,
+        'starts_after': starts_after,
+        'ends_before': ends_before,
         'year': year,
         'status': status,
         'sort_by': sort_by,
         'rows_per_page': rows_per_page,
         'page': page
       }
+
+      tags = []
+      for tag in models.Tag.objects.all().filter(status='A'):
+        sub_tags = request.GET.getlist('registrants_search-tag_%s'%tag.id, '')
+        if sub_tags:
+          registrants_search_vars['tag_'+str(tag.id)] = sub_tags
+          tags.append(sub_tags)
+
+      request.session['workshops_registrants_search'] = registrants_search_vars
 
       if workshop_category:
         workshop_category_filter = Q(workshop_registration_setting__workshop__workshop_category__id__in=workshop_category)
@@ -4320,7 +4333,42 @@ def workshopsRegistrantsSearch(request):
         status_filter  = Q(status__in=status)
         query_filter = query_filter & status_filter
 
+      if starts_after:
+        starts_after = datetime.datetime.strptime(starts_after, '%B %d, %Y')
+        starts_after_filter = Q(workshop_registration_setting__workshop__start_date__gte=starts_after)
+        query_filter = query_filter & starts_after_filter
+
+      if ends_before:
+        ends_before = datetime.datetime.strptime(ends_before, '%B %d, %Y')
+        ends_before_filter = Q(workshop_registration_setting__workshop__end_date__lte=ends_before)
+        query_filter = query_filter & ends_before_filter
+
+      if tags:
+        tags_filter = Q()
+        for sub_tags in tags:
+          tags_filter = tags_filter & Q(workshop_registration_setting__workshop__tags__id__in=sub_tags)
+
+        query_filter = query_filter & tags_filter
+
       registrations = models.Registration.objects.all().filter(query_filter).distinct()
+
+      registration_summary = {
+        '# of Workshops': len(list(set(list(registrations.values_list('workshop_registration_setting__workshop__id', flat=True))))),
+        '# of Unique Workplaces': len(list(set(list(registrations.values_list('registration_to_work_place__work_place__id', flat=True))))),
+        '# of Unique Registrants': len(list(set(list(registrations.values_list('user__id', flat=True))))),
+      }
+      status_breakdown = {}
+      for registrant in registrations:
+        status = registrant.get_status_display()
+        if status in status_breakdown:
+          status_breakdown[status] += 1
+        else:
+          status_breakdown[status] = 1
+
+      keys = list(status_breakdown.keys())
+      keys.sort()
+      status_breakdown = {i: status_breakdown[i] for i in keys}
+      registration_summary.update(status_breakdown)
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
@@ -4329,8 +4377,8 @@ def workshopsRegistrantsSearch(request):
       if sort_by:
         if sort_by == 'title':
           sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
-        elif sort_by == 'year':
-          sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date__year', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'start_date':
+          sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date', 'direction': 'asc', 'ignorecase': 'false'})
         elif sort_by == 'status':
           sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
 
@@ -4338,7 +4386,7 @@ def workshopsRegistrantsSearch(request):
 
       registrations = paginate(request, registrations, sort_order, rows_per_page, page)
 
-      context = {'registrations': registrations}
+      context = {'registrations': registrations, 'registration_summary': registration_summary}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkshopsRegistrantsTableView.html', context, request)
