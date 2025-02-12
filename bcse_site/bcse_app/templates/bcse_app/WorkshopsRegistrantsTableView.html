@@ -1,4 +1,22 @@
 {% load bcse_extras %}
+<table class="table table-bordered table-striped" id="registrants_summary">
+  <thead>
+    <tr>
+      <th colspan={{registration_summary|length|add:1}} class="center"> Registrants Summary </th>
+    </tr>
+    <tr>
+      {% for title, total in registration_summary.items %}
+        <th>{{title}}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for title, total in registration_summary.items %}
+      <td>{{total}}</td>
+    {% endfor %}
+  </tbody>
+</table>
+
 {% include "bcse_app/Pagination.html" with model=registrations location='top' %}
 <table class="table table-bordered table-striped" id="workshop_registrants">
   <thead>

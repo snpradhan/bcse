@@ -1507,9 +1507,12 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
   workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
   work_place = forms.ModelChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                   )
-  year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
-  status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
-  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('year', 'Year'), ('status', 'Status')))
+  #year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
+  starts_after = forms.DateField(required=False, label=u'Starts on/after')
+  ends_before = forms.DateField(required=False, label=u'Ends on/before')
+
+  status = forms.MultipleChoiceField(required=False, label=u"Registration Status", choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('start_date', 'Start Date'), ('status', 'Status')))
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
@@ -1517,15 +1520,36 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
     initials = kwargs.pop('initials')
     super(WorkshopsRegistrantsSearchForm, self).__init__(*args, **kwargs)
 
+    sub_tag_ids = models.Workshop.objects.all().values_list('tags', flat=True)
+    tag_ids = models.SubTag.objects.all().filter(id__in=list(sub_tag_ids)).values_list('tag', flat=True)
+
+    for tag_id in list(set(tag_ids)):
+      tag = models.Tag.objects.get(id=tag_id)
+      if tag.status == 'A':
+        sub_tags = models.SubTag.objects.all().filter(tag=tag, status='A', id__in=list(sub_tag_ids))
+        self.fields['tag_'+str(tag.id)] = forms.MultipleChoiceField(
+                                                required=False,
+                                                widget=forms.SelectMultiple(),
+                                                choices=[(sub.id, sub.name) for sub in sub_tags],
+                                            )
+        self.fields['tag_'+str(tag.id)].label = tag.name
+
     for field_name, field in self.fields.items():
-      field.widget.attrs['class'] = 'form-control'
+
+      if field_name in ['starts_after', 'ends_before']:
+        field.widget.attrs['class'] = 'form-control datepicker'
+      elif field_name in ['workshop_category', 'workshop', 'status'] or 'tag' in field_name:
+        field.widget.attrs['class'] = 'form-control select2'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
       field.widget.attrs['placeholder'] = field.help_text
 
       if initials:
         if field_name in initials:
           field.initial = initials[field_name]
 
-    self.fields['workshop'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.start_date.year)
+    #self.fields['workshop'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.start_date.year)
 
 
 ####################################
