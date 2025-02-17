@@ -15,16 +15,21 @@
             <div>{{searchForm.workshop_category}}</div>
             <div class="error">{{ searchForm.workshop_category.errors }}</div>
           </div>
-          <!--div class="form-group">
+          <div class="form-group">
             <label for="id_{{searchForm.workshop.name}}" class="form-label"> {{searchForm.workshop.label|title}}</label>
             <div>{{searchForm.workshop}}</div>
             <div class="error">{{ searchForm.workshop.errors }}</div>
-          </div-->
+          </div>
           <!--div class="form-group">
             <label for="id_{{searchForm.year.name}}" class="form-label"> {{searchForm.year.label|title}}</label>
             <div>{{searchForm.year}}</div>
             <div class="error">{{ searchForm.year.errors }}</div>
           </div-->
+          <div class="form-group">
+            <label for="id_{{searchForm.user.name}}" class="form-label"> {{searchForm.user.label|title}}</label>
+            <div>{{searchForm.user}}</div>
+            <div class="error">{{ searchForm.user.errors }}</div>
+          </div>
           <div class="form-group">
             <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
             <div>{{searchForm.work_place}}</div>
@@ -77,6 +82,7 @@
             <div class="error">{{ searchForm.rows_per_page.errors }}</div>
           </div>
           <input type="hidden" name="page" id="page" value="{{page}}"/>
+          <input type="hidden" name="active_tab" id="active_tab" value="registrants_summary-tab"/>
         </div>
       </div>
       <div class="form-group right" id="filter_buttons">

@@ -1505,6 +1505,7 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
 
   workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
   workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
+  user = forms.ModelChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
   work_place = forms.ModelChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                   )
   #year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
@@ -1512,7 +1513,7 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
   ends_before = forms.DateField(required=False, label=u'Ends on/before')
 
   status = forms.MultipleChoiceField(required=False, label=u"Registration Status", choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
-  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('start_date', 'Start Date'), ('status', 'Status')))
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('start_date', 'Workshop Start Date'), ('status', 'Registration Status'), ('workplace', 'Workplace'), ('user', 'User')))
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
@@ -1549,7 +1550,7 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
         if field_name in initials:
           field.initial = initials[field_name]
 
-    #self.fields['workshop'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.start_date.year)
+    self.fields['workshop'].label_from_instance = lambda obj: "%s%s (%s)" % (obj.name[:50], '...' if len(obj.name) > 50 else '', obj.start_date.year)
 
 
 ####################################

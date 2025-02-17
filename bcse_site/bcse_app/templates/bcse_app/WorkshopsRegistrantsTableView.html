@@ -1,92 +1,282 @@
 {% load bcse_extras %}
-<table class="table table-bordered table-striped" id="registrants_summary">
-  <thead>
-    <tr>
-      <th colspan={{registration_summary|length|add:1}} class="center"> Registrants Summary </th>
-    </tr>
-    <tr>
-      {% for title, total in registration_summary.items %}
-        <th>{{title}}</th>
-      {% endfor %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for title, total in registration_summary.items %}
-      <td>{{total}}</td>
-    {% endfor %}
-  </tbody>
-</table>
 
-{% include "bcse_app/Pagination.html" with model=registrations location='top' %}
-<table class="table table-bordered table-striped" id="workshop_registrants">
-  <thead>
-    <tr class='noExl'>
-      <th> Workshop ID </th>
-      <th> Workshop Title </th>
-      <th> Start Date </th>
-      <th> End Date </th>
-      <th> Registration ID</th>
-      <th> User ID </th>
-      <th> Email </th>
-      <th> Full Name </th>
-      <th> Workplace </th>
-      <th> Created Date </th>
-      <th> Status </th>
-      <th > Action </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="display:none;">
-      <td style="background-color: #767676; color: white;"> Workshop ID</td>
-      <td style="background-color: #767676; color: white;"> Workshop Title </td>
-      <td style="background-color: #767676; color: white;"> Start Date </td>
-      <td style="background-color: #767676; color: white;"> End Date </td>
-      <td style="background-color: #767676; color: white;"> Registration ID</td>
-      <td style="background-color: #767676; color: white;"> User ID </td>
-      <td style="background-color: #767676; color: white;"> Email </td>
-      <td style="background-color: #767676; color: white;"> Full Name </td>
-       <td style="background-color: #767676; color: white;"> Workplace </td>
-      <td style="background-color: #767676; color: white;"> Created Date </td>
-      <td style="background-color: #767676; color: white;"> Status </td>
-    </tr>
-    {% for registrant in registrations %}
-      <tr>
-        <td> {{registrant.workshop_registration_setting.workshop.id}}</td>
-        <td> {{registrant.workshop_registration_setting.workshop.name}}</td>
-        <td> {{registrant.workshop_registration_setting.workshop.start_date|date:"F j, Y"}}</td>
-        <td> {{registrant.workshop_registration_setting.workshop.end_date|date:"F j, Y"}}</td>
-        <td> {{registrant.id}}</td>
-        <td> {{registrant.user.id}}</td>
-        <td> {{registrant.user.user.email}} </td>
-        <td> {{registrant.user.user.get_full_name}}</td>
-        <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
-        <td> {{registrant.created_date|date}}</td>
-        <td> {{registrant.get_status_display}} </td>
-        <td class="noExl">
-          <div class="btn-group">
-            <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              Action
-            </button>
-            <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' registrant.workshop_registration_setting.workshop.id registrant.id %}" href="#">Edit</a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' registrant.workshop_registration_setting.workshop.id registrant.id %}"
-                data-title="the registration for <strong>{{registrant.user.user.get_full_name}}</strong>">
-                  Delete
-                </a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' registrant.user.id %}">View User Profile</a>
-              </li>
-            </ul>
-          </div>
-        </td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% include "bcse_app/Pagination.html" with model=registrations location='bottom'%}
+<ul class="nav nav-tabs mb-3" id="registrants_summary_tab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="registrants_summary-tab" data-bs-toggle="tab" data-bs-target="#registrants_summary" type="button" role="tab" aria-controls="registrants_summary" aria-selected="true" ><label>Registration Summary</label></button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="workshops_summary-tab" data-bs-toggle="tab" data-bs-target="#workshops_summary" type="button" role="tab" aria-controls="workshops_summary" aria-selected="false"><label>Workshops Summary</label></button>
+  </li>
+
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"  id="workplaces_summary-tab" data-bs-toggle="tab" data-bs-target="#workplaces_summary" type="button" role="tab" aria-controls="workplaces_summary" aria-selected="false"><label>Workplaces Summary</label></button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"  id="users_summary-tab" data-bs-toggle="tab" data-bs-target="#users_summary" type="button" role="tab" aria-controls="users_summary" aria-selected="false"><label>Users Summary</label></button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"  id="workshop_registrants-tab" data-bs-toggle="tab" data-bs-target="#workshop_registrants" type="button" role="tab" aria-controls="workshop_registrants" aria-selected="false"><label>All Registrations</label></button>
+  </li>
+</ul>
+<div class="tab-content">
+  <div id="registrants_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="registrants_summary-tab">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th colspan={{all_registration_summary|length|add:1}} class="center"> Registrants Summary </th>
+        </tr>
+        <tr>
+          {% for title, total in all_registration_summary.items %}
+            <th>{{title}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for title, total in all_registration_summary.items %}
+          <td>{{total}}</td>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div id="workshops_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="workshops_summary-tab">
+    {% if workshops %}
+      {% include "bcse_app/Pagination.html" with model=workshops location='top' %}
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Workshop ID</th>
+            <th>Workshop</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Total Registrants</th>
+            <th>Unique Workplaces</th>
+            <th>Accepted</th>
+            <th>Applied</th>
+            <th>Attended</th>
+            <th>Cancelled</th>
+            <th>Denied</th>
+            <th>Pending</th>
+            <th>Registered</th>
+            <th>Waitlisted</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for workshop in workshops %}
+            <tr>
+              <td>{{workshop.id}}</td>
+              <td>{{workshop.name}}</td>
+              <td>{{workshop.start_date|date:"F j, Y"}}</td>
+              <td>{{workshop.end_date|date:"F j, Y"}}</td>
+              <td>{{workshop.total_registrants}}</td>
+              <td>{{workshop.total_workplaces}}</td>
+              <td>{{workshop.accepted}}</td>
+              <td>{{workshop.applied}}</td>
+              <td><strong>{{workshop.attended}}</strong></td>
+              <td>{{workshop.cancelled}}</td>
+              <td>{{workshop.denied}}</td>
+              <td>{{workshop.pending}}</td>
+              <td>{{workshop.registered}}</td>
+              <td>{{workshop.waitlisted}}</td>
+            </tr>
+         {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=workshops location='bottom' %}
+    {% else %}
+      <div class="warning center">No workshops matching your search criteria found</div>
+    {% endif %}
+  </div>
+  <div id="workplaces_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="workplaces_summary-tab">
+    {% if workplaces %}
+      {% include "bcse_app/Pagination.html" with model=workplaces location='top' %}
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Workplace</th>
+            <th>Workplace ID</th>
+            <th>Total Workshops</th>
+            <th>Total Registrants</th>
+            <th>Accepted</th>
+            <th>Applied</th>
+            <th>Attended</th>
+            <th>Cancelled</th>
+            <th>Denied</th>
+            <th>Pending</th>
+            <th>Registered</th>
+            <th>Waitlisted</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for workplace in workplaces %}
+            <tr>
+              <td>{{workplace.id}}</td>
+              <td>{{workplace.name}}</td>
+              <td>{{workplace.total_workshops}}</td>
+              <td>{{workplace.total_registrants}}</td>
+              <td>{{workplace.accepted}}</td>
+              <td>{{workplace.applied}}</td>
+              <td><strong>{{workplace.attended}}</strong></td>
+              <td>{{workplace.cancelled}}</td>
+              <td>{{workplace.denied}}</td>
+              <td>{{workplace.pending}}</td>
+              <td>{{workplace.registered}}</td>
+              <td>{{workplace.waitlisted}}</td>
+            </tr>
+         {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=workplaces location='bottom' %}
+    {% else %}
+      <div class="warning center">No workplaces matching your search criteria found</div>
+    {% endif %}
+  </div>
+
+  <div id="users_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="users_summary-tab">
+    {% if workplaces %}
+      {% include "bcse_app/Pagination.html" with model=users location='top' %}
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Total Workshops</th>
+            <th>Total Workplaces</th>
+            <th>Associated Workplaces</th>
+            <th>Accepted</th>
+            <th>Applied</th>
+            <th>Attended</th>
+            <th>Cancelled</th>
+            <th>Denied</th>
+            <th>Pending</th>
+            <th>Registered</th>
+            <th>Waitlisted</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td>{{user.id}}</td>
+              <td>{{user.user.get_full_name}}</td>
+              <td>{{user.user.email}}</td>
+              <td>{{user.total_workshops}}</td>
+              <td>{{user.total_workplaces}}</td>
+              <td>
+                <ul>
+                  {% for workplace in user.workplaces %}
+                    <li>{{workplace}}</li>
+                  {% endfor %}
+                </ul>
+              </td>
+              <td>{{user.accepted}}</td>
+              <td>{{user.applied}}</td>
+              <td><strong>{{user.attended}}</strong></td>
+              <td>{{user.cancelled}}</td>
+              <td>{{user.denied}}</td>
+              <td>{{user.pending}}</td>
+              <td>{{user.registered}}</td>
+              <td>{{user.waitlisted}}</td>
+            </tr>
+         {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=users location='bottom' %}
+    {% else %}
+      <div class="warning center">No users matching your search criteria found</div>
+    {% endif %}
+  </div>
+
+  <div id="workshop_registrants" class="tab-pane fade" role="tabpanel" aria-labelledby="workshop_registrants-tab">
+    {% if registrations %}
+      {% include "bcse_app/Pagination.html" with model=registrations location='top' %}
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr class='noExl'>
+            <th> Workshop ID </th>
+            <th> Workshop Title </th>
+            <th> Start Date </th>
+            <th> End Date </th>
+            <th> Registration ID</th>
+            <th> User ID </th>
+            <th> Email </th>
+            <th> Full Name </th>
+            <th> Workplace </th>
+            <th> Created Date </th>
+            <th> Status </th>
+            <th > Action </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="display:none;">
+            <td style="background-color: #767676; color: white;"> Workshop ID</td>
+            <td style="background-color: #767676; color: white;"> Workshop Title </td>
+            <td style="background-color: #767676; color: white;"> Start Date </td>
+            <td style="background-color: #767676; color: white;"> End Date </td>
+            <td style="background-color: #767676; color: white;"> Registration ID</td>
+            <td style="background-color: #767676; color: white;"> User ID </td>
+            <td style="background-color: #767676; color: white;"> Email </td>
+            <td style="background-color: #767676; color: white;"> Full Name </td>
+             <td style="background-color: #767676; color: white;"> Workplace </td>
+            <td style="background-color: #767676; color: white;"> Created Date </td>
+            <td style="background-color: #767676; color: white;"> Status </td>
+          </tr>
+          {% for registrant in registrations %}
+            <tr>
+              <td> {{registrant.workshop_registration_setting.workshop.id}}</td>
+              <td> {{registrant.workshop_registration_setting.workshop.name}}</td>
+              <td> {{registrant.workshop_registration_setting.workshop.start_date|date:"F j, Y"}}</td>
+              <td> {{registrant.workshop_registration_setting.workshop.end_date|date:"F j, Y"}}</td>
+              <td> {{registrant.id}}</td>
+              <td> {{registrant.user.id}}</td>
+              <td> {{registrant.user.user.email}} </td>
+              <td> {{registrant.user.user.get_full_name}}</td>
+              <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
+              <td> {{registrant.created_date|date}}</td>
+              <td> {{registrant.get_status_display}} </td>
+              <td class="noExl">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item registration_edit modal-open" data-bs-toggle="modal" data-bs-target="#workshop_registration" data-href="{% url 'bcse:workshopRegistrationEdit' registrant.workshop_registration_setting.workshop.id registrant.id %}" href="#">Edit</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationDelete' registrant.workshop_registration_setting.workshop.id registrant.id %}"
+                      data-title="the registration for <strong>{{registrant.user.user.get_full_name}}</strong>">
+                        Delete
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' registrant.user.id %}">View User Profile</a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=registrations location='bottom'%}
+    {% else %}
+      <div class="warning center">No registrants matching your search criteria found</div>
+    {% endif %}
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+    $('.nav-link').on('click', function(){
+      var active_tab = $(this).attr('id');
+      $("#active_tab").val(active_tab);
+    });
+
+    var active_tab = $("#active_tab").val();
+    $("#"+active_tab).addClass('active');
+    var active_target = $("#"+active_tab).data('bs-target');
+    $(active_target).addClass('show active');
+  });
+</script>

@@ -136,9 +136,9 @@ $(function (){
 
 
 
-  $(window).on('resize', function(){
+  /*$(window).on('resize', function(){
     paginationPadding();
-  });
+  });*/
 
   $('.about_us .partner .description p').addClass('callout wysiwyg_content');
   $('.about_us .member .description p').addClass('callout wysiwyg_content');
@@ -364,16 +364,16 @@ function bindPagination(){
     $('form.filter_form').submit();
   });
 
-  paginationPadding();
+  //paginationPadding();
 
 }
 
-function paginationPadding() {
+/*function paginationPadding() {
   var delta = $('table.table').width() - $('div.paginate').width();
   $('div.paginate').width($('table.table').width());
   $('div.paginate').css('padding-right', delta);
 }
-
+*/
 function bindCalendarNavigation() {
   $('table.calendar th.month').prepend('<i class="fa fa-caret-left prev_month nav_month" title="Previous Month"></i>').append('<i class="fa fa-caret-right next_month nav_month" title-"Next Month"></i>');
   $('table.calendar th.month .nav_month').on('click', function(){

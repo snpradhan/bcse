@@ -3,7 +3,7 @@
 {% load base_extras %}
 
 {% block configuration %}
-  <h1 class="center"> Registrants </h1>
+  <h1 class="center"> Workshop Registration Report </h1>
   {% include "bcse_app/WorkshopsRegistrantsSearch.html" %}
   <div class="form-group" id="spinner">
     <img src="/static/img/page-loader.gif" class="icon"/>
@@ -12,6 +12,7 @@
   </div>
   <script type="text/javascript">
     $(function (){
+
       $('form#workshops_registrants_filter_form').submit();
 
       $('.download').on('click', function(e) {

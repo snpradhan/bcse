@@ -46,6 +46,7 @@ from django.utils.encoding import smart_str
 import pytz
 import sys
 from django.urls import reverse
+from django.contrib.postgres.aggregates import ArrayAgg
 
 # Create your views here.
 
@@ -4278,15 +4279,11 @@ def workshopsRegistrantsSearch(request):
     if request.method == 'GET':
 
       query_filter = Q()
-      workshop_category_filter = None
-      workshop_filter = None
-      workplace_filter = None
-      year_filter = None
-      status_filter = None
 
       workshop_category = [int(i) for i in request.GET.getlist('registrants_search-workshop_category', '')]
       workshop = [int(i) for i in request.GET.getlist('registrants_search-workshop', '')]
       work_place = request.GET.get('registrants_search-work_place', '')
+      user = request.GET.get('registrants_search-user', '')
       year = request.GET.get('registrants_search-year', '')
       starts_after = request.GET.get('registrants_search-starts_after', '')
       ends_before = request.GET.get('registrants_search-ends_before', '')
@@ -4299,6 +4296,7 @@ def workshopsRegistrantsSearch(request):
         'workshop_category': workshop_category,
         'workshop': workshop,
         'work_place': work_place,
+        'user': user,
         'starts_after': starts_after,
         'ends_before': ends_before,
         'year': year,
@@ -4326,6 +4324,11 @@ def workshopsRegistrantsSearch(request):
       if work_place:
         workplace_filter = Q(registration_to_work_place__work_place=work_place)
         query_filter = query_filter & workplace_filter
+
+      if user:
+        user_filter = Q(user=user)
+        query_filter = query_filter & user_filter
+
       if year:
         year_filter = Q(workshop_registration_setting__workshop__start_date__year=int(year))
         query_filter = query_filter & year_filter
@@ -4352,11 +4355,12 @@ def workshopsRegistrantsSearch(request):
 
       registrations = models.Registration.objects.all().filter(query_filter).distinct()
 
-      registration_summary = {
+      all_registration_summary = {
         '# of Workshops': len(list(set(list(registrations.values_list('workshop_registration_setting__workshop__id', flat=True))))),
         '# of Unique Workplaces': len(list(set(list(registrations.values_list('registration_to_work_place__work_place__id', flat=True))))),
         '# of Unique Registrants': len(list(set(list(registrations.values_list('user__id', flat=True))))),
       }
+
       status_breakdown = {}
       for registrant in registrations:
         status = registrant.get_status_display()
@@ -4368,25 +4372,87 @@ def workshopsRegistrantsSearch(request):
       keys = list(status_breakdown.keys())
       keys.sort()
       status_breakdown = {i: status_breakdown[i] for i in keys}
-      registration_summary.update(status_breakdown)
+      all_registration_summary.update(status_breakdown)
+
+      workshops = models.Workshop.objects.all().annotate(
+        total_registrants=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations), distinct=True),
+        total_workplaces=Count('registration_setting__workshop_registrants__registration_to_work_place__work_place__id', filter=Q(registration_setting__workshop_registrants__in=registrations), distinct=True),
+        accepted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='C'), distinct=True),
+        applied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='A'), distinct=True),
+        attended=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T'), distinct=True),
+        cancelled=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='N'), distinct=True),
+        denied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='D'), distinct=True),
+        pending=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='P'), distinct=True),
+        registered=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='R'), distinct=True),
+        waitlisted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='W'), distinct=True)
+
+        ).filter(id__in=registrations.values_list('workshop_registration_setting__workshop__id', flat=True))
+
+
+      workplaces = models.WorkPlace.objects.all().annotate(
+        total_workshops = Count('work_place_to_registration__registration__workshop_registration_setting__workshop__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
+        total_registrants=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
+        accepted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='C'), distinct=True),
+        applied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='A'), distinct=True),
+        attended=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T'), distinct=True),
+        cancelled=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='N'), distinct=True),
+        denied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='D'), distinct=True),
+        pending=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='P'), distinct=True),
+        registered=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='R'), distinct=True),
+        waitlisted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='W'), distinct=True)
+
+        ).filter(id__in=registrations.values_list('registration_to_work_place__work_place__id', flat=True))
+
+      users = models.UserProfile.objects.all().annotate(
+        total_workshops = Count('registered_workshops__workshop_registration_setting__workshop__id', filter=Q(registered_workshops__in=registrations), distinct=True),
+        total_workplaces=Count('registered_workshops__registration_to_work_place__work_place__id', filter=Q(registered_workshops__in=registrations), distinct=True),
+        workplaces=ArrayAgg('registered_workshops__registration_to_work_place__work_place__name', filter=Q(registered_workshops__in=registrations), distinct=True),
+        accepted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='C'), distinct=True),
+        applied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='A'), distinct=True),
+        attended=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T'), distinct=True),
+        cancelled=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='N'), distinct=True),
+        denied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='D'), distinct=True),
+        pending=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='P'), distinct=True),
+        registered=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='R'), distinct=True),
+        waitlisted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='W'), distinct=True)
+
+        ).filter(id__in=registrations.values_list('user__id', flat=True))
+
+
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
 
-      sort_order = []
+      registrations_sort_order = []
+      workshops_sort_order = []
+      workplaces_sort_order = []
+      users_sort_order = []
       if sort_by:
         if sort_by == 'title':
-          sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
+          registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
         elif sort_by == 'start_date':
-          sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date', 'direction': 'asc', 'ignorecase': 'false'})
+          registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date', 'direction': 'asc', 'ignorecase': 'false'})
+          workshops_sort_order.append({'order_by': 'start_date', 'direction': 'asc', 'ignorecase': 'false'})
         elif sort_by == 'status':
-          sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
+          registrations_sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'workplace':
+          workplaces_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'user':
+          users_sort_order.append({'order_by': 'user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
 
-      sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
 
-      registrations = paginate(request, registrations, sort_order, rows_per_page, page)
+      registrations_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+      workshops_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+      workplaces_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+      users_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
 
-      context = {'registrations': registrations, 'registration_summary': registration_summary}
+      all_registrations = paginate(request, registrations, registrations_sort_order, rows_per_page, page)
+      all_workshops = paginate(request, workshops, workshops_sort_order, rows_per_page, page)
+      all_workplaces = paginate(request, workplaces, workplaces_sort_order, rows_per_page, page)
+      all_users = paginate(request, users, users_sort_order, rows_per_page, page)
+
+      context = {'registrations': all_registrations, 'all_registration_summary': all_registration_summary, 'workshops': all_workshops, 'workplaces': all_workplaces, 'users': all_users}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkshopsRegistrantsTableView.html', context, request)
