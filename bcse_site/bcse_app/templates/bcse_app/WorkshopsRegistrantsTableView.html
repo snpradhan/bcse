@@ -2,25 +2,25 @@
 
 <ul class="nav nav-tabs mb-3" id="registrants_summary_tab" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="registrants_summary-tab" data-bs-toggle="tab" data-bs-target="#registrants_summary" type="button" role="tab" aria-controls="registrants_summary" aria-selected="true" ><label>Registration Summary</label></button>
+    <button class="nav-link" id="registration_summary-tab" data-bs-toggle="tab" data-bs-target="#registration_summary_container" type="button" role="tab" aria-controls="registration_summary_container" aria-selected="true" ><label>Registration Summary</label></button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="workshops_summary-tab" data-bs-toggle="tab" data-bs-target="#workshops_summary" type="button" role="tab" aria-controls="workshops_summary" aria-selected="false"><label>Workshops Summary</label></button>
+    <button class="nav-link" id="workshops_summary-tab" data-bs-toggle="tab" data-bs-target="#workshops_summary_container" type="button" role="tab" aria-controls="workshops_summary_container" aria-selected="false"><label>Workshops Summary</label></button>
   </li>
 
   <li class="nav-item" role="presentation">
-    <button class="nav-link"  id="workplaces_summary-tab" data-bs-toggle="tab" data-bs-target="#workplaces_summary" type="button" role="tab" aria-controls="workplaces_summary" aria-selected="false"><label>Workplaces Summary</label></button>
+    <button class="nav-link"  id="workplaces_summary-tab" data-bs-toggle="tab" data-bs-target="#workplaces_summary_container" type="button" role="tab" aria-controls="workplaces_summary_container" aria-selected="false"><label>Workplaces Summary</label></button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link"  id="users_summary-tab" data-bs-toggle="tab" data-bs-target="#users_summary" type="button" role="tab" aria-controls="users_summary" aria-selected="false"><label>Users Summary</label></button>
+    <button class="nav-link"  id="users_summary-tab" data-bs-toggle="tab" data-bs-target="#users_summary_container" type="button" role="tab" aria-controls="users_summary_container" aria-selected="false"><label>Users Summary</label></button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link"  id="workshop_registrants-tab" data-bs-toggle="tab" data-bs-target="#workshop_registrants" type="button" role="tab" aria-controls="workshop_registrants" aria-selected="false"><label>All Registrations</label></button>
+    <button class="nav-link"  id="all_registrations-tab" data-bs-toggle="tab" data-bs-target="#all_registrations_container" type="button" role="tab" aria-controls="all_registrations_container" aria-selected="false"><label>All Registrations</label></button>
   </li>
 </ul>
 <div class="tab-content">
-  <div id="registrants_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="registrants_summary-tab">
-    <table class="table table-bordered table-striped">
+  <div id="registration_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="registration_summary-tab">
+    <table id="registration_summary" class="table table-bordered table-striped export">
       <thead>
         <tr>
           <th colspan={{all_registration_summary|length|add:1}} class="center"> Registrants Summary </th>
@@ -39,10 +39,10 @@
     </table>
   </div>
 
-  <div id="workshops_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="workshops_summary-tab">
+  <div id="workshops_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="workshops_summary-tab">
     {% if workshops %}
       {% include "bcse_app/Pagination.html" with model=workshops location='top' %}
-      <table class="table table-bordered table-striped">
+      <table id="workshops_summary" class="table table-bordered table-striped export">
         <thead>
           <tr>
             <th>Workshop ID</th>
@@ -87,10 +87,10 @@
       <div class="warning center">No workshops matching your search criteria found</div>
     {% endif %}
   </div>
-  <div id="workplaces_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="workplaces_summary-tab">
+  <div id="workplaces_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="workplaces_summary-tab">
     {% if workplaces %}
       {% include "bcse_app/Pagination.html" with model=workplaces location='top' %}
-      <table class="table table-bordered table-striped">
+      <table id="workplaces_summary" class="table table-bordered table-striped export">
         <thead>
           <tr>
             <th>Workplace</th>
@@ -132,10 +132,10 @@
     {% endif %}
   </div>
 
-  <div id="users_summary" class="tab-pane fade" role="tabpanel" aria-labelledby="users_summary-tab">
+  <div id="users_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="users_summary-tab">
     {% if workplaces %}
       {% include "bcse_app/Pagination.html" with model=users location='top' %}
-      <table class="table table-bordered table-striped">
+      <table id="users_summary" class="table table-bordered table-striped export">
         <thead>
           <tr>
             <th>User ID</th>
@@ -187,12 +187,12 @@
     {% endif %}
   </div>
 
-  <div id="workshop_registrants" class="tab-pane fade" role="tabpanel" aria-labelledby="workshop_registrants-tab">
+  <div id="all_registrations_container" class="tab-pane fade" role="tabpanel" aria-labelledby="all_registrations-tab">
     {% if registrations %}
       {% include "bcse_app/Pagination.html" with model=registrations location='top' %}
-      <table class="table table-bordered table-striped">
+      <table id="all_registrations" class="table table-bordered table-striped export">
         <thead>
-          <tr class='noExl'>
+          <tr>
             <th> Workshop ID </th>
             <th> Workshop Title </th>
             <th> Start Date </th>
@@ -204,23 +204,10 @@
             <th> Workplace </th>
             <th> Created Date </th>
             <th> Status </th>
-            <th > Action </th>
+            <th class='ignore-column'> Action </th>
           </tr>
         </thead>
         <tbody>
-          <tr style="display:none;">
-            <td style="background-color: #767676; color: white;"> Workshop ID</td>
-            <td style="background-color: #767676; color: white;"> Workshop Title </td>
-            <td style="background-color: #767676; color: white;"> Start Date </td>
-            <td style="background-color: #767676; color: white;"> End Date </td>
-            <td style="background-color: #767676; color: white;"> Registration ID</td>
-            <td style="background-color: #767676; color: white;"> User ID </td>
-            <td style="background-color: #767676; color: white;"> Email </td>
-            <td style="background-color: #767676; color: white;"> Full Name </td>
-             <td style="background-color: #767676; color: white;"> Workplace </td>
-            <td style="background-color: #767676; color: white;"> Created Date </td>
-            <td style="background-color: #767676; color: white;"> Status </td>
-          </tr>
           {% for registrant in registrations %}
             <tr>
               <td> {{registrant.workshop_registration_setting.workshop.id}}</td>
@@ -234,7 +221,7 @@
               <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
               <td> {{registrant.created_date|date}}</td>
               <td> {{registrant.get_status_display}} </td>
-              <td class="noExl">
+              <td>
                 <div class="btn-group">
                   <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                     Action
@@ -278,5 +265,14 @@
     $("#"+active_tab).addClass('active');
     var active_target = $("#"+active_tab).data('bs-target');
     $(active_target).addClass('show active');
+
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'Workshops Registrations.xlsx', false);
+    }
+
   });
 </script>

@@ -437,3 +437,64 @@ function bindSelect2() {
   });
 }
 
+/*
+  Export multiple html tables to excel and place them
+  in individual tabs.
+  tables: array of html table ids
+  filename: excel filename to be exported
+  filter: boolean to include filter form data
+*/
+function exportTablesToExcel(tables, filename, filter) {
+  // Create a new workbook
+  var wb = XLSX.utils.book_new();
+  var table_element = [];
+  var ws = [];
+  var index = 0;
+
+  for(var i=0; i < tables.length; i++) {
+    // Get the tables
+    table_element[i] = document.getElementById(tables[i]);
+
+    // Get column index based on CSS class
+    var columnsToRemove = [];
+    var headers = table_element[i].querySelectorAll('th');
+    headers.forEach((header, index) => {
+      if (header.classList.contains('ignore-column')) {
+        columnsToRemove.push(index);
+      }
+    });
+
+    // Convert tables to worksheet
+    ws[i] = XLSX.utils.table_to_sheet(table_element[i]);
+
+    // Iterate through each row and remove the cells in the columns to ignore
+    for (let rowIndex = 0; rowIndex < table_element[i].rows.length; rowIndex++) {
+      var row = table_element[i].rows[rowIndex];
+      columnsToRemove.forEach(colIndex => {
+        delete ws[i][XLSX.utils.encode_cell({r: rowIndex, c: colIndex})];  // Remove cell in the ignored column
+      });
+    }
+    // Append worksheets to workbook
+    XLSX.utils.book_append_sheet(wb, ws[i], tables[i].split('_').map(str => str.replace(/^\w/, c => c.toUpperCase())).join(' '));
+  }
+
+  if(filter) {
+    const form = document.getElementById($('.filter_form').attr('id'));
+    const formData = new FormData(form);
+
+    // Convert the data into a 2D array (for SheetJS compatibility)
+    var data = [['Field', 'Value']];  // Add headers (Field and Value)
+    formData.forEach((value, key) => {
+      data.push([key, value]);
+    });
+
+    // Create a worksheet from the 2D data array
+    var ws_filter = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws_filter, 'Filters Applied');
+
+  }
+  // Export the workbook
+  XLSX.writeFile(wb, filename);
+}
+
+
