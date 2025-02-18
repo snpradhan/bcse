@@ -125,7 +125,7 @@
                       <a class="dropdown-item" href="{% url 'bcse:workshops' 'list' 'current' %}">Workshops</a>
                     </li>
 
-                    <li class="{% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></li>
+                    <li class="{% navactive request 'bcse:standalonePageAliasView' 'baxter_symposium' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">The Baxter Center Symposium</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
                     <li class="{% navactive request 'bcse:teacherLeadershipOpportunities' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
