@@ -1646,7 +1646,7 @@ class BaxterBoxUsageSearchForm(forms.Form):
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':7}))
   consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':5}))
   status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':5}))
-
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -1656,6 +1656,8 @@ class BaxterBoxUsageSearchForm(forms.Form):
     for field_name, field in self.fields.items():
       if field_name in ['from_date', 'to_date']:
         field.widget.attrs['class'] = 'form-control datepicker'
+      elif field_name in ['activity', 'equipment', 'consumable', 'status']:
+        field.widget.attrs['class'] = 'form-control'
       else:
         field.widget.attrs['class'] = 'form-control'
 

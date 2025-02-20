@@ -68,10 +68,18 @@
             <div>{{searchForm.status}}</div>
             <div class="error">{{ searchForm.status.errors }}</div>
           </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+            <div>{{searchForm.rows_per_page}}</div>
+            <div class="error">{{ searchForm.rows_per_page.errors }}</div>
+          </div>
+          <input type="hidden" name="page" id="page" value="{{page}}"/>
+          <input type="hidden" name="active_tab" id="active_tab" value="baxter_box_summary-tab"/>
+          <input type="hidden" name="download" id="download" value="0"/>
         </div>
       </div>
       <div class="form-group right" id="filter_buttons">
-        <button class="btn" type="button" id="export">Export Table</button>
+        <button class="btn download" type="button">Download Report</button>
         <a class="btn" type="button" href="{% url 'bcse:clearSearch' 'baxter_box_usage_search' %}">Clear Filter</a>
 
       </div>

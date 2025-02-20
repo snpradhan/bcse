@@ -2331,19 +2331,23 @@ def baxterBoxUsageReportSearch(request):
       equipment_types = models.EquipmentType.objects.all().order_by('order')
       activities = models.Activity.objects.all().order_by('name')
       consumables = models.Consumable.objects.all().order_by('name')
+      workplaces = models.WorkPlace.objects.all().order_by('name')
 
       equipment_usage = {}
       kit_usage = {}
       consumable_usage = {}
-      total_usage = {'reservations': 0, 'total_equipment_cost': 0.0, 'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+      workplace_usage = {}
+      total_usage = {'reservations': 0, 'total_equipment_cost': 0.0, 'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'teachers': [], 'workplaces': [], 'classes': 0, 'students': 0}
 
       for equipment_type in equipment_types:
         print(equipment_type.name, equipment_type.unit_cost)
-        equipment_usage[equipment_type.id] = {'name': equipment_type.name, 'unit_cost': equipment_type.unit_cost,'reservations': [], 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+        equipment_usage[equipment_type.id] = {'name': equipment_type.name, 'unit_cost': equipment_type.unit_cost,'reservations': 0, 'total_cost': 0.0, 'teachers': [], 'workplaces': [], 'classes': 0, 'students': 0}
       for activity in activities:
-        kit_usage[activity.id] = {'name': activity.kit_name, 'unit_cost': activity.kit_unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+        kit_usage[activity.id] = {'name': activity.kit_name, 'unit_cost': activity.kit_unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'workplaces': [], 'classes': 0, 'students': 0}
       for consumable in consumables:
-        consumable_usage[consumable.id] = {'name': consumable.name, 'unit_cost': consumable.unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'schools': [], 'classes': 0, 'students': 0}
+        consumable_usage[consumable.id] = {'name': consumable.name, 'unit_cost': consumable.unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'workplaces': [], 'classes': 0, 'students': 0}
+      for workplace in workplaces:
+        workplace_usage[workplace.id] = {'name': workplace.name, 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'teachers': [], 'classes': 0, 'students': 0}
 
 
       query_filter = Q()
@@ -2357,6 +2361,8 @@ def baxterBoxUsageReportSearch(request):
       consumable = request.GET.getlist('usage-consumable', '')
       equipment = request.GET.getlist('usage-equipment', '')
       status = request.GET.getlist('usage-status', '')
+      rows_per_page = request.GET.get('usage-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
 
        #set session variable
       request.session['baxter_box_usage_search'] = {
@@ -2367,7 +2373,9 @@ def baxterBoxUsageReportSearch(request):
         'activity': activity,
         'consumable': consumable,
         'equipment': equipment,
-        'status': status
+        'status': status,
+        'rows_per_page': rows_per_page,
+        'page': page
       }
 
       if from_date:
@@ -2408,7 +2416,7 @@ def baxterBoxUsageReportSearch(request):
 
       for reservation in reservations:
         reservation_user = reservation.user
-        reservation_work_place = reservation.user.work_place
+        reservation_work_place = reservation.reservation_to_work_place.work_place
 
         if reservation.more_num_of_classes:
           reservation_classes = int(reservation.more_num_of_classes)
@@ -2422,42 +2430,57 @@ def baxterBoxUsageReportSearch(request):
         else:
           reservation_students = 0
 
+
+        workplace_usage[reservation_work_place.id]['reservations'] += 1
+        workplace_usage[reservation_work_place.id]['classes'] += reservation_classes
+        workplace_usage[reservation_work_place.id]['students'] += reservation_students
+
+        if reservation_user not in workplace_usage[reservation_work_place.id]['teachers']:
+          workplace_usage[reservation_work_place.id]['teachers'].append(reservation_user)
+
         if reservation.equipment:
           for equipment in reservation.equipment.all():
-            equipment_usage[equipment.equipment_type.id]['reservations'].append(reservation)
+            equipment_usage[equipment.equipment_type.id]['reservations'] += 1
             if reservation_user not in equipment_usage[equipment.equipment_type.id]['teachers']:
               equipment_usage[equipment.equipment_type.id]['teachers'].append(reservation_user)
 
-            if reservation_work_place not in equipment_usage[equipment.equipment_type.id]['schools']:
-              equipment_usage[equipment.equipment_type.id]['schools'].append(reservation_work_place)
+            if reservation_work_place not in equipment_usage[equipment.equipment_type.id]['workplaces']:
+              equipment_usage[equipment.equipment_type.id]['workplaces'].append(reservation_work_place)
 
             equipment_usage[equipment.equipment_type.id]['classes'] += reservation_classes
             equipment_usage[equipment.equipment_type.id]['students'] += reservation_students
+            workplace_usage[reservation_work_place.id]['equipment'] += 1
             if equipment.equipment_type.unit_cost:
               total_usage['total_equipment_cost'] += equipment.equipment_type.unit_cost
+              workplace_usage[reservation_work_place.id]['total_equipment_cost'] += equipment.equipment_type.unit_cost
 
         if reservation.activity:
           if not reservation.activity_kit_not_needed:
             kit_usage[reservation.activity.id]['count'] += reservation_classes
             total_usage['kits'] += reservation_classes
+            workplace_usage[reservation_work_place.id]['kits'] += reservation_classes
             if reservation.activity.kit_unit_cost:
               total_usage['total_kit_cost'] += reservation.activity.kit_unit_cost * reservation_classes
+              workplace_usage[reservation_work_place.id]['total_kit_cost'] += reservation.activity.kit_unit_cost * reservation_classes
 
             for reservation_consumable in reservation.consumables.all():
               consumable_usage[reservation_consumable.id]['count'] += reservation_classes
               consumable_usage[reservation_consumable.id]['classes'] += reservation_classes
               consumable_usage[reservation_consumable.id]['students'] += reservation_students
+              workplace_usage[reservation_work_place.id]['consumables'] += reservation_classes
+
 
               if reservation_user not in consumable_usage[reservation_consumable.id]['teachers']:
                 consumable_usage[reservation_consumable.id]['teachers'].append(reservation_user)
 
-              if reservation_work_place not in consumable_usage[reservation_consumable.id]['schools']:
-                consumable_usage[reservation_consumable.id]['schools'].append(reservation_work_place)
+              if reservation_work_place not in consumable_usage[reservation_consumable.id]['workplaces']:
+                consumable_usage[reservation_consumable.id]['workplaces'].append(reservation_work_place)
 
 
               total_usage['consumables'] += reservation_classes
               if reservation_consumable.unit_cost:
                 total_usage['total_consumables_cost'] += reservation_consumable.unit_cost * reservation_classes
+                workplace_usage[reservation_work_place.id]['total_consumables_cost'] += reservation_consumable.unit_cost * reservation_classes
 
 
 
@@ -2466,14 +2489,14 @@ def baxterBoxUsageReportSearch(request):
 
           if reservation_user not in kit_usage[reservation.activity.id]['teachers']:
             kit_usage[reservation.activity.id]['teachers'].append(reservation_user)
-          if reservation_work_place not in kit_usage[reservation.activity.id]['schools']:
-            kit_usage[reservation.activity.id]['schools'].append(reservation_work_place)
+          if reservation_work_place not in kit_usage[reservation.activity.id]['workplaces']:
+            kit_usage[reservation.activity.id]['workplaces'].append(reservation_work_place)
 
 
         if reservation.user not in total_usage['teachers']:
           total_usage['teachers'].append(reservation_user)
-        if reservation_work_place not in total_usage['schools']:
-          total_usage['schools'].append(reservation_work_place)
+        if reservation_work_place not in total_usage['workplaces']:
+          total_usage['workplaces'].append(reservation_work_place)
 
         total_usage['reservations'] += 1
         total_usage['classes'] += reservation_classes
@@ -2484,17 +2507,26 @@ def baxterBoxUsageReportSearch(request):
         remove_equipment = []
         remove_kit = []
         remove_consumable = []
+        remove_workplaces = []
+
+        for workplace_id, usage in workplace_usage.items():
+         if usage['reservations'] == 0 and len(usage['teachers']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
+          remove_workplaces.append(workplace_id)
+
         for equipment_type_id, usage in equipment_usage.items():
-           if len(usage['reservations']) == 0 and len(usage['teachers']) == 0 and len(usage['schools']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
+           if usage['reservations'] == 0 and len(usage['teachers']) == 0 and len(usage['workplaces']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
              remove_equipment.append(equipment_type_id)
 
         for activity_id, usage in kit_usage.items():
-          if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['schools']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
+          if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['workplaces']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
              remove_kit.append(activity_id)
 
         for consumable_id, usage in consumable_usage.items():
-          if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['schools']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
+          if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['workplaces']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
              remove_consumable.append(consumable_id)
+
+        for workplace_id in remove_workplaces:
+          del workplace_usage[workplace_id]
 
         for equipment_type_id in remove_equipment:
           del equipment_usage[equipment_type_id]
@@ -2505,10 +2537,16 @@ def baxterBoxUsageReportSearch(request):
         for consumable_id in remove_consumable:
           del consumable_usage[consumable_id]
 
+      sort_order = []
+      equipment_usage = paginate(request, list(equipment_usage.values()), sort_order, rows_per_page, page)
+      kit_usage = paginate(request, list(kit_usage.values()), sort_order, rows_per_page, page)
+      consumable_usage = paginate(request, list(consumable_usage.values()), sort_order, rows_per_page, page)
+      workplace_usage = paginate(request, list(workplace_usage.values()), sort_order, rows_per_page, page)
+
 
       response_data = {}
       response_data['success'] = True
-      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'consumable_usage': consumable_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date}
+      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'consumable_usage': consumable_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date, 'workplace_usage': workplace_usage}
       response_data['html'] = render_to_string('bcse_app/BaxterBoxUsageTableView.html', context, request)
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -8050,6 +8088,11 @@ def paginate(request, queryset, sort_order, count=settings.DEFAULT_ITEMS_PER_PAG
 
   if int(count) > 0:
     paginator = Paginator(queryset, count)
+  elif type(queryset) is list:
+    if len(queryset) > 0:
+      paginator = Paginator(queryset, len(queryset))
+    else:
+      paginator = Paginator(queryset, settings.DEFAULT_ITEMS_PER_PAGE)
   elif queryset.count() > 0:
     paginator = Paginator(queryset, queryset.count())
   else:

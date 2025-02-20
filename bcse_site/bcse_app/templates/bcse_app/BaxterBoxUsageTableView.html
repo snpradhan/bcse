@@ -1,206 +1,223 @@
 {% load bcse_extras %}
-<table class="table table-bordered table-striped" id="baxter_box_usage_report">
-  <thead>
-    <tr class="noExl">
-      <th colspan="5">From</th>
-      <th colspan="5">To</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="display:none;">
-      <td colspan="5" style="background-color: #767676; color: white;">From</td>
-      <td colspan="5" style="background-color: #767676; color: white;">To</td>
-    </tr>
-    <tr>
-      <td colspan="5">
-        {% if from_date %}
-          {{from_date|date:"F j, Y"}}
-        {% else %}
-          Any
-        {% endif %}
-      </td>
-      <td colspan="5">
-        {% if to_date %}
-          {{to_date|date:"F j, Y"}}
-        {% else %}
-          Any
-        {% endif %}
-      </td>
-      <tr>
-        <td colspan="10"></td>
-      </tr>
-    </tr>
-  </tbody>
-  <thead>
-    <tr class="noExl">
-      <th colspan="3"> Equipment</th>
-      <th> Unit Cost ($)</th>
-      <th> # of Reservation </th>
-      <th> Total Cost ($)</th>
-      <th> # of Unique Teachers </th>
-      <th> # of Unique Schools </th>
-      <th> # of Classes </th>
-      <th> # of Students </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="display:none;">
-      <td colspan="3" style="background-color: #767676; color: white;"> Equipment</td>
-      <td style="background-color: #767676; color: white;"> Unit Cost ($)</td>
-      <td style="background-color: #767676; color: white;"> # of Reservation </td>
-      <td style="background-color: #767676; color: white;"> Total Cost ($)</td>
-      <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
-      <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
-      <th style="background-color: #767676; color: white;"> # of Classes </th>
-      <th style="background-color: #767676; color: white;"> # of Students </th>
-    </tr>
-    {% for id, equipment in equipment_usage.items %}
-      <tr>
-        <td colspan="3">{{equipment.name}}</td>
-        <td>{{equipment.unit_cost|floatformat:2|default_if_none:""}}</td>
-        <td>{{equipment.reservations|length}}</td>
-        <td>
-            {% if equipment.reservations|length > 0 and equipment.unit_cost > 0 %}
-              {{equipment.reservations|length|multiply:equipment.unit_cost|floatformat:2}}
-            {% endif %}
-        </td>
-        <td>{{equipment.teachers|length}}</td>
-        <td>{{equipment.schools|length}}</td>
-        <td>{{equipment.classes}}</td>
-        <td>{{equipment.students}}</td>
-      </tr>
-    {% endfor %}
-    <tr>
-      <td colspan="10"></td>
-    </tr>
-  </tbody>
-  <thead>
-    <tr class="noExl">
-      <th colspan="3"> Activity Kit</th>
-      <th> Unit Cost ($)</th>
-      <th> Usage Count </th>
-      <th> Total Cost ($)</th>
-      <th> # of Unique Teachers </th>
-      <th> # of Unique Schools </th>
-      <th> # of Classes </th>
-      <th> # of Students </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="display:none;">
-      <td colspan="3" style="background-color: #767676; color: white;"> Activity Kit</td>
-      <td style="background-color: #767676; color: white;"> Unit Cost ($)</td>
-      <td style="background-color: #767676; color: white;"> Usage Count </td>
-      <td style="background-color: #767676; color: white;"> Total Cost ($)</td>
-      <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
-      <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
-      <th style="background-color: #767676; color: white;"> # of Classes </th>
-      <th style="background-color: #767676; color: white;"> # of Students </th>
-    </tr>
-    {% for id, kit in kit_usage.items %}
-      <tr>
-        <td colspan="3">{{kit.name}}</td>
-        <td>{{kit.unit_cost|floatformat:2|default_if_none:""}}</td>
-        <td>{{kit.count}}</td>
-        <td>
-          {% if kit.count > 0 and kit.unit_cost > 0 %}
-            {{kit.count|multiply:kit.unit_cost|floatformat:2}}
-          {% endif %}
-        </td>
-        <td>{{kit.teachers|length}}</td>
-        <td>{{kit.schools|length}}</td>
-        <td>{{kit.classes}}</td>
-        <td>{{kit.students}}</td>
-      </tr>
-    {% endfor %}
-    <tr>
-      <td colspan="10"></td>
-    </tr>
-  </tbody>
+<ul class="nav nav-tabs mb-3" id="baxter_box_usage_tab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="baxter_box_summary-tab" data-bs-toggle="tab" data-bs-target="#baxter_box_summary_container" type="button" role="tab" aria-controls="baxter_box_summary_container" aria-selected="true" ><label>Baxter Box Summary</label></button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="equipment_summary-tab" data-bs-toggle="tab" data-bs-target="#equipment_summary_container" type="button" role="tab" aria-controls="equipment_summary_container" aria-selected="false"><label>Equipment Summary</label></button>
+  </li>
 
-  <thead>
-    <tr class="noExl">
-      <th colspan="3"> Consumable</th>
-      <th> Unit Cost ($)</th>
-      <th> Usage Count </th>
-      <th> Total Cost ($)</th>
-      <th> # of Unique Teachers </th>
-      <th> # of Unique Schools </th>
-      <th> # of Classes </th>
-      <th> # of Students </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="display:none;">
-      <td colspan="3" style="background-color: #767676; color: white;"> Consumable</td>
-      <td style="background-color: #767676; color: white;"> Unit Cost ($)</td>
-      <td style="background-color: #767676; color: white;"> Usage Count </td>
-      <td style="background-color: #767676; color: white;"> Total Cost ($)</td>
-      <td style="background-color: #767676; color: white;"> # of Unique Teachers </td>
-      <td style="background-color: #767676; color: white;"> # of Unique Schools </td>
-      <th style="background-color: #767676; color: white;"> # of Classes </th>
-      <th style="background-color: #767676; color: white;"> # of Students </th>
-    </tr>
-    {% for id, consumable in consumable_usage.items %}
-      <tr>
-        <td colspan="3">{{consumable.name}}</td>
-        <td>{{consumable.unit_cost|floatformat:2|default_if_none:""}}</td>
-        <td>{{consumable.count}}</td>
-        <td>
-          {% if consumable.count > 0 and consumable.unit_cost > 0 %}
-            {{consumable.count|multiply:consumable.unit_cost|floatformat:2}}
-          {% endif %}
-        </td>
-        <td>{{consumable.teachers|length}}</td>
-        <td>{{consumable.schools|length}}</td>
-        <td>{{consumable.classes}}</td>
-        <td>{{consumable.students}}</td>
-      </tr>
-    {% endfor %}
-    <tr>
-      <td colspan="10"></td>
-    </tr>
-  </tbody>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"  id="lab_summary-tab" data-bs-toggle="tab" data-bs-target="#lab_summary_container" type="button" role="tab" aria-controls="lab_summary_container" aria-selected="false"><label>Lab Summary</label></button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"  id="consumable_summary-tab" data-bs-toggle="tab" data-bs-target="#consumable_summary_container" type="button" role="tab" aria-controls="consumable_summary_container" aria-selected="false"><label>Consumable Summary</label></button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"  id="workplace_summary-tab" data-bs-toggle="tab" data-bs-target="#workplace_summary_container" type="button" role="tab" aria-controls="workplace_summary_container" aria-selected="false"><label>Workplace Summary</label></button>
+  </li>
+</ul>
+<div class="tab-content">
+  <div id="baxter_box_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="baxter_box_summary-tab">
+    <table class="table table-bordered table-striped export" id="baxter_box_summary">
+      <thead>
+        <tr>
+          <th> Total # of Reservations </th>
+          <th> Total Equipment Cost ($)</th>
+          <th> Total # of Activity Kits Used </th>
+          <th> Total Activity Kit Cost ($)</th>
+          <th> Total # of Consumables Used </th>
+          <th> Total Consumables Cost ($)</th>
+          <th> Total # of Unique Teachers </th>
+          <th> Total # of Unique Workplaces </th>
+          <th> Total # of Classes </th>
+          <th> Total # of Students </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{total_usage.reservations}}</td>
+          <td>{{total_usage.total_equipment_cost|floatformat:"2"}}</td>
+          <td>{{total_usage.kits}}</td>
+          <td>{{total_usage.total_kit_cost|floatformat:"2"}}</td>
+          <td>{{total_usage.consumables}}</td>
+          <td>{{total_usage.total_consumables_cost|floatformat:"2"}}</td>
+          <td>{{total_usage.teachers|length}}</td>
+          <td>{{total_usage.workplaces|length}}</td>
+          <td>{{total_usage.classes}}</td>
+          <td>{{total_usage.students}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="equipment_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="equipment_summary-tab">
+    {% include "bcse_app/Pagination.html" with model=equipment_usage location='top'%}
+    <table class="table table-bordered table-striped export" id="equipment_summary">
+      <thead>
+        <tr>
+          <th> Equipment</th>
+          <th> Unit Cost ($)</th>
+          <th> # of Reservation </th>
+          <th> Total Cost ($)</th>
+          <th> # of Unique Teachers </th>
+          <th> # of Unique Workplaces </th>
+          <th> # of Classes </th>
+          <th> # of Students </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for equipment in equipment_usage %}
+          <tr>
+            <td>{{equipment.name}}</td>
+            <td>{{equipment.unit_cost|floatformat:2|default_if_none:""}}</td>
+            <td>{{equipment.reservations}}</td>
+            <td>
+                {% if equipment.reservations > 0 and equipment.unit_cost > 0 %}
+                  {{equipment.reservations|multiply:equipment.unit_cost|floatformat:"2"}}
+                {% endif %}
+            </td>
+            <td>{{equipment.teachers|length}}</td>
+            <td>{{equipment.workplaces|length}}</td>
+            <td>{{equipment.classes}}</td>
+            <td>{{equipment.students}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% include "bcse_app/Pagination.html" with model=equipment_usage location='bottom'%}
+  </div>
+  <div id="lab_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="lab_summary-tab">
+    {% include "bcse_app/Pagination.html" with model=kit_usage location='top'%}
+    <table class="table table-bordered table-striped export" id="lab_summary">
+      <thead>
+        <tr>
+          <th> Activity Kit</th>
+          <th> Unit Cost ($)</th>
+          <th> Usage Count </th>
+          <th> Total Cost ($)</th>
+          <th> # of Unique Teachers </th>
+          <th> # of Unique Workplaces </th>
+          <th> # of Classes </th>
+          <th> # of Students </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for kit in kit_usage %}
+          <tr>
+            <td>{{kit.name}}</td>
+            <td>{{kit.unit_cost|floatformat:2|default_if_none:""}}</td>
+            <td>{{kit.count}}</td>
+            <td>
+              {% if kit.count > 0 and kit.unit_cost > 0 %}
+                {{kit.count|multiply:kit.unit_cost|floatformat:"2"}}
+              {% endif %}
+            </td>
+            <td>{{kit.teachers|length}}</td>
+            <td>{{kit.workplaces|length}}</td>
+            <td>{{kit.classes}}</td>
+            <td>{{kit.students}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% include "bcse_app/Pagination.html" with model=kit_usage location='bottom'%}
+  </div>
+  <div id="consumable_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="consumable_summary-tab">
+    {% include "bcse_app/Pagination.html" with model=consumable_usage location='top'%}
+    <table class="table table-bordered table-striped export" id="consumable_summary">
+      <thead>
+        <tr>
+          <th> Consumable</th>
+          <th> Unit Cost ($)</th>
+          <th> Usage Count </th>
+          <th> Total Cost ($)</th>
+          <th> # of Unique Teachers </th>
+          <th> # of Unique Workplaces </th>
+          <th> # of Classes </th>
+          <th> # of Students </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for consumable in consumable_usage %}
+          <tr>
+            <td>{{consumable.name}}</td>
+            <td>{{consumable.unit_cost|floatformat:"2"|default_if_none:""}}</td>
+            <td>{{consumable.count}}</td>
+            <td>
+              {% if consumable.count > 0 and consumable.unit_cost > 0 %}
+                {{consumable.count|multiply:consumable.unit_cost|floatformat:"2"}}
+              {% endif %}
+            </td>
+            <td>{{consumable.teachers|length}}</td>
+            <td>{{consumable.workplaces|length}}</td>
+            <td>{{consumable.classes}}</td>
+            <td>{{consumable.students}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% include "bcse_app/Pagination.html" with model=consumable_usage location='bottom'%}
+  </div>
 
+  <div id="workplace_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="workplace_summary-tab">
+    {% include "bcse_app/Pagination.html" with model=workplace_usage location='top'%}
+    <table class="table table-bordered table-striped export" id="workplace_summary">
+      <thead>
+        <tr>
+          <th> Workplace</th>
+          <th> Total # of Reservations </th>
+          <th> Total # of Equipment</th>
+          <th> Total Equipment Cost ($)</th>
+          <th> Total # of Activity Kits Used </th>
+          <th> Total Activity Kit Cost ($)</th>
+          <th> Total # of Consumables Used </th>
+          <th> Total Consumables Cost ($)</th>
+          <th> Total # of Unique Teachers </th>
+          <th> Total # of Classes </th>
+          <th> Total # of Students </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for workplace in workplace_usage %}
+          <tr>
+            <td>{{workplace.name}}</td>
+            <td>{{workplace.reservations}}</td>
+            <td>{{workplace.equipment}}</td>
+            <td>{{workplace.total_equipment_cost|floatformat:"2"}}</td>
+            <td>{{workplace.kits}}</td>
+            <td>{{workplace.total_kit_cost|floatformat:"2"}}</td>
+            <td>{{workplace.consumables}}</td>
+            <td>{{workplace.total_consumables_cost|floatformat:"2"}}</td>
+            <td>{{workplace.teachers|length}}</td>
+            <td>{{workplace.classes}}</td>
+            <td>{{workplace.students}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% include "bcse_app/Pagination.html" with model=workplace_usage location='bottom'%}
+  </div>
 
-  <thead>
-    <tr class="noExl">
-      <th> Total # of Reservations </th>
-      <th> Total Equipment Cost ($)</th>
-      <th> Total # of Activity Kits Used </th>
-      <th> Total Activity Kit Cost ($)</th>
-      <th> Total # of Consumables Used </th>
-      <th> Total Consumables Cost ($)</th>
-      <th> Total # of Unique Teachers </th>
-      <th> Total # of Unique Schools </th>
-      <th> Total # of Classes </th>
-      <th> Total # of Students </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="display:none;">
-      <td style="background-color: #767676; color: white;"> Total # of Reservations</td>
-      <td style="background-color: #767676; color: white;"> Total Equipment Cost </td>
-      <td style="background-color: #767676; color: white;"> Total # of Activity Kits Used</td>
-      <td style="background-color: #767676; color: white;"> Total Activity Kit Cost </td>
-      <td style="background-color: #767676; color: white;"> Total # of Consumables Used </th>
-      <td style="background-color: #767676; color: white;"> Total Consumables Cost ($)</th>
-      <td style="background-color: #767676; color: white;"> Total # of Unique Teachers </td>
-      <td style="background-color: #767676; color: white;"> Total # of Unique Schools </td>
-      <th style="background-color: #767676; color: white;"> Total # of Classes </th>
-      <th style="background-color: #767676; color: white;"> Total # of Students </th>
-    </tr>
-    <tr>
-      <td>{{total_usage.reservations}}</td>
-      <td>{{total_usage.total_equipment_cost|floatformat:2}}</td>
-      <td>{{total_usage.kits}}</td>
-      <td>{{total_usage.total_kit_cost|floatformat:2}}</td>
-      <td>{{total_usage.consumables}}</td>
-      <td>{{total_usage.total_consumables_cost|floatformat:2}}</td>
-      <td>{{total_usage.teachers|length}}</td>
-      <td>{{total_usage.schools|length}}</td>
-      <td>{{total_usage.classes}}</td>
-      <td>{{total_usage.students}}</td>
-    </tr>
-  </tbody>
-</table>
+</div>
+<script type="text/javascript">
+  $(function (){
+    $('.nav-link').on('click', function(){
+      var active_tab = $(this).attr('id');
+      $("#active_tab").val(active_tab);
+    });
+
+    var active_tab = $("#active_tab").val();
+    $("#"+active_tab).addClass('active');
+    var active_target = $("#"+active_tab).data('bs-target');
+    $(active_target).addClass('show active');
+
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'Baxter Box Usage.xlsx', false);
+    }
+
+  });
+</script>
