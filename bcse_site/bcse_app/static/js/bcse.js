@@ -497,4 +497,14 @@ function exportTablesToExcel(tables, filename, filter) {
   XLSX.writeFile(wb, filename);
 }
 
+function exportReservations() {
+  $("#baxter_box_reservations").table2excel({
+    exclude: ".noExl",
+    name: "Baxter Box Reservations",
+    filename: "Baxter_Box_Reservations", //do not include extension
+    fileext:".xls", // file extension
+    preserveColors: true, // set to true if you want background colors and font colors preserved
+  });
+}
+
 

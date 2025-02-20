@@ -120,19 +120,18 @@
             <div>{{searchForm.columns}}</div>
             <div class="error">{{ searchForm.columns.errors }}</div>
           </div>
-          <div class="form-group">
-            <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
-            <div>{{searchForm.rows_per_page}}</div>
-            <div class="error">{{ searchForm.rows_per_page.errors }}</div>
-          </div>
         {% else %}
           <div class="form-group">{{searchForm.columns.as_hidden}}</div>
-          <div class="form-group">{{searchForm.rows_per_page.as_hidden}}</div>
         {% endif %}
-
+        <div class="form-group">
+          <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+          <div>{{searchForm.rows_per_page}}</div>
+          <div class="error">{{ searchForm.rows_per_page.errors }}</div>
+        </div>
       </div>
-    </div>
+      <input type="hidden" name="download" id="download" value="0"/>
       <input type="hidden" name="page" id="page" value="{{page}}"/>
+    </div>
       <div class="form-group right" id="filter_buttons">
         <a class="btn" type="button" href="{% url 'bcse:clearSearch' 'reservations_search' %}">Clear Filter</a>
       </div>

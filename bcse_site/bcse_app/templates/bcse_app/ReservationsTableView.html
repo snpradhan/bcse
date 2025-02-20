@@ -10,7 +10,7 @@
   {% endif %}
   {% if user.is_authenticated and user.userProfile.user_role in 'TP' and tag == 'profile' %}
     <div class="right mb-3">
-      <button class="btn export_reservations" type="button">Export Reservations</button>
+      <button class="btn download profile" type="button">Download Reservations</button>
     </div>
   {% endif %}
   <table class="table table-bordered table-striped" id="baxter_box_reservations">
@@ -463,14 +463,13 @@
 
 <script type="text/javascript">
   $(function (){
-    $('.export_reservations').on('click', function(e) {
-      $("#baxter_box_reservations").table2excel({
-        exclude: ".noExl",
-        name: "Baxter Box Reservations",
-        filename: "Baxter_Box_Reservations", //do not include extension
-        fileext:".xls", // file extension
-        preserveColors: true, // set to true if you want background colors and font colors preserved
-      });
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      exportReservations();
+    }
+
+    $('.download.profile').on('click', function(){
+       exportReservations();
     });
   });
 </script>
