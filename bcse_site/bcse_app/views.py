@@ -3293,7 +3293,7 @@ def workshopRegistration(request, workshop_id):
 
   if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
 
-    if workshop.registration_setting.registration_type == 'R':
+    if workshop.registration_setting.registration_type in ['R', 'E']:
       default_registration_status = 'R'
     else:
       default_registration_status = 'A'
@@ -3309,23 +3309,35 @@ def workshopRegistration(request, workshop_id):
 
       message_class = 'info'
     else:
-      if request.user.userProfile.user_role in ['A', 'S']:
-        workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
+      if workshop.registration_setting.registration_type == 'E':
+        if registration_setting_status['registration_open']:
+          if workshop.registration_setting.external_registration_link:
+            if workshop.registration_setting.external_link_label:
+              user_message = '<a class="btn" href="%s" target="_blank">%s</a>' % (workshop.registration_setting.external_registration_link, workshop.registration_setting.external_link_label)
+            else:
+              user_message = '<a class="btn" href="%s" target="_blank">%s</a>' % (workshop.registration_setting.external_registration_link, "Click here to register for this workshop")
+        elif registration_setting_status['message']:
+          user_message = registration_setting_status['message']
+          message_class = 'info'
+
       else:
-        try:
-          workshop_registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
-          registration_message = workshopRegistrationMessage(workshop_registration)
-          user_message = registration_message['message']
-          message_class = registration_message['message_class']
-          current_status = workshop_registration.status
-          # if registration is cancelled, allow users to re-register or re-apply
-          if current_status == 'N':
-            workshop_registration.status = registration_setting_status['default_registration_status']
-        except models.Registration.DoesNotExist:
-          workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
-          if registration_setting_status['message']:
-            user_message = registration_setting_status['message']
-            message_class = 'info'
+        if request.user.userProfile.user_role in ['A', 'S']:
+          workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
+        else:
+          try:
+            workshop_registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
+            registration_message = workshopRegistrationMessage(workshop_registration)
+            user_message = registration_message['message']
+            message_class = registration_message['message_class']
+            current_status = workshop_registration.status
+            # if registration is cancelled, allow users to re-register or re-apply
+            if current_status == 'N':
+              workshop_registration.status = registration_setting_status['default_registration_status']
+          except models.Registration.DoesNotExist:
+            workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
+            if registration_setting_status['message']:
+              user_message = registration_setting_status['message']
+              message_class = 'info'
 
   if request.method == 'GET':
     if workshop_registration:
@@ -8480,8 +8492,10 @@ def create_registration(request, email, workshop_id, registration_status=None):
     if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
       if workshop.registration_setting.registration_type == 'R':
         default_registration_status = 'R'
-      else:
+      elif workshop.registration_setting.registration_type == 'A':
         default_registration_status = 'A'
+      else:
+        default_registration_status = 'T'
     else:
       raise CustomException('Please enable registration and select a Registration Type for this workshop before creating registration.')
 

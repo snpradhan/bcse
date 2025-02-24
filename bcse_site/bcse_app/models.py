@@ -62,6 +62,7 @@ WORKSHOP_TYPE_CHOICES = (
 WORKSHOP_REGISTRATION_TYPE_CHOICES = (
   ('R', 'Register'),
   ('A', 'Apply'),
+  ('E', 'External'),
 )
 
 WORKSHOP_REGISTRATION_STATUS_CHOICES = (
@@ -438,6 +439,8 @@ class WorkshopRegistrationSetting(models.Model):
   close_time = models.TimeField(null=True, blank=True)
   registrants = models.ManyToManyField(UserProfile, through='Registration', null=True, blank=True)
   isbe_link = models.URLField(null=True, blank=True)
+  external_registration_link = models.URLField(null=True, blank=True, max_length=2048)
+  external_link_label = models.CharField(null=True, blank=True, max_length=256)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

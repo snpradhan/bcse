@@ -43,6 +43,18 @@
       </div>
       <div class="form-group mb-3 row">
         <div class="col">
+          <label for="id_{{form.external_registration_link.name}}" class="form-label"> {{form.external_registration_link.label|title}}</label>
+          <div>{{form.external_registration_link}}</div>
+          <div class="error">{{ form.external_registration_link.errors }}</div>
+        </div>
+        <div class="col">
+          <label for="id_{{form.external_link_label.name}}" class="form-label"> {{form.external_link_label.label|title}}</label>
+          <div>{{form.external_link_label}}</div>
+          <div class="error">{{ form.external_link_label.errors }}</div>
+        </div>
+      </div>
+      <div class="form-group mb-3 row">
+        <div class="col">
           <label for="id_{{form.open_date.name}}" class="form-label"> {{form.open_date.label|title}}</label>
           <div class="input-group">
             {{form.open_date}}
@@ -106,6 +118,8 @@
           $('#id_enable_waitlist').prop('checked', true).closest('.form-group').show();
           $('#id_enable_waitlist').trigger('change');
           $('#id_application').val("").closest('.form-group').hide();
+          $('#id_external_registration_link').val("").closest('.form-group').hide();
+          $('#id_external_link_label').val("").closest('.form-group').hide();
           $('#id_isbe_link').closest('.form-group').show();
         }
         else{
@@ -113,11 +127,16 @@
           $('#id_enable_waitlist').prop('checked', false).closest('.form-group').hide();
           $('#id_waitlist_capacity').val("").closest('.form-group').hide();
           $('#id_isbe_link').val("").closest('.form-group').hide();
+
           if($(this).val() == 'A') {
             $('#id_application').closest('.form-group').show();
+            $('#id_external_registration_link').val("").closest('.form-group').hide();
+            $('#id_external_link_label').val("").closest('.form-group').hide();
           }
-          else {
+          else if($(this).val() == 'E') {
             $('#id_application').val("").closest('.form-group').hide();
+            $('#id_external_registration_link').closest('.form-group').show();
+            $('#id_external_link_label').closest('.form-group').show();
           }
         }
       });

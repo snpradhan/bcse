@@ -9,6 +9,9 @@
           Cancel
         </a>
       {% endif %}
+      {% if user.userProfile.user_role in 'AS' %}
+        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+      {% endif %}
     </div>
   {% endif %}
   {% if registration.form %}
