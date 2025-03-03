@@ -989,6 +989,32 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
+# Workshop Email Form
+####################################
+class WorkshopEmailForm(ModelForm):
+
+  registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='Registration statuses this email is sent to')
+
+  class Meta:
+    model = models.WorkshopEmail
+    exclude = ('registration_status', 'email_status', 'scheduled_date', 'sent_date', 'created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+
+    super(WorkshopEmailForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'registration_statuses':
+        field.widget.attrs['class'] = 'form-control select2'
+      else:
+         field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      #field.widget.attrs['placeholder'] = field.help_text
+
+    if self.instance.id:
+      self.fields['registration_statuses'].initial = self.instance.get_registration_status()
+
+####################################
 # Registration Email Message Form
 ####################################
 class RegistrationEmailMessageForm(ModelForm):

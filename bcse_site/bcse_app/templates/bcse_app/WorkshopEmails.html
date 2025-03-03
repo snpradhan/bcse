@@ -1,0 +1,86 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block configuration %}
+  <div class="workshop_container">
+    <h1 class="center"> {{workshop.name}}</h1>
+    {% include "bcse_app/WorkshopTabs.html" with tab='emails' %}
+
+    {% if workshop_emails %}
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Registration Status(s)</th>
+            <th>Email To</th>
+            <th>Email Subject</th>
+            <th>Email Status</th>
+            <th>Sent Date</th>
+            <th>Created Date</th>
+            <th>Modified Date</th>
+            <th> Action </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for email in workshop_emails %}
+            <tr>
+              <td>{{email.id}}</td>
+              <td>{{email.get_registration_status_display|safe}}</td>
+              <td>
+                {% for address in email.email_to|split:';' %}
+                  {{address}}<br>
+                {% endfor %}
+              </td>
+              <td>{{email.email_subject}}</td>
+              <td>{{email.get_email_status_display}}</td>
+              <td>{{email.sent_date|date:"F j, Y g:i A"}}</td>
+              <td>{{email.created_date|date:"F j, Y g:i A"}}</td>
+              <td>{{email.modified_date|date:"F j, Y g:i A"}}</td>
+
+              <td>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    {% if email.email_status == 'D' %}
+                      <li>
+                        <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopEmailEdit' workshop.id email.id %}" href="#">Edit</a>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                    {% endif %}
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopEmailPreview' workshop.id email.id %}" href="#">Preview Email</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item copy action" href="{% url 'bcse:workshopEmailCopy' workshop.id email.id %}">
+                        Clone
+                      </a>
+                    </li>
+                    {% if email.email_status == 'D' %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item" href="{% url 'bcse:workshopEmailSend' workshop.id email.id %}">Send Email</a>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopEmailDelete' workshop.id email.id %}"
+                        data-title="the email with id {{email.id}}">
+                          Delete
+                        </a>
+                      </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="warning center">Emails have not been created for this workshop</div>
+    {% endif %}
+  </div>
+{% endblock %}

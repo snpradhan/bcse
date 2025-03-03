@@ -220,6 +220,11 @@ BAXTER_BOX_MESSAGE_TYPE_CHOICES = (
   ('D', 'Date Rule'),
 )
 
+EMAIL_STATUS_CHOICES = (
+  ('D', 'Draft'),
+  ('S', 'Sent'),
+)
+
 TABLE_ROWS_PER_PAGE_CHOICES = (
   (25, '25'),
   (50, '50'),
@@ -491,6 +496,36 @@ class RegistrationEmailMessage(models.Model):
 
   class Meta:
       ordering = ['registration_status']
+
+class WorkshopEmail(models.Model):
+  workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_email")
+  registration_status = models.CharField(null=False, blank=False, max_length=50, help_text='One or more registration statuses this email is sent to')
+  email_to = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by commas')
+  email_subject = models.CharField(null=False, max_length=256)
+  email_message = RichTextField(null=False, blank=False)
+  email_status = models.CharField(null=False, blank=False, max_length=1, choices=EMAIL_STATUS_CHOICES, default='D')
+  scheduled_date = models.DateField(null=True, blank=True, help_text="The date the email is scheduled to be sent")
+  sent_date = models.DateTimeField(null=True, blank=True)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+
+  class Meta:
+      ordering = ['modified_date']
+
+  def get_registration_status(self):
+    return self.registration_status.split(',') if self.registration_status else []
+
+  def get_registration_status_display(self):
+    if self.registration_status:
+      return '<br>'.join([value for key, value in WORKSHOP_REGISTRATION_STATUS_CHOICES if key in self.registration_status.split(',')])
+    else:
+      return None
+
+  def set_registration_status(self, status_list):
+    self.registration_status = ','.join(status_list)
+
+
 
 class Activity(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Activity')

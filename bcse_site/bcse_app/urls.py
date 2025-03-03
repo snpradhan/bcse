@@ -42,6 +42,14 @@ urlpatterns = [
     path('workshop/<int:workshop_id>/registration/<int:id>/cancel', views.workshopRegistrationCancel, name='workshopRegistrationCancel'),
     path('workshop/<int:workshop_id>/registration/questionnaire', views.workshopRegistrationQuestionnaire, name='workshopRegistrationQuestionnaire'),
 
+    path('workshop/<int:workshop_id>/emails', views.workshopEmails, name='workshopEmails'),
+    path('workshop/<int:workshop_id>/email/<int:id>/edit', views.workshopEmailEdit, name='workshopEmailEdit'),
+    path('workshop/<int:workshop_id>/email/new', views.workshopEmailEdit, name='workshopEmailNew'),
+    path('workshop/<int:workshop_id>/email/<int:id>/delete', views.workshopEmailDelete, name='workshopEmailDelete'),
+    path('workshop/<int:workshop_id>/email/<int:id>/preview', views.workshopEmailPreview, name='workshopEmailPreview'),
+    path('workshop/<int:workshop_id>/email/<int:id>/send', views.workshopEmailSend, name='workshopEmailSend'),
+    path('workshop/<int:workshop_id>/email/<int:id>/copy', views.workshopEmailCopy, name='workshopEmailCopy'),
+
     path('workshops/search/<str:display>/<str:period>/', views.workshopsSearch, name='workshopsSearch'),
     path('workshops/search/<str:display>/<str:period>/<str:extra>/', views.workshopsSearch, name='workshopsSearchExtra'),
     path('workshops/<str:display>/<str:period>/', views.workshops, name='workshops'),

@@ -18,6 +18,9 @@
         <li class="nav-item">
           <label><a class="nav-link {% if tab == 'registrants' %}active{% endif %}" href="{% url 'bcse:workshopRegistrants' workshop.id %}">Registrants</a></label>
         </li>
+        <li class="nav-item">
+          <label><a class="nav-link {% if tab == 'emails' %}active{% endif %}" href="{% url 'bcse:workshopEmails' workshop.id %}">Emails</a></label>
+        </li>
       {% endif %}
     {% elif tab == 'edit' %}
       <li class="nav-item">
@@ -36,6 +39,10 @@
       <li class="nav-item right">
         <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
         <button class="btn download" type="button">Download Registrants</button>
+      </li>
+    {% elif tab == 'emails' %}
+       <li class="nav-item right">
+        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopEmailNew' workshop.id %}" href="#">Create Email</a>
       </li>
     {% endif %}
   </ul>
