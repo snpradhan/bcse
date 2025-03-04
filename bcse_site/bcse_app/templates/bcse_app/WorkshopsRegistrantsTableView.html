@@ -254,6 +254,7 @@
     {% endif %}
   </div>
 </div>
+
 <script type="text/javascript">
   $(function (){
     $('.nav-link').on('click', function(){
@@ -271,7 +272,7 @@
       var tables = $('table.export').map(function() {
         return this.id;
       }).get();
-      exportTablesToExcel(tables, 'Workshops Registrations.xlsx', false);
+      exportTablesToExcel(tables, 'Workshops Registrations.xlsx', true);
     }
 
   });

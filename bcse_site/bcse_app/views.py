@@ -5,7 +5,7 @@ from django import http, shortcuts, template
 from django.contrib import auth, messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
-from django.db.models import Q, F
+from django.db.models import Q, F, CharField
 from django.db.models.functions import Lower
 import datetime, time
 from .utils import Calendar, AdminCalendar
@@ -4320,15 +4320,17 @@ def workshopsRegistrantsSearch(request):
 
       workshop_category = [int(i) for i in request.GET.getlist('registrants_search-workshop_category', '')]
       workshop = [int(i) for i in request.GET.getlist('registrants_search-workshop', '')]
-      work_place = request.GET.get('registrants_search-work_place', '')
-      user = request.GET.get('registrants_search-user', '')
+      work_place = [int(i) for i in request.GET.getlist('registrants_search-work_place', '')]
+      user = [int(i) for i in request.GET.getlist('registrants_search-user', '')]
       year = request.GET.get('registrants_search-year', '')
       starts_after = request.GET.get('registrants_search-starts_after', '')
       ends_before = request.GET.get('registrants_search-ends_before', '')
       status = request.GET.getlist('registrants_search-status', '')
+      keywords = request.GET.get('registrants_search-keywords', '')
       sort_by = request.GET.get('registrants_search-sort_by', '')
       rows_per_page = request.GET.get('registrants_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
       page = request.GET.get('page', '')
+
 
       registrants_search_vars = {
         'workshop_category': workshop_category,
@@ -4339,6 +4341,7 @@ def workshopsRegistrantsSearch(request):
         'ends_before': ends_before,
         'year': year,
         'status': status,
+        'keywords': keywords,
         'sort_by': sort_by,
         'rows_per_page': rows_per_page,
         'page': page
@@ -4360,11 +4363,11 @@ def workshopsRegistrantsSearch(request):
         workshop_filter = Q(workshop_registration_setting__workshop__id__in=workshop)
         query_filter = query_filter & workshop_filter
       if work_place:
-        workplace_filter = Q(registration_to_work_place__work_place=work_place)
+        workplace_filter = Q(registration_to_work_place__work_place__id__in=work_place)
         query_filter = query_filter & workplace_filter
 
       if user:
-        user_filter = Q(user=user)
+        user_filter = Q(user__id__in=user)
         query_filter = query_filter & user_filter
 
       if year:
@@ -4391,7 +4394,29 @@ def workshopsRegistrantsSearch(request):
 
         query_filter = query_filter & tags_filter
 
-      registrations = models.Registration.objects.all().filter(query_filter).distinct()
+      if keywords:
+        keyword_filter = Q(workshop_registration_setting__workshop__name__icontains=keywords) | Q(workshop_registration_setting__workshop__sub_title__icontains=keywords)
+        keyword_filter = keyword_filter | Q(workshop_registration_setting__workshop__workshop_category__name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(workshop_registration_setting__workshop__teacher_leaders__teacher__user__first_name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(workshop_registration_setting__workshop__teacher_leaders__teacher__user__last_name__icontains=keywords)
+        keyword_filter = keyword_filter | Q(workshop_registration_setting__workshop__summary__icontains=keywords)
+        keyword_filter = keyword_filter | Q(workshop_registration_setting__workshop__description__icontains=keywords)
+        keyword_filter = keyword_filter | Q(workshop_registration_setting__workshop__location__icontains=keywords)
+
+        query_filter = query_filter & keyword_filter
+
+      # Convert the choices into a list of When cases
+      when_cases = [When(status=key, then=Value(value)) for key, value in models.WORKSHOP_REGISTRATION_STATUS_CHOICES]
+
+      # Default case if none of the choices match
+      default_case = Value('Unknown')
+
+      registrations = models.Registration.objects.all().annotate(
+        status_display=Case(
+            *when_cases,
+            default=default_case,
+            output_field=CharField(),
+        )).filter(query_filter).distinct()
 
       all_registration_summary = {
         '# of Workshops': len(list(set(list(registrations.values_list('workshop_registration_setting__workshop__id', flat=True))))),
@@ -4426,7 +4451,6 @@ def workshopsRegistrantsSearch(request):
 
         ).filter(id__in=registrations.values_list('workshop_registration_setting__workshop__id', flat=True))
 
-
       workplaces = models.WorkPlace.objects.all().annotate(
         total_workshops = Count('work_place_to_registration__registration__workshop_registration_setting__workshop__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
         total_registrants=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
@@ -4456,8 +4480,6 @@ def workshopsRegistrantsSearch(request):
 
         ).filter(id__in=registrations.values_list('user__id', flat=True))
 
-
-
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
 
@@ -4468,17 +4490,45 @@ def workshopsRegistrantsSearch(request):
       if sort_by:
         if sort_by == 'title':
           registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
+          workshops_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+          workplaces_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
         elif sort_by == 'start_date':
           registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__start_date', 'direction': 'asc', 'ignorecase': 'false'})
           workshops_sort_order.append({'order_by': 'start_date', 'direction': 'asc', 'ignorecase': 'false'})
-        elif sort_by == 'status':
-          registrations_sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
-        elif sort_by == 'workplace':
           workplaces_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
-        elif sort_by == 'user':
           users_sort_order.append({'order_by': 'user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
           users_sort_order.append({'order_by': 'user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'status':
+          registrations_sort_order.append({'order_by': 'status_display', 'direction': 'asc', 'ignorecase': 'true'})
+          workshops_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+          workplaces_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'workplace':
+          registrations_sort_order.append({'order_by': 'status_display', 'direction': 'asc', 'ignorecase': 'true'})
+          workshops_sort_order.append({'order_by': 'start_date', 'direction': 'asc', 'ignorecase': 'false'})
+          workplaces_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
+        elif sort_by == 'user':
+          registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
+          workshops_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+          workplaces_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+          users_sort_order.append({'order_by': 'user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
+        else:
+          registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
+          workshops_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
+          workplaces_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
+          users_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
 
+      else:
+          registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
+          workshops_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
+          workplaces_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
+          users_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
 
       registrations_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
       workshops_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})

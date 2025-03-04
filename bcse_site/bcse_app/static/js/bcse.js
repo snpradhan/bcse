@@ -432,8 +432,9 @@ function bindSelect2() {
   $('select.select2:not(#id_equipment_types)').select2({
     placeholder: {
       id: '-1', // the value of the option
-      text: '---------'
-    }
+      text: 'Start typing to search and select one or more'
+    },
+    width : '100%'
   });
 }
 
@@ -479,18 +480,29 @@ function exportTablesToExcel(tables, filename, filter) {
   }
 
   if(filter) {
-    const form = document.getElementById($('.filter_form').attr('id'));
-    const formData = new FormData(form);
 
-    // Convert the data into a 2D array (for SheetJS compatibility)
-    var data = [['Field', 'Value']];  // Add headers (Field and Value)
-    formData.forEach((value, key) => {
-      data.push([key, value]);
+    var formData = [
+      ['Field', 'Value']
+    ];
+
+    $('.filter_form').find('select').each(function () {
+      var fieldName = $(this).closest('.form-group').find('label').text().trim();
+      var fieldValue = $(this).find('option:selected').map(function() {
+                                                              return $(this).text();  // Get the text of each selected option
+                                                          }).get().join('\n');
+
+      formData.push([fieldName, fieldValue]); // Add the field name and value to the table array
+    });
+
+    $('.filter_form').find('input[type="text"]').each(function(){
+      var fieldName = $(this).closest('.form-group').find('label').text().trim();
+      var fieldValue = $(this).val();
+      formData.push([fieldName, fieldValue]);
     });
 
     // Create a worksheet from the 2D data array
-    var ws_filter = XLSX.utils.aoa_to_sheet(data);
-    XLSX.utils.book_append_sheet(wb, ws_filter, 'Filters Applied');
+    var ws_filter = XLSX.utils.aoa_to_sheet(formData);
+    XLSX.utils.book_append_sheet(wb, ws_filter, 'Applied Filters');
 
   }
   // Export the workbook

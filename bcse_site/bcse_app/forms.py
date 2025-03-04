@@ -1505,15 +1505,18 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
 
   workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
   workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
-  user = forms.ModelChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
-  work_place = forms.ModelChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
-                                  )
+  #user = forms.ModelChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
+  user = forms.ModelMultipleChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=forms.SelectMultiple(attrs={'size':6}))
+
+  #work_place = forms.ModelChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),)
+  work_place = forms.ModelMultipleChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=forms.SelectMultiple(attrs={'size':6}))
   #year = forms.ChoiceField(required=False, choices=models.YEAR_CHOICES)
   starts_after = forms.DateField(required=False, label=u'Starts on/after')
   ends_before = forms.DateField(required=False, label=u'Ends on/before')
 
   status = forms.MultipleChoiceField(required=False, label=u"Registration Status", choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
-  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Workshop Title'), ('start_date', 'Workshop Start Date'), ('status', 'Registration Status'), ('workplace', 'Workplace'), ('user', 'User')))
+  keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('attendance', 'Attendance'), ('title', 'Workshop Title'), ('start_date', 'Workshop Start Date'), ('status', 'Registration Status'), ('workplace', 'Workplace'), ('user', 'User')))
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
@@ -1539,7 +1542,7 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
 
       if field_name in ['starts_after', 'ends_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
-      elif field_name in ['workshop_category', 'workshop', 'status'] or 'tag' in field_name:
+      elif field_name in ['workshop_category', 'workshop', 'status', 'user', 'work_place'] or 'tag' in field_name:
         field.widget.attrs['class'] = 'form-control select2'
       else:
         field.widget.attrs['class'] = 'form-control'

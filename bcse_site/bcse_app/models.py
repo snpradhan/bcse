@@ -461,6 +461,7 @@ class Registration(models.Model):
   def __str__(self):
       return '%s - Registration' % (self.workshop_registration_setting.workshop.name)
 
+
 #################################################################
 # Workplace associated with creating the registration record
 #############################################################
