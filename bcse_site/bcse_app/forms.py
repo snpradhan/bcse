@@ -1643,8 +1643,8 @@ class WorkPlacesSearchForm(ModelForm):
 class BaxterBoxUsageSearchForm(forms.Form):
   from_date = forms.DateField(required=False, label=u'From')
   to_date = forms.DateField(required=False, label=u'To')
-  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),)
-  user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
+  work_place = forms.ModelMultipleChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=forms.SelectMultiple(attrs={'size':7}))
+  user = forms.ModelMultipleChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=forms.SelectMultiple(attrs={'size':7}))
   activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':7}))
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':7}))
   consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':5}))
@@ -1656,16 +1656,28 @@ class BaxterBoxUsageSearchForm(forms.Form):
     initials = kwargs.pop('initials')
     super(BaxterBoxUsageSearchForm, self).__init__(*args, **kwargs)
 
+    sub_tag_ids = list(models.EquipmentType.objects.all().values_list('tags', flat=True)) + list(models.Activity.objects.all().values_list('tags', flat=True))
+    tag_ids = models.SubTag.objects.all().filter(id__in=sub_tag_ids).values_list('tag', flat=True)
+
+    for tag_id in list(set(tag_ids)):
+      tag = models.Tag.objects.get(id=tag_id)
+      if tag.status == 'A':
+        sub_tags = models.SubTag.objects.all().filter(tag=tag, status='A', id__in=sub_tag_ids)
+        self.fields['tag_'+str(tag.id)] = forms.MultipleChoiceField(
+                                                required=False,
+                                                widget=forms.SelectMultiple(),
+                                                choices=[(sub.id, sub.name) for sub in sub_tags],
+                                            )
+        self.fields['tag_'+str(tag.id)].label = tag.name
+
+
     for field_name, field in self.fields.items():
       if field_name in ['from_date', 'to_date']:
         field.widget.attrs['class'] = 'form-control datepicker'
-      elif field_name in ['activity', 'equipment', 'consumable', 'status']:
-        field.widget.attrs['class'] = 'form-control'
+      elif field_name in ['work_place', 'user', 'activity', 'equipment', 'consumable', 'status'] or 'tag' in field_name:
+        field.widget.attrs['class'] = 'form-control select2'
       else:
         field.widget.attrs['class'] = 'form-control'
-
-      if field_name in ['activity', 'equipment', 'consumable', 'status']:
-        field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text

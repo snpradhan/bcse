@@ -51,6 +51,7 @@
     </table>
   </div>
   <div id="equipment_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="equipment_summary-tab">
+    {% if equipment_usage %}
     {% include "bcse_app/Pagination.html" with model=equipment_usage location='top'%}
     <table class="table table-bordered table-striped export" id="equipment_summary">
       <thead>
@@ -85,117 +86,132 @@
       </tbody>
     </table>
     {% include "bcse_app/Pagination.html" with model=equipment_usage location='bottom'%}
+    {% else %}
+      <div class="warning center">No equipment matching your search criteria found</div>
+    {% endif %}
   </div>
   <div id="lab_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="lab_summary-tab">
-    {% include "bcse_app/Pagination.html" with model=kit_usage location='top'%}
-    <table class="table table-bordered table-striped export" id="lab_summary">
-      <thead>
-        <tr>
-          <th> Activity Kit</th>
-          <th> Unit Cost ($)</th>
-          <th> Usage Count </th>
-          <th> Total Cost ($)</th>
-          <th> # of Unique Teachers </th>
-          <th> # of Unique Workplaces </th>
-          <th> # of Classes </th>
-          <th> # of Students </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for kit in kit_usage %}
+    {% if kit_usage %}
+      {% include "bcse_app/Pagination.html" with model=kit_usage location='top'%}
+      <table class="table table-bordered table-striped export" id="lab_summary">
+        <thead>
           <tr>
-            <td>{{kit.name}}</td>
-            <td>{{kit.unit_cost|floatformat:2|default_if_none:""}}</td>
-            <td>{{kit.count}}</td>
-            <td>
-              {% if kit.count > 0 and kit.unit_cost > 0 %}
-                {{kit.count|multiply:kit.unit_cost|floatformat:"2"}}
-              {% endif %}
-            </td>
-            <td>{{kit.teachers|length}}</td>
-            <td>{{kit.workplaces|length}}</td>
-            <td>{{kit.classes}}</td>
-            <td>{{kit.students}}</td>
+            <th> Activity Kit</th>
+            <th> Unit Cost ($)</th>
+            <th> Usage Count </th>
+            <th> Total Cost ($)</th>
+            <th> # of Unique Teachers </th>
+            <th> # of Unique Workplaces </th>
+            <th> # of Classes </th>
+            <th> # of Students </th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% include "bcse_app/Pagination.html" with model=kit_usage location='bottom'%}
+        </thead>
+        <tbody>
+          {% for kit in kit_usage %}
+            <tr>
+              <td>{{kit.name}}</td>
+              <td>{{kit.unit_cost|floatformat:2|default_if_none:""}}</td>
+              <td>{{kit.count}}</td>
+              <td>
+                {% if kit.count > 0 and kit.unit_cost > 0 %}
+                  {{kit.count|multiply:kit.unit_cost|floatformat:"2"}}
+                {% endif %}
+              </td>
+              <td>{{kit.teachers|length}}</td>
+              <td>{{kit.workplaces|length}}</td>
+              <td>{{kit.classes}}</td>
+              <td>{{kit.students}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=kit_usage location='bottom'%}
+    {% else %}
+      <div class="warning center">No lab activity matching your search criteria found</div>
+    {% endif %}
   </div>
   <div id="consumable_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="consumable_summary-tab">
-    {% include "bcse_app/Pagination.html" with model=consumable_usage location='top'%}
-    <table class="table table-bordered table-striped export" id="consumable_summary">
-      <thead>
-        <tr>
-          <th> Consumable</th>
-          <th> Unit Cost ($)</th>
-          <th> Usage Count </th>
-          <th> Total Cost ($)</th>
-          <th> # of Unique Teachers </th>
-          <th> # of Unique Workplaces </th>
-          <th> # of Classes </th>
-          <th> # of Students </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for consumable in consumable_usage %}
+    {% if consumable_usage %}
+      {% include "bcse_app/Pagination.html" with model=consumable_usage location='top'%}
+      <table class="table table-bordered table-striped export" id="consumable_summary">
+        <thead>
           <tr>
-            <td>{{consumable.name}}</td>
-            <td>{{consumable.unit_cost|floatformat:"2"|default_if_none:""}}</td>
-            <td>{{consumable.count}}</td>
-            <td>
-              {% if consumable.count > 0 and consumable.unit_cost > 0 %}
-                {{consumable.count|multiply:consumable.unit_cost|floatformat:"2"}}
-              {% endif %}
-            </td>
-            <td>{{consumable.teachers|length}}</td>
-            <td>{{consumable.workplaces|length}}</td>
-            <td>{{consumable.classes}}</td>
-            <td>{{consumable.students}}</td>
+            <th> Consumable</th>
+            <th> Unit Cost ($)</th>
+            <th> Usage Count </th>
+            <th> Total Cost ($)</th>
+            <th> # of Unique Teachers </th>
+            <th> # of Unique Workplaces </th>
+            <th> # of Classes </th>
+            <th> # of Students </th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% include "bcse_app/Pagination.html" with model=consumable_usage location='bottom'%}
+        </thead>
+        <tbody>
+          {% for consumable in consumable_usage %}
+            <tr>
+              <td>{{consumable.name}}</td>
+              <td>{{consumable.unit_cost|floatformat:"2"|default_if_none:""}}</td>
+              <td>{{consumable.count}}</td>
+              <td>
+                {% if consumable.count > 0 and consumable.unit_cost > 0 %}
+                  {{consumable.count|multiply:consumable.unit_cost|floatformat:"2"}}
+                {% endif %}
+              </td>
+              <td>{{consumable.teachers|length}}</td>
+              <td>{{consumable.workplaces|length}}</td>
+              <td>{{consumable.classes}}</td>
+              <td>{{consumable.students}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=consumable_usage location='bottom'%}
+    {% else %}
+      <div class="warning center">No consumables matching your search criteria found</div>
+    {% endif %}
   </div>
 
   <div id="workplace_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="workplace_summary-tab">
-    {% include "bcse_app/Pagination.html" with model=workplace_usage location='top'%}
-    <table class="table table-bordered table-striped export" id="workplace_summary">
-      <thead>
-        <tr>
-          <th> Workplace</th>
-          <th> Total # of Reservations </th>
-          <th> Total # of Equipment</th>
-          <th> Total Equipment Cost ($)</th>
-          <th> Total # of Activity Kits Used </th>
-          <th> Total Activity Kit Cost ($)</th>
-          <th> Total # of Consumables Used </th>
-          <th> Total Consumables Cost ($)</th>
-          <th> Total # of Unique Teachers </th>
-          <th> Total # of Classes </th>
-          <th> Total # of Students </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for workplace in workplace_usage %}
+    {% if workplace_usage %}
+      {% include "bcse_app/Pagination.html" with model=workplace_usage location='top'%}
+      <table class="table table-bordered table-striped export" id="workplace_summary">
+        <thead>
           <tr>
-            <td>{{workplace.name}}</td>
-            <td>{{workplace.reservations}}</td>
-            <td>{{workplace.equipment}}</td>
-            <td>{{workplace.total_equipment_cost|floatformat:"2"}}</td>
-            <td>{{workplace.kits}}</td>
-            <td>{{workplace.total_kit_cost|floatformat:"2"}}</td>
-            <td>{{workplace.consumables}}</td>
-            <td>{{workplace.total_consumables_cost|floatformat:"2"}}</td>
-            <td>{{workplace.teachers|length}}</td>
-            <td>{{workplace.classes}}</td>
-            <td>{{workplace.students}}</td>
+            <th> Workplace</th>
+            <th> Total # of Reservations </th>
+            <th> Total # of Equipment</th>
+            <th> Total Equipment Cost ($)</th>
+            <th> Total # of Activity Kits Used </th>
+            <th> Total Activity Kit Cost ($)</th>
+            <th> Total # of Consumables Used </th>
+            <th> Total Consumables Cost ($)</th>
+            <th> Total # of Unique Teachers </th>
+            <th> Total # of Classes </th>
+            <th> Total # of Students </th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% include "bcse_app/Pagination.html" with model=workplace_usage location='bottom'%}
+        </thead>
+        <tbody>
+          {% for workplace in workplace_usage %}
+            <tr>
+              <td>{{workplace.name}}</td>
+              <td>{{workplace.reservations}}</td>
+              <td>{{workplace.equipment}}</td>
+              <td>{{workplace.total_equipment_cost|floatformat:"2"}}</td>
+              <td>{{workplace.kits}}</td>
+              <td>{{workplace.total_kit_cost|floatformat:"2"}}</td>
+              <td>{{workplace.consumables}}</td>
+              <td>{{workplace.total_consumables_cost|floatformat:"2"}}</td>
+              <td>{{workplace.teachers|length}}</td>
+              <td>{{workplace.classes}}</td>
+              <td>{{workplace.students}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=workplace_usage location='bottom'%}
+    {% else %}
+      <div class="warning center">No workplace matching your search criteria found</div>
+    {% endif %}
   </div>
 
 </div>
@@ -216,7 +232,7 @@
       var tables = $('table.export').map(function() {
         return this.id;
       }).get();
-      exportTablesToExcel(tables, 'Baxter Box Usage.xlsx', false);
+      exportTablesToExcel(tables, 'Baxter Box Usage.xlsx', true);
     }
 
   });

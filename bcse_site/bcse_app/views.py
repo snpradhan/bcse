@@ -2355,8 +2355,8 @@ def baxterBoxUsageReportSearch(request):
 
       from_date = request.GET.get('usage-from_date', '')
       to_date = request.GET.get('usage-to_date', '')
-      work_place = request.GET.get('usage-work_place', '')
-      user = request.GET.get('usage-user', '')
+      work_place = request.GET.getlist('usage-work_place', '')
+      user = request.GET.getlist('usage-user', '')
       activity = request.GET.getlist('usage-activity', '')
       consumable = request.GET.getlist('usage-consumable', '')
       equipment = request.GET.getlist('usage-equipment', '')
@@ -2365,7 +2365,7 @@ def baxterBoxUsageReportSearch(request):
       page = request.GET.get('page', '')
 
        #set session variable
-      request.session['baxter_box_usage_search'] = {
+      request.session['baxter_box_usage_search'] = baxter_box_usage_search_vars = {
         'from_date': from_date,
         'to_date': to_date,
         'work_place': work_place,
@@ -2378,21 +2378,31 @@ def baxterBoxUsageReportSearch(request):
         'page': page
       }
 
+      tags = []
+      for tag in models.Tag.objects.all().filter(status='A'):
+        sub_tags = request.GET.getlist('usage-tag_%s'%tag.id, '')
+        if sub_tags:
+          baxter_box_usage_search_vars['tag_'+str(tag.id)] = sub_tags
+          tags.append(sub_tags)
+
+
       if from_date:
         from_date = datetime.datetime.strptime(from_date, '%B %d, %Y')
         query_filter = query_filter & Q(delivery_date__gte=from_date)
+        filter_selected = True
 
       if to_date:
         to_date = datetime.datetime.strptime(to_date, '%B %d, %Y')
         query_filter = query_filter & Q(delivery_date__lte=to_date)
         query_filter = query_filter & Q(Q(return_date__lte=to_date) | Q(return_date__isnull=True))
+        filter_selected = True
 
       if work_place:
-        query_filter = query_filter & Q(reservation_to_work_place__work_place=work_place)
+        query_filter = query_filter & Q(reservation_to_work_place__work_place__in=work_place)
         filter_selected = True
 
       if user:
-        query_filter = query_filter & Q(user=user)
+        query_filter = query_filter & Q(user__in=user)
         filter_selected = True
 
       if activity:
@@ -2409,6 +2419,15 @@ def baxterBoxUsageReportSearch(request):
 
       if equipment:
         query_filter = query_filter & Q(equipment__equipment_type__id__in=equipment)
+        filter_selected = True
+
+      if tags:
+        tags_filter = Q()
+        for sub_tags in tags:
+          tags_filter = tags_filter & Q(Q(equipment__equipment_type__tags__id__in=sub_tags) | Q(activity__tags__id__in=sub_tags))
+
+        query_filter = query_filter & tags_filter
+
         filter_selected = True
 
       print(query_filter)
@@ -2510,20 +2529,20 @@ def baxterBoxUsageReportSearch(request):
         remove_workplaces = []
 
         for workplace_id, usage in workplace_usage.items():
-         if usage['reservations'] == 0 and len(usage['teachers']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
-          remove_workplaces.append(workplace_id)
+          if usage['reservations'] == 0 and len(usage['teachers']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
+            remove_workplaces.append(workplace_id)
 
         for equipment_type_id, usage in equipment_usage.items():
-           if usage['reservations'] == 0 and len(usage['teachers']) == 0 and len(usage['workplaces']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
-             remove_equipment.append(equipment_type_id)
+          if usage['reservations'] == 0 and len(usage['teachers']) == 0 and len(usage['workplaces']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
+           remove_equipment.append(equipment_type_id)
 
         for activity_id, usage in kit_usage.items():
           if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['workplaces']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
-             remove_kit.append(activity_id)
+            remove_kit.append(activity_id)
 
         for consumable_id, usage in consumable_usage.items():
           if usage['count'] == 0 and len(usage['teachers']) == 0 and len(usage['workplaces']) == 0 and usage['classes'] == 0 and usage['students'] == 0:
-             remove_consumable.append(consumable_id)
+            remove_consumable.append(consumable_id)
 
         for workplace_id in remove_workplaces:
           del workplace_usage[workplace_id]
