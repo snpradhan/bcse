@@ -1863,7 +1863,7 @@ class GiveawayRequestForm(ModelForm):
     max_quantity = None
     #creating a new request
     if self.instance.id is None:
-      if current_status in ['A', 'P']:
+      if current_status is None or current_status in ['A', 'P']:
         if giveaway.max_quantity_allowed:
           max_quantity = min(giveaway.max_quantity_allowed, giveaway.available_quantity)
         else:
