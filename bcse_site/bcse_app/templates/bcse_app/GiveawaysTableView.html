@@ -42,10 +42,16 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:giveawayDelete' giveaway.id %}"
-                  data-title="<strong>{{giveaway.name}}</strong>">
-                    Delete
-                  </a>
+                  {% if giveaway.request_detail.count > 0 %}
+                    <a class="dropdown-item action" onclick="displayWarningDialog('<strong>{{giveaway.name}}</strong> is associated with {{ giveaway.request_detail.count }} requests and cannot be deleted');">
+                      Delete
+                    </a>
+                  {% else %}
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:giveawayDelete' giveaway.id %}"
+                    data-title="<strong>{{giveaway.name}}</strong>">
+                      Delete
+                    </a>
+                  {% endif %}
                 </li>
               </ul>
             </div>

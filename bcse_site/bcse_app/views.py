@@ -8878,7 +8878,7 @@ def giveawayRequestEdit(request, id=''):
 @login_required
 def giveawayRequestDelete(request, id=''):
   """
-  giveawayDelete is called from the path 'adminConfiguration/giveaways'
+  giveawayRequestDelete is called from the path 'adminConfiguration/giveaways'
   :param request: request from the browser
   :param id='': id of the giveaway to delete
   :returns: redirects to giveaways page if giveaway successfully deleted
