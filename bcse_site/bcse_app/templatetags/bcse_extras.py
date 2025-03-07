@@ -289,3 +289,13 @@ def is_activity_low_in_stock(context, id):
 def get_low_stock_message(context, id):
   request = context.get('request')
   return views.get_low_stock_message(id)
+
+@register.filter
+def get_registrants_email(workshop_email):
+  registration_email_addresses = None
+  if workshop_email.registration_status:
+    #get the receipients
+    registration_status = workshop_email.registration_status.split(',')
+    registration_email_addresses = list(models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_email.workshop.id, status__in=registration_status).values_list('user__user__email', flat=True))
+
+  return registration_email_addresses

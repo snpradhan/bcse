@@ -3968,9 +3968,10 @@ def workshopEmailSend(request, workshop_id='', id=''):
       if workshop_email.registration_status and workshop_email.email_subject and workshop_email.email_message:
         #get the receipients
         registration_status = workshop_email.registration_status.split(',')
-        email_addresses = list(models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status).values_list('user__user__email', flat=True))
+        registration_email_addresses = list(models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status).values_list('user__user__email', flat=True))
+
         if workshop_email.email_to:
-          email_addresses += workshop_email.email_to.split(';')
+          email_addresses = registration_email_addresses + workshop_email.email_to.split(';')
 
         if email_addresses:
 
@@ -3994,6 +3995,7 @@ def workshopEmailSend(request, workshop_id='', id=''):
           if sent:
             workshop_email.email_status = 'S'
             workshop_email.sent_date = datetime.datetime.now()
+            workshop_email.registration_email_addresses = ';'.join(registration_email_addresses)
             workshop_email.save()
             messages.success(request, 'The email message with id %s has been sent' % id)
           else:
@@ -4041,6 +4043,7 @@ def workshopEmailCopy(request, workshop_id='', id=''):
       workshop_email.id = None
       workshop_email.email_status = 'D'
       workshop_email.sent_date = None
+      workshop_email.registration_email_addresses = None
       workshop_email.created_date = datetime.datetime.now()
       workshop_email.modified_date = datetime.datetime.now()
       workshop_email.save()

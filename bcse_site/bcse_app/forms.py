@@ -997,7 +997,7 @@ class WorkshopEmailForm(ModelForm):
 
   class Meta:
     model = models.WorkshopEmail
-    exclude = ('registration_status', 'email_status', 'scheduled_date', 'sent_date', 'created_date', 'modified_date')
+    exclude = ('registration_status', 'registration_email_addresses', 'email_status', 'scheduled_date', 'sent_date', 'created_date', 'modified_date')
 
   def __init__(self, *args, **kwargs):
 
@@ -1007,7 +1007,9 @@ class WorkshopEmailForm(ModelForm):
       if field_name == 'registration_statuses':
         field.widget.attrs['class'] = 'form-control select2'
       else:
-         field.widget.attrs['class'] = 'form-control'
+        if field_name == 'email_to':
+          field.label = 'Email Cc'
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       #field.widget.attrs['placeholder'] = field.help_text
 

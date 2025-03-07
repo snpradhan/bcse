@@ -14,6 +14,7 @@
             <th>ID</th>
             <th>Registration Status(s)</th>
             <th>Email To</th>
+            <th>Email Cc</th>
             <th>Email Subject</th>
             <th>Email Status</th>
             <th>Sent Date</th>
@@ -27,6 +28,23 @@
             <tr>
               <td>{{email.id}}</td>
               <td>{{email.get_registration_status_display|safe}}</td>
+              <td>
+
+                  <a data-bs-toggle="collapse" href="#registrants_{{email.id}}" role="button" aria-expanded="false" aria-controls="registrants_{{email.id}}">
+                    View emails
+                  </a>
+                  <div class="collapse" id="registrants_{{email.id}}">
+                    {% if email.registration_email_addresses %}
+                      {% for e in email.registration_email_addresses|split:';' %}
+                        {{e}} <br>
+                      {% endfor %}
+                    {% else %}
+                      {% for e in email|get_registrants_email %}
+                        {{e}} <br>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+              </td>
               <td>
                 {% for address in email.email_to|split:';' %}
                   {{address}}<br>

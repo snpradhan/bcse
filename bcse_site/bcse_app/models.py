@@ -500,6 +500,7 @@ class RegistrationEmailMessage(models.Model):
 class WorkshopEmail(models.Model):
   workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_email")
   registration_status = models.CharField(null=False, blank=False, max_length=50, help_text='One or more registration statuses this email is sent to')
+  registration_email_addresses = models.TextField(null=True, blank=True)
   email_to = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by commas')
   email_subject = models.CharField(null=False, max_length=256)
   email_message = RichTextField(null=False, blank=False)
