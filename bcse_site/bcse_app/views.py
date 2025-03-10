@@ -8538,7 +8538,8 @@ def giveawaysSearch(request):
       if status_filter:
         query_filter = query_filter & status_filter
 
-      giveaways = models.Giveaway.objects.all().filter(query_filter)
+      giveaways = models.Giveaway.objects.all().annotate(approved=Count('request_detail__id', filter=Q(request_detail__status='A')),
+        pending=Count('request_detail__id', filter=Q(request_detail__status='P'))).filter(query_filter)
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'

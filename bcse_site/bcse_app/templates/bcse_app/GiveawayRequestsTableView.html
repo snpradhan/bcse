@@ -8,6 +8,9 @@
         <th> Email </th>
         <th> Workplace </th>
         <th> Requested Item </th>
+        <th> Max Qty. </th>
+        <th> Available Qty. </th>
+        <th> On Hold Qty. </th>
         <th> Requested Qty. </th>
         <th> Request Status </th>
         <th> Delivery Status </th>
@@ -37,6 +40,9 @@
             {% endwith %}
           </td>
           <td> {{giveaway_request.giveaway.name}}</td>
+          <td> {{giveaway_request.giveaway.max_quantity_allowed}}</td>
+          <td> {{giveaway_request.giveaway.available_quantity}}</td>
+          <td> {{giveaway_request.giveaway.on_hold_quantity}}</td>
           <td> {{giveaway_request.requested_quantity}}</td>
           <td> {{giveaway_request.get_status_display}} </td>
           <td> {{giveaway_request.get_delivery_status_display|default_if_none:""}} </td>
