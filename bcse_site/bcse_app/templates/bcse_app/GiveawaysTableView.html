@@ -3,18 +3,22 @@
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th> ID</th>
-        <th> Name </th>
-        <th> Description </th>
-        <th> Image </th>
-        <th> Max Qty. </th>
-        <th> Available Qty. </th>
-        <th> On Hold Qty. </th>
-        <th> Given Qty. </th>
-        <th> Status </th>
-        <th> Created Date</th>
-        <th> Modified Date </th>
-        <th> Action </th>
+        <th rowspan="2"> ID</th>
+        <th rowspan="2"> Name </th>
+        <th rowspan="2"> Description </th>
+        <th rowspan="2"> Max Qty. </th>
+        <th rowspan="2"> Available Qty. </th>
+        <th rowspan="2"> On Hold Qty. </th>
+        <th rowspan="2"> Given Qty. </th>
+        <th colspan="2" class="center"> # of Requests</th>
+        <th rowspan="2"> Status </th>
+        <th rowspan="2"> Created Date</th>
+        <th rowspan="2"> Modified Date </th>
+        <th rowspan="2"> Action </th>
+      </tr>
+      <tr>
+        <th> Pending </th>
+        <th> Approved </th>
       </tr>
     </thead>
     <tbody>
@@ -23,11 +27,12 @@
           <td> {{giveaway.id}}</td>
           <td> {{giveaway.name}} </td>
           <td> {{giveaway.description|safe}} </td>
-          <td> {{giveaway.image}} </td>
           <td> {{giveaway.max_quantity_allowed|default_if_none:""}} </td>
           <td> {{giveaway.available_quantity|default_if_none:""}} </td>
           <td> {{giveaway.on_hold_quantity|default_if_none:""}} </td>
           <td> {{giveaway.given_quantity|default_if_none:""}} </td>
+          <td> {{giveaway.pending}}</td>
+          <td> {{giveaway.approved}}</td>
           <td> {{giveaway.get_status_display}} </td>
           <td> {{giveaway.created_date|date:"F j, Y g:i A"}}</td>
           <td> {{giveaway.modified_date|date:"F j, Y g:i A"}} </td>
