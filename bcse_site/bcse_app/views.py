@@ -165,7 +165,7 @@ def baxterBoxInfo(request):
     blackout_messages = models.BaxterBoxMessage.objects.all().filter(status='A', message_type='B')
 
     activities = models.Activity.objects.all().filter(status='A').distinct()
-    equipment_types = models.EquipmentType.objects.all().filter(status='A').distinct().order_by('order')
+    equipment_types = models.EquipmentType.objects.all().filter(status='A', featured=True).distinct().order_by('order')
     if request.session.get('baxter_box_search', False):
       searchForm = forms.BaxterBoxSearchForm(initials=request.session['baxter_box_search'])
     else:

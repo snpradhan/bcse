@@ -345,6 +345,7 @@ class EquipmentType(models.Model):
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment type')
   tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   order = models.IntegerField(null=False, blank=False)
+  featured =  models.BooleanField(default=True, help_text='If marked "Featured", this equipment will be displayed on "The Baxter Box Program" page')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
