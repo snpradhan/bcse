@@ -11,6 +11,18 @@
     <div class="activity_info">
       <div class="activity_details">
         <div class="wysiwyg_content">{{activity.description|safe}}</div>
+        {% regroup activity.tags.all by tag as tag_list %}
+        <ul>
+          {% for tag in tag_list %}
+            <li>
+              <strong>{{tag.grouper}}</strong>:
+              {% for subtag in tag.list %}
+                {{subtag.name}} {% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </li>
+          {% endfor %}
+        </ul>
+
       </div>
       <br>
       <div>
