@@ -20,6 +20,7 @@
           <th> Reserved </th>
           <th> Order </th>
           <th> Tags </th>
+          <th> Featured? </th>
           <th> Unit Cost ($) </th>
           <th> Created Date</th>
           <th> Modified Date </th>
@@ -41,6 +42,7 @@
                   {{tag}} <br>
                  {% endfor %}
             </td>
+            <td>{{equipment_type.featured|yesno:"Yes,No"}}</td>
             <td> {{equipment_type.unit_cost|default_if_none:""}}</td>
             <td> {{equipment_type.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{equipment_type.modified_date|date:"F j, Y g:i A"}} </td>

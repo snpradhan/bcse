@@ -557,7 +557,10 @@ class EquipmentTypeForm(ModelForm):
 
     self.fields['tags'].label = 'Tags'
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'featured':
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -598,8 +601,9 @@ class EquipmentAvailabilityForm (forms.Form):
 
 
 class ReservationForm(ModelForm):
-  equipment_types = forms.MultipleChoiceField(required=False,
-                                  choices=[(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')], widget=forms.CheckboxSelectMultiple())
+  equipment_types = forms.ModelMultipleChoiceField(required=False,
+                                  queryset=models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order'), widget=forms.CheckboxSelectMultiple())
+
   confirm_workplace = forms.ChoiceField(required=True, choices=[('', '---------'), ('Y', 'Yes'),('N', 'No, update my workplace'),],)
 
   class Meta:
@@ -638,12 +642,9 @@ class ReservationForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
-    self.fields['equipment_types'].choices = [(equip.id, equip.name) for equip in models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')]
+    self.fields['equipment_types'].queryset = models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')
     if self.instance.id:
-      initial = []
-      for equipment in self.instance.equipment.all():
-        initial.append(equipment.equipment_type.id)
-      self.fields['equipment_types'].initial = initial
+      self.fields['equipment_types'].initial = models.EquipmentType.objects.all().filter(equipment__in=self.instance.equipment.all())
       self.fields['user'].widget.attrs['disabled'] = True
       if self.instance.activity:
         self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A') | models.Activity.objects.all().filter(id=self.instance.activity.id)
