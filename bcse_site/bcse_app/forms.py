@@ -634,6 +634,8 @@ class ReservationForm(ModelForm):
             field.widget.attrs['class'] = 'form-control datepicker reservation_return_date reservation_date'
             field.widget.attrs['title'] = 'Click here to open a calender popup to select return date'
           field.widget.attrs['readonly'] = True
+        elif field_name == 'activity':
+          field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
       else:
