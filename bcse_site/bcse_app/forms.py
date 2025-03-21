@@ -1680,6 +1680,7 @@ class BaxterBoxUsageSearchForm(forms.Form):
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':7}))
   consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':5}))
   status = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':5}))
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('name', 'Name'), ('reservations', '# of Reservations'), ('usage', 'Usage Count'), ('total_cost', 'Total Cost'), ('teachers', '# of Teachers'), ('workplaces', '# of Workplaces'), ('classes', '# of Classes'), ('students', '# of Students')), initial='name')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   def __init__(self, *args, **kwargs):
