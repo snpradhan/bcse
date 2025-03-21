@@ -1,4 +1,5 @@
 {% load bcse_extras %}
+{% load humanize %}
 <ul class="nav nav-tabs mb-3" id="baxter_box_usage_tab" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="baxter_box_summary-tab" data-bs-toggle="tab" data-bs-target="#baxter_box_summary_container" type="button" role="tab" aria-controls="baxter_box_summary_container" aria-selected="true" ><label>Baxter Box Summary</label></button>
@@ -37,13 +38,13 @@
       <tbody>
         <tr>
           <td>{{total_usage.reservations}}</td>
-          <td>{{total_usage.total_equipment_cost|floatformat:"2"}}</td>
+          <td>{{total_usage.total_equipment_cost|floatformat:"2"|intcomma}}</td>
           <td>{{total_usage.kits}}</td>
-          <td>{{total_usage.total_kit_cost|floatformat:"2"}}</td>
+          <td>{{total_usage.total_kit_cost|floatformat:"2"|intcomma}}</td>
           <td>{{total_usage.consumables}}</td>
-          <td>{{total_usage.total_consumables_cost|floatformat:"2"}}</td>
-          <td>{{total_usage.teachers|length}}</td>
-          <td>{{total_usage.workplaces|length}}</td>
+          <td>{{total_usage.total_consumables_cost|floatformat:"2"|intcomma}}</td>
+          <td>{{total_usage.teacher_count}}</td>
+          <td>{{total_usage.workplace_count}}</td>
           <td>{{total_usage.classes}}</td>
           <td>{{total_usage.students}}</td>
         </tr>
@@ -56,29 +57,25 @@
     <table class="table table-bordered table-striped export" id="equipment_summary">
       <thead>
         <tr>
-          <th> Equipment</th>
+          <th> Equipment {% if sort_by == 'name' %} &nbsp; <i class="fa-regular fa-arrow-down-short-wide"></i> {% endif %}</th>
           <th> Unit Cost ($)</th>
-          <th> # of Reservation </th>
-          <th> Total Cost ($)</th>
-          <th> # of Unique Teachers </th>
-          <th> # of Unique Workplaces </th>
-          <th> # of Classes </th>
-          <th> # of Students </th>
+          <th> # of Reservation {% if sort_by == 'reservations' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+          <th> Total Cost ($) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+          <th> # of Unique Teachers {% if sort_by == 'teachers' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+          <th> # of Unique Workplaces {% if sort_by == 'workplaces' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+          <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+          <th> # of Students {% if sort_by == 'students' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
         </tr>
       </thead>
       <tbody>
         {% for equipment in equipment_usage %}
           <tr>
             <td>{{equipment.name}}</td>
-            <td>{{equipment.unit_cost|floatformat:2|default_if_none:""}}</td>
+            <td>{{equipment.unit_cost|floatformat:2|default_if_none:""|intcomma}}</td>
             <td>{{equipment.reservations}}</td>
-            <td>
-                {% if equipment.reservations > 0 and equipment.unit_cost > 0 %}
-                  {{equipment.reservations|multiply:equipment.unit_cost|floatformat:"2"}}
-                {% endif %}
-            </td>
-            <td>{{equipment.teachers|length}}</td>
-            <td>{{equipment.workplaces|length}}</td>
+            <td>{{equipment.total_cost|floatformat:"2"|intcomma}}</td>
+            <td>{{equipment.teacher_count}}</td>
+            <td>{{equipment.workplace_count}}</td>
             <td>{{equipment.classes}}</td>
             <td>{{equipment.students}}</td>
           </tr>
@@ -96,29 +93,25 @@
       <table class="table table-bordered table-striped export" id="lab_summary">
         <thead>
           <tr>
-            <th> Activity Kit</th>
+            <th> Activity Kit {% if sort_by == 'name' %} &nbsp; <i class="fa-regular fa-arrow-down-short-wide"></i> {% endif %}</th>
             <th> Unit Cost ($)</th>
-            <th> Usage Count </th>
-            <th> Total Cost ($)</th>
-            <th> # of Unique Teachers </th>
-            <th> # of Unique Workplaces </th>
-            <th> # of Classes </th>
-            <th> # of Students </th>
+            <th> Usage Count {% if sort_by == 'usage' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> Total Cost ($) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Unique Teachers {% if sort_by == 'teachers' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Unique Workplaces {% if sort_by == 'workplaces' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Students {% if sort_by == 'students' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
           </tr>
         </thead>
         <tbody>
           {% for kit in kit_usage %}
             <tr>
               <td>{{kit.name}}</td>
-              <td>{{kit.unit_cost|floatformat:2|default_if_none:""}}</td>
+              <td>{{kit.unit_cost|floatformat:2|default_if_none:""|intcomma}}</td>
               <td>{{kit.count}}</td>
-              <td>
-                {% if kit.count > 0 and kit.unit_cost > 0 %}
-                  {{kit.count|multiply:kit.unit_cost|floatformat:"2"}}
-                {% endif %}
-              </td>
-              <td>{{kit.teachers|length}}</td>
-              <td>{{kit.workplaces|length}}</td>
+              <td>{{kit.total_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{kit.teacher_count}}</td>
+              <td>{{kit.workplace_count}}</td>
               <td>{{kit.classes}}</td>
               <td>{{kit.students}}</td>
             </tr>
@@ -136,29 +129,25 @@
       <table class="table table-bordered table-striped export" id="consumable_summary">
         <thead>
           <tr>
-            <th> Consumable</th>
+            <th> Consumable {% if sort_by == 'name' %} &nbsp; <i class="fa-regular fa-arrow-down-short-wide"></i> {% endif %}</th>
             <th> Unit Cost ($)</th>
-            <th> Usage Count </th>
-            <th> Total Cost ($)</th>
-            <th> # of Unique Teachers </th>
-            <th> # of Unique Workplaces </th>
-            <th> # of Classes </th>
-            <th> # of Students </th>
+            <th> Usage Count {% if sort_by == 'usage' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> Total Cost ($) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Unique Teachers {% if sort_by == 'teachers' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Unique Workplaces {% if sort_by == 'workplaces' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Students {% if sort_by == 'students' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
           </tr>
         </thead>
         <tbody>
           {% for consumable in consumable_usage %}
             <tr>
               <td>{{consumable.name}}</td>
-              <td>{{consumable.unit_cost|floatformat:"2"|default_if_none:""}}</td>
+              <td>{{consumable.unit_cost|floatformat:"2"|default_if_none:""|intcomma}}</td>
               <td>{{consumable.count}}</td>
-              <td>
-                {% if consumable.count > 0 and consumable.unit_cost > 0 %}
-                  {{consumable.count|multiply:consumable.unit_cost|floatformat:"2"}}
-                {% endif %}
-              </td>
-              <td>{{consumable.teachers|length}}</td>
-              <td>{{consumable.workplaces|length}}</td>
+              <td>{{consumable.total_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{consumable.teacher_count}}</td>
+              <td>{{consumable.workplace_count}}</td>
               <td>{{consumable.classes}}</td>
               <td>{{consumable.students}}</td>
             </tr>
@@ -177,17 +166,18 @@
       <table class="table table-bordered table-striped export" id="workplace_summary">
         <thead>
           <tr>
-            <th> Workplace</th>
-            <th> Total # of Reservations </th>
-            <th> Total # of Equipment</th>
-            <th> Total Equipment Cost ($)</th>
-            <th> Total # of Activity Kits Used </th>
-            <th> Total Activity Kit Cost ($)</th>
-            <th> Total # of Consumables Used </th>
-            <th> Total Consumables Cost ($)</th>
-            <th> Total # of Unique Teachers </th>
-            <th> Total # of Classes </th>
-            <th> Total # of Students </th>
+            <th> Workplace {% if sort_by == 'name' %} &nbsp; <i class="fa-regular fa-arrow-down-short-wide"></i> {% endif %} </th>
+            <th> # of Reservations {% if sort_by == 'reservations' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Equipment</th>
+            <th> Equipment Cost ($)</th>
+            <th> # of Activity Kits Used </th>
+            <th> Activity Kit Cost ($)</th>
+            <th> # of Consumables Used </th>
+            <th> Consumables Cost ($)</th>
+            <th> Total Cost ($) <br>(Equipment + Kit + Consumable) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Unique Teachers {% if sort_by == 'teachers' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Students {% if sort_by == 'students' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
           </tr>
         </thead>
         <tbody>
@@ -196,12 +186,13 @@
               <td>{{workplace.name}}</td>
               <td>{{workplace.reservations}}</td>
               <td>{{workplace.equipment}}</td>
-              <td>{{workplace.total_equipment_cost|floatformat:"2"}}</td>
+              <td>{{workplace.total_equipment_cost|floatformat:"2"|intcomma}}</td>
               <td>{{workplace.kits}}</td>
-              <td>{{workplace.total_kit_cost|floatformat:"2"}}</td>
+              <td>{{workplace.total_kit_cost|floatformat:"2"|intcomma}}</td>
               <td>{{workplace.consumables}}</td>
-              <td>{{workplace.total_consumables_cost|floatformat:"2"}}</td>
-              <td>{{workplace.teachers|length}}</td>
+              <td>{{workplace.total_consumables_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{workplace.total_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{workplace.teacher_count}}</td>
               <td>{{workplace.classes}}</td>
               <td>{{workplace.students}}</td>
             </tr>
