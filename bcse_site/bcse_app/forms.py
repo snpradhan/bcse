@@ -758,7 +758,10 @@ class ReservationUpdateForm(ModelForm):
 
   class Meta:
     model = models.Reservation
-    fields = ['color', 'status']
+    fields = ['color', 'status', 'admin_notes']
+    widgets = {
+      'admin_notes': forms.Textarea(attrs={'rows':3}),
+    }
 
   def __init__(self, *args, **kwargs):
     super(ReservationUpdateForm, self).__init__(*args, **kwargs)
