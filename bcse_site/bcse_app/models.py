@@ -197,7 +197,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
 
 SURVEY_SUBMISSION_TABLE_COLUMN_CHOICES = (
   ('SN', 'Serial #'),
-  ('SI', 'Submission ID'),
+  ('SI', 'Response ID'),
   ('IP', 'IP Address'),
   ('UI', 'User ID'),
   ('FN', 'Full Name'),

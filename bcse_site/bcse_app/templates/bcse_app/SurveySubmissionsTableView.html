@@ -10,7 +10,7 @@
           <th>Serial #</th>
         {% endif %}
         {% if 'SI' in columns %}
-          <th>Submission ID</th>
+          <th>Response ID</th>
         {% endif %}
         {% if 'IP' in columns %}
           <th>IP Address</th>
@@ -45,7 +45,7 @@
           <th> Created Date </th>
         {% endif %}
         {% if 'ST' in columns %}
-          <th> Status </th>
+          <th> Response Status </th>
         {% endif %}
         <th> Action </th>
       </tr>
@@ -119,14 +119,14 @@
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <a class="dropdown-item action delete" data-href="{% url 'bcse:surveySubmissionDelete' survey.id submission.UUID %}"
-                  data-title="the survey submission <strong>{{submission.UUID|truncatechars:8}}</strong>">
+                  data-title="the survey response <strong>{{submission.UUID|truncatechars:8}}</strong>">
                     Delete
                   </a>
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <a class="dropdown-item action export" href="{% url 'bcse:surveySubmissionsExport' survey.id submission.UUID %}">
-                    Export Submission
+                    Export Response
                   </a>
                 </li>
                 {% if submission.user.id %}
@@ -144,6 +144,6 @@
   </table>
   {% include "bcse_app/Pagination.html" with model=surveySubmissions location='bottom' %}
 {% else %}
-  <div class="warning center">No survey submissions matching your search criteria found</div>
+  <div class="warning center">No survey responses matching your search criteria found</div>
 {% endif %}
 

@@ -7427,7 +7427,7 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to export survey submissions')
+      raise CustomException('You do not have the permission to export survey responses')
 
     if request.method == 'GET':
       if '' != survey_id:
@@ -7438,13 +7438,13 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
         surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
 
       if surveySubmissions.count() == 0:
-        raise CustomException('There are no submissions to export')
+        raise CustomException('There are no responses to export')
 
       response = http.HttpResponse(content_type='application/ms-excel')
       if submission_uuid:
-        response['Content-Disposition'] = 'attachment; filename="survey_%s_submission_%s.xls"'% (survey.id, submission_uuid)
+        response['Content-Disposition'] = 'attachment; filename="survey_%s_response_%s.xls"'% (survey.id, submission_uuid)
       else:
-        response['Content-Disposition'] = 'attachment; filename="survey_%s_submissions.xls"'%survey.id
+        response['Content-Disposition'] = 'attachment; filename="survey_%s_responses.xls"'%survey.id
 
       wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
       wb.save(response)
@@ -7493,7 +7493,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
   elif survey.survey_type == 'W':
     connected_entity_type = 'Workshop'
 
-  ws = wb.add_sheet('Survey Submissions')
+  ws = wb.add_sheet('Survey Responses')
   row_num = 0
 
   ###########################################
@@ -7507,7 +7507,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
   #include all columns for admins
   if is_admin:
     #survey stats header
-    columns = ['Survey ID', 'Survey Name', 'Total Submissions', 'In-Progress', 'Submitted', 'Reviewed']
+    columns = ['Survey ID', 'Survey Name', 'Total Responses', 'In-Progress', 'Submitted', 'Reviewed']
     font_styles = [font_style,font_style,font_style,font_style,font_style, font_style]
     #write the headers
     for col_num in range(len(columns)):
@@ -7530,7 +7530,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
     row_num += 3
 
     #user info header
-    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Submission ID', 'IP Address']
+    columns = ['User ID', 'Email', 'Full Name', 'Workplace', connected_entity_type, 'Response ID', 'IP Address']
     font_styles = [font_style,font_style,font_style,font_style,font_style, font_style, font_style]
     question_col_num = len(columns)
 
@@ -7762,7 +7762,7 @@ def surveyDelete(request, id=''):
       submissions = surveySubmissions.count()
       survey.delete()
       if submissions > 0:
-        messages.success(request, "Survey deleted along with %s submissions" % submissions)
+        messages.success(request, "Survey deleted along with %s responses" % submissions)
       else:
         messages.success(request, "Survey deleted")
 

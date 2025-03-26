@@ -16,7 +16,7 @@
           <th rowspan="2"> Type </th>
           <th rowspan="2"> Status </th>
           <th colspan="2" width="30%"> Submission URL</th>
-          <th rowspan="2"> # of Submissions</th>
+          <th rowspan="2"> # of Responses</th>
           <th rowspan="2"> Created Date</th>
           <th rowspan="2"> Modified Date </th>
           <th rowspan="2"> Action </th>
@@ -79,12 +79,12 @@
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <a class="dropdown-item" href="{% url 'bcse:surveySubmissions' survey.id %}">View Submissions</a>
+                    <a class="dropdown-item" href="{% url 'bcse:surveySubmissions' survey.id %}">View Responses</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <a class="dropdown-item delete action" data-href="{% url 'bcse:surveyDelete' survey.id %}"
-                    data-title="the survey <strong>{{survey.name}}</strong> {% if survey.survey_instance %}This survey has {{survey.survey_instance.count }} user submission.{% endif %}">
+                    data-title="the survey <strong>{{survey.name}}</strong> {% if survey.survey_instance %}This survey has {{survey.survey_instance.count }} user responses.{% endif %}">
                       Delete
                     </a>
                   </li>

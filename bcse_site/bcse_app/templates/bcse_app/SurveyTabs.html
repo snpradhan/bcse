@@ -6,12 +6,12 @@
       </li>
       {% if survey.survey_submission.all|length > 0 %}
         <li class="nav-item">
-          <label><a class="nav-link {% if tab == 'submissions' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:surveySubmissions' survey.id %}">Submissions</a></label>
+          <label><a class="nav-link {% if tab == 'submissions' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:surveySubmissions' survey.id %}">Responses</a></label>
         </li>
       {% endif %}
       {% if tab == 'submissionView' %}
         <li class="nav-item">
-          <label><a class="nav-link active" aria-current="page">Submission {{submission.UUID|truncatechars:9}}</a></label>
+          <label><a class="nav-link active" aria-current="page">Response {{submission.UUID|truncatechars:9}}</a></label>
         </li>
       {% else %}
         <li class="nav-item right">
@@ -19,7 +19,7 @@
             <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}" href="#">Preview</a>
           {% endif %}
           {% if survey.survey_submission.all|length > 0 %}
-            <a class="btn" href="{% url 'bcse:surveySubmissionsExport' survey.id %}">Export Submissions</a>
+            <a class="btn" href="{% url 'bcse:surveySubmissionsExport' survey.id %}">Export Responses</a>
           {% endif %}
         </li>
       {% endif %}

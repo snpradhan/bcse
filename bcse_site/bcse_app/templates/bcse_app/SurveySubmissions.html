@@ -13,10 +13,10 @@
     {% get_survey_submission_breakdown survey as submission_summary %}
     <thead>
       <tr>
-        <th colspan={{submission_summary|length|add:1}} class="center"> Submission Summary </th>
+        <th colspan={{submission_summary|length|add:1}} class="center"> Response Summary </th>
       </tr>
       <tr>
-        <th>Total Submissions</th>
+        <th>Total Responses</th>
         {% for status, total in submission_summary.items %}
         <th>{{status}}</th>
         {% endfor %}
