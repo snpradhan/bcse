@@ -168,6 +168,7 @@ urlpatterns = [
     path('adminConfiguration/standalonePage/new', views.standalonePageEdit, name='standalonePageNew'),
 
     path('adminConfiguration/surveys/', views.surveys, name='surveys'),
+    path('adminConfiguration/surveys/search', views.surveysSearch, name='surveysSearch'),
     path('adminConfiguration/survey/<int:id>/edit', views.surveyEdit, name='surveyEdit'),
     path('adminConfiguration/survey/<int:id>/delete', views.surveyDelete, name='surveyDelete'),
     path('adminConfiguration/survey/<int:id>/copy', views.surveyCopy, name='surveyCopy'),

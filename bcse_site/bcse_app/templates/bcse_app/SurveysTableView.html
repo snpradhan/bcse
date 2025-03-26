@@ -1,0 +1,97 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% if surveys %}
+  {% include "bcse_app/Pagination.html" with model=surveys location='top' %}
+      <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th rowspan="2"> ID</th>
+          <th rowspan="2"> Name </th>
+          <th rowspan="2"> Type </th>
+          <th rowspan="2"> Status </th>
+          <th colspan="2" width="30%"> Submission URL</th>
+          <th rowspan="2"> # of Responses</th>
+          <th rowspan="2"> Created Date</th>
+          <th rowspan="2"> Modified Date </th>
+          <th rowspan="2"> Action </th>
+        </tr>
+        <tr>
+          <th>With Login</th>
+          <th>Without Login</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for survey in surveys %}
+          <tr>
+            <td> {{survey.id}}</td>
+            <td> {{survey.name}} </td>
+            <td> {{survey.get_survey_type_display}} </td>
+            <td> {{survey.get_status_display}} </td>
+            <td>
+              {% if survey.survey_type == 'A' or survey.survey_type == 'C' %}
+                https://{{domain}}/?next=signin/?next=/?next=/survey/{{survey.id}}/submission/new
+              {% elif survey.survey_type == 'W' %}
+                /survey/{{survey.id}}/submission/new?workshop_id=[id]
+              {% elif survey.survey_type == 'B' %}
+                https://{{domain}}/?next=/signin/?next=/?next=/survey/{{survey.id}}/submission/new?reservation_id=[id]
+              {% else %}
+                https://{{domain}}/?next=/signin/?next=/?next=/survey/{{survey.id}}/submission/new
+              {% endif %}
+            </td>
+            <td>
+              {% if survey.survey_type == 'A' %}
+                Login is required for this survey
+              {% elif survey.survey_type == 'C' %}
+                https://{{domain}}/?next=/survey/{{survey.id}}/submission/new
+              {% elif survey.survey_type == 'W' %}
+                Login is required for this survey
+              {% elif survey.survey_type == 'B' %}
+                Login is required for this survey
+              {% else %}
+                https://{{domain}}/?next=/survey/{{survey.id}}/submission/new
+              {% endif %}
+            </td>
+            <td>{{survey.survey_submission.count}}</td>
+            <td> {{survey.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{survey.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:surveyEdit' survey.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}" href="#">Preview</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:surveyCopy' survey.id %}">Clone</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:surveySubmissions' survey.id %}">View Responses</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:surveyDelete' survey.id %}"
+                    data-title="the survey <strong>{{survey.name}}</strong> {% if survey.survey_instance %}This survey has {{survey.survey_instance.count }} user responses.{% endif %}">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% include "bcse_app/Pagination.html" with model=surveys location='bottom' %}
+{% else %}
+  <div class="warning center">No surveys matching your search criteria found</div>
+{% endif %}
+

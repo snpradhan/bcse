@@ -1,0 +1,50 @@
+<div class="filter_container">
+  <form method="get" action="{% url 'bcse:surveysSearch' %}" id="surveys_filter_form" class="filter_form">
+    {% csrf_token %}
+    {{searchForm.media}}
+    <div class="form-group right" id="filter_toggle">
+      <label style="display:none;">Show Filters <span class="fa fa-plus-circle"></span></label>
+      <label>Hide Filters <span class="fa fa-minus-circle"></span></label>
+    </div>
+    <div id="filter_content">
+      <div id="filter_fields">
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.name.name}}" class="form-label"> {{searchForm.name.label|title}}</label>
+            <div>{{searchForm.name}}</div>
+            <div class="error">{{ searchForm.name.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.survey_type.name}}" class="form-label"> {{searchForm.survey_type.label|title}}</label>
+            <div>{{searchForm.survey_type}}</div>
+            <div class="error">{{ searchForm.survey_type.errors }}</div>
+          </div>          
+        </div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>
+            <div>{{searchForm.status}}</div>
+            <div class="error">{{ searchForm.status.errors }}</div>
+          </div>
+        </div>
+        <div class="filter_fields">
+          <div class="form-group">
+            <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
+            <div>{{searchForm.sort_by}}</div>
+            <div class="error">{{ searchForm.sort_by.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
+            <div>{{searchForm.rows_per_page}}</div>
+            <div class="error">{{ searchForm.rows_per_page.errors }}</div>
+          </div>
+        </div>
+        <input type="hidden" name="page" id="page" value="{{page}}"/>
+      </div>
+
+      <div class="form-group right" id="filter_buttons">
+        <a class="btn" type="button" href="{% url 'bcse:clearSearch' 'surveys_search' %}">Clear Filter</a>
+      </div>
+    </div>
+  </form>
+</div>

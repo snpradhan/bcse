@@ -1270,6 +1270,35 @@ class SurveyForm(ModelForm):
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
 
+
+####################################
+# SurveysSearch Form
+####################################
+class SurveysSearchForm(forms.Form):
+  name = forms.CharField(required=False, max_length=256, label=u'Survey Name')
+  survey_type = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.SURVEY_TYPE_CHOICES)
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES, label='Survey Status')
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('name', 'Survey Name'),
+                                                      ('survey_type', 'Survey Type'),
+                                                      ('status', 'Survey Status'),
+                                                      ('responses', '# of Responses')), initial='name')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+
+  def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
+    initials = kwargs.pop('initials')
+    super(SurveysSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      field.widget.attrs['class'] = 'form-control'
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
+
 ####################################
 # SurveyComponent Form
 ####################################

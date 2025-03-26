@@ -7104,7 +7104,6 @@ def collaboratorDelete(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-
 ####################################
 # SURVEYS
 ####################################
@@ -7120,15 +7119,119 @@ def surveys(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view surveys')
 
-    surveys = models.Survey.objects.all()
-    current_site = Site.objects.get_current()
-    context = {'surveys': surveys, 'domain': current_site.domain}
-    return render(request, 'bcse_app/Surveys.html', context)
+    if request.method == 'GET':
+      if request.session.get('surveys_search', False):
+        searchForm = forms.SurveysSearchForm(user=request.user, initials=request.session['surveys_search'], prefix="survey_search")
+        page = request.session['surveys_search']['page']
+      else:
+        searchForm = forms.SurveysSearchForm(user=request.user, initials=None, prefix="survey_search")
+        page = 1
+
+      context = {'searchForm': searchForm, 'page': page}
+      return render(request, 'bcse_app/Surveys.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
 
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+################################################################
+# FILTER SURVEY LIST BASED ON FILTER CRITERIA
+################################################################
+@login_required
+def surveysSearch(request):
+  """
+  surveysSearch is called from the path 'adminConfiguration/surveys/'
+  :param request: request from the browser
+  :returns: page view of filtered surveys or an error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
+  try:
+
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to search surveys')
+
+    if request.method == 'GET':
+
+      query_filter = Q()
+
+      name = request.GET.get('survey_search-name', '')
+      survey_type = request.GET.get('survey_search-survey_type', '')
+      status = request.GET.get('survey_search-status', '')
+      sort_by = request.GET.get('survey_search-sort_by', '')
+      rows_per_page = request.GET.get('survey_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+      #set session variable
+      request.session['surveys_search'] = {
+        'name': name,
+        'survey_type': survey_type,
+        'status': status,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if name:
+        query_filter = query_filter & Q(name__icontains=name)
+
+      if survey_type:
+        query_filter = query_filter & Q(survey_type=survey_type)
+
+      if status:
+        query_filter = query_filter & Q(status=status)
+
+      # Convert the choices into a list of When cases
+      when_cases = [When(survey_type=key, then=Value(value)) for key, value in models.SURVEY_TYPE_CHOICES]
+
+      # Default case if none of the choices match
+      default_case = Value('Unknown')
+
+      surveys = models.Survey.objects.all().annotate(
+        num_of_responses=Count('survey_submission'),
+        survey_type_display=Case(
+            *when_cases,
+            default=default_case,
+            output_field=CharField(),
+      )).filter(query_filter)
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      if sort_by:
+        if sort_by == 'name':
+          order_by = 'name'
+        elif sort_by == 'survey_type':
+          order_by = 'survey_type_display'
+        elif sort_by == 'status':
+          order_by = 'status'
+        elif sort_by == 'responses':
+          order_by = 'num_of_responses'
+          direction = 'desc'
+      else:
+        order_by = 'name'
+
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+      surveys = paginate(request, surveys, sort_order, rows_per_page, page)
+
+      context = {'surveys': surveys}
+
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/SurveysTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Survey.DoesNotExist as ce:
+    messages.error(request, "Survey not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # EDIT SURVEY
@@ -7261,7 +7364,6 @@ def surveySubmissions(request, id=''):
       raise CustomException('You do not have the permission to view survey submissions')
 
     survey = models.Survey.objects.get(id=id)
-    surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
 
     if request.method == 'GET':
       if request.session.get('survey_submissions_search', False):
