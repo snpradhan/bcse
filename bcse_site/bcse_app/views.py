@@ -7760,13 +7760,13 @@ def surveyDelete(request, id=''):
       survey = models.Survey.objects.get(id=id)
       surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
       submissions = surveySubmissions.count()
-      survey.delete()
       if submissions > 0:
-        messages.success(request, "Survey deleted along with %s responses" % submissions)
+        messages.error(request, "This survey has %s response(s) and cannot be deleted.  If you need to delete this survey, delete all the responses first." % submissions)
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
       else:
+        survey.delete()
         messages.success(request, "Survey deleted")
-
-    return shortcuts.redirect('bcse:surveys')
+        return shortcuts.redirect('bcse:surveys')
 
   except models.Survey.DoesNotExist:
     messages.success(request, "Survey not found")
