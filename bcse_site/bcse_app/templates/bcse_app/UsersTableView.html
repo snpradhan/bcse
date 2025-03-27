@@ -3,7 +3,7 @@
 {% if users %}
   {% with online_users=request.online_now_ids %}
   {% include "bcse_app/Pagination.html" with model=users location='top' %}
-  <table class="table table-bordered table-striped">
+  <table class="table table-bordered table-striped export" id="users">
     <thead>
       <tr>
         {% if 'ID' in columns %}
@@ -57,7 +57,7 @@
         {% if 'LU' in columns %}
           <th> Last Updated </th>
         {% endif %}
-        <th> Action </th>
+        <th class='ignore-column'> Action </th>
       </tr>
     </thead>
     <tbody>
@@ -153,3 +153,15 @@
 {% else %}
   <div class="warning center">No users matching your search criteria found</div>
 {% endif %}
+
+<script type="text/javascript">
+  $(function (){
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'BCSE Users.xlsx', true);
+    }
+
+  });
