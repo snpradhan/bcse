@@ -46,9 +46,11 @@
                   </div>
               </td>
               <td>
-                {% for address in email.email_to|split:';' %}
-                  {{address}}<br>
-                {% endfor %}
+                {% if email.email_to %}
+                  {% for address in email.email_to|split:';' %}
+                    {{address}}<br>
+                  {% endfor %}
+                {% endif %}
               </td>
               <td>{{email.email_subject}}</td>
               <td>{{email.get_email_status_display}}</td>
