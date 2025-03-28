@@ -8,7 +8,8 @@
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#work_place" data-href="{% url 'bcse:workPlaceNew' %}" href="#">Create Workplace</a>
     <a class="btn" href="{% staticfile 'xls/WorkPlaceTemplate.xlsx' %}" target="_blank" download>Download Workplace Template</a>
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workPlacesUpload' %}">Upload Workplaces</a>
-    <a class="btn" href="{% url 'bcse:workPlacesExport' %}">Export Workplaces</a>
+    <!--a class="btn" href="{% url 'bcse:workPlacesExport' %}">Export Workplaces</a-->
+    <button class="btn download" type="button">Export Workplaces</button>
   </div>
   {% include "bcse_app/WorkPlacesSearch.html" %}
   <div class="form-group" id="spinner">
@@ -19,6 +20,12 @@
   <script type="text/javascript">
     $(function (){
       $('form#work_place_filter_form').submit();
+
+      $('.download').on('click', function(e) {
+        $('#download').val("1");
+        $('select#id_work_place_search-rows_per_page').val(0).trigger('change');
+      });
+
     });
   </script>
 {% endblock %}

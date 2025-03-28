@@ -2,7 +2,7 @@
 
 {% if work_places %}
   {% include "bcse_app/Pagination.html" with model=work_places location='top' %}
-  <table class="table table-bordered table-striped">
+  <table class="table table-bordered table-striped export" id="workplaces">
     <thead>
       <tr>
         {% if 'ID' in columns %}
@@ -62,7 +62,7 @@
         {% if 'MD' in columns %}
           <th> Modified Date</th>
         {% endif %}
-        <th> Action </th>
+        <th class='ignore-column'> Action </th>
       </tr>
     </thead>
     <tbody>
@@ -159,3 +159,15 @@
 {% else %}
   <div class="warning center">No workplaces matching your search criteria found</div>
 {% endif %}
+
+<script type="text/javascript">
+  $(function (){
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'Workplaces.xlsx', true);
+    }
+  });
+</script>
