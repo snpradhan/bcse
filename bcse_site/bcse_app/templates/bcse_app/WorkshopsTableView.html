@@ -10,9 +10,9 @@
     {% include "bcse_app/Pagination.html" with model=workshops location='top' %}
   {% endif %}
 
-  <table class="table table-bordered table-striped" id="workshops_table">
+  <table class="table table-bordered table-striped export" id="workshops">
     <thead>
-      <tr class='noExl'>
+      <tr>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
           <th> ID</th>
         {% endif %}
@@ -38,35 +38,7 @@
               <th> Registration Status </th>
             {% endif %}
           {% endif %}
-          <th> Actions </th>
-        {% endif %}
-      </tr>
-      <tr style="display:none;">
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'workshops' %}
-          <td style="background-color: #767676; color: white;"> ID</td>
-        {% endif %}
-        <td style="background-color: #767676; color: white;"> Workshop Type </td>
-        <td style="background-color: #767676; color: white;"> Title </td>
-        <td style="background-color: #767676; color: white;"> Start Date/Time </td>
-        <td style="background-color: #767676; color: white;"> End Date/Time </td>
-        <td style="background-color: #767676; color: white;"> Location </td>
-        {% if user.is_authenticated %}
-          {% if user.userProfile.user_role in 'AS' and tag == 'workshops' %}
-            <td style="background-color: #767676; color: white;"> Past Example </td>
-            <td style="background-color: #767676; color: white;"> Registration Enabled? </td>
-            <td style="background-color: #767676; color: white;"> Registration Type </td>
-            <td style="background-color: #767676; color: white;"> Capacity </td>
-            <td style="background-color: #767676; color: white;"> Waitlist Enabled?</td>
-            <td style="background-color: #767676; color: white;"> Waitlist Capacity</td>
-            <td style="background-color: #767676; color: white;"> Number of Registrants</td>
-            <td style="background-color: #767676; color: white;"> Created Date</td>
-            <td style="background-color: #767676; color: white;"> Modified Date </td>
-            <td style="background-color: #767676; color: white;"> Status </td>
-          {% else %}
-            {% if extra != 'teacher' %}
-              <td style="background-color: #767676; color: white;"> Registration Status </td>
-            {% endif %}
-          {% endif %}
+          <th class='ignore-column'> Action </th>
         {% endif %}
       </tr>
     </thead>
@@ -210,14 +182,12 @@
 
 <script type="text/javascript">
   $(function (){
-    $('.export_workshops').on('click', function(e) {
-      $("#workshops_table").table2excel({
-        exclude: ".noExl",
-        name: "My Baxter Center Workshops",
-        filename: "Baxter_Center_Workshops", //do not include extension
-        fileext:".xls", // file extension
-        preserveColors: true, // set to true if you want background colors and font colors preserved
-      });
-    });
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'MyWorkshops.xlsx', true);
+    }
   });
 </script>
