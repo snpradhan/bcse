@@ -1,20 +1,7 @@
 {% load bcse_extras %}
 {% if registrations %}
   {% include "bcse_app/Pagination.html" with model=registrations %}
-  <table class="table table-bordered table-striped" id="workshop_registrants">
-    <tbody style="display:none;">
-      <tr>
-        <td style="background-color: #767676; color: white;"> Worshop ID</td>
-        <td style="background-color: #767676; color: white;"> Workshop Title </td>
-      </tr>
-      <tr>
-        <td>{{workshop.id}}</td>
-        <td>{{workshop.name}}</td>
-      </tr>
-      <tr>
-        <td colspan="2"></td>
-      </tr>
-    </tbody>
+  <table class="table table-bordered table-striped export" id="workshop_registrants">
     <thead>
       <tr class='noExl'>
         {% if user.userProfile.user_role in 'AS' %}
@@ -32,26 +19,11 @@
         <th> Created Date </th>
         <th> Registration Status </th>
         {% if user.userProfile.user_role in 'AS' %}
-          <th > Action </th>
+          <th class='ignore-column'> Action </th>
         {% endif %}
       </tr>
     </thead>
     <tbody>
-      <tr style="display:none;">
-        {% if user.userProfile.user_role in 'AS' %}
-          <td style="background-color: #767676; color: white;"> Registration ID</td>
-          <td style="background-color: #767676; color: white;"> User ID </td>
-        {% endif %}
-        <td style="background-color: #767676; color: white;"> Email </td>
-        <td style="background-color: #767676; color: white;"> Full Name </td>
-        <td style="background-color: #767676; color: white;"> Workplace </td>
-        {% if user.userProfile.user_role in 'AS' %}
-          <td style="background-color: #767676; color: white;"> Subscribed?</td>
-          <td style="background-color: #767676; color: white;"> Photo Release Complete?</td>
-        {% endif %}
-        <td style="background-color: #767676; color: white;"> Created Date </td>
-        <td style="background-color: #767676; color: white;"> Status </td>
-      </tr>
       {% for registrant in registrations %}
         <tr>
           {% if user.userProfile.user_role in 'AS' %}
@@ -110,3 +82,15 @@
 {% else %}
   <div class="warning center">No registrants matching your search criteria found</div>
 {% endif %}
+
+<script type="text/javascript">
+  $(function (){
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'Workshop_{{workshop.id}}_Registrants.xlsx', true);
+    }
+  });
+</script>

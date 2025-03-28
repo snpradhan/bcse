@@ -38,7 +38,7 @@
     {% if tab == 'registrants'%}
       <li class="nav-item right">
         <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
-        <button class="btn download" type="button">Download Registrants</button>
+        <button class="btn download" type="button">Export Registrants</button>
       </li>
     {% elif tab == 'emails' %}
        <li class="nav-item right">
