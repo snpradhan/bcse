@@ -3,7 +3,7 @@
 
 {% if surveySubmissions %}
   {% include "bcse_app/Pagination.html" with model=surveySubmissions location='top' %}
-  <table class="table table-bordered table-striped">
+  <table class="table table-bordered table-striped export" id="survey_submissions">
     <thead>
       <tr>
         {% if 'SN' in columns %}
@@ -47,7 +47,7 @@
         {% if 'ST' in columns %}
           <th> Response Status </th>
         {% endif %}
-        <th> Action </th>
+        <th class='ignore-column'> Action </th>
       </tr>
     </thead>
     <tbody>
@@ -147,3 +147,14 @@
   <div class="warning center">No survey responses matching your search criteria found</div>
 {% endif %}
 
+<script type="text/javascript">
+  $(function (){
+    if($("#download").val() == "1") {
+      $("#download").val("0");
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'Survey Responses_{{survey.id}}.xlsx', true);
+    }
+  });
+</script>

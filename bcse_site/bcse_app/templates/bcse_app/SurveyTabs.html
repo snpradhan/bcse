@@ -22,7 +22,8 @@
             <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}" href="#">Preview</a>
           {% endif %}
           {% if survey.survey_submission.all|length > 0 %}
-            <a class="btn" href="{% url 'bcse:surveySubmissionsExport' survey.id %}">Export Responses</a>
+            <!--a class="btn" href="{% url 'bcse:surveySubmissionsExport' survey.id %}">Export Responses</a-->
+            <button class="btn download" type="button">Export Responses</button>
           {% endif %}
         </li>
       {% endif %}
