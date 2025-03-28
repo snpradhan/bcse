@@ -9,7 +9,7 @@
       <h1 class="center"> My Reservations </h1>
       <div class="button-row">
         <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
-        <button class="btn download" type="button">Download Reservations</button>
+        <button class="btn download" type="button">Export Reservations</button>
       </div>
       {% include "bcse_app/ReservationsSearch.html" %}
       <div class="form-group" id="spinner">

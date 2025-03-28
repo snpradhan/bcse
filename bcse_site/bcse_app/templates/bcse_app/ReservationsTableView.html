@@ -10,12 +10,12 @@
   {% endif %}
   {% if user.is_authenticated and user.userProfile.user_role in 'TP' and tag == 'profile' %}
     <div class="right mb-3">
-      <button class="btn download profile" type="button">Download Reservations</button>
+      <button class="btn download profile" type="button">Export Reservations</button>
     </div>
   {% endif %}
-  <table class="table table-bordered table-striped" id="baxter_box_reservations">
+  <table class="table table-bordered table-striped export" id="baxter_box_reservations">
     <thead>
-      <tr class='noExl'>
+      <tr>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
           <th> ID</th>
         {% endif %}
@@ -90,86 +90,10 @@
         {% if 'ST' in columns or tag == 'profile' %}
           <th> Status </th>
         {% endif %}
-        <th> Actions </th>
+        <th class='ignore-column'> Action </th>
       </tr>
     </thead>
     <tbody>
-      <tr style="display:none;">
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
-          <td style="background-color: #767676; color: white;"> ID</td>
-        {% endif %}
-        {% if 'CR' in columns or tag == 'profile' %}
-          <td style="background-color: #767676; color: white;"> Reservation Made On</td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
-          <td style="background-color: #767676; color: white;"> User </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
-          <td style="background-color: #767676; color: white;"> Email </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'AC' in columns %}
-          <td style="background-color: #767676; color: white;"> Activity </td>
-        {% endif %}
-        {% if 'KT' in columns or tag == 'profile' %}
-          <td style="background-color: #767676; color: white;"> Kit </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
-          <td style="background-color: #767676; color: white;"> Consumables </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
-          <td style="background-color: #767676; color: white;"> Include Gloves/Goggles </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
-          <td style="background-color: #767676; color: white;"> Kit Inventory </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
-          <td style="background-color: #767676; color: white;">Inventory Notes</td>
-        {% endif %}
-        {% if 'EQ' in columns or tag == 'profile' %}
-          <td style="background-color: #767676; color: white;"> Equipment </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UN' in columns %}
-          <td style="background-color: #767676; color: white;"> Pickup/Return<br>Notes </td>
-        {% endif %}
-        {% if 'CC' in columns %}
-          <td style="background-color: #767676; color: white;"> Comments<br>(New/Total)</td>
-        {% endif %}
-        {% if 'DD' in columns or tag == 'profile' %}
-          <td style="background-color: #767676; color: white;"> Delivery Date </td>
-        {% endif %}
-        {% if 'RD' in columns or tag == 'profile' %}
-          <td style="background-color: #767676; color: white;"> Return Date </td>
-        {% endif %}
-        {% if 'DA' in columns %}
-          <td style="background-color: #767676; color: white;"> Delivery Address </td>
-        {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
-          {% if 'DI' in columns %}
-            <td style="background-color: #767676; color: white;"> Delivery Distance (miles) </td>
-          {% endif %}
-          {% if 'DT' in columns %}
-            <td style="background-color: #767676; color: white;"> Delivery Travel Time (mins) </td>
-          {% endif %}
-          {% if 'AN' in columns %}
-            <td style="background-color: #767676; color: white;"> Admin Notes </td>
-          {% endif %}
-          {% if 'HP' in columns %}
-            <td style="background-color: #767676; color: white;"> Help Needed? </td>
-          {% endif %}
-          {% if 'AT' in columns %}
-            <td style="background-color: #767676; color: white;"> Assigned To </td>
-          {% endif %}
-          {% if 'ES' in columns %}
-            <td style="background-color: #767676; color: white;"> Confirmation Email Sent? </td>
-          {% endif %}
-          {% if 'FS' in columns %}
-            <td style="background-color: #767676; color: white;"> Feedback Status </td>
-          {% endif %}
-        {% endif %}
-        {% if 'ST' in columns or tag == 'profile' %}
-          <td style="background-color: #767676; color: white;"> Status </td>
-        {% endif %}
-      </tr>
       {% for reservation in reservations %}
         {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
         {% if new_messages and tag == 'reservations' %}
@@ -220,7 +144,7 @@
             <td>
               <ul>
                 {% for consumable in reservation.consumables.all %}
-                  <li>{{consumable}}</li>
+                  <li>{{consumable}}<br></li>
                 {% endfor %}
               </ul>
             </td>
@@ -249,7 +173,7 @@
                         {% else %}
                           {{equipment.equipment_type}}
                         {% endif %}
-                      </a>
+                      </a><br>
                     {% endif %}
                   </li>
                 {% endfor %}
@@ -465,11 +389,17 @@
   $(function (){
     if($("#download").val() == "1") {
       $("#download").val("0");
-      exportReservations();
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'Reservations.xlsx', true);
     }
 
     $('.download.profile').on('click', function(){
-       exportReservations();
+      var tables = $('table.export').map(function() {
+        return this.id;
+      }).get();
+      exportTablesToExcel(tables, 'Reservations.xlsx', true);
     });
   });
 </script>
