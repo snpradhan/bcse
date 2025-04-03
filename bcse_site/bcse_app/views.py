@@ -4031,10 +4031,19 @@ def workshopEmailSend(request, workshop_id='', id=''):
         registration_status = workshop_email.registration_status.split(',')
         registration_email_addresses = list(models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status).values_list('user__user__email', flat=True))
 
+        email_to = [settings.DEFAULT_FROM_EMAIL]
         if workshop_email.email_to:
-          email_addresses = registration_email_addresses + workshop_email.email_to.split(';')
+          email_to = email_to + workshop_email.email_to.split(';')
 
-        if email_addresses:
+        email_cc = []
+        if workshop_email.email_cc:
+          email_cc = workshop_email.email_cc.split(';')
+
+        email_bcc = []
+        if workshop_email.email_bcc:
+          email_bcc = workshop_email.email_bcc.split(';')
+
+        if registration_email_addresses or email_to or email_cc or email_bcc:
 
           current_site = Site.objects.get_current()
           domain = current_site.domain
@@ -4048,7 +4057,7 @@ def workshopEmailSend(request, workshop_id='', id=''):
           context = {'email_body': email_body, 'domain': domain}
           body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
-          email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.DEFAULT_FROM_EMAIL], email_addresses)
+          email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to, cc=email_cc, bcc=email_bcc)
 
           email.content_subtype = "html"
           sent = email.send(fail_silently=True)

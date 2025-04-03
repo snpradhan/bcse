@@ -33,6 +33,18 @@
           <div class="warning">{{form.email_to.help_text}}</div>
           <div class="error">{{ form.email_to.errors }}</div>
         </div>
+         <div class="form-group mb-3">
+          <label for="id_{{form.email_cc.name}}">{{ form.email_cc.label|title}}</label>
+          <div>{{form.email_cc}}</div>
+          <div class="warning">{{form.email_cc.help_text}}</div>
+          <div class="error">{{ form.email_cc.errors }}</div>
+        </div>
+         <div class="form-group mb-3">
+          <label for="id_{{form.email_bcc.name}}">{{ form.email_bcc.label|title}}</label>
+          <div>{{form.email_bcc}}</div>
+          <div class="warning">{{form.email_bcc.help_text}}</div>
+          <div class="error">{{ form.email_bcc.errors }}</div>
+        </div>
         <div class="form-group mb-3">
           <label for="id_{{form.email_subject.name}}">{{ form.email_subject.label|title }} (<span class="required">*</span>)</label>
           <div>{{form.email_subject}}</div>

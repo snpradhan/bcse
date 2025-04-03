@@ -999,7 +999,7 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
 ####################################
 class WorkshopEmailForm(ModelForm):
 
-  registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='Registration statuses this email is sent to')
+  registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration statuses this email is sent to. Email will be bcc\'d to these addresses.')
 
   class Meta:
     model = models.WorkshopEmail
@@ -1014,7 +1014,13 @@ class WorkshopEmailForm(ModelForm):
         field.widget.attrs['class'] = 'form-control select2'
       else:
         if field_name == 'email_to':
-          field.label = 'Email Cc'
+          field.label = 'To'
+        elif field_name == 'email_cc':
+          field.label = 'Cc'
+        elif field_name == 'email_bcc':
+          field.label = 'Bcc'
+        elif field_name == 'email_subject':
+          field.label = 'Subject'
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       #field.widget.attrs['placeholder'] = field.help_text

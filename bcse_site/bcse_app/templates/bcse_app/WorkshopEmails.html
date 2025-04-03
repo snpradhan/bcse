@@ -13,9 +13,11 @@
           <tr>
             <th>ID</th>
             <th>Registration Status(s)</th>
-            <th>Email To</th>
-            <th>Email Cc</th>
-            <th>Email Subject</th>
+            <th>Registration Email(s)</th>
+            <th>To</th>
+            <th>Cc</th>
+            <th>Bcc</th>
+            <th>Subject</th>
             <th>Email Status</th>
             <th>Sent Date</th>
             <th>Created Date</th>
@@ -48,6 +50,20 @@
               <td>
                 {% if email.email_to %}
                   {% for address in email.email_to|split:';' %}
+                    {{address}}<br>
+                  {% endfor %}
+                {% endif %}
+              </td>
+              <td>
+                {% if email.email_cc %}
+                  {% for address in email.email_cc|split:';' %}
+                    {{address}}<br>
+                  {% endfor %}
+                {% endif %}
+              </td>
+              <td>
+                {% if email.email_bcc %}
+                  {% for address in email.email_bcc|split:';' %}
                     {{address}}<br>
                   {% endfor %}
                 {% endif %}
