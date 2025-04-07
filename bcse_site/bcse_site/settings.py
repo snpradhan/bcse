@@ -284,5 +284,8 @@ CRONJOBS = [
     ('0 2 * * *', 'bcse_app.cron.export_reservations', '>> /srv/project/logs/cron.log'),
     # run cron at 3 am to export activities to excel
     ('0 3 * * *', 'bcse_app.cron.export_activities', '>> /srv/project/logs/cron.log'),
+    # run cron every 5 minutes to send scheduled workshop emails
+    ('*/5 * * * *', 'bcse_app.cron.send_workshop_emails', '>> /srv/project/logs/cron.log'),
+
 ]
 

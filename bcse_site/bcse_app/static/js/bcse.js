@@ -2,24 +2,6 @@ $(function (){
 
   $(".copyright_year").html(new Date().getFullYear());
 
-  $(".datepicker:not(.reservation_date):not(.availability)").datepicker({
-    dateFormat: "MM dd, yy",
-    yearRange: "-20:+20",
-    changeMonth: true,
-    changeYear: true
-  });
-
-  $(".timepicker").timepicker({
-    timeFormat: 'hh:mm p',
-    interval: 15,
-    minTime: '12:00am',
-    maxTime: '11:45pm',
-    //defaultTime: '08:00am',
-    startTime: '12:00am',
-    dynamic: false,
-    dropdown: true,
-    scrollbar: true
-  });
 
   //generic filter form submit handler
   $('form.filter_form').on('submit', function(e){
@@ -152,10 +134,33 @@ $(function (){
   bindUseAjax();
   bindSelect2();
   bindTooltipTrigger();
+  bindDateTimePicker();
 
 });
 
 var timeout = null;
+
+function bindDateTimePicker() {
+  $(".datepicker:not(.reservation_date):not(.availability)").datepicker({
+    dateFormat: "MM dd, yy",
+    yearRange: "-20:+20",
+    changeMonth: true,
+    changeYear: true,
+  });
+
+  $(".timepicker").timepicker({
+    timeFormat: 'hh:mm p',
+    interval: 15,
+    minTime: '12:00am',
+    maxTime: '11:45pm',
+    //defaultTime: '08:00am',
+    startTime: '12:00am',
+    dynamic: false,
+    dropdown: true,
+    scrollbar: true,
+
+  });
+}
 
 function bindTooltipTrigger() {
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

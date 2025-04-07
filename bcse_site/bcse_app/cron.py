@@ -1,9 +1,10 @@
-from bcse_app import models, utils
+from bcse_app import models, utils, views
 from datetime import datetime, timedelta
 from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from django.core import management
 from django.utils import timezone
+from django.db.models import Q
 import subprocess
 import xlwt
 from PIL import ImageColor
@@ -299,3 +300,18 @@ def export_activities():
 
   print('end activities export', datetime.today())
 
+
+def send_workshop_emails():
+  print('start workshop emails', datetime.today())
+  now = datetime.now()
+  current_date = now.strftime('%Y-%m-%d')
+  current_time = now.strftime('%H:%M:%S')
+
+  workshop_emails = models.WorkshopEmail.objects.all().filter(email_status='D')
+  workshop_emails = workshop_emails.filter(Q(scheduled_date__lt=current_date) | Q(Q(scheduled_date=current_date), Q(Q(scheduled_time__isnull=True) | Q(scheduled_time__lte=current_time))))
+  print('sending %s workshop emails' % len(workshop_emails))
+  for workshop_email in workshop_emails:
+    message = views.send_workshop_email(workshop_email.id, True)
+    print(message[1])
+
+  print('end workshop emails', datetime.today())

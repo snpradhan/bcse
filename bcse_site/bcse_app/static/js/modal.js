@@ -10,6 +10,7 @@ function bindModalOpen() {
         $(parentModal).hide();
       }
       bindTooltipTrigger();
+      bindDateTimePicker();
     });
   });
 }

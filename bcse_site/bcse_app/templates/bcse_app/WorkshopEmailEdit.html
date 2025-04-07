@@ -18,7 +18,6 @@
     <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:workshopEmailEdit' workshop.id form.instance.id  %} {% else %} {% url 'bcse:workshopEmailNew' workshop.id %}{% endif %}"  id="formWorkshopEmail">
       {% csrf_token %}
       {{form.media}}
-      {{form.management_form}}
       <div class="modal-body">
         {{form.workshop.as_hidden}}
         <div class="form-group mb-3">
@@ -56,6 +55,26 @@
           <div>{{form.email_message}}</div>
           <div class="warning">{{form.email_message.help_text}}</div>
           <div class="error">{{ form.email_message.errors }}</div>
+        </div>
+        <div class="form-group mb-3 row scheduled_date">
+          <div class="col">
+            <label for="id_{{form.scheduled_date.name}}" class="form-label"> {{form.scheduled_date.label|title}}</label>
+            <div class="input-group">
+              {{form.scheduled_date}}
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+            </div>
+            <div class="warning">{{form.scheduled_date.help_text}}</div>
+            <div class="error">{{ form.scheduled_date.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.scheduled_time.name}}" class="form-label"> {{form.scheduled_time.label|title}}</label>
+            <div class="input-group">
+              {{form.scheduled_time}}
+              <span class="input-group-text"><i class="fa fa-clock"></i></span>
+            </div>
+             <div class="warning">{{form.scheduled_time.help_text}}</div>
+            <div class="error">{{ form.scheduled_time.errors }}</div>
+          </div>
         </div>
         <input type="hidden" id="send" name="send" value="0"/>
 

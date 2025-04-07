@@ -1003,7 +1003,7 @@ class WorkshopEmailForm(ModelForm):
 
   class Meta:
     model = models.WorkshopEmail
-    exclude = ('registration_status', 'registration_email_addresses', 'email_status', 'scheduled_date', 'sent_date', 'created_date', 'modified_date')
+    exclude = ('registration_status', 'registration_email_addresses', 'email_status', 'sent_date', 'created_date', 'modified_date')
 
   def __init__(self, *args, **kwargs):
 
@@ -1012,6 +1012,10 @@ class WorkshopEmailForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       if field_name == 'registration_statuses':
         field.widget.attrs['class'] = 'form-control select2'
+      elif field_name == 'scheduled_date':
+        field.widget.attrs['class'] = 'form-control datepicker'
+      elif field_name == 'scheduled_time':
+        field.widget.attrs['class'] = 'form-control timepicker'
       else:
         if field_name == 'email_to':
           field.label = 'To'
