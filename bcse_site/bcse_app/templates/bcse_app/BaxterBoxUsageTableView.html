@@ -98,8 +98,9 @@
           <tr>
             <th> Activity Kit {% if sort_by == 'name' %} &nbsp; <i class="fa-regular fa-arrow-down-short-wide"></i> {% endif %}</th>
             <th> Unit Cost ($)</th>
-            <th> Usage Count {% if sort_by == 'usage' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Kits Used {% if sort_by == 'kits' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> Total Cost ($) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Reservation {% if sort_by == 'reservations' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Unique Teachers {% if sort_by == 'teachers' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Unique Workplaces {% if sort_by == 'workplaces' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
@@ -113,6 +114,7 @@
               <td>{{kit.unit_cost|floatformat:2|default_if_none:""|intcomma}}</td>
               <td>{{kit.count}}</td>
               <td>{{kit.total_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{kit.reservations}}</td>
               <td>{{kit.teacher_count}}</td>
               <td>{{kit.workplace_count}}</td>
               <td>{{kit.classes}}</td>
@@ -134,8 +136,9 @@
           <tr>
             <th> Consumable {% if sort_by == 'name' %} &nbsp; <i class="fa-regular fa-arrow-down-short-wide"></i> {% endif %}</th>
             <th> Unit Cost ($)</th>
-            <th> Usage Count {% if sort_by == 'usage' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Consumables Used{% if sort_by == 'consumables' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> Total Cost ($) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Reservation {% if sort_by == 'reservations' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Unique Teachers {% if sort_by == 'teachers' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Unique Workplaces {% if sort_by == 'workplaces' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
@@ -149,6 +152,7 @@
               <td>{{consumable.unit_cost|floatformat:"2"|default_if_none:""|intcomma}}</td>
               <td>{{consumable.count}}</td>
               <td>{{consumable.total_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{consumable.reservations}}</td>
               <td>{{consumable.teacher_count}}</td>
               <td>{{consumable.workplace_count}}</td>
               <td>{{consumable.classes}}</td>
@@ -173,9 +177,9 @@
             <th> # of Reservations {% if sort_by == 'reservations' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Equipment</th>
             <th> Equipment Cost ($)</th>
-            <th> # of Activity Kits Used </th>
+            <th> # of Activity Kits Used {% if sort_by == 'kits' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> Activity Kit Cost ($)</th>
-            <th> # of Consumables Used </th>
+            <th> # of Consumables Used {% if sort_by == 'consumables' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> Consumables Cost ($)</th>
             <th> Total Cost ($) <br>(Equipment + Kit + Consumable) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Unique Teachers {% if sort_by == 'teachers' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
@@ -221,9 +225,9 @@
             <th> # of Reservations {% if sort_by == 'reservations' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Equipment</th>
             <th> Equipment Cost ($)</th>
-            <th> # of Activity Kits Used </th>
+            <th> # of Activity Kits Used {% if sort_by == 'kits' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> Activity Kit Cost ($)</th>
-            <th> # of Consumables Used </th>
+            <th> # of Consumables Used {% if sort_by == 'consumables' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> Consumables Cost ($)</th>
             <th> Total Cost ($) <br>(Equipment + Kit + Consumable) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
             <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
