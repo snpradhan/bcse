@@ -158,7 +158,7 @@
           {% for user in users %}
             <tr>
               <td>{{user.id}}</td>
-              <td>{{user.user.get_full_name}}</td>
+              <td>{{user.user.last_name}}, {{user.user.first_name}}</td>
               <td>{{user.user.email}}</td>
               <td>{{user.total_workshops}}</td>
               <td>{{user.total_workplaces}}</td>

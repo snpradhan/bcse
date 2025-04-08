@@ -112,7 +112,7 @@
             <td>{{reservation.created_date|date:"F j, Y"}}</td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
-            <td> {{reservation.user.user.get_full_name}} </td>
+            <td> {{reservation.user.user.last_name}}, {{reservation.user.user.first_name}} </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
             <td> {{reservation.user.user.email}} </td>
