@@ -2332,11 +2332,13 @@ def baxterBoxUsageReportSearch(request):
       activities = models.Activity.objects.all().order_by('name')
       consumables = models.Consumable.objects.all().order_by('name')
       workplaces = models.WorkPlace.objects.all().order_by('name')
+      users = models.UserProfile.objects.all()
 
       equipment_usage = {}
       kit_usage = {}
       consumable_usage = {}
       workplace_usage = {}
+      user_usage = {}
       total_usage = {'reservations': 0, 'total_equipment_cost': 0.0, 'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'workplaces': [], 'workplace_count': 0, 'classes': 0, 'students': 0}
 
       for equipment_type in equipment_types:
@@ -2347,6 +2349,8 @@ def baxterBoxUsageReportSearch(request):
         consumable_usage[consumable.id] = {'name': consumable.name, 'unit_cost': consumable.unit_cost, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'workplaces': [], 'workplace_count': 0, 'classes': 0, 'students': 0}
       for workplace in workplaces:
         workplace_usage[workplace.id] = {'name': workplace.name, 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'classes': 0, 'students': 0}
+      for user in users:
+        user_usage[user.id] = {'name': '%s, %s' % (user.user.last_name, user.user.first_name), 'email': user.user.email, 'current_workplace': user.work_place.name, 'associated_workplaces': [], 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'classes': 0, 'students': 0}
 
 
       query_filter = Q()
@@ -2431,7 +2435,6 @@ def baxterBoxUsageReportSearch(request):
 
         filter_selected = True
 
-      print(query_filter)
       reservations = reservations.filter(query_filter).distinct()
 
       for reservation in reservations:
@@ -2455,6 +2458,12 @@ def baxterBoxUsageReportSearch(request):
         workplace_usage[reservation_work_place.id]['classes'] += reservation_classes
         workplace_usage[reservation_work_place.id]['students'] += reservation_students
 
+        user_usage[reservation_user.id]['reservations'] += 1
+        user_usage[reservation_user.id]['classes'] += reservation_classes
+        user_usage[reservation_user.id]['students'] += reservation_students
+        if reservation_work_place not in user_usage[reservation_user.id]['associated_workplaces']:
+          user_usage[reservation_user.id]['associated_workplaces'].append(reservation_work_place)
+
         if reservation_user not in workplace_usage[reservation_work_place.id]['teachers']:
           workplace_usage[reservation_work_place.id]['teachers'].append(reservation_user)
           workplace_usage[reservation_work_place.id]['teacher_count'] += 1
@@ -2473,27 +2482,33 @@ def baxterBoxUsageReportSearch(request):
             equipment_usage[equipment.equipment_type.id]['classes'] += reservation_classes
             equipment_usage[equipment.equipment_type.id]['students'] += reservation_students
             workplace_usage[reservation_work_place.id]['equipment'] += 1
+            user_usage[reservation_user.id]['equipment'] += 1
+
             if equipment.equipment_type.unit_cost:
               equipment_usage[equipment.equipment_type.id]['total_cost'] += equipment.equipment_type.unit_cost
               total_usage['total_equipment_cost'] += equipment.equipment_type.unit_cost
               workplace_usage[reservation_work_place.id]['total_equipment_cost'] += equipment.equipment_type.unit_cost
+              user_usage[reservation_user.id]['total_equipment_cost'] += equipment.equipment_type.unit_cost
 
         if reservation.activity:
           if not reservation.activity_kit_not_needed:
             kit_usage[reservation.activity.id]['count'] += reservation_classes
             total_usage['kits'] += reservation_classes
             workplace_usage[reservation_work_place.id]['kits'] += reservation_classes
+            user_usage[reservation_user.id]['kits'] += reservation_classes
+
             if reservation.activity.kit_unit_cost:
               kit_usage[reservation.activity.id]['total_cost'] += reservation.activity.kit_unit_cost * reservation_classes
               total_usage['total_kit_cost'] += reservation.activity.kit_unit_cost * reservation_classes
               workplace_usage[reservation_work_place.id]['total_kit_cost'] += reservation.activity.kit_unit_cost * reservation_classes
+              user_usage[reservation_user.id]['total_kit_cost'] += reservation.activity.kit_unit_cost * reservation_classes
 
             for reservation_consumable in reservation.consumables.all():
               consumable_usage[reservation_consumable.id]['count'] += reservation_classes
               consumable_usage[reservation_consumable.id]['classes'] += reservation_classes
               consumable_usage[reservation_consumable.id]['students'] += reservation_students
               workplace_usage[reservation_work_place.id]['consumables'] += reservation_classes
-
+              user_usage[reservation_user.id]['consumables'] += reservation_classes
 
               if reservation_user not in consumable_usage[reservation_consumable.id]['teachers']:
                 consumable_usage[reservation_consumable.id]['teachers'].append(reservation_user)
@@ -2509,7 +2524,7 @@ def baxterBoxUsageReportSearch(request):
                 consumable_usage[reservation_consumable.id]['total_cost'] += reservation_consumable.unit_cost * reservation_classes
                 total_usage['total_consumables_cost'] += reservation_consumable.unit_cost * reservation_classes
                 workplace_usage[reservation_work_place.id]['total_consumables_cost'] += reservation_consumable.unit_cost * reservation_classes
-
+                user_usage[reservation_user.id]['total_consumables_cost'] += reservation_consumable.unit_cost * reservation_classes
 
 
           kit_usage[reservation.activity.id]['classes'] += reservation_classes
@@ -2540,6 +2555,7 @@ def baxterBoxUsageReportSearch(request):
         remove_kit = []
         remove_consumable = []
         remove_workplaces = []
+        remove_users = []
 
         for workplace_id, usage in workplace_usage.items():
           if usage['reservations'] == 0 and usage['teacher_count'] == 0 and usage['classes'] == 0 and usage['students'] == 0:
@@ -2557,6 +2573,10 @@ def baxterBoxUsageReportSearch(request):
           if usage['count'] == 0 and usage['teacher_count'] == 0 and usage['workplace_count'] == 0 and usage['classes'] == 0 and usage['students'] == 0:
             remove_consumable.append(consumable_id)
 
+        for user_id, usage in user_usage.items():
+          if usage['reservations'] == 0 and usage['classes'] == 0 and usage['students'] == 0:
+            remove_users.append(user_id)
+
         for workplace_id in remove_workplaces:
           del workplace_usage[workplace_id]
 
@@ -2569,64 +2589,80 @@ def baxterBoxUsageReportSearch(request):
         for consumable_id in remove_consumable:
           del consumable_usage[consumable_id]
 
+        for user_id in remove_users:
+          del user_usage[user_id]
+
       for workplace_id, usage in workplace_usage.items():
         workplace_usage[workplace_id]['total_cost'] = workplace_usage[workplace_id]['total_equipment_cost']  + workplace_usage[workplace_id]['total_kit_cost'] + workplace_usage[workplace_id]['total_consumables_cost']
+
+      for user_id, usage in user_usage.items():
+        user_usage[user_id]['total_cost'] = user_usage[user_id]['total_equipment_cost']  + user_usage[user_id]['total_kit_cost'] + user_usage[user_id]['total_consumables_cost']
 
       equipment_sort_order = []
       kit_sort_order = []
       consumable_sort_order = []
       workplace_sort_order = []
+      user_sort_order = []
 
       if sort_by == 'name':
         equipment_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
         kit_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
         consumable_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
         workplace_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+        user_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
       elif sort_by == 'reservations':
         equipment_sort_order.append({'order_by': 'reservations', 'direction': 'desc', 'ignorecase': 'false'})
         kit_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
         consumable_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
         workplace_sort_order.append({'order_by': 'reservations', 'direction': 'desc', 'ignorecase': 'false'})
+        user_sort_order.append({'order_by': 'reservations', 'direction': 'desc', 'ignorecase': 'false'})
       elif sort_by == 'usage':
         equipment_sort_order.append({'order_by': 'reservations', 'direction': 'desc', 'ignorecase': 'false'})
         kit_sort_order.append({'order_by': 'count', 'direction': 'desc', 'ignorecase': 'false'})
         consumable_sort_order.append({'order_by': 'count', 'direction': 'desc', 'ignorecase': 'false'})
         workplace_sort_order.append({'order_by': 'kits', 'direction': 'desc', 'ignorecase': 'false'})
+        user_sort_order.append({'order_by': 'kits', 'direction': 'desc', 'ignorecase': 'false'})
       elif sort_by == 'total_cost':
         equipment_sort_order.append({'order_by': 'total_cost', 'direction': 'desc', 'ignorecase': 'false'})
         kit_sort_order.append({'order_by': 'total_cost', 'direction': 'desc', 'ignorecase': 'false'})
         consumable_sort_order.append({'order_by': 'total_cost', 'direction': 'desc', 'ignorecase': 'false'})
         workplace_sort_order.append({'order_by': 'total_cost', 'direction': 'desc', 'ignorecase': 'false'})
+        user_sort_order.append({'order_by': 'total_cost', 'direction': 'desc', 'ignorecase': 'false'})
       elif sort_by == 'teachers':
         equipment_sort_order.append({'order_by': 'teacher_count', 'direction': 'desc', 'ignorecase': 'false'})
         kit_sort_order.append({'order_by': 'teacher_count', 'direction': 'desc', 'ignorecase': 'false'})
         consumable_sort_order.append({'order_by': 'teacher_count', 'direction': 'desc', 'ignorecase': 'false'})
         workplace_sort_order.append({'order_by': 'teacher_count', 'direction': 'desc', 'ignorecase': 'false'})
+        user_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
       elif sort_by == 'workplaces':
         equipment_sort_order.append({'order_by': 'workplace_count', 'direction': 'desc', 'ignorecase': 'false'})
         kit_sort_order.append({'order_by': 'workplace_count', 'direction': 'desc', 'ignorecase': 'false'})
         consumable_sort_order.append({'order_by': 'workplace_count', 'direction': 'desc', 'ignorecase': 'false'})
         workplace_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
+        user_sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'true'})
       elif sort_by == 'classes':
         equipment_sort_order.append({'order_by': 'classes', 'direction': 'desc', 'ignorecase': 'false'})
         kit_sort_order.append({'order_by': 'classes', 'direction': 'desc', 'ignorecase': 'false'})
         consumable_sort_order.append({'order_by': 'classes', 'direction': 'desc', 'ignorecase': 'false'})
         workplace_sort_order.append({'order_by': 'classes', 'direction': 'desc', 'ignorecase': 'false'})
+        user_sort_order.append({'order_by': 'classes', 'direction': 'desc', 'ignorecase': 'false'})
       elif sort_by == 'students':
         equipment_sort_order.append({'order_by': 'students', 'direction': 'desc', 'ignorecase': 'false'})
         kit_sort_order.append({'order_by': 'students', 'direction': 'desc', 'ignorecase': 'false'})
         consumable_sort_order.append({'order_by': 'students', 'direction': 'desc', 'ignorecase': 'false'})
         workplace_sort_order.append({'order_by': 'students', 'direction': 'desc', 'ignorecase': 'false'})
+        user_sort_order.append({'order_by': 'students', 'direction': 'desc', 'ignorecase': 'false'})
 
       equipment_usage = paginate(request, list(equipment_usage.values()), equipment_sort_order, rows_per_page, page)
       kit_usage = paginate(request, list(kit_usage.values()), kit_sort_order, rows_per_page, page)
       consumable_usage = paginate(request, list(consumable_usage.values()), consumable_sort_order, rows_per_page, page)
       workplace_usage = paginate(request, list(workplace_usage.values()), workplace_sort_order, rows_per_page, page)
+      user_usage = paginate(request, list(user_usage.values()), user_sort_order, rows_per_page, page)
 
 
       response_data = {}
       response_data['success'] = True
-      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'consumable_usage': consumable_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date, 'workplace_usage': workplace_usage, 'sort_by': sort_by}
+      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'consumable_usage': consumable_usage, 'user_usage': user_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date, 'workplace_usage': workplace_usage, 'sort_by': sort_by}
       response_data['html'] = render_to_string('bcse_app/BaxterBoxUsageTableView.html', context, request)
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 

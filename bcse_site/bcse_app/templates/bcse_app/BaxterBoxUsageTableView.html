@@ -17,6 +17,9 @@
   <li class="nav-item" role="presentation">
     <button class="nav-link"  id="workplace_summary-tab" data-bs-toggle="tab" data-bs-target="#workplace_summary_container" type="button" role="tab" aria-controls="workplace_summary_container" aria-selected="false"><label>Workplace Summary</label></button>
   </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link"  id="user_summary-tab" data-bs-toggle="tab" data-bs-target="#user_summary_container" type="button" role="tab" aria-controls="user_summary_container" aria-selected="false"><label>User Summary</label></button>
+  </li>
 </ul>
 <div class="tab-content">
   <div id="baxter_box_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="baxter_box_summary-tab">
@@ -204,6 +207,56 @@
       <div class="warning center">No workplace matching your search criteria found</div>
     {% endif %}
   </div>
+
+  <div id="user_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="user_summary-tab">
+    {% if user_usage %}
+      {% include "bcse_app/Pagination.html" with model=user_usage location='top'%}
+      <table class="table table-bordered table-striped export" id="user_summary">
+        <thead>
+          <tr>
+            <th> User {% if sort_by == 'name' %} &nbsp; <i class="fa-regular fa-arrow-down-short-wide"></i> {% endif %} </th>
+            <th> Email </th>
+            <th> Current Workplace </th>
+            <th> Associated Workplaces </th>
+            <th> # of Reservations {% if sort_by == 'reservations' %}  &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Equipment</th>
+            <th> Equipment Cost ($)</th>
+            <th> # of Activity Kits Used </th>
+            <th> Activity Kit Cost ($)</th>
+            <th> # of Consumables Used </th>
+            <th> Consumables Cost ($)</th>
+            <th> Total Cost ($) <br>(Equipment + Kit + Consumable) {% if sort_by == 'total_cost' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Classes {% if sort_by == 'classes' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+            <th> # of Students {% if sort_by == 'students' %} &nbsp; <i class="fa-regular fa-arrow-down-wide-short"></i> {% endif %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in user_usage %}
+            <tr>
+              <td>{{user.name}}</td>
+              <td>{{user.email}}</td>
+              <td>{{user.current_workplace}}</td>
+              <td>{{user.associated_workplaces|join:'<br>'}}</td>
+              <td>{{user.reservations}}</td>
+              <td>{{user.equipment}}</td>
+              <td>{{user.total_equipment_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{user.kits}}</td>
+              <td>{{user.total_kit_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{user.consumables}}</td>
+              <td>{{user.total_consumables_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{user.total_cost|floatformat:"2"|intcomma}}</td>
+              <td>{{user.classes}}</td>
+              <td>{{user.students}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "bcse_app/Pagination.html" with model=user_usage location='bottom'%}
+    {% else %}
+      <div class="warning center">No user matching your search criteria found</div>
+    {% endif %}
+  </div>
+
 
 </div>
 <script type="text/javascript">
