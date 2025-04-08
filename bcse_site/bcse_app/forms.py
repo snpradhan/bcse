@@ -1287,7 +1287,7 @@ class SurveyForm(ModelForm):
 class SurveysSearchForm(forms.Form):
   name = forms.CharField(required=False, max_length=256, label=u'Survey Name')
   survey_type = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.SURVEY_TYPE_CHOICES)
-  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES, label='Survey Status')
+  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES, label='Survey Status', initial='A')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('name', 'Survey Name'),
                                                       ('survey_type', 'Survey Type'),
