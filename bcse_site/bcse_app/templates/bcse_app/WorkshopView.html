@@ -18,6 +18,8 @@
     {% endif %}
     {% if workshop.image %}
       <img src="{{workshop.image.url}}">
+    {% else %}
+      <img src="{% staticfile 'img/workshop_placeholder.jpg' %}">
     {% endif %}
   </div>
   <div class="details">

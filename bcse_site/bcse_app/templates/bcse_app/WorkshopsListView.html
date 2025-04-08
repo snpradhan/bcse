@@ -1,4 +1,5 @@
 {% load bcse_extras %}
+{% load base_extras %}
 
 {% now 'Y-m-d' as current_date %}
 {% if workshops %}
@@ -15,7 +16,9 @@
             </div>
           {% endif %}
           {% if workshop.image %}
-            <img src="{{workshop.image.url}}"/>
+            <img src="{{workshop.image.url}}">
+          {% else %}
+            <img src="{% staticfile 'img/workshop_placeholder.jpg' %}">
           {% endif %}
         </div>
         <div class="details">
