@@ -70,14 +70,14 @@
               <td>{{workshop.end_date|date:"F j, Y"}}</td>
               <td>{{workshop.total_registrants}}</td>
               <td>{{workshop.total_workplaces}}</td>
-              <td>{{workshop.accepted}}</td>
-              <td>{{workshop.applied}}</td>
-              <td><strong>{{workshop.attended}}</strong></td>
-              <td>{{workshop.cancelled}}</td>
-              <td>{{workshop.denied}}</td>
-              <td>{{workshop.pending}}</td>
-              <td>{{workshop.registered}}</td>
-              <td>{{workshop.waitlisted}}</td>
+              <td>{{workshop.reg_accepted}}</td>
+              <td>{{workshop.reg_applied}}</td>
+              <td><strong>{{workshop.reg_attended}}</strong></td>
+              <td>{{workshop.reg_cancelled}}</td>
+              <td>{{workshop.reg_denied}}</td>
+              <td>{{workshop.reg_pending}}</td>
+              <td>{{workshop.reg_registered}}</td>
+              <td>{{workshop.reg_waitlisted}}</td>
             </tr>
          {% endfor %}
         </tbody>
@@ -114,14 +114,14 @@
               <td>{{workplace.name}}</td>
               <td>{{workplace.total_workshops}}</td>
               <td>{{workplace.total_registrants}}</td>
-              <td>{{workplace.accepted}}</td>
-              <td>{{workplace.applied}}</td>
-              <td><strong>{{workplace.attended}}</strong></td>
-              <td>{{workplace.cancelled}}</td>
-              <td>{{workplace.denied}}</td>
-              <td>{{workplace.pending}}</td>
-              <td>{{workplace.registered}}</td>
-              <td>{{workplace.waitlisted}}</td>
+              <td>{{workplace.reg_accepted}}</td>
+              <td>{{workplace.reg_applied}}</td>
+              <td><strong>{{workplace.reg_attended}}</strong></td>
+              <td>{{workplace.reg_cancelled}}</td>
+              <td>{{workplace.reg_denied}}</td>
+              <td>{{workplace.reg_pending}}</td>
+              <td>{{workplace.reg_registered}}</td>
+              <td>{{workplace.reg_waitlisted}}</td>
             </tr>
          {% endfor %}
         </tbody>
@@ -169,14 +169,14 @@
                   {% endfor %}
                 </ul>
               </td>
-              <td>{{user.accepted}}</td>
-              <td>{{user.applied}}</td>
-              <td><strong>{{user.attended}}</strong></td>
-              <td>{{user.cancelled}}</td>
-              <td>{{user.denied}}</td>
-              <td>{{user.pending}}</td>
-              <td>{{user.registered}}</td>
-              <td>{{user.waitlisted}}</td>
+              <td>{{user.reg_accepted}}</td>
+              <td>{{user.reg_applied}}</td>
+              <td><strong>{{user.reg_attended}}</strong></td>
+              <td>{{user.reg_cancelled}}</td>
+              <td>{{user.reg_denied}}</td>
+              <td>{{user.reg_pending}}</td>
+              <td>{{user.reg_registered}}</td>
+              <td>{{user.reg_waitlisted}}</td>
             </tr>
          {% endfor %}
         </tbody>

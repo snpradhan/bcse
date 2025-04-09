@@ -1,7 +1,7 @@
 {% load bcse_extras %}
 {% load base_extras %}
 
-<h1 class="center"> {{workshop.name}}</h1>
+<h1 class="center"> {{workshop}}</h1>
 {% include "bcse_app/WorkshopTabs.html" with tab='registrants' %}
 {% include "bcse_app/WorkshopRegistrantsSearch.html" %}
 <table class="table table-bordered table-striped export" id="workshop_summary" style="display:none;">
@@ -42,7 +42,7 @@
 <div class="workshops_registrants search_results">
 </div>
 <div class="form-group right">
-  {% if user.userProfile.user_role in 'AS' %}
+  {% if user.userProfile.user_role in 'AS' and not workshop.cancelled %}
     <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
   {% endif %}
   <button class="btn download" type="button">Export Registrants</button>

@@ -403,6 +403,7 @@ class Workshop (models.Model):
   credits = models.CharField(null=True, blank=True, max_length=512, help_text='Credits the attendees earn')
   enable_registration =  models.BooleanField(default=False)
   featured =  models.BooleanField(default=False, help_text='If marked "Featured", this workshop will be displayed under "Past Workshop Examples" tab')
+  cancelled =  models.BooleanField(default=False, help_text='If marked "Cancelled", registration will be closed and any pre-existing registration data will not be included in the registration report')
   meetup_link = models.URLField(null=True, blank=True, max_length=500)
   nid = models.IntegerField(null=True, blank=True)#delete this field after import
   tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
@@ -414,7 +415,10 @@ class Workshop (models.Model):
       ordering = ['-id']
 
   def __str__(self):
-      return '%s - %s' % (self.workshop_category, self.name)
+    if self.cancelled:
+      return 'Cancelled: %s' % self.name
+    else:
+      return self.name
 
 
 class TeacherLeader(models.Model):

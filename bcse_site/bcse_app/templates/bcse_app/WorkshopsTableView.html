@@ -51,9 +51,9 @@
           <td> {{workshop.workshop_category}} </td>
           <td>
             {% if user.is_authenticated and user.userProfile.user_role in 'AS' or workshop.status == 'A' %}
-              <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop.name}}</a>
+              <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop}}</a>
             {% else %}
-              {{workshop.name}}
+              {{workshop}}
             {% endif %}
           </td>
           <td>
@@ -110,10 +110,12 @@
                     <li>
                       <a class="dropdown-item" href="{% url 'bcse:workshopRegistrants' workshop.id %}" href="#">View Registrants</a>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
-                    </li>
+                    {% if not workshop.cancelled %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#users_upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+                      </li>
+                    {% endif %}
                   </ul>
               </td>
             {% else %}
@@ -126,7 +128,7 @@
               {% endif %}
               {% if extra != 'teacher' %}
                 <td>{{registration.get_status_display}}</td>
-                <td width="15%" class='noExl'>
+                <td width="15%">
                   {% if workshop.status == 'A'%}
                     <div class="btn-group">
                       <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -134,19 +136,21 @@
                       </button>
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
-                        {% if current_date < workshop.start_date|date:'Y-m-d' %}
-                          <li><hr class="dropdown-divider"></li>
-                          <li>
-                            <a class="dropdown-item cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.id %}"
-                            data-title="your registration for <strong>{{workshop.name}}</strong>">
-                              Cancel Registration
-                            </a>
-                          </li>
-                        {% endif %}
-                        {% if workshop.meetup_link %}
-                          {% if not workshop.enable_registration or registration and registration.status in 'RC' %}
+                        {% if not workshop.cancelled %}
+                          {% if current_date < workshop.start_date|date:'Y-m-d' %}
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{workshop.meetup_link}}" target="_blank">Join</a></li>
+                            <li>
+                              <a class="dropdown-item cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.id %}"
+                              data-title="your registration for <strong>{{workshop.name}}</strong>">
+                                Cancel Registration
+                              </a>
+                            </li>
+                          {% endif %}
+                          {% if workshop.meetup_link %}
+                            {% if not workshop.enable_registration or registration and registration.status in 'RC' %}
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item" href="{{workshop.meetup_link}}" target="_blank">Join</a></li>
+                            {% endif %}
                           {% endif %}
                         {% endif %}
                       </ul>
@@ -154,7 +158,7 @@
                   {% endif %}
                 </td>
               {% else %}
-                <td class='noExl'>
+                <td>
                   <div class="btn-group">
                     <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                       Action

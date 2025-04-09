@@ -3,7 +3,7 @@
 
 {% if user.is_authenticated %}
   {% if user.userProfile.user_role in 'AS' or workshop|is_workshop_teacher_leader:user.userProfile %}
-    <h1 class="center"> {{workshop.name}} </h1>
+    <h1 class="center"> {{workshop}} </h1>
   {% endif %}
 {% endif %}
 
@@ -24,7 +24,7 @@
   </div>
   <div class="details">
     <div>
-      <h2>{{workshop.name}}</h2>
+      <h2>{{workshop}}</h2>
       <h3 class="subtitle">{{workshop.sub_title|default:""}}</h3>
     </div>
     <div class="tags">

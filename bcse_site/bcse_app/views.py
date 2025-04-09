@@ -3394,135 +3394,140 @@ def workshopRegistration(request, workshop_id):
   registration_open = False
 
   workshop = models.Workshop.objects.get(id=workshop_id)
-  registration_setting_status = workshopRegistrationSettingStatus(workshop)
+  if workshop.cancelled:
+    registration['user_message'] = 'This workshop has been cancelled'
+    registration['message_class'] = 'warning'
+    return registration
+  else:
+    registration_setting_status = workshopRegistrationSettingStatus(workshop)
 
-  if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
+    if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
 
-    if workshop.registration_setting.registration_type in ['R', 'E']:
-      default_registration_status = 'R'
-    else:
-      default_registration_status = 'A'
+      if workshop.registration_setting.registration_type in ['R', 'E']:
+        default_registration_status = 'R'
+      else:
+        default_registration_status = 'A'
 
-    if request.user.is_anonymous:
-      if registration_setting_status['registration_open']:
-        if default_registration_status == 'R':
-          user_message = 'Please <u><a href="?next=/signin">login</a></u> to register for this workshop'
-        else:
-          user_message = 'Please <u><a href="?next=/signin">login</a></u> to apply to this workshop'
-      elif registration_setting_status['message']:
-        user_message = registration_setting_status['message']
-
-      message_class = 'info'
-    else:
-      if workshop.registration_setting.registration_type == 'E':
+      if request.user.is_anonymous:
         if registration_setting_status['registration_open']:
-          if workshop.registration_setting.external_registration_link:
-            if workshop.registration_setting.external_link_label:
-              user_message = '<a class="btn" href="%s" target="_blank">%s</a>' % (workshop.registration_setting.external_registration_link, workshop.registration_setting.external_link_label)
-            else:
-              user_message = '<a class="btn" href="%s" target="_blank">%s</a>' % (workshop.registration_setting.external_registration_link, "Click here to register for this workshop")
+          if default_registration_status == 'R':
+            user_message = 'Please <u><a href="?next=/signin">login</a></u> to register for this workshop'
+          else:
+            user_message = 'Please <u><a href="?next=/signin">login</a></u> to apply to this workshop'
         elif registration_setting_status['message']:
           user_message = registration_setting_status['message']
-          message_class = 'info'
 
+        message_class = 'info'
       else:
-        if request.user.userProfile.user_role in ['A', 'S']:
-          workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
+        if workshop.registration_setting.registration_type == 'E':
+          if registration_setting_status['registration_open']:
+            if workshop.registration_setting.external_registration_link:
+              if workshop.registration_setting.external_link_label:
+                user_message = '<a class="btn" href="%s" target="_blank">%s</a>' % (workshop.registration_setting.external_registration_link, workshop.registration_setting.external_link_label)
+              else:
+                user_message = '<a class="btn" href="%s" target="_blank">%s</a>' % (workshop.registration_setting.external_registration_link, "Click here to register for this workshop")
+          elif registration_setting_status['message']:
+            user_message = registration_setting_status['message']
+            message_class = 'info'
+
         else:
-          try:
-            workshop_registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
-            registration_message = workshopRegistrationMessage(workshop_registration)
-            user_message = registration_message['message']
-            message_class = registration_message['message_class']
-            current_status = workshop_registration.status
-            # if registration is cancelled, allow users to re-register or re-apply
-            if current_status == 'N':
-              workshop_registration.status = registration_setting_status['default_registration_status']
-          except models.Registration.DoesNotExist:
-            workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
-            if registration_setting_status['message']:
-              user_message = registration_setting_status['message']
-              message_class = 'info'
+          if request.user.userProfile.user_role in ['A', 'S']:
+            workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
+          else:
+            try:
+              workshop_registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
+              registration_message = workshopRegistrationMessage(workshop_registration)
+              user_message = registration_message['message']
+              message_class = registration_message['message_class']
+              current_status = workshop_registration.status
+              # if registration is cancelled, allow users to re-register or re-apply
+              if current_status == 'N':
+                workshop_registration.status = registration_setting_status['default_registration_status']
+            except models.Registration.DoesNotExist:
+              workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
+              if registration_setting_status['message']:
+                user_message = registration_setting_status['message']
+                message_class = 'info'
 
-  if request.method == 'GET':
-    if workshop_registration:
-      if request.user.userProfile.user_role in ['A', 'S'] or registration_setting_status['registration_open']:
-        form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
-
-    registration['form'] = form
-    registration['instance'] = workshop_registration
-    registration['user_message'] = user_message
-    registration['message_class'] = message_class
-    registration['current_status'] = current_status
-
-    return registration
-
-  elif request.method == 'POST':
-    data = request.POST.copy()
-    registration_id = None
-    form = forms.WorkshopRegistrationForm(data, instance=workshop_registration, prefix='workshop-%s'%workshop.id)
-    if form.is_valid():
-      saved_registration = form.save()
-      registration_id = saved_registration.id
-      if request.user.userProfile.user_role in ['A', 'S']:
-        workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
-        form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
-        admin_message = "Workshop registration for user %s saved" % saved_registration.user
-        registration['admin_message'] = admin_message
-        registration['form'] = form
-        registration['instance'] = workshop_registration
-      else:
-        registration_message = workshopRegistrationMessage(saved_registration)
-        user_message = registration_message['message']
-        message_class = registration_message['message_class']
-        registration['user_message'] = user_message
-        registration['message_class'] = message_class
-        registration['instance'] = saved_registration
-        registration['current_status'] = saved_registration.status
-
-      #create registration - workplace association
-      if saved_registration.user.work_place:
-        try:
-          registration_work_place = models.RegistrationWorkPlace.objects.get(registration=saved_registration)
-          registration_work_place.work_place = saved_registration.user.work_place
-          registration_work_place.save()
-        except models.RegistrationWorkPlace.DoesNotExist:
-          registration_work_place = models.RegistrationWorkPlace(registration=saved_registration, work_place=saved_registration.user.work_place)
-          registration_work_place.save()
-
-      success = True
-    else:
-      print(form.errors)
-      if not request.is_ajax():
-        messages.success(request, "There were some errors")
-      if request.user.userProfile.user_role in ['A', 'S']:
-        try:
-          registration_user = data.get("workshop-%s-user"%workshop.id, "")
-          if registration_user:
-            reg = userRegistration(request, workshop.id, registration_user)
-            admin_message = "Workshop registration for user <b>%s</b> already exists. If you need to update the registration status for this user, please use the Registrants tab" % reg.user
-
-        except CustomException as ce:
-          admin_message = "Something went wrong with the workshop registration"
-
-        registration['admin_message'] = admin_message
-      else:
-        registration['user_message'] = user_message
+    if request.method == 'GET':
+      if workshop_registration:
+        if request.user.userProfile.user_role in ['A', 'S'] or registration_setting_status['registration_open']:
+          form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
 
       registration['form'] = form
       registration['instance'] = workshop_registration
+      registration['user_message'] = user_message
       registration['message_class'] = message_class
       registration['current_status'] = current_status
-      success = False
 
-    if request.is_ajax():
-      response_data = {'success': success, 'admin_message': admin_message}
-      context = {'workshop': workshop, 'registration': registration}
-      response_data['html'] = render_to_string('bcse_app/WorkshopRegistration.html', context, request)
-      return http.HttpResponse(json.dumps(response_data), content_type='application/json')
-    else:
-      print('request non ajax')
       return registration
+
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      registration_id = None
+      form = forms.WorkshopRegistrationForm(data, instance=workshop_registration, prefix='workshop-%s'%workshop.id)
+      if form.is_valid():
+        saved_registration = form.save()
+        registration_id = saved_registration.id
+        if request.user.userProfile.user_role in ['A', 'S']:
+          workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, status=default_registration_status)
+          form = forms.WorkshopRegistrationForm(instance=workshop_registration, prefix='workshop-%s'%workshop.id)
+          admin_message = "Workshop registration for user %s saved" % saved_registration.user
+          registration['admin_message'] = admin_message
+          registration['form'] = form
+          registration['instance'] = workshop_registration
+        else:
+          registration_message = workshopRegistrationMessage(saved_registration)
+          user_message = registration_message['message']
+          message_class = registration_message['message_class']
+          registration['user_message'] = user_message
+          registration['message_class'] = message_class
+          registration['instance'] = saved_registration
+          registration['current_status'] = saved_registration.status
+
+        #create registration - workplace association
+        if saved_registration.user.work_place:
+          try:
+            registration_work_place = models.RegistrationWorkPlace.objects.get(registration=saved_registration)
+            registration_work_place.work_place = saved_registration.user.work_place
+            registration_work_place.save()
+          except models.RegistrationWorkPlace.DoesNotExist:
+            registration_work_place = models.RegistrationWorkPlace(registration=saved_registration, work_place=saved_registration.user.work_place)
+            registration_work_place.save()
+
+        success = True
+      else:
+        print(form.errors)
+        if not request.is_ajax():
+          messages.success(request, "There were some errors")
+        if request.user.userProfile.user_role in ['A', 'S']:
+          try:
+            registration_user = data.get("workshop-%s-user"%workshop.id, "")
+            if registration_user:
+              reg = userRegistration(request, workshop.id, registration_user)
+              admin_message = "Workshop registration for user <b>%s</b> already exists. If you need to update the registration status for this user, please use the Registrants tab" % reg.user
+
+          except CustomException as ce:
+            admin_message = "Something went wrong with the workshop registration"
+
+          registration['admin_message'] = admin_message
+        else:
+          registration['user_message'] = user_message
+
+        registration['form'] = form
+        registration['instance'] = workshop_registration
+        registration['message_class'] = message_class
+        registration['current_status'] = current_status
+        success = False
+
+      if request.is_ajax():
+        response_data = {'success': success, 'admin_message': admin_message}
+        context = {'workshop': workshop, 'registration': registration}
+        response_data['html'] = render_to_string('bcse_app/WorkshopRegistration.html', context, request)
+        return http.HttpResponse(json.dumps(response_data), content_type='application/json')
+      else:
+        print('request non ajax')
+        return registration
 
 ################################################
 # Check if registration is open for a workshop
@@ -4725,7 +4730,7 @@ def workshopsRegistrantsSearch(request):
 
     if request.method == 'GET':
 
-      query_filter = Q()
+      query_filter = Q(workshop_registration_setting__workshop__cancelled=False)
 
       workshop_category = [int(i) for i in request.GET.getlist('registrants_search-workshop_category', '')]
       workshop = [int(i) for i in request.GET.getlist('registrants_search-workshop', '')]
@@ -4849,28 +4854,28 @@ def workshopsRegistrantsSearch(request):
       workshops = models.Workshop.objects.all().annotate(
         total_registrants=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations), distinct=True),
         total_workplaces=Count('registration_setting__workshop_registrants__registration_to_work_place__work_place__id', filter=Q(registration_setting__workshop_registrants__in=registrations), distinct=True),
-        accepted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='C'), distinct=True),
-        applied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='A'), distinct=True),
-        attended=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T'), distinct=True),
-        cancelled=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='N'), distinct=True),
-        denied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='D'), distinct=True),
-        pending=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='P'), distinct=True),
-        registered=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='R'), distinct=True),
-        waitlisted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='W'), distinct=True)
+        reg_accepted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='C'), distinct=True),
+        reg_applied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='A'), distinct=True),
+        reg_attended=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T'), distinct=True),
+        reg_cancelled=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='N'), distinct=True),
+        reg_denied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='D'), distinct=True),
+        reg_pending=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='P'), distinct=True),
+        reg_registered=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='R'), distinct=True),
+        reg_waitlisted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='W'), distinct=True)
 
         ).filter(id__in=registrations.values_list('workshop_registration_setting__workshop__id', flat=True))
 
       workplaces = models.WorkPlace.objects.all().annotate(
         total_workshops = Count('work_place_to_registration__registration__workshop_registration_setting__workshop__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
         total_registrants=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
-        accepted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='C'), distinct=True),
-        applied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='A'), distinct=True),
-        attended=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T'), distinct=True),
-        cancelled=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='N'), distinct=True),
-        denied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='D'), distinct=True),
-        pending=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='P'), distinct=True),
-        registered=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='R'), distinct=True),
-        waitlisted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='W'), distinct=True)
+        reg_accepted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='C'), distinct=True),
+        reg_applied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='A'), distinct=True),
+        reg_attended=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T'), distinct=True),
+        reg_cancelled=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='N'), distinct=True),
+        reg_denied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='D'), distinct=True),
+        reg_pending=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='P'), distinct=True),
+        reg_registered=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='R'), distinct=True),
+        reg_waitlisted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='W'), distinct=True)
 
         ).filter(id__in=registrations.values_list('registration_to_work_place__work_place__id', flat=True))
 
@@ -4878,14 +4883,14 @@ def workshopsRegistrantsSearch(request):
         total_workshops = Count('registered_workshops__workshop_registration_setting__workshop__id', filter=Q(registered_workshops__in=registrations), distinct=True),
         total_workplaces=Count('registered_workshops__registration_to_work_place__work_place__id', filter=Q(registered_workshops__in=registrations), distinct=True),
         workplaces=ArrayAgg('registered_workshops__registration_to_work_place__work_place__name', filter=Q(registered_workshops__in=registrations), distinct=True, ordering=F('registered_workshops__registration_to_work_place__work_place__name').asc()),
-        accepted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='C'), distinct=True),
-        applied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='A'), distinct=True),
-        attended=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T'), distinct=True),
-        cancelled=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='N'), distinct=True),
-        denied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='D'), distinct=True),
-        pending=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='P'), distinct=True),
-        registered=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='R'), distinct=True),
-        waitlisted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='W'), distinct=True)
+        reg_accepted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='C'), distinct=True),
+        reg_applied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='A'), distinct=True),
+        reg_attended=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T'), distinct=True),
+        reg_cancelled=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='N'), distinct=True),
+        reg_denied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='D'), distinct=True),
+        reg_pending=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='P'), distinct=True),
+        reg_registered=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='R'), distinct=True),
+        reg_waitlisted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='W'), distinct=True)
 
         ).filter(id__in=registrations.values_list('user__id', flat=True))
 
@@ -4929,15 +4934,15 @@ def workshopsRegistrantsSearch(request):
           users_sort_order.append({'order_by': 'user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
         else:
           registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
-          workshops_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
-          workplaces_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
-          users_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
+          workshops_sort_order.append({'order_by': 'reg_attended', 'direction': 'desc', 'ignorecase': 'false'})
+          workplaces_sort_order.append({'order_by': 'reg_attended', 'direction': 'desc', 'ignorecase': 'false'})
+          users_sort_order.append({'order_by': 'reg_attended', 'direction': 'desc', 'ignorecase': 'false'})
 
       else:
           registrations_sort_order.append({'order_by': 'workshop_registration_setting__workshop__name', 'direction': 'asc', 'ignorecase': 'true'})
-          workshops_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
-          workplaces_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
-          users_sort_order.append({'order_by': 'attended', 'direction': 'desc', 'ignorecase': 'false'})
+          workshops_sort_order.append({'order_by': 'reg_attended', 'direction': 'desc', 'ignorecase': 'false'})
+          workplaces_sort_order.append({'order_by': 'reg_attended', 'direction': 'desc', 'ignorecase': 'false'})
+          users_sort_order.append({'order_by': 'reg_attended', 'direction': 'desc', 'ignorecase': 'false'})
 
       registrations_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
       workshops_sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})

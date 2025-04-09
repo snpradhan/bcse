@@ -894,7 +894,7 @@ class WorkshopForm(ModelForm):
     self.fields['credits'].label = 'ISBE PD Credits'
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['enable_registration', 'featured']:
+      if field_name not in ['enable_registration', 'featured', 'cancelled']:
         if field_name in ['start_date', 'end_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
         elif field_name in ['start_time', 'end_time']:
@@ -921,6 +921,10 @@ class WorkshopRegistrationSettingForm(ModelForm):
   def __init__(self, *args, **kwargs):
     super(WorkshopRegistrationSettingForm, self).__init__(*args, **kwargs)
 
+    cancelled = False
+    if self.instance.id and self.instance.workshop.cancelled:
+      cancelled = True
+
     for field_name, field in list(self.fields.items()):
       if field_name not in ['enable_waitlist']:
         if field_name in ['open_date', 'close_date']:
@@ -944,6 +948,10 @@ class WorkshopRegistrationSettingForm(ModelForm):
 
       else:
         field.widget.attrs['class'] = 'form-check-input'
+
+      if cancelled:
+        field.widget.attrs['disabled'] = True
+
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -1577,7 +1585,7 @@ class WorkshopsSearchForm(forms.Form):
 class WorkshopsRegistrantsSearchForm(forms.Form):
 
   workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
-  workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
+  workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().filter(cancelled=False).order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
   #user = forms.ModelChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
   user = forms.ModelMultipleChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=forms.SelectMultiple(attrs={'size':6}))
 

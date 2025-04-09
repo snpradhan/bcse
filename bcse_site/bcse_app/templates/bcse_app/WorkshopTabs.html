@@ -26,9 +26,14 @@
       <li class="nav-item">
         <label><a class="nav-link active" aria-current="page">Edit</a></label>
       </li>
+      <li class="nav-item right">
+        <button class="btn" type="submit" id="submit_top">
+          Save
+        </button>
+      </li>
     {% endif %}
 
-    {% if tab == 'edit' or tab == 'registration_setting' %}
+    {% if tab == 'registration_setting' and not workshop.cancelled %}
       <li class="nav-item right">
         <button class="btn" type="submit" id="submit_top">
           Save
@@ -37,10 +42,12 @@
     {% endif %}
     {% if tab == 'registrants'%}
       <li class="nav-item right">
-        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+        {% if not workshop.cancelled %}
+          <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+        {% endif %}
         <button class="btn download" type="button">Export Registrants</button>
       </li>
-    {% elif tab == 'emails' %}
+    {% elif tab == 'emails' and not workshop.cancelled%}
        <li class="nav-item right">
         <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopEmailNew' workshop.id %}" href="#">Create Email</a>
       </li>

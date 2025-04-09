@@ -3,14 +3,16 @@
     <div class="message {{registration.message_class}}">
       <div>{{registration.user_message|safe}}</div>
       <br>
-      {% now 'Y-m-d' as current_date %}
-      {% if registration.instance.id  and registration.current_status != 'N' and current_date < workshop.start_date|date:'Y-m-d' %}
-        <a role="button" class="btn btn-danger btn-small cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.instance.id %}" data-title="your registration for <strong>{{workshop.name}}</strong>">
-          Cancel
-        </a>
-      {% endif %}
-      {% if user.userProfile.user_role in 'AS' %}
-        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+      {% if not workshop.cancelled %}
+        {% now 'Y-m-d' as current_date %}
+        {% if registration.instance.id  and registration.current_status != 'N' and current_date < workshop.start_date|date:'Y-m-d' %}
+          <a role="button" class="btn btn-danger btn-small cancel action" data-href="{% url 'bcse:workshopRegistrationCancel' workshop.id registration.instance.id %}" data-title="your registration for <strong>{{workshop.name}}</strong>">
+            Cancel
+          </a>
+        {% endif %}
+        {% if user.userProfile.user_role in 'AS' %}
+          <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
+        {% endif %}
       {% endif %}
     </div>
   {% endif %}

@@ -4,7 +4,7 @@
 {% block configuration %}
 
   {% if form.instance.id %}
-    <h1 class="center"> {{form.instance.name}} </h1>
+    <h1 class="center"> {{form.instance}} </h1>
   {% else %}
     <h1 class="center"> Create Workshop </h1>
   {% endif %}
@@ -142,6 +142,14 @@
         <div class="error">{{ form.featured.errors }}</div>
       </div>
       <div class="form-group mb-3">
+        <label for="id_{{form.cancelled.name}}" class="form-label">
+          {{form.cancelled.label|title}}
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.cancelled.help_text}}"></i>
+        </label>
+        <div>{{form.cancelled}}</div>
+        <div class="error">{{ form.cancelled.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
         <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
         <div>{{form.status}}</div>
         <div class="error">{{ form.status.errors }}</div>
@@ -206,7 +214,18 @@
         }
       });
 
+      $('#id_cancelled').on('change', function(){
+        if($(this).is(':checked')){
+          $('#id_enable_registration').addClass('readonly');
+        }
+        else{
+          $('#id_enable_registration').removeClass('readonly');
+        }
+      });
+
       $('#id_workshop_category').trigger('change');
+      $('#id_cancelled').trigger('change');
+
 
     });
   </script>

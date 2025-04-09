@@ -3,7 +3,7 @@
 
 {% block configuration %}
 
-  <h1 class="center"> {{workshop.name}}</h1>
+  <h1 class="center"> {{workshop}}</h1>
   <div class="workshop_form">
     <form method="post" enctype="multipart/form-data" id="formWorkshopRegistrationSetting">
       {% csrf_token %}
@@ -102,11 +102,14 @@
         <div class="error">{{ form.confirmation_message.errors }}</div>
       </div>
 
+      {% if not workshop.cancelled %}
       <div class="form-group mb-3 right">
         <button class="btn btn-success" type="submit" id="submit_bottom">
           Save
         </button>
       </div>
+      {% endif %}
+
     </form>
   </div>
 

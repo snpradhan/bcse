@@ -43,7 +43,7 @@
           {% if user.userProfile.user_role in 'AS' %}
             <td class="noExl">
               <div class="btn-group">
-                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" {% if workshop.cancelled %} disabled {% endif %}>
                   Action
                 </button>
                 <ul class="dropdown-menu">
