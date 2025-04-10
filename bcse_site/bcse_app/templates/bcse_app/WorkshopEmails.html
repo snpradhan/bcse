@@ -100,7 +100,11 @@
                     {% if email.email_status == 'D' %}
                       <li><hr class="dropdown-divider"></li>
                       <li>
-                        <a class="dropdown-item" href="{% url 'bcse:workshopEmailSend' workshop.id email.id %}">Send Email</a>
+                        {% if email.scheduled_date %}
+                          <a class="dropdown-item" onclick="displayWarningDialog('This email is scheduled for {{email.scheduled_date}} {{email.scheduled_time|date:"g:i A"}} CST');">Send Email</a>
+                        {% else %}
+                          <a class="dropdown-item" href="{% url 'bcse:workshopEmailSend' workshop.id email.id %}">Send Email</a>
+                        {% endif %}
                       </li>
                       <li><hr class="dropdown-divider"></li>
                       <li>

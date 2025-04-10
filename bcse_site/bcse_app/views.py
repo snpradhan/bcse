@@ -3930,7 +3930,6 @@ def workshopEmailEdit(request, workshop_id='', id=''):
     elif request.method == 'POST':
       response_data = {}
       data = request.POST.copy()
-      print(data)
       send_email = False
       if data['send'][0] == '1':
         send_email = True
@@ -3939,13 +3938,20 @@ def workshopEmailEdit(request, workshop_id='', id=''):
         selected_status = form.cleaned_data['registration_statuses']
         savedWorkshopEmail = form.save(commit=False)
         savedWorkshopEmail.set_registration_status(selected_status)
+        if savedWorkshopEmail.scheduled_date and not savedWorkshopEmail.scheduled_time:
+          savedWorkshopEmail.scheduled_time = '00:00:00'
         savedWorkshopEmail.save()
 
-        print(send_email)
         if send_email:
           workshopEmailSend(request, workshop_id, savedWorkshopEmail.id)
         else:
-          messages.success(request, "Workshop Email saved")
+          if savedWorkshopEmail.scheduled_date:
+            if savedWorkshopEmail.scheduled_time:
+              messages.success(request, "Workshop Email scheduled for %s %s CST" % (savedWorkshopEmail.scheduled_date.strftime('%b %d, %Y'), savedWorkshopEmail.scheduled_time.strftime('%I:%M %p')))
+            else:
+              messages.success(request, "Workshop Email scheduled for %s 12:00 AM CST" % (savedWorkshopEmail.scheduled_date))
+          else:
+            messages.success(request, "Workshop Email saved")
 
         response_data['success'] = True
       else:

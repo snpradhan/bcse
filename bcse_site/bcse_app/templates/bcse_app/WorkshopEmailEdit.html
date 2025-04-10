@@ -84,11 +84,14 @@
       </div>
       <div class="modal-footer">
         <div class="form-group buttons right">
-          <button type="submit" id="save_button" class="btn btn-success">
+          <button type="button" id="save_button" class="btn btn-success">
             Save Draft
           </button>
           <button type="button" id="send_button" class="btn btn-success">
-            Send Email
+            Send Now
+          </button>
+          <button type="button" id="schedule_button" class="btn btn-success" style="display: none;">
+            Schedule Email
           </button>
         </div>
       </div>
@@ -104,10 +107,26 @@
         id: '-1', // the value of the option
       }
     });
+    $('#save_button, #schedule_button').on('click', function(){
+      $('#send').val(0);
+      $("#formWorkshopEmail").submit();
+    });
     $('#send_button').on('click', function(){
       $('#send').val(1);
       $("#formWorkshopEmail").submit();
     });
+
+    $('#id_scheduled_date').on('change', function(){
+      if($(this).val()) {
+        $('#save_button, #send_button').hide();
+        $('#schedule_button').show();
+      }
+      else {
+        $('#save_button, #send_button').show();
+        $('#schedule_button').hide();
+      }
+    });
+
 
     $("#formWorkshopEmail").submit(function(e) {
       e.preventDefault();
@@ -145,7 +164,10 @@
           displayErrorDialog();
         }
       });
-    });    
+    });
+
+    $('#id_scheduled_date').trigger('change');
+
   });
 </script>
 
