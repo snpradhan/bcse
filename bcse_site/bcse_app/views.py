@@ -4314,6 +4314,7 @@ def workshopsSearch(request, display='list', period='current', extra=''):
     starts_after_filter = None
     ends_before_filter = None
     registration_filter = None
+    cancelled_filter = None
     status_filter = None
     tags_filter = None
     filters_applied = False
@@ -4322,6 +4323,7 @@ def workshopsSearch(request, display='list', period='current', extra=''):
     starts_after = request.GET.get('workshop_search-starts_after', '')
     ends_before = request.GET.get('workshop_search-ends_before', '')
     registration_open = request.GET.get('workshop_search-registration_open', '')
+    cancelled = request.GET.get('workshop_search-cancelled', '')
     workshop_category = request.GET.get('workshop_search-workshop_category', '')
     status = request.GET.get('workshop_search-status', '')
     sort_by = request.GET.get('workshop_search-sort_by', '')
@@ -4334,6 +4336,7 @@ def workshopsSearch(request, display='list', period='current', extra=''):
       'starts_after': starts_after,
       'ends_before': ends_before,
       'registration_open': registration_open,
+      'cancelled': cancelled,
       'workshop_category': workshop_category,
       'status': status,
       'sort_by': sort_by,
@@ -4365,6 +4368,9 @@ def workshopsSearch(request, display='list', period='current', extra=''):
     if status:
       status_filter = Q(status=status)
 
+    if cancelled:
+      cancelled_filter = Q(cancelled=cancelled)
+
     if starts_after:
       starts_after = datetime.datetime.strptime(starts_after, '%B %d, %Y')
       starts_after_filter = Q(start_date__gte=starts_after)
@@ -4384,6 +4390,9 @@ def workshopsSearch(request, display='list', period='current', extra=''):
       filters_applied = True
     if status_filter:
       query_filter = query_filter & status_filter
+      filters_applied = True
+    if cancelled_filter:
+      query_filter = query_filter & cancelled_filter
       filters_applied = True
     if workshop_category_filter:
       query_filter = query_filter & workshop_category_filter

@@ -42,6 +42,13 @@
               <div class="error">{{ searchForm.registration_open.errors }}</div>
             </div>
           {% endif %}
+          {% if searchForm.cancelled %}
+            <div class="form-group">
+              <label for="id_{{searchForm.cancelled.name}}" class="form-label"> {{searchForm.cancelled.label|title}}</label>
+              <div>{{searchForm.cancelled}}</div>
+              <div class="error">{{ searchForm.cancelled.errors }}</div>
+            </div>
+          {% endif %}
           {% if searchForm.status %}
             <div class="form-group">
               <label for="id_{{searchForm.status.name}}" class="form-label"> {{searchForm.status.label|title}}</label>

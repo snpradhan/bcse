@@ -1519,6 +1519,7 @@ class WorkshopsSearchForm(forms.Form):
   starts_after = forms.DateField(required=False, label=u'Starts on/after')
   ends_before = forms.DateField(required=False, label=u'Ends on/before')
   registration_open = forms.ChoiceField(choices=(('', '---------'),)+models.YES_NO_CHOICES, initial='', widget=forms.Select(), required=False)
+  cancelled = forms.ChoiceField(choices=(('', '---------'),)+models.YES_NO_CHOICES, initial='', widget=forms.Select(), required=False)
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES, initial='A')
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('title', 'Title'),
@@ -1541,6 +1542,7 @@ class WorkshopsSearchForm(forms.Form):
       self.fields.pop('starts_after')
       self.fields.pop('ends_before')
       self.fields.pop('registration_open')
+      self.fields.pop('cancelled')
       self.fields.pop('status')
       self.fields['sort_by'].initial = 'start_date_asc'
       #setting rows_per_age to 0 will return all the rows without paging
