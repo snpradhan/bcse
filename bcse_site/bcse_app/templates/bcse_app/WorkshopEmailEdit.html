@@ -67,7 +67,7 @@
             <div class="error">{{ form.scheduled_date.errors }}</div>
           </div>
           <div class="col">
-            <label for="id_{{form.scheduled_time.name}}" class="form-label"> {{form.scheduled_time.label|title}}</label>
+            <label for="id_{{form.scheduled_time.name}}" class="form-label"> {{form.scheduled_time.label|title}} (CST)</label>
             <div class="input-group">
               {{form.scheduled_time}}
               <span class="input-group-text"><i class="fa fa-clock"></i></span>

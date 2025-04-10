@@ -3930,6 +3930,7 @@ def workshopEmailEdit(request, workshop_id='', id=''):
     elif request.method == 'POST':
       response_data = {}
       data = request.POST.copy()
+      print(data)
       send_email = False
       if data['send'][0] == '1':
         send_email = True
@@ -3940,8 +3941,9 @@ def workshopEmailEdit(request, workshop_id='', id=''):
         savedWorkshopEmail.set_registration_status(selected_status)
         savedWorkshopEmail.save()
 
+        print(send_email)
         if send_email:
-          workshopEmailSend(request, workshop_id, id)
+          workshopEmailSend(request, workshop_id, savedWorkshopEmail.id)
         else:
           messages.success(request, "Workshop Email saved")
 
