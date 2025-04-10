@@ -1822,7 +1822,7 @@ def reservationsSearch(request):
       user = request.GET.get('reservation_search-user', '')
       work_place = request.GET.get('reservation_search-work_place', '')
       assignee = request.GET.get('reservation_search-assignee', '')
-      activity = request.GET.get('reservation_search-activity', '')
+      activity = request.GET.getlist('reservation_search-activity', '')
       consumable = request.GET.getlist('reservation_search-consumable', '')
       equipment = request.GET.getlist('reservation_search-equipment', '')
       delivery_after = request.GET.get('reservation_search-delivery_after', '')
@@ -1874,7 +1874,7 @@ def reservationsSearch(request):
         assignee_filter = Q(assignee=assignee)
 
       if activity:
-        activity_filter = Q(activity=activity)
+        activity_filter = Q(activity__in=activity)
 
       if consumable:
         consumable_filter = Q(consumables__in=consumable)

@@ -1449,7 +1449,7 @@ class ReservationsSearchForm(forms.Form):
                                   )
   assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
-  activity = forms.ModelChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'))
+  activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':6}))
   delivery_after = forms.DateField(required=False, label=u'Delivery on/after')
@@ -1491,7 +1491,7 @@ class ReservationsSearchForm(forms.Form):
     for field_name, field in self.fields.items():
       if field_name in ['delivery_after', 'return_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
-      elif field_name in ['equipment', 'consumable']:
+      elif field_name in ['activity', 'equipment', 'consumable']:
         field.widget.attrs['class'] = 'form-control select2'
       else:
         field.widget.attrs['class'] = 'form-control'
