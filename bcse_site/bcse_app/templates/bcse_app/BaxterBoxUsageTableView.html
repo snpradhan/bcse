@@ -240,7 +240,13 @@
               <td>{{user.name}}</td>
               <td>{{user.email}}</td>
               <td>{{user.current_workplace}}</td>
-              <td>{{user.associated_workplaces|join:'<br>'}}</td>
+              <td>
+                <ul>
+                  {% for workplace in user.associated_workplaces %}
+                    <li>{{workplace}}</li>
+                  {% endfor %}
+                </ul>
+              </td>
               <td>{{user.reservations}}</td>
               <td>{{user.equipment}}</td>
               <td>{{user.total_equipment_cost|floatformat:"2"|intcomma}}</td>
