@@ -11,17 +11,6 @@
             <h3 class="underline">Activity</h3>
           {% endif %}
           <div class="wysiwyg_content">{{kit.description|safe}}</div>
-          {% regroup kit.tags.all by tag as tag_list %}
-          <ul>
-            {% for tag in tag_list %}
-              <li>
-                <strong>{{tag.grouper}}</strong>:
-                {% for subtag in tag.list %}
-                  {{subtag.name}} {% if not forloop.last %},{% endif %}
-                {% endfor %}
-              </li>
-            {% endfor %}
-          </ul>
         </div>
         {% if type == 'activity' %}
           <br>
