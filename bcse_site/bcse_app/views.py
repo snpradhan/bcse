@@ -3269,6 +3269,8 @@ def workshopCopy(request, id=''):
       workshop.id = None
       workshop.image = None
       workshop.enable_registration = False
+      workshop.featured = False
+      workshop.cancelled = False
       workshop.save()
 
       original_workshop = models.Workshop.objects.get(id=id)
