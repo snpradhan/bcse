@@ -513,7 +513,7 @@ class WorkshopEmail(models.Model):
   email_message = RichTextField(null=False, blank=False)
   email_status = models.CharField(null=False, blank=False, max_length=1, choices=EMAIL_STATUS_CHOICES, default='D')
   scheduled_date = models.DateField(null=True, blank=True, help_text="The date the email is scheduled to be sent.")
-  scheduled_time = models.TimeField(null=True, blank=True, help_text='The time the email is scheduled to be sent. If date is set but time is not set, the email will be sent at midnight.')
+  scheduled_time = models.TimeField(null=True, blank=True, help_text='The time the email is scheduled to be sent. If date is set but time is not set, the email will be scheduled for midnight.')
   sent_date = models.DateTimeField(null=True, blank=True)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
@@ -521,6 +521,14 @@ class WorkshopEmail(models.Model):
 
   class Meta:
       ordering = ['modified_date']
+
+  def get_email_status(self):
+    if self.sent_date:
+      return 'Sent'
+    elif self.scheduled_date:
+      return 'Scheduled'
+    else:
+      return 'Draft'
 
   def get_registration_status(self):
     return self.registration_status.split(',') if self.registration_status else []

@@ -307,7 +307,7 @@ def send_workshop_emails():
   current_date = now.strftime('%Y-%m-%d')
   current_time = now.strftime('%H:%M:%S')
 
-  workshop_emails = models.WorkshopEmail.objects.all().filter(email_status='D')
+  workshop_emails = models.WorkshopEmail.objects.all().filter(email_status='D', workshop__cancelled=False)
   workshop_emails = workshop_emails.filter(Q(scheduled_date__lt=current_date) | Q(Q(scheduled_date=current_date), Q(Q(scheduled_time__isnull=True) | Q(scheduled_time__lte=current_time))))
   print('sending %s workshop emails' % len(workshop_emails))
   for workshop_email in workshop_emails:

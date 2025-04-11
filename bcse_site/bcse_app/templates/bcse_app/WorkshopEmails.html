@@ -70,7 +70,7 @@
                 {% endif %}
               </td>
               <td>{{email.email_subject}}</td>
-              <td>{{email.get_email_status_display}}</td>
+              <td>{{email.get_email_status}}</td>
               <td>{{email.scheduled_date|date:"F j, Y"}} {{email.scheduled_time|date:"g:i A"}}</td>
               <td>{{email.sent_date|date:"F j, Y g:i A"}}</td>
               <td>{{email.created_date|date:"F j, Y g:i A"}}</td>

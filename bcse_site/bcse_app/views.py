@@ -3940,6 +3940,8 @@ def workshopEmailEdit(request, workshop_id='', id=''):
         savedWorkshopEmail.set_registration_status(selected_status)
         if savedWorkshopEmail.scheduled_date and not savedWorkshopEmail.scheduled_time:
           savedWorkshopEmail.scheduled_time = '00:00:00'
+        elif not savedWorkshopEmail.scheduled_date and savedWorkshopEmail.scheduled_time:
+          savedWorkshopEmail.scheduled_time = None
         savedWorkshopEmail.save()
 
         if send_email:
