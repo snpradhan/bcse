@@ -24,167 +24,71 @@
            --baxter-orange: #FA8300;
          }
 
-         div#email_container {
-          background-color: #f1f0f0 !important;
-          font-family: din-2014, sans-serif;
-         }
-         div#header, div#message, div#footer {
-           max-width: 650px !important;
-           width: 650px !important;
-           margin-left: auto;
-           margin-right: auto;
-           background-color: white;
-           border-left: 1px solid #d8d6d6;
-           border-right: 1px solid #d8d6d6;
-           text-align: center;
-         }
-
-         div#message > div, div#footer > table {
-          padding: 1em !important;
-         }
-
-         div#footer {
-          background-color: #4e2a84;
-          margin-bottom: 0.5em;
-         }
-         div#footer h3 {
-          color: white !important;
-         }
-
-         div#text {
-           font-size: 1.2em;
-           line-height: 1.5em;
-           padding: 2em;
-           margin-left: auto;
-           margin-right: auto;
-         }
-
-         div#header img {
-          width: 100% !important;
-          position: relative;
-         }
-         div#info div#edit, div#question div#mail {
-           margin-top: 1em;
-           font-style: bold;
-         }
-         div#header table, div#dates table, div#equipment table, div#footer table{
-           width: 100%;
-           margin-left: auto;
-           margin-right: auto;
-         }
-         div#dates table tr td, div#equipment table tr td {
-           border-top: 1px solid #767676;
-           padding: 0.5em 0;
-         }
-         div#header table, div#message table, div#footer table{
-          table-layout: fixed;
-         }
-         div#header table td, div#message table td, div#footer table td{
-          word-wrap: normal
-         }
-         table tr td.left {
-           border-right: 1px solid #767676;
-           margin-right: 1em;
-         }
-         table tr td.right {
-           border-left: 1px solid #767676;
-           margin-left: 1em;
-         }
-         div#dates table tr.address {
-           height: auto;
-         }
-         tr td.title {
-           width: 40%;
-           font-weight: bold;
-         }
-
          tr td.manuals ul {
           padding-left: unset;
          }
          tr td.manuals ul li {
           list-style-type: none !important;
          }
-         tr td.details {
-           height: auto;
-         }
-         tr td.details div.title {
-           font-weight: 600;
-         }
-         div#footer table td {
-           text-align: center;
-         }
-         div#footer table td img {
-           width: 30px;
-         }
-         div#email_container a {
-           font-weight: 600;
-         }
-         div#email_container ul {
-          margin-bottom: unset;
-         }
-         div#email_container li a {
-           font-weight: 400;
-         }
-         div#email_container h3 {
-           font-weight: 600 !important;
-           font-size: 1.25em !important;
-         }
-         .warning {
-          text-decoration: underline;
-          font-style: italic;
-          color: orange;
-         }
+
       </style>
    </head>
    <body>
-      <div id="email_container">
-        <div id="header">
-          <img src="https://s3.amazonaws.com/bcse-4.0-prod/banner_logos/15thAnniversaryBannerName.png">
-        </div>
-        <div id="message">
-           {% block emailbody %}
-           {% endblock %}
-        </div>
-        {% block footer %}
-        <div id="footer">
-          <table border="0" cellpadding="0" cellspacing="0">
-              <tbody>
-                <tr>
-                  <td colspan="5"><h3>The Baxter Center for Science Education</h3></td>
-                </tr>
-                <tr rowspan="3"><td colspan="5"></td></tr>
-                <tr>
-                  <td>
-                    <a href="https://{{domain}}">
-                      <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-web-50.png" title="Visit bcse.northwestern.edu" />
-                    </a>
-                  </td>
-                  <td>
-                    <a href="mailto:bcse@northwestern.edu" target="_top">
-                      <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-mail-50.png" title="Email us"/>
-                    </a>
-                  </td>
-                  <td>
-                    <a href="https://{{domain}}/subscribe/email">
-                      <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-inbox-50.png" title="Subscribe to our newsletter"/>
-                    </a>
-                  </td>
-                  <td>
-                    <a href="https://maps.app.goo.gl/WEHyQyfEQTHK6x3XA" target="_blank">
-                      <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-location-50.png" title="Our location"/>
-                    </a>
-                  </td>
-                  <td>
-                    <a href="https://www.instagram.com/bcse_nu" target="_blank">
-                      <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-instagram-50.png" title="Follow us on Instagram"/>
-                    </a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-        </div>
-        {% endblock %}
-      </div>
-   </body>
+      <table id="email_container" width="600" border="0" cellpadding="0" cellspacing="0" style="background-color: #f1f0f0; font-family: din-2014, sans-serif; margin: 0 auto;">
+        <tbody>
+          <tr id="header" style="background-color: white;">
+            <td>
+              <center>
+                <img src="https://s3.amazonaws.com/bcse-4.0-prod/banner_logos/15thAnniversaryBannerName.png" width="640" style="display:block;">
+              </center>
+            </td>
+          </tr>
+          <tr id="message" style="background-color: white; margin:0 auto; text-align: center;">
+            <td style="padding: 16px; border-left: 1px solid #d8d6d6; border-right: 1px solid #d8d6d6;">
+              {% block emailbody %}
+              {% endblock %}
+            </td>
+          </tr>
+          <tr id="footer" style="background-color: #4e2a84; color: white;">
+            <td>
+              <table style="width: 100%; padding: 16px; text-align: center;">
+                <tbody>
+                  <tr>
+                    <td colspan="5"><h3 style="color: white; font-weight: 600; font-size: 20px;">The Baxter Center for Science Education</h3></td>
+                  </tr>
+                  <tr rowspan="3"><td colspan="5"></td></tr>
+                  <tr>
+                    <td>
+                      <a href="https://{{domain}}">
+                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-web-50.png" title="Visit bcse.northwestern.edu" style="width:32px;" />
+                      </a>
+                    </td>
+                    <td>
+                      <a href="mailto:bcse@northwestern.edu" target="_top">
+                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-mail-50.png" title="Email us" style="width:32px;"/>
+                      </a>
+                    </td>
+                    <td>
+                      <a href="https://{{domain}}/subscribe/email">
+                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-inbox-50.png" title="Subscribe to our newsletter" style="width:32px;" />
+                      </a>
+                    </td>
+                    <td>
+                      <a href="https://maps.app.goo.gl/WEHyQyfEQTHK6x3XA" target="_blank">
+                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-location-50.png" title="Our location" style="width:32px;" />
+                      </a>
+                    </td>
+                    <td>
+                      <a href="https://www.instagram.com/bcse_nu" target="_blank">
+                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-instagram-50.png" title="Follow us on Instagram" style="width:32px;"/>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </body>
 </html>

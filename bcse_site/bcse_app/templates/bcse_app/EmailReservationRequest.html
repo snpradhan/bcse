@@ -3,9 +3,9 @@
 {% load bcse_extras %}
 
 {% block emailbody %}
-   <div id="text">
+   <div id="text" style="font-size: 19.2px; line-height: 29px; padding: 32px; margin-left: auto; margin-right: auto;">
       <h3>Hi!</h3>
-      <div>
+      <p>
          Your reservation request for the lab
          <b>
          {% if reservation.activity %}
@@ -14,8 +14,8 @@
             {{reservation.other_activity_name}}
          {% endif %}
          </b> with a tentative delivery date of <b>{{reservation.delivery_date|date:"l, F j, Y"}}</b> has been received.
-      </div>
-      <div>
+      </p>
+      <p>
          {% if reservation.activity %}
             {% get_low_stock_message reservation.activity.id as low_stock_message %}
             {% if low_stock_message %}
@@ -23,9 +23,9 @@
             {% endif %}
          {% endif %}
          <span>We will review your request and you will receive another email when we have confirmed your reservation.</span>
-      </div>
+      </p>
 
-      <div>In the mean time you may review your reservation <a href="https://{{domain}}/reservation/{{reservation.id}}/view">here</a></div>
+      <p>In the mean time you may review your reservation <a href="https://{{domain}}/reservation/{{reservation.id}}/view">here</a></p>
    </div>
 {% endblock %}
 

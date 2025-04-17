@@ -3,137 +3,134 @@
 {% load bcse_extras %}
 
 {% block emailbody %}
-   <div id="dates">
-      <div>
-         <h3>Hi!</h3>
-         <h3>Thanks for your reservation. </h3>
-         <div>The countdown to your delivery starts now.</div>
-      </div>
-      <table cellspacing="0">
-         <tbody>
-            {% if reservation.delivery_date %}
-              <tr>
-                 <td class="title"align="left">Delivery Date</td>
-                 <td class="date" align="right">{{reservation.delivery_date|date:"D, M d, Y"}}</td>
-              </tr>
-            {% endif %}
-            {% if reservation.return_date %}
-              <tr>
-                 <td class="title" align="left">Return Date </td>
-                 <td class="date" align="right">{{reservation.return_date|date:"D, M d, Y"}}</td>
-              </tr>
-            {% endif %}
-            {% if reservation.activity and reservation.activity.manuals_resources %}
-               <tr>
-                  <td class="title" align="left">Manuals / Resources</td>
-                  <td class="manuals" align="right"><div>{{reservation.activity.manuals_resources|safe}}</div></td>
-               </tr>
-            {% endif %}
-            <tr class="address">
-               <td class="title" align="left">
-                  <div>Delivery Details</div>
-               </td>
-               <td align="right">
-                  <div>
-                     {% with user=reservation.user.user delivery_address=reservation.delivery_address work_place=reservation.reservation_to_work_place.work_place %}
-                        <div>{{user.get_full_name}}</div>
-                        {% if delivery_address %}
-                           {% if delivery_address.street_address_1 %}
-                              <div>{{delivery_address.street_address_1}}</div>
-                           {% endif %}
-                           {% if delivery_address.street_address_2 %}
-                             <div>{{delivery_address.street_address_2}}</div>
-                           {% endif %}
-                           <div>
-                              {% if delivery_address.city %}
-                                 {{delivery_address.city}},
-                              {% endif %}
-                              {% if delivery_address.state %}
-                                 {{delivery_address.state}}
-                              {% endif %}
-                              {% if delivery_address.zip_code %}
-                                 {{delivery_address.zip_code}}
-                              {% endif %}
-                           </div>
-                           <br>
-                           <div class="warning">Note: If your information has changed, please update your profile and also send us a message.</div>
-                        {% elif work_place %}
-                           {% if work_place.name %}
-                              <div>{{work_place.name}}</div>
-                           {% endif %}
-                           {% if work_place.district_num %}
-                             <div>District# {{work_place.district_num}}</div>
-                           {% endif %}
-                           {% if work_place.street_address_1 %}
-                              <div>{{work_place.street_address_1}}</div>
-                           {% endif %}
-                           {% if work_place.street_address_2 %}
-                             <div>{{work_place.street_address_2}}</div>
-                           {% endif %}
-                           <div>
-                              {% if work_place.city %}
-                                 {{work_place.city}},
-                              {% endif %}
-                              {% if work_place.state %}
-                                 {{work_place.state}}
-                              {% endif %}
-                              {% if work_place.zip_code %}
-                                 {{work_place.zip_code}}
-                              {% endif %}
-                           </div>
-                           <br>
-                           <div class="warning">Note: If your information has changed, please update your profile and also send us a message.</div>
-                        {% else %}
-                           <div style="font-style: italic; color: red;">Note: Your workplace information is missing. Please update your profile and also send us a message.</div>
-                        {% endif %}
-                     {% endwith %}
-                  </div>
-               </td>
+   <table cellspacing="0">
+      <tbody>
+         <tr>
+            <td style="text-align: center; border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal" colspan="2">
+               <h3 style="font-weight: 600; font-size: 20px;">Hi!</h3>
+               <h3 style="font-weight: 600; font-size: 20px;">Thanks for your reservation. </h3>
+               <div>The countdown to your delivery starts now.</div>
+            </td>
+         </tr>
+         {% if reservation.delivery_date %}
+           <tr>
+              <td class="title"align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">Delivery Date</td>
+              <td class="date" align="right"style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal">{{reservation.delivery_date|date:"D, M d, Y"}}</td>
+           </tr>
+         {% endif %}
+         {% if reservation.return_date %}
+           <tr>
+              <td class="title" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">Return Date </td>
+              <td class="date" align="right" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal">{{reservation.return_date|date:"D, M d, Y"}}</td>
+           </tr>
+         {% endif %}
+         {% if reservation.activity and reservation.activity.manuals_resources %}
+            <tr>
+               <td class="title" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">Manuals / Resources</td>
+               <td class="manuals" align="right" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal"><div>{{reservation.activity.manuals_resources|safe}}</div></td>
             </tr>
-            <tr >
-               <td class="title" align="left">Questions about your Reservation?</td>
-               <td  align="right"><a href="https://{{domain}}/reservation/{{reservation.id}}/view">MESSAGE US</a></td>
-            </tr>
-         </tbody>
-      </table>
-   </div>
-   <br>
-   {% if reservation.activity and not reservation.activity_kit_not_needed or reservation.equipment %}
-     <div id="equipment">
-        <div>
-           <h3>You have reserved the following kits.</h3>
-        </div>
-        <table cellspacing="0">
-           <tbody>
-              {% if reservation.activity and not reservation.activity_kit_not_needed %}
-                <tr class="kit">
-                   <td class="details" align="left">
-                      <div class="title"> {{reservation.activity.kit_name}} x
-                        {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
-                          {{reservation.num_of_classes}}
-                        {% elif reservation.more_num_of_classes %}
-                           {{reservation.more_num_of_classes}}
+         {% endif %}
+         <tr class="address">
+            <td class="title" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">
+               <div>Delivery Details</div>
+            </td>
+            <td align="right" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal">
+               <div>
+                  {% with user=reservation.user.user delivery_address=reservation.delivery_address work_place=reservation.reservation_to_work_place.work_place %}
+                     <div>{{user.get_full_name}}</div>
+                     {% if delivery_address %}
+                        {% if delivery_address.street_address_1 %}
+                           <div>{{delivery_address.street_address_1}}</div>
                         {% endif %}
-                     </div>
-                   </td>
-                </tr>
-              {% endif %}
-              {% if reservation.equipment %}
-                {% for equipment in reservation.equipment.all %}
-                  <tr class="kit">
-                     <td class="details" align="left">
-                        <div class="title">{{equipment.equipment_type.name}} </div>
-                        <div class="description">
-                           {{equipment.equipment_type.description|safe}}
+                        {% if delivery_address.street_address_2 %}
+                          <div>{{delivery_address.street_address_2}}</div>
+                        {% endif %}
+                        <div>
+                           {% if delivery_address.city %}
+                              {{delivery_address.city}},
+                           {% endif %}
+                           {% if delivery_address.state %}
+                              {{delivery_address.state}}
+                           {% endif %}
+                           {% if delivery_address.zip_code %}
+                              {{delivery_address.zip_code}}
+                           {% endif %}
                         </div>
-                     </td>
-                  </tr>
-                {% endfor %}
-              {% endif %}
-           </tbody>
-        </table>
-     </div>
-   {% endif %}
+                        <br>
+                        <div class="warning" style="text-decoration: underline; font-style: italic; color: orange;">Note: If your information has changed, please update your profile and also send us a message.</div>
+                     {% elif work_place %}
+                        {% if work_place.name %}
+                           <div>{{work_place.name}}</div>
+                        {% endif %}
+                        {% if work_place.district_num %}
+                          <div>District# {{work_place.district_num}}</div>
+                        {% endif %}
+                        {% if work_place.street_address_1 %}
+                           <div>{{work_place.street_address_1}}</div>
+                        {% endif %}
+                        {% if work_place.street_address_2 %}
+                          <div>{{work_place.street_address_2}}</div>
+                        {% endif %}
+                        <div>
+                           {% if work_place.city %}
+                              {{work_place.city}},
+                           {% endif %}
+                           {% if work_place.state %}
+                              {{work_place.state}}
+                           {% endif %}
+                           {% if work_place.zip_code %}
+                              {{work_place.zip_code}}
+                           {% endif %}
+                        </div>
+                        <br>
+                        <div class="warning" style="text-decoration: underline; font-style: italic; color: orange;">Note: If your information has changed, please update your profile and also send us a message.</div>
+                     {% else %}
+                        <div style="font-style: italic; color: red;">Note: Your workplace information is missing. Please update your profile and also send us a message.</div>
+                     {% endif %}
+                  {% endwith %}
+               </div>
+            </td>
+         </tr>
+         <tr >
+            <td class="title" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">Questions about your Reservation?</td>
+            <td  align="right" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; font-weight: bold;"><a href="https://{{domain}}/reservation/{{reservation.id}}/view">MESSAGE US</a></td>
+         </tr>
 
+         {% if reservation.activity and not reservation.activity_kit_not_needed or reservation.equipment %}
+            <tr>
+               <td style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal;" colspan="2">
+                  <h3 style="font-weight: 600; font-size: 20px; text-align: center;">You have reserved the following kits.</h3>
+               </td>
+            </tr>
+
+           {% if reservation.activity and not reservation.activity_kit_not_needed %}
+             <tr class="kit">
+                <td class="details" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal;" colspan="2">
+                   <div class="title" style="font-weight: 600;"> {{reservation.activity.kit_name}} x
+                     {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
+                       {{reservation.num_of_classes}}
+                     {% elif reservation.more_num_of_classes %}
+                        {{reservation.more_num_of_classes}}
+                     {% endif %}
+                  </div>
+                </td>
+             </tr>
+           {% endif %}
+           {% if reservation.equipment %}
+             {% for equipment in reservation.equipment.all %}
+               <tr class="kit">
+                  <td class="details" align="left" style="{% if not forloop.last %} border-bottom: 1px solid #767676; {% endif %} padding: 8px 0; word-wrap: normal;" colspan="2">
+                     <div class="title" style="font-weight: 600;">{{equipment.equipment_type.name}} </div>
+                     <div class="description">
+                        {{equipment.equipment_type.description|safe}}
+                     </div>
+                  </td>
+               </tr>
+             {% endfor %}
+           {% endif %}
+
+         {% endif %}
+      </tbody>
+   </table>
 {% endblock %}
 
