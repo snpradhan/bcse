@@ -146,15 +146,3 @@
 {% else %}
   <div class="warning center">No survey responses matching your search criteria found</div>
 {% endif %}
-
-<script type="text/javascript">
-  $(function (){
-    if($("#download").val() == "1") {
-      $("#download").val("0");
-      var tables = $('table.export').map(function() {
-        return this.id;
-      }).get();
-      exportTablesToExcel(tables, 'Survey Responses_{{survey.id}}.xlsx', true);
-    }
-  });
-</script>

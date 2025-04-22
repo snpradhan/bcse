@@ -36,10 +36,17 @@
       $('form#survey_submission_filter_form').submit();
 
       $('.download').on('click', function(e) {
-        $('#download').val("1");
-        $('select#id_survey_submission_search-rows_per_page').val(0).trigger('change');
-      });
+        e.preventDefault();
+        var form = $('#survey_submission_filter_form');
+        const queryString = $(form).serialize();
+        var url = $(this).attr('href')+'?'+queryString;
 
+        const a = document.createElement('a');
+        a.href = url;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
     });
   </script>
 {% endblock %}

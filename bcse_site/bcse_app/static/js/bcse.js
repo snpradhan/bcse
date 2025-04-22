@@ -25,8 +25,11 @@ $(function (){
       },
       success: function(data){
         $('#spinner').hide();
+
         if(data['success'] = true) {
-          $(result_container).html(data['html']);
+          if(data['html']){
+            $(result_container).html(data['html']);
+          }
 
           if(form_id == 'workshop_filter_form') {
             bindRegistrationSubmit();

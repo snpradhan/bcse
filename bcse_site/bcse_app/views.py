@@ -7424,7 +7424,7 @@ def surveySubmissions(request, id=''):
 # FILTER SURVEY SUBMISSIONS LIST BASED ON FILTER CRITERIA
 ################################################################
 @login_required
-def surveySubmissionsSearch(request, id=''):
+def surveySubmissionsSearch(request, id='', download=False):
   """
   surveyEdit is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser
@@ -7509,35 +7509,38 @@ def surveySubmissionsSearch(request, id=''):
 
       surveySubmissions = models.SurveySubmission.objects.all().filter(query_filter)
 
-      direction = request.GET.get('direction') or 'asc'
-      ignorecase = request.GET.get('ignorecase') or 'false'
-
-      if sort_by:
-        if sort_by == 'email':
-          order_by = 'user__user__email'
-        elif sort_by == 'first_name':
-          order_by = 'user__user__first_name'
-        elif sort_by == 'last_name':
-          order_by = 'user__user__last_name'
-        elif sort_by == 'created_date_desc':
-          order_by = 'created_date'
-          direction = 'desc'
-        elif sort_by == 'created_date_asc':
-          order_by = 'created_date'
-          direction = 'asc'
+      if download:
+        return surveySubmissions
       else:
-        order_by = 'user__user__email'
+        direction = request.GET.get('direction') or 'asc'
+        ignorecase = request.GET.get('ignorecase') or 'false'
 
-      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+        if sort_by:
+          if sort_by == 'email':
+            order_by = 'user__user__email'
+          elif sort_by == 'first_name':
+            order_by = 'user__user__first_name'
+          elif sort_by == 'last_name':
+            order_by = 'user__user__last_name'
+          elif sort_by == 'created_date_desc':
+            order_by = 'created_date'
+            direction = 'desc'
+          elif sort_by == 'created_date_asc':
+            order_by = 'created_date'
+            direction = 'asc'
+        else:
+          order_by = 'user__user__email'
 
-      surveySubmissions = paginate(request, surveySubmissions, sort_order, rows_per_page, page)
+        sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
 
-      context = {'survey': survey, 'surveySubmissions': surveySubmissions, 'columns': columns}
+        surveySubmissions = paginate(request, surveySubmissions, sort_order, rows_per_page, page)
 
-      response_data = {}
-      response_data['success'] = True
-      response_data['html'] = render_to_string('bcse_app/SurveySubmissionsTableView.html', context, request)
-      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        context = {'survey': survey, 'surveySubmissions': surveySubmissions, 'columns': columns}
+
+        response_data = {}
+        response_data['success'] = True
+        response_data['html'] = render_to_string('bcse_app/SurveySubmissionsTableView.html', context, request)
+        return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET'])
 
@@ -7569,10 +7572,29 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
     if request.method == 'GET':
       if '' != survey_id:
         survey = models.Survey.objects.get(id=survey_id)
+      else:
+        raise models.Survey.DoesNotExist
+
+      filters = None
       if '' != submission_uuid:
         surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey, UUID=submission_uuid)
       else:
-        surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey)
+        email = request.GET.get('survey_submission_search-email', '')
+        first_name = request.GET.get('survey_submission_search-first_name', '')
+        last_name = request.GET.get('survey_submission_search-last_name', '')
+        user_role = request.GET.get('survey_submission_search-user_role', '')
+        work_place = request.GET.get('survey_submission_search-work_place', '')
+        status = request.GET.get('survey_submission_search-status', '')
+
+        filters = {
+          'Email': email,
+          'First Name': first_name,
+          'Last Name': last_name,
+          'User Role': dict(models.USER_ROLE_CHOICES)[user_role] if user_role else '',
+          'Workplace': models.WorkPlace.objects.get(id=work_place).name if work_place else '',
+          'Response Status': dict(models.SURVEY_SUBMISSION_STATUS_CHOICES)[status] if status else ''
+        }
+        surveySubmissions = surveySubmissionsSearch(request, survey.id, True)
 
       if surveySubmissions.count() == 0:
         raise CustomException('There are no responses to export')
@@ -7583,7 +7605,7 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
       else:
         response['Content-Disposition'] = 'attachment; filename="survey_%s_responses.xls"'%survey.id
 
-      wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
+      wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions, filters)
       wb.save(response)
       return response
 
@@ -7599,7 +7621,7 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
 #########################################
 # GENERATE EXCEL WITH SURVEY RESPONSES
 ########################################
-def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
+def generateSurveySubmissionsExcel(request, survey, surveySubmissions, filters=''):
   """
   generateSurveySubmissionsExcel is called from the path 'adminConfiguration/surveys/'
   :param request: request from the browser
@@ -7650,13 +7672,14 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
     for col_num in range(len(columns)):
       ws.write(row_num, col_num, columns[col_num], bold_font_style)
 
+    all_submissions = models.SurveySubmission.objects.all().filter(survey=survey)
     #survey stats data
     row = [survey.id,
            survey.name,
-           surveySubmissions.count(),
-           surveySubmissions.filter(status='I').count(),
-           surveySubmissions.filter(status='S').count(),
-           surveySubmissions.filter(status='R').count()
+           all_submissions.count(),
+           all_submissions.filter(status='I').count(),
+           all_submissions.filter(status='S').count(),
+           all_submissions.filter(status='R').count()
           ]
     row_num += 1
     #write stats data
@@ -7791,6 +7814,17 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions):
     #write responses
     for col_num in range(len(row)):
       ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+  if filters:
+    ws = wb.add_sheet('Applied Filters')
+    row_num = 0
+    ws.write(row_num, 0, 'Field', bold_font_style)
+    ws.write(row_num, 1, 'Value', bold_font_style)
+    row_num += 1
+    for field, value in filters.items():
+      ws.write(row_num, 0, field, font_style)
+      ws.write(row_num, 1, value, font_style)
+      row_num += 1
 
   return wb
 
