@@ -9263,10 +9263,45 @@ def send_workshop_email(id=id, cron=False):
         context = {'email_body': email_body, 'domain': domain}
         body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
-        email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to, cc=email_cc, bcc=email_bcc)
+        if len(email_to) + len(email_cc) + len(email_bcc) <= 50:
+          email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to, cc=email_cc, bcc=email_bcc)
+          email.content_subtype = "html"
+          sent = email.send(fail_silently=True)
+        else:
 
-        email.content_subtype = "html"
-        sent = email.send(fail_silently=True)
+          if len(email_to) > 0:
+            if len(email_to) <= 50:
+              email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to)
+              email.content_subtype = "html"
+              sent = email.send(fail_silently=True)
+            else:
+              for i in range(0, len(email_to), 50):
+                email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to[i:i+50])
+                email.content_subtype = "html"
+                sent = email.send(fail_silently=True)
+
+          if len(email_cc) > 0:
+            if len(email_cc) <= 50:
+              email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, cc=email_cc)
+              email.content_subtype = "html"
+              sent = email.send(fail_silently=True)
+            else:
+              for i in range(0, len(email_cc), 50):
+                email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, cc=email_cc[i:i+50])
+                email.content_subtype = "html"
+                sent = email.send(fail_silently=True)
+
+          if len(email_bcc) > 0:
+            if len(email_bcc) <= 50:
+              email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=email_bcc)
+              email.content_subtype = "html"
+              sent = email.send(fail_silently=True)
+            else:
+              for i in range(0, len(email_bcc), 50):
+                email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=email_bcc[i:i+50])
+                email.content_subtype = "html"
+                sent = email.send(fail_silently=True)
+
 
         if sent:
           workshop_email.email_status = 'S'

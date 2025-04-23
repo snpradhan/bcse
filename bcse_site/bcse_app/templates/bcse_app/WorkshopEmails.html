@@ -32,10 +32,8 @@
               <td>{{email.id}}</td>
               <td>{{email.get_registration_status_display|safe}}</td>
               <td>
-
                   <a data-bs-toggle="collapse" href="#registrants_{{email.id}}" role="button" aria-expanded="false" aria-controls="registrants_{{email.id}}">
-                    View emails
-                  </a>
+                    View emails                   </a>
                   <div class="collapse" id="registrants_{{email.id}}">
                     {% if email.registration_email_addresses %}
                       {% for e in email.registration_email_addresses|split:';' %}
@@ -50,23 +48,38 @@
               </td>
               <td>
                 {% if email.email_to %}
-                  {% for address in email.email_to|split:';' %}
-                    {{address}}<br>
-                  {% endfor %}
+                  <a data-bs-toggle="collapse" href="#to_{{email.id}}" role="button" aria-expanded="false" aria-controls="to_{{email.id}}">
+                    View emails
+                  </a>
+                  <div class="collapse" id="to_{{email.id}}">
+                    {% for address in email.email_to|split:';' %}
+                      {{address}}<br>
+                    {% endfor %}
+                  </div>
                 {% endif %}
               </td>
               <td>
                 {% if email.email_cc %}
-                  {% for address in email.email_cc|split:';' %}
-                    {{address}}<br>
-                  {% endfor %}
+                  <a data-bs-toggle="collapse" href="#cc_{{email.id}}" role="button" aria-expanded="false" aria-controls="cc_{{email.id}}">
+                    View emails
+                  </a>
+                  <div class="collapse" id="cc_{{email.id}}">
+                    {% for address in email.email_cc|split:';' %}
+                      {{address}}<br>
+                    {% endfor %}
+                  </div>
                 {% endif %}
               </td>
               <td>
                 {% if email.email_bcc %}
-                  {% for address in email.email_bcc|split:';' %}
-                    {{address}}<br>
-                  {% endfor %}
+                  <a data-bs-toggle="collapse" href="#bcc_{{email.id}}" role="button" aria-expanded="false" aria-controls="bcc_{{email.id}}">
+                    View emails
+                  </a>
+                  <div class="collapse" id="bcc_{{email.id}}">
+                    {% for address in email.email_bcc|split:';' %}
+                      {{address}}<br>
+                    {% endfor %}
+                  </div>
                 {% endif %}
               </td>
               <td>{{email.email_subject}}</td>
