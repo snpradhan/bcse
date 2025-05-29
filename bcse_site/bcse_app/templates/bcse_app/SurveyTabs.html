@@ -20,6 +20,9 @@
         <li class="nav-item right">
           {% if survey.survey_component.all|length > 0 %}
             <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}" href="#">Preview</a>
+            {% if survey.survey_type not in 'BW' %}
+              <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}" href="#">Create Response</a>
+            {% endif %}
           {% endif %}
           {% if survey.survey_submission.all|length > 0 %}
             <a class="btn download" href="{% url 'bcse:surveySubmissionsExport' survey.id %}">Export Responses</a>

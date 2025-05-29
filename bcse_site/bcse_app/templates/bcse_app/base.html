@@ -82,6 +82,8 @@
             {% if request.redirect_url and request.target %}
               $("{{request.target}}").load("{{request.redirect_url}}", function() {
                 $(this).modal('show');
+                bindTooltipTrigger();
+                bindDateTimePicker();
               });
             {% endif %}
           });

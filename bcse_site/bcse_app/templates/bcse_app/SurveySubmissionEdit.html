@@ -1,3 +1,5 @@
+{% load base_extras %}
+{% load bcse_extras %}
 
 <div class="modal-dialog modal-md">
   <div class="modal-content">
@@ -14,6 +16,7 @@
     </div>
     <form method="POST" action="{% url 'bcse:surveySubmissionEdit' survey.id submission.UUID %}" id="formSurveySubmission">
       {% csrf_token %}
+      {{form.media}}
       <div class="modal-body">
         <div class="form-group mb-3">
           <label class="form-label">Survey</label>
@@ -22,6 +25,22 @@
         <div class="form-group mb-3">
           <label class="form-label">Response ID</label>
           <div>{{submission.UUID|truncatechars:8}}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label">User</label>
+          <div>{{submission.user}}</div>
+          {{form.user.as_hidden}}
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.response_date.name}}" class="form-label">
+            {{ form.response_date.label|title }}
+            <span class="response_date_required">(<span class="required">*</span>)</span>
+          </label>
+          <div class="input-group">
+            {{form.response_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ form.response_date.errors }}</div>
         </div>
         <div class="form-group mb-3">
           <label for="id_{{form.admin_notes.name}}" class="form-label"> {{form.admin_notes.label}}</label>
@@ -76,7 +95,6 @@
         }
       });
     });
-
   });
 </script>
 

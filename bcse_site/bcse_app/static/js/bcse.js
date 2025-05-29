@@ -144,11 +144,14 @@ $(function (){
 var timeout = null;
 
 function bindDateTimePicker() {
+
+  $('.datepicker').datepicker('destroy');
   $(".datepicker:not(.reservation_date):not(.availability)").datepicker({
     dateFormat: "MM dd, yy",
     yearRange: "-20:+20",
     changeMonth: true,
     changeYear: true,
+    appendTo: 'body'
   });
 
   $(".timepicker").timepicker({

@@ -1356,6 +1356,13 @@ class SurveyResponseForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
 
+  def save(self, commit=True):
+    response = super(SurveyResponseForm, self).save(commit=True)
+    response.created_date = response.submission.created_date
+    response.modified_date = response.submission.modified_date
+    response.save()
+    return response
+
 ####################################
 # SurveySubmission Form
 ####################################
@@ -1364,11 +1371,14 @@ class SurveySubmissionForm(ModelForm):
                                                       widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
                                                                                        attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                                       help_text="Updating the workplace here only updates the survey submission - workplace association and not the workplace on the user profile")
+  response_date = forms.DateField(required=False, label=u'Response Date')
+
   class Meta:
     model = models.SurveySubmission
-    fields = ['status', 'admin_notes']
+    fields = ['user', 'status', 'admin_notes']
     widgets = {
       'admin_notes': forms.Textarea(attrs={'rows':3}),
+
     }
 
   def __init__(self, *args, **kwargs):
@@ -1377,10 +1387,28 @@ class SurveySubmissionForm(ModelForm):
     if self.instance.UUID and hasattr(self.instance, 'survey_submission_to_work_place'):
       self.fields['work_place'].initial = self.instance.survey_submission_to_work_place.work_place
 
+    if self.instance.UUID and self.instance.created_date:
+      self.fields['response_date'].initial = self.instance.created_date
+
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'response_date':
+         field.widget.attrs['class'] = 'form-control datepicker'
+      elif field_name == 'user':
+        field.widget.attrs['class'] = 'form-control select2'
+        if self.instance.user and self.instance.user.id:
+          field.widget.attrs['disabled'] = True
+
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
 
+  def save(self, commit=True):
+    submission = super(SurveySubmissionForm, self).save(commit=True)
+    if self.cleaned_data['response_date']:
+      submission.created_date = self.cleaned_data['response_date']
+      submission.modified_date = self.cleaned_data['response_date']
+    submission.save()
+    return submission
 
 ####################################
 # Survey Submissions Search Form

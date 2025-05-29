@@ -1,7 +1,7 @@
 {% load base_extras %}
 {% load bcse_extras %}
 
-<div class="modal-dialog modal-xl">
+<div class="modal-dialog modal-lg">
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="center">
@@ -28,8 +28,40 @@
     {% if survey.status == 'A' %}
       <form method="post" enctype="multipart/form-data" id="formSurvey" class="survey_form" action="{% url 'bcse:surveySubmission' survey.id submission.UUID page_num %}{% if workshop_id %}?workshop_id={{workshop_id}}{% endif %}{% if reservation_id %}?reservation_id={{reservation_id}}{% endif %}">
         {% csrf_token %}
-        {{formset.management_form}}
         <div class="modal-body">
+          {% if user.is_authenticated and user.userProfile.user_role == 'A' and page_num == 1 %}
+            {{form.media}}
+            <div class="warning center">You are creating a survey entry on behalf of a user.  Please select a user and the response date first.</div>
+             <div class="row mb-3">
+              <div class="form-group col-md-6">
+                <label for="id_{{form.user.name}}">
+                  {{ form.user.label|title }}
+                  <span class="user_required">(<span class="required">*</span>)</span>
+                </label>
+                <div>
+                  {{form.user}}
+                  {% if form.instance.user %}
+                    {{form.user.as_hidden}}
+                  {% endif %}
+                </div>
+                <div class="error">{{ form.user.errors }}</div>
+              </div>
+              <div class="form-group col-md-6">
+                <label for="id_{{form.response_date.name}}">
+                  {{ form.response_date.label|title }}
+                  <span class="response_date_required">(<span class="required">*</span>)</span>
+                </label>
+                <div class="input-group">
+                  {{form.response_date}}
+                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                </div>
+                <div class="error">{{ form.response_date.errors }}</div>
+              </div>
+              {{form.status.as_hidden}}
+            </div>
+            <hr>
+          {% endif %}
+          {{formset.management_form}}
           {% if formset|length > 0 %}
             {% for form in formset %}
                 <div class="survey_component form-group mb-3">
@@ -138,6 +170,8 @@
                         </div>
                       {% endif %}
                     </div>
+                  {% else %}
+                    {{form.response.as_hidden}}
                   {% endif %}
                 </div>
               {% endfor %}
@@ -180,13 +214,14 @@
 
   <script type="text/javascript">
     $(function (){
-      $("#formSurvey input:checkbox").on('change', function(){
+
+      $("#formSurvey .response input:checkbox").on('change', function(){
         var selectedValues = $("input[id="+$(this).attr('id')+"]:checked").map(function() {return this.value;}).get().join(',')
         var hiddenVar = $(this).prevAll('input:hidden');
         $(hiddenVar).val(selectedValues);
       });
 
-      $("#formSurvey input[id$='cbo'].other").change(function(){
+      $("#formSurvey .response input[id$='cbo'].other").change(function(){
         $(this).prev('input:checkbox').trigger('change');
       });
 
@@ -281,17 +316,17 @@
         });
       });
 
-      $('select').on('change', function(e){
+      $('.response select').on('change', function(e){
         var show = $(this).find(":selected").hasClass('other');
         toggleOtherElement($(this), show);
       });
 
-      $('input[type="checkbox"].other').on('change', function(e){
+      $('.response input[type="checkbox"].other').on('change', function(e){
         var show = $(this).is(':checked');
         toggleOtherElement($(this), show);
       });
 
-      $('input[type="radio"]').on('change', function(e){
+      $('.response input[type="radio"]').on('change', function(e){
         var show = $(this).is(':checked') && $(this).hasClass('other');
         toggleOtherElement($(this), show);
       });
@@ -316,53 +351,63 @@
         }
       }
 
-    //auto saving on focusout of form elements
-    function bindFocusOutSave() {
+      //auto saving on focusout of form elements
+      function bindFocusOutSave() {
 
-      $('.survey_input').on('focusout', function(e){
-        if(e.target.id == 'submit_bottom_with_download' ||  e.target.id == 'save_button' || e.target.id == 'back_button'){
-          console.log('manual save');
-          return false;
-        }
-        else{
-          console.log('auto save');
-          autoSave();
-        }
-      });
-      /*//auto saving on ckeditor focusout
-      for ( instance in CKEDITOR.instances ) {
-        CKEDITOR.instances[instance].on('blur', function(e){
-          autoSave();
+        $('.survey_input').on('focusout', function(e){
+          if(e.target.id == 'submit_bottom_with_download' ||  e.target.id == 'save_button' || e.target.id == 'back_button'){
+            console.log('manual save');
+            return false;
+          }
+          else{
+            console.log('auto save');
+            autoSave();
+          }
         });
-      }*/
-    }
+        /*//auto saving on ckeditor focusout
+        for ( instance in CKEDITOR.instances ) {
+          CKEDITOR.instances[instance].on('blur', function(e){
+            autoSave();
+          });
+        }*/
+      }
 
-    // ajax submit
-    function autoSave(){
-      /*
-      for ( instance in CKEDITOR.instances ) {
-        CKEDITOR.instances[instance].updateElement();
-      }*/
-      $('input#save').val(1);
-      $('#formSurvey').ajaxSubmit({
-        dataType : 'json',
-        success: function(data){
-          //message at the top of the page stating responses auto saved
-          display_messages('The responses were auto saved at '+ new Date().toLocaleTimeString(), "success");
-        },
-        error: function(data) {
-          display_messages('The responses could not auto saved. Please click the Next or Submit button at the bottom of the page.', 'error');
-        }
+      // ajax submit
+      function autoSave(){
+        /*
+        for ( instance in CKEDITOR.instances ) {
+          CKEDITOR.instances[instance].updateElement();
+        }*/
+        $('input#save').val(1);
+        $('#formSurvey').ajaxSubmit({
+          dataType : 'json',
+          success: function(data){
+            if(data['success'] == true){
+              //message at the top of the page stating responses auto saved
+              display_messages('The responses were auto saved at '+ new Date().toLocaleTimeString(), "success");
+            }
+            else {
+              display_messages('The responses could not auto saved. Please click the Next or Submit button at the bottom of the page.', 'error');
+            }
+          },
+          error: function(data) {
+            display_messages('The responses could not auto saved. Please click the Next or Submit button at the bottom of the page.', 'error');
+          }
+        });
+        return false;
+      }
+
+      function display_messages(message, className){
+        $("ul.errorlist").html('<li class="'+className+'">'+message+'</li>');
+        $("ul.errorlist").show();
+      }
+      bindFocusOutSave();
+      $('.response select, .response input[type="checkbox"].other, .response input[type="radio"].other').trigger('change');
+
+      $('select.select2#id_user').select2({
+        placeholder: 'Start typing to search and select',
+        dropdownParent: $("#general")
       });
-      return false;
-    }
-
-    function display_messages(message, className){
-      $("ul.errorlist").html('<li class="'+className+'">'+message+'</li>');
-      $("ul.errorlist").show();
-    }
-    bindFocusOutSave();
-    $('select, input[type="checkbox"].other, input[type="radio"].other').trigger('change');
 
     });
   </script>

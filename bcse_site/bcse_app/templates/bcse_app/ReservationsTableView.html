@@ -94,6 +94,7 @@
       </tr>
     </thead>
     <tbody>
+      {% get_baxterbox_feedback_survey as survey %}
       {% for reservation in reservations %}
         {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
         {% if new_messages and tag == 'reservations' %}
@@ -322,6 +323,12 @@
                         Send Feedback Email
                       </a>
                     </li>
+                  {% endif %}
+                  {% if reservation.status == 'I' %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}?reservation_id={{reservation.id}}" href="#">Create Feedback</a>
+                  </li>
                   {% endif %}
 
                   {% if reservation.status not in 'UD' %}

@@ -77,6 +77,12 @@
                     <a class="dropdown-item" href="{% url 'bcse:surveySubmissions' survey.id %}">View Responses</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
+                  {% if survey.survey_type not in 'BW' %}
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}" href="#">Create Response</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                  {% endif %}
                   <li>
                     <a class="dropdown-item delete action" data-href="{% url 'bcse:surveyDelete' survey.id %}"
                     data-title="the survey <strong>{{survey.name}}</strong> {% if survey.survey_instance %}This survey has {{survey.survey_instance.count }} user responses.{% endif %}">

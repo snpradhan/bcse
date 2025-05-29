@@ -7974,28 +7974,37 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
       #connecting parameters
       workshop_id = request.GET.get('workshop_id', '')
       reservation_id = request.GET.get('reservation_id', '')
+      if '' == page_num:
+        page_num = 1
 
       if '' != submission_uuid:
         submission = models.SurveySubmission.objects.get(UUID=submission_uuid)
+        print('existing submission')
       else:
         #delete old incomplete submissions
         if survey.survey_type == 'W' and workshop_id:
           #for workshop applications, delete all previous submissions
-          incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user)
+          incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user, application_to_registration__registration__workshop_registration_setting__workshop__id=workshop_id)
           incomplete_submissions.delete()
         elif survey.survey_type == 'B' and reservation_id:
           #for baxter box survey, delete all incomplete submissions
-          incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user, status='I')
+          incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, status='I', feedback_to_reservation__reservation__id=reservation_id)
           incomplete_submissions.delete()
 
-        submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, user=user, ip_address=request.META['REMOTE_ADDR'])
-        submission.save()
+        submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, ip_address=request.META['REMOTE_ADDR'])
+        print('new submission')
+        if user and page_num == 1:
+          if user.user_role != 'A':
+            submission.user = user
+          elif reservation_id:
+            reservation = models.Reservation.objects.get(id=reservation_id)
+            submission.user = reservation.user
+          submission.save()
+
         if submission.user and submission.user.work_place:
           submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
           submission_work_place.save()
 
-      if '' == page_num:
-        page_num = 1
 
       if page_num <= total_pages:
           surveyComponents = getSurveyComponents(request, survey.id, submission, page_num)
@@ -8005,8 +8014,13 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
       SurveyResponseFormSet = modelformset_factory(models.SurveyResponse, form=forms.SurveyResponseForm, can_delete=False, can_order=False, extra=0)
 
       if request.method == 'GET':
+
         formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
         context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+
+        if user and user.user_role == 'A' and page_num == 1:
+          form = forms.SurveySubmissionForm(instance=submission)
+          context['form'] = form
 
         if survey.survey_type == 'W' and workshop_id:
           context['workshop_id'] = workshop_id
@@ -8018,18 +8032,22 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
       elif request.method == 'POST':
         data = request.POST.copy()
         autosave = False
+        response_data = {}
+
         if data['save'][0] == '1':
           autosave = True
-
         if page_num > 1 and data['back'][0] == '1':
           print('clicking back button')
-          response_data = {}
           response_data['success'] = True
           #go to the previous page
           next_page_num = page_num - 1
           surveyComponents = getSurveyComponents(request, survey.id, submission, next_page_num)
           formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
           context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': next_page_num, 'total_pages': total_pages}
+          if user and user.user_role == 'A' and next_page_num == 1:
+            form = forms.SurveySubmissionForm(instance=submission)
+            context['form'] = form
+
           #workshop application
           if survey.survey_type == 'W' and workshop_id:
             context['workshop_id'] = workshop_id
@@ -8042,19 +8060,40 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
         else:
           #clicking Next or Submit
+          is_valid = False
           formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
+          if user and user.user_role == 'A' and page_num == 1:
+            form = forms.SurveySubmissionForm(data, instance=submission)
+            if form.is_valid() and formset.is_valid():
+              is_valid = True
+          else:
+            if formset.is_valid():
+              is_valid = True
 
-          if formset.is_valid():
-            formset.save()
+          if is_valid:
+            if user and user.user_role == 'A' and page_num == 1:
+              submission = form.save()
+              submission.admin_notes = 'Submission created by admin'
+              submission.save()
+              if submission.user and submission.user.work_place:
+                try:
+                  submission_work_place = models.SurveySubmissionWorkPlace.objects.get(submission=submission)
+                  submission_work_place.work_place = submission.user.work_place
+                  submission_work_place.save()
+                except  models.SurveySubmissionWorkPlace.DoesNotExist:
+                  submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
+                  submission_work_place.save()
+
+            for response_form in formset:
+              response_form.save()
+
             if autosave:
               print('autosave')
-              response_data = {}
               response_data['success'] = True
               return http.HttpResponse(json.dumps(response_data), content_type="application/json")
             elif page_num < total_pages:
               print('clicking Next')
               messages.success(request, 'Page %s has been saved' % page_num)
-              response_data = {}
               response_data['success'] = True
               #go to the next page
               next_page_num = page_num + 1
@@ -8122,18 +8161,24 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               surveySubmissionEmailSend(request, survey, user, submission)
 
               if request.is_ajax():
-                response_data = {}
                 response_data['success'] = True
                 return http.HttpResponse(json.dumps(response_data), content_type="application/json")
               else:
                 return shortcuts.redirect('bcse:home')
           else:
+            if user and user.user_role == 'A' and page_num == 1:
+              print(form.errors)
+
+            print(formset.errors)
             if autosave:
               response_data['success'] = False
               return http.HttpResponse(json.dumps(response_data), content_type="application/json")
             else:
               messages.error(request, 'Please correct the errors below and resubmit')
               context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': page_num, 'total_pages': total_pages}
+              if user and user.user_role == 'A' and page_num == 1:
+                context['form'] = form
+
               if survey.survey_type == 'W' and workshop_id:
                 context['workshop_id'] = workshop_id
               elif survey.survey_type == 'B' and reservation_id:
@@ -8355,6 +8400,12 @@ def surveySubmissionEdit(request, id='', submission_uuid=''):
         else:
           if hasattr(savedSubmission, 'survey_submission_to_work_place'):
             savedSubmission.survey_submission_to_work_place.delete()
+
+        for surveyResponse in savedSubmission.survey_response.all():
+          surveyResponse.created_date = savedSubmission.created_date
+          surveyResponse.modified_date = savedSubmission.modified_date
+          surveyResponse.save()
+
         messages.success(request, "Survey submission updated.")
         response_data['success'] = True
       else:
