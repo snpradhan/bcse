@@ -140,6 +140,13 @@
           <div>{{userProfileForm.dietary_preference}}</div>
           <div class="error">{{ userProfileForm.dietary_preference.errors }}</div>
         </div>
+        {% if userProfileForm.admin_notes %}
+          <div class="form-group mb-3">
+            <label for="id_{{userProfileForm.admin_notes.name}}" class="form-label"> {{userProfileForm.admin_notes.label|title}}</label>
+            <div>{{userProfileForm.admin_notes}}</div>
+            <div class="error">{{ userProfileForm.admin_notes.errors }}</div>
+          </div>
+        {% endif %}
 
         {% if userProfileForm.validation_code %}
         <div class="form-group mb-3">

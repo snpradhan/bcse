@@ -236,7 +236,7 @@ class UserProfileForm (ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference']
+    fields = ['work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes']
     widgets = {
       'image': widgets.ClearableFileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
@@ -256,6 +256,7 @@ class UserProfileForm (ModelForm):
       if user.userProfile.user_role not in ['A', 'S']:
         self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
         self.fields.pop('photo_release_complete')
+        self.fields.pop('admin_notes')
 
       self.fields['work_place'].required = False
 

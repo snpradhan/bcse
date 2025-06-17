@@ -53,10 +53,17 @@
       <label>Dietary Preference:</label>
       <div>{{userProfile.dietary_preference|default_if_none:""}}</div>
     </div>
+    {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+      <div class="mb-1">
+        <label>Admin Notes:</label>
+        <div>{{userProfile.admin_notes|default_if_none:""}}</div>
+      </div>
+    {% endif %}
     <div class="mb-1">
       <label>Profile Last Updated:</label>
       <div>{{userProfile.modified_date|date:"F j, Y g:i A" }}</div>
     </div>
+
   </div>
 
   <div class="work_place">

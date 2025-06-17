@@ -39,6 +39,9 @@
         {% if 'DP' in columns %}
           <th> Dietary Preference </th>
         {% endif %}
+        {% if 'AN' in columns %}
+          <th> Admin Notes </th>
+        {% endif %}
         {% if 'IH' in columns %}
           <th> Instagram Handle</th>
         {% endif %}
@@ -95,6 +98,9 @@
           {% endif %}
           {% if 'DP' in columns %}
             <td> {{user_profile.dietary_preference|default_if_none:""}} </td>
+          {% endif %}
+          {% if 'AN' in columns %}
+            <td> {{user_profile.admin_notes|default_if_none:""}} </td>
           {% endif %}
           {% if 'IH' in columns %}
             <td> {{user_profile.instagram_handle|default_if_none:""}} </td>
