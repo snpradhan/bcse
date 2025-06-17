@@ -18,6 +18,10 @@
       <div>{{userProfile.user.get_full_name}}</div>
     </div>
     <div class="mb-1">
+      <label>Name Pronounciation:</label>
+      <div>{{userProfile.name_pronounciation|default_if_none:""}}</div>
+    </div>
+    <div class="mb-1">
       <label>Role:</label>
       <div>{{userProfile.get_user_role_display}}</div>
     </div>

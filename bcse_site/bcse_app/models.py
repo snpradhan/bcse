@@ -156,6 +156,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
 USER_TABLE_COLUMN_CHOICES = (
   ('ID', 'User ID'),
   ('FN', 'Full Name'),
+  ('NP', 'Name Pronounciation'),
   ('EM', 'Email'),
   ('RL', 'Role'),
   ('WP', 'Workplace'),
@@ -331,6 +332,7 @@ class UserProfile(models.Model):
   photo_release_complete = models.BooleanField(default=False)
   dietary_preference = models.CharField(null=True, blank=True, max_length=256, help_text="Your dietary preference will be saved in your profile")
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
+  name_pronounciation = models.CharField(null=True, blank=True, max_length=256)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

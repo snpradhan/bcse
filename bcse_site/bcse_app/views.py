@@ -603,6 +603,7 @@ def userSignup(request):
 
       role = ''
       newUser = models.UserProfile()
+      newUser.name_pronounciation = form.cleaned_data['name_pronounciation']
       newUser.user_role = form.cleaned_data['user_role']
       newUser.iein = form.cleaned_data['iein']
       newUser.grades_taught = form.cleaned_data['grades_taught']

@@ -68,6 +68,13 @@
             <div class="error">{{ form.last_name.errors }}</div>
           </div>
         </div>
+        <div class="row mb-3">
+          <div class="form-group col-md-12">
+            <label for="id_{{form.name_pronounciation.name}}" class="form-label"> {{form.name_pronounciation.label}}</label>
+            <div>{{form.name_pronounciation}}</div>
+            <div class="error">{{ form.name_pronounciation.errors }}</div>
+          </div>
+        </div>
 
         <div class="row mb-3">
           <div class="form-group col-md-6">

@@ -12,6 +12,9 @@
         {% if 'FN' in columns %}
           <th> Full Name </th>
         {% endif %}
+        {% if 'NP' in columns %}
+          <th> Name Pronounciation </th>
+        {% endif %}
         {% if 'EM' in columns %}
           <th> Email </th>
         {% endif %}
@@ -71,6 +74,9 @@
           {% endif %}
           {% if 'FN' in columns %}
             <td> {{user_profile.user.get_full_name}} </td>
+          {% endif %}
+          {% if 'NP' in columns %}
+            <td> {{user_profile.name_pronounciation|default_if_none:""}} </td>
           {% endif %}
           {% if 'EM' in columns %}
             <td> {{user_profile.user.email}} </td>
