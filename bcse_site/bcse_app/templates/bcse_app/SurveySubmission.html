@@ -333,7 +333,7 @@
 
       //disable Enter key press
       $("form.survey_form").bind("keypress", function(e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode == 13 && e.target.tagName !== 'TEXTAREA') {
           return false;
         }
       });
