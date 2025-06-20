@@ -3683,10 +3683,14 @@ def workshopRegistrationEdit(request, workshop_id='', id=''):
       data = request.POST.copy()
       form = forms.WorkshopRegistrationForm(data, instance=registration)
       if form.is_valid():
-        registration_work_place = form.cleaned_data['work_place']
+        work_place = form.cleaned_data['work_place']
         savedRegistration = form.save()
-        savedRegistration.registration_to_work_place.work_place = registration_work_place
-        savedRegistration.registration_to_work_place.save()
+        if hasattr(savedRegistration, 'registration_to_work_place'):
+          savedRegistration.registration_to_work_place.work_place = work_place
+          savedRegistration.registration_to_work_place.save()
+        else:
+          registration_work_place = models.RegistrationWorkPlace(registration=savedRegistration, work_place=work_place)
+          registration_work_place.save()
 
         messages.success(request, "Registration saved")
         response_data['success'] = True
@@ -9054,6 +9058,10 @@ def create_registration(request, email, workshop_id, registration_status=None):
 
     user = models.UserProfile.objects.get(user__email=email.lower())
     workshop_registration, created = models.Registration.objects.get_or_create(workshop_registration_setting=workshop.registration_setting, status=registration_status, user=user)
+    if user.work_place:
+      registration_work_place = models.RegistrationWorkPlace(registration=workshop_registration, work_place=user.work_place)
+      registration_work_place.save()
+
     if created:
       return True
     else:

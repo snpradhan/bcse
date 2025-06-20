@@ -976,7 +976,10 @@ class WorkshopRegistrationForm(ModelForm):
     super(WorkshopRegistrationForm, self).__init__(*args, **kwargs)
 
     if self.instance.id:
-      self.fields['work_place'].initial = self.instance.registration_to_work_place.work_place
+      if hasattr(self.instance, 'registration_to_work_place'):
+        self.fields['work_place'].initial = self.instance.registration_to_work_place.work_place
+      else:
+        self.fields['work_place'].initial = None
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
