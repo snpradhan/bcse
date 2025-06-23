@@ -1420,8 +1420,8 @@ class SurveySubmissionsSearchForm(forms.Form):
   first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
   last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
   user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
-  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
-                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().order_by('name'),
+                                                      widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete',
                                                                                        attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
 
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.SURVEY_SUBMISSION_STATUS_CHOICES, label='Response Status')
@@ -1478,7 +1478,7 @@ class VignetteForm(ModelForm):
 class ReservationsSearchForm(forms.Form):
 
   user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
-  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
+  work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                   )
   assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
@@ -1680,8 +1680,8 @@ class UsersSearchForm(forms.Form):
   first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
   last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
   user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
-  work_place = forms.ModelChoiceField(required=False, label=u"Workplace", queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
-                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+  work_place = forms.ModelChoiceField(required=False, label=u"Workplace", queryset=models.WorkPlace.objects.all().order_by('name'),
+                                                      widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete',
                                                                                        attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
   joined_after = forms.DateField(required=False, label=u'Joined on/after')
   joined_before = forms.DateField(required=False, label=u'Joined on/before')
@@ -1811,8 +1811,8 @@ class WorkshopRegistrantsSearchForm(forms.Form):
   first_name = forms.CharField(required=False, max_length=256, label=u'First Name')
   last_name = forms.CharField(required=False, max_length=256, label=u'Last Name')
   user_role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.USER_ROLE_CHOICES)
-  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().filter(status='A').order_by('name'),
-                                                      widget=autocomplete.ModelSelect2(url='workplace-autocomplete',
+  work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().order_by('name'),
+                                                      widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete',
                                                                                        attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
   registration_status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   subscribed = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))

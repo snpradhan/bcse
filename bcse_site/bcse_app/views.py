@@ -9253,6 +9253,16 @@ class WorkplaceAutocomplete(autocomplete.Select2QuerySetView):
 
     return qs
 
+#####################################################
+# ALL WORKPLACE AUTOCOMPLETE
+#####################################################
+class WorkplaceAllAutocomplete(autocomplete.Select2QuerySetView):
+  def get_queryset(self):
+    qs = models.WorkPlace.objects.all().order_by('name')
+    if self.q:
+      qs = qs.filter(name__icontains=self.q)
+
+    return qs
 
 ################################
 # REMOVE HTML TAGS FROM STRING
