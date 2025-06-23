@@ -4762,6 +4762,7 @@ def workshopsRegistrantsSearch(request):
       workshop = [int(i) for i in request.GET.getlist('registrants_search-workshop', '')]
       work_place = [int(i) for i in request.GET.getlist('registrants_search-work_place', '')]
       user = [int(i) for i in request.GET.getlist('registrants_search-user', '')]
+      user_role = request.GET.getlist('registrants_search-user_role', '')
       year = request.GET.get('registrants_search-year', '')
       starts_after = request.GET.get('registrants_search-starts_after', '')
       ends_before = request.GET.get('registrants_search-ends_before', '')
@@ -4777,6 +4778,7 @@ def workshopsRegistrantsSearch(request):
         'workshop': workshop,
         'work_place': work_place,
         'user': user,
+        'user_role': user_role,
         'starts_after': starts_after,
         'ends_before': ends_before,
         'year': year,
@@ -4809,6 +4811,11 @@ def workshopsRegistrantsSearch(request):
       if user:
         user_filter = Q(user__id__in=user)
         query_filter = query_filter & user_filter
+
+      if user_role:
+        user_role_filter = Q(user__user_role__in=user_role)
+        query_filter = query_filter & user_role_filter
+
 
       if year:
         year_filter = Q(workshop_registration_setting__workshop__start_date__year=int(year))

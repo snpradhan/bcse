@@ -141,6 +141,7 @@
             <th>User ID</th>
             <th>User</th>
             <th>Email</th>
+            <th>User Role</th>
             <th>Total Workshops</th>
             <th>Total Workplaces</th>
             <th>Associated Workplaces</th>
@@ -160,6 +161,7 @@
               <td>{{user.id}}</td>
               <td>{{user.user.last_name}}, {{user.user.first_name}}</td>
               <td>{{user.user.email}}</td>
+              <td>{{user.get_user_role_display}}</td>
               <td>{{user.total_workshops}}</td>
               <td>{{user.total_workplaces}}</td>
               <td>
@@ -201,6 +203,7 @@
             <th> User ID </th>
             <th> Email </th>
             <th> Full Name </th>
+            <th> User Role </th>
             <th> Workplace </th>
             <th> Created Date </th>
             <th> Status </th>
@@ -218,6 +221,7 @@
               <td> {{registrant.user.id}}</td>
               <td> {{registrant.user.user.email}} </td>
               <td> {{registrant.user.user.get_full_name}}</td>
+              <td> {{registrant.user.get_user_role_display}}</td>
               <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
               <td> {{registrant.created_date|date}}</td>
               <td> {{registrant.get_status_display}} </td>

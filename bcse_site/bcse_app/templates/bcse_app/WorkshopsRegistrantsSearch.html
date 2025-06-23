@@ -35,9 +35,15 @@
             <div>{{searchForm.work_place}}</div>
             <div class="error">{{ searchForm.work_place.errors }}</div>
           </div>
+
         </div>
         <div class="filter_fields">
-         <div class="form-group">
+          <div class="form-group">
+            <label for="id_{{searchForm.user_role.name}}" class="form-label"> {{searchForm.user_role.label|title}}</label>
+            <div>{{searchForm.user_role}}</div>
+            <div class="error">{{ searchForm.user_role.errors }}</div>
+          </div>
+          <div class="form-group">
             <label for="id_{{searchForm.starts_after.name}}" class="form-label"> {{searchForm.starts_after.label|title}}</label>
             <div class="input-group">
               {{searchForm.starts_after}}

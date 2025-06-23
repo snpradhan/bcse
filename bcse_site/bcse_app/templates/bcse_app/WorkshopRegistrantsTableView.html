@@ -10,6 +10,7 @@
         {% endif %}
         <th> Email </th>
         <th> Full Name </th>
+        <th> User Role </th>
         <th> Workplace </th>
         {% if user.userProfile.user_role in 'AS' %}
           <th> Subscribed?</th>
@@ -32,6 +33,7 @@
           {% endif %}
           <td> {{registrant.user.user.email}} </td>
           <td> {{registrant.user.user.get_full_name}}</td>
+          <td> {{registrant.user.get_user_role_display}}</td>
           <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
           {% if user.userProfile.user_role in 'AS' %}
             <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>
