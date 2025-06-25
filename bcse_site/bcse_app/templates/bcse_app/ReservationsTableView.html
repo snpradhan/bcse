@@ -40,6 +40,12 @@
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
           <th> Include Gloves/Goggles </th>
         {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GL' in columns %}
+          <th> Include Gloves </th>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GO' in columns %}
+          <th> Include Goggles </th>
+        {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
           <th> Kit Inventory </th>
         {% endif %}
@@ -156,6 +162,20 @@
               {{reservation.include_gloves_goggles|yesno:"Yes,No"}}
             </td>
           {% endif %}
+
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GL' in columns %}
+            <td>
+              <i class="fa-solid fa-mitten"></i>
+              {{reservation.include_gloves|yesno:"Yes,No"}}
+            </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GO' in columns %}
+            <td>
+              <i class="fa-solid fa-glasses"></i>
+              {{reservation.include_goggles|yesno:"Yes,No"}}
+            </td>
+          {% endif %}
+
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
             <td>{{reservation.activity.inventory|default_if_none:""|safe}}</td>
           {% endif %}

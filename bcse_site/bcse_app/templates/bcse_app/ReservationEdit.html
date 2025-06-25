@@ -130,6 +130,24 @@
               </label>
               <div class="error">{{ form.include_gloves_goggles.errors }}</div>
             </div>
+            <div class="form-group form-check mb-4">
+              <div>{{form.include_gloves}}</div>
+              <label for="id_{{form.include_gloves.name}}" class="form-label"> {{form.include_gloves.label}}
+                {% if form.include_gloves.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
+              <div class="error">{{ form.include_gloves.errors }}</div>
+            </div>
+            <div class="form-group form-check mb-4">
+              <div>{{form.include_goggles}}</div>
+              <label for="id_{{form.include_goggles.name}}" class="form-label"> {{form.include_goggles.label}}
+                {% if form.include_goggles.field.required %}
+                  (<span class="required">*</span>)
+                {% endif %}
+              </label>
+              <div class="error">{{ form.include_goggles.errors }}</div>
+            </div>
 
             <div class="form-group mb-4 equipment_info">
             </div>
