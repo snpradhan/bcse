@@ -1503,7 +1503,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('created_date_desc', 'Created Date (Desc)'),
                                                        ('created_date_asc', 'Created Date (Asc)'),
                                                        ('status', 'Status')))
-  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'CO', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'ST', 'GG'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
+  columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'CO', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'ST', 'GG', 'GO', 'GL'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
   color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().filter(target__in=['R', 'B']).order_by('name'))
 
