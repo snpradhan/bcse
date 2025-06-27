@@ -12,7 +12,7 @@
         {% endfor %}
       </ul>
     </div>
-    <form class="form" id="formSignIn" method="post" action="{% url 'bcse:signin' %}{% if redirect_url %}?next={{redirect_url}}{% endif %}">
+    <form class="form" id="formSignIn" method="post" action="{% url 'bcse:signin' %}{% if redirect_url %}?next={{redirect_url}}{% endif %}" autocomplete="off">
       {% csrf_token %}
       {{form.management_form}}
       <div class="modal-body">

@@ -16,7 +16,7 @@
       </ul>
     </div>
 
-    <form class="form" id="formSignUp" method="post" enctype="multipart/form-data" action="{% url 'bcse:signup'%}">
+    <form class="form" id="formSignUp" method="post" enctype="multipart/form-data" action="{% url 'bcse:signup'%}" autocomplete="off">
       {% csrf_token %}
       {{form.management_form}}
 
