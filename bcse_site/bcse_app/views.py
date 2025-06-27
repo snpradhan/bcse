@@ -7264,7 +7264,12 @@ def surveysSearch(request):
 
       surveys = paginate(request, surveys, sort_order, rows_per_page, page)
 
-      context = {'surveys': surveys}
+      current_site = Site.objects.get_current()
+      domain = current_site.domain
+      if 'localhost' not in domain:
+        domain = 'https://%s' % domain
+
+      context = {'surveys': surveys, 'domain': domain}
 
       response_data = {}
       response_data['success'] = True
