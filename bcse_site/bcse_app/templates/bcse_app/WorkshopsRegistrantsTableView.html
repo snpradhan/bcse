@@ -133,7 +133,7 @@
   </div>
 
   <div id="users_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="users_summary-tab">
-    {% if workplaces %}
+    {% if users %}
       {% include "bcse_app/Pagination.html" with model=users location='top' %}
       <table id="users_summary" class="table table-bordered table-striped export">
         <thead>
@@ -165,11 +165,13 @@
               <td>{{user.total_workshops}}</td>
               <td>{{user.total_workplaces}}</td>
               <td>
-                <ul>
-                  {% for workplace in user.workplaces %}
-                    <li>{{workplace}}</li>
-                  {% endfor %}
-                </ul>
+                {% if user.workplaces %}
+                  <ul>
+                    {% for workplace in user.workplaces %}
+                      <li>{{workplace}}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
               </td>
               <td>{{user.reg_accepted}}</td>
               <td>{{user.reg_applied}}</td>

@@ -4867,7 +4867,7 @@ def workshopsRegistrantsSearch(request):
 
       all_registration_summary = {
         '# of Workshops': len(list(set(list(registrations.values_list('workshop_registration_setting__workshop__id', flat=True))))),
-        '# of Unique Workplaces': len(list(set(list(registrations.values_list('registration_to_work_place__work_place__id', flat=True))))),
+        '# of Unique Workplaces': len(list(set(list(registrations.exclude(registration_to_work_place=None).values_list('registration_to_work_place__work_place__id', flat=True))))),
         '# of Unique Registrants': len(list(set(list(registrations.values_list('user__id', flat=True))))),
       }
 
@@ -4915,7 +4915,7 @@ def workshopsRegistrantsSearch(request):
       users = models.UserProfile.objects.all().annotate(
         total_workshops = Count('registered_workshops__workshop_registration_setting__workshop__id', filter=Q(registered_workshops__in=registrations), distinct=True),
         total_workplaces=Count('registered_workshops__registration_to_work_place__work_place__id', filter=Q(registered_workshops__in=registrations), distinct=True),
-        workplaces=ArrayAgg('registered_workshops__registration_to_work_place__work_place__name', filter=Q(registered_workshops__in=registrations), distinct=True, ordering=F('registered_workshops__registration_to_work_place__work_place__name').asc()),
+        workplaces=ArrayAgg('registered_workshops__registration_to_work_place__work_place__name', filter=Q(Q(registered_workshops__in=registrations), ~Q(registered_workshops__registration_to_work_place__work_place=None)), distinct=True, ordering=F('registered_workshops__registration_to_work_place__work_place__name').asc()),
         reg_accepted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='C'), distinct=True),
         reg_applied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='A'), distinct=True),
         reg_attended=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T'), distinct=True),
