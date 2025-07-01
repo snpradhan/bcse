@@ -8007,6 +8007,8 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
         submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, ip_address=request.META['REMOTE_ADDR'])
         print('new submission')
         if user and page_num == 1:
+          if user.user_role == 'A':
+            submission.admin_notes = 'Submission created by admin'
           if user.user_role != 'A':
             submission.user = user
           elif reservation_id:
