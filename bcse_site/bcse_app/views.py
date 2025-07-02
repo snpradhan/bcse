@@ -9294,7 +9294,7 @@ def profile_update_required(userProfile):
     cutoff_month = settings.PROFILE_UPDATE_CUTOFF_MONTH
     cutoff_day = settings.PROFILE_UPDATE_CUTOFF_DAY
 
-    if current_month >= 8 and current_month <=12:
+    if current_month >= int(cutoff_month) and current_month <=12:
       cutoff_date = datetime.datetime.strptime("%s-%s-%s 00:00"%(current_year, cutoff_month, cutoff_day), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
     else:
       cutoff_date = datetime.datetime.strptime("%s-%s-%s 00:00"%(current_year-1, cutoff_month, cutoff_day), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
