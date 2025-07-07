@@ -1038,19 +1038,19 @@ def consumableDelete(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# EQUIPMENT TYPES
+# EQUIPMENT CATEGORIES
 ####################################
 @login_required
 def equipmentTypes(request):
   """
   equipmentTypes is called from the path 'forTeachers/equipment'
   :param request: request from the browser
-  :returns: rendered template 'bcse_app/EquipmentTypes.html' which is a page to view all equipment types
+  :returns: rendered template 'bcse_app/EquipmentTypes.html' which is a page to view all equipment categories
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view equipment types')
+      raise CustomException('You do not have the permission to view equipment categories')
 
     equipment_types = models.EquipmentType.objects.all().order_by('order')
     context = {'equipment_types': equipment_types}
@@ -1061,20 +1061,20 @@ def equipmentTypes(request):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# EDIT EQUIPMENT TYPE
+# EDIT EQUIPMENT CATEGORY
 ####################################
 @login_required
 def equipmentTypeEdit(request, id=''):
   """
   equipmentTypeEdit is called from the path 'forTeachers/equipment'
   :param request: request from the browser
-  :param id='': id of the equipment type to edit
-  :returns: rendered template 'bcse_app/EquipmentTypeEdit.html', redirect to equipment type edit page after updates are saved, or error page
+  :param id='': id of the equipment category to edit
+  :returns: rendered template 'bcse_app/EquipmentTypeEdit.html', redirect to equipment category edit page after updates are saved, or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to edit equipment type')
+      raise CustomException('You do not have the permission to edit equipment category')
     if '' != id:
       equipment_type = models.EquipmentType.objects.get(id=id)
     else:
@@ -1089,11 +1089,11 @@ def equipmentTypeEdit(request, id=''):
       form = forms.EquipmentTypeForm(data, files=request.FILES, instance=equipment_type)
       if form.is_valid():
         savedEquipmentType = form.save()
-        messages.success(request, "Equipment Type saved")
+        messages.success(request, "Equipment Category saved")
         return shortcuts.redirect('bcse:equipmentTypeEdit', id=savedEquipmentType.id)
       else:
         print(form.errors)
-        messages.error(request, "Equipment Type could not be saved. Check the errors below.")
+        messages.error(request, "Equipment Category could not be saved. Check the errors below.")
         context = {'form': form}
         return render(request, 'bcse_app/EquipmentTypeEdit.html', context)
 
@@ -1104,44 +1104,44 @@ def equipmentTypeEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# DELETE EQUIPMENT TYPE
+# DELETE EQUIPMENT CATEGORY
 ####################################
 @login_required
 def equipmentTypeDelete(request, id=''):
   """
   equipmentTypeDelete is called from the path 'forTeachers/equipment'
   :param request: request from the browser
-  :param id='': id of the equipment type to delete
-  :returns: redirect to equipment type edit page after deleting
-  :raises models.EquipmentType.DoesNotExist: redirects user to page they were on before encountering error due to equipment type not being found
+  :param id='': id of the equipment category to delete
+  :returns: redirect to equipment category edit page after deleting
+  :raises models.EquipmentType.DoesNotExist: redirects user to page they were on before encountering error due to equipment category not being found
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to delete equipment type')
+      raise CustomException('You do not have the permission to delete equipment category')
     if '' != id:
       equipment_type = models.EquipmentType.objects.get(id=id)
       equipment_type.delete()
-      messages.success(request, "Equipment Type deleted")
+      messages.success(request, "Equipment Category deleted")
 
     return shortcuts.redirect('bcse:equipmentTypes')
 
   except models.EquipmentType.DoesNotExist:
-    messages.success(request, "Equipment Type not found")
+    messages.success(request, "Equipment Category not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# VIEW EQUIPMENT TYPE
+# VIEW EQUIPMENT CATEGORY
 ####################################
 def equipmentTypeView(request, id=''):
   """
   equipmentTypeView is called from the path 'forTeachers/equipment'
   :param request: request from the browser
-  :param id='': id of the equipment type to view
+  :param id='': id of the equipment category to view
   :returns: rendered template 'bcse_app/BaxterBoxKitModal.html' where all equipments are or redirect to error page
   :raises CustomException: redirects user to page they were on before encountering error due to equipment not exisitng
   """
@@ -1229,7 +1229,7 @@ def equipmentEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ####################################
-# DELETE EQUIPMENT TYPE
+# DELETE EQUIPMENT CATEGORY
 ####################################
 @login_required
 def equipmentDelete(request, id=''):
@@ -2040,7 +2040,7 @@ def checkAvailability(request, current_reservation_id, equipment_types, start_da
 
   oneday = datetime.timedelta(days=1)
 
-  #iterate each equipment type selected
+  #iterate each equipment category selected
   for equipment_type in equipment_types:
     equipment_availability_matrix[equipment_type] = {}
     equipment_availability_matrix[equipment_type]['most_available_equip'] = None
@@ -2048,9 +2048,9 @@ def checkAvailability(request, current_reservation_id, equipment_types, start_da
     equipment_availability_matrix[equipment_type]['availability_dates'] = {}
     equipment_availability_matrix[equipment_type]['is_available'] = False
 
-    #get all active equipment of the equipment type
+    #get all active equipment of the equipment category
     equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='A')
-    #check if each copy of the equipment type is available on the selected dates
+    #check if each copy of the equipment category is available on the selected dates
     most_available_equip = None
     most_available_days = 0
     for equip in equipment:
@@ -2145,17 +2145,17 @@ def checkAvailabilityForAdmin(request, equipment_types, selected_month):
   start_date = selected_month.replace(day=1)
   end_date = selected_month.replace(day=calendar.monthrange(selected_month.year, selected_month.month)[1])
 
-  #iterate each equipment type selected
+  #iterate each equipment category selected
   for equipment_type in equipment_types:
     equipment_availability_matrix[equipment_type] = {}
 
-    #get all active equipment of the equipment type
+    #get all active equipment of the equipment category
     equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='A').order_by('name')
 
     index_date = start_date
     while index_date <= end_date:
       equipment_availability_matrix[equipment_type][index_date] = {}
-      #check if each copy of the equipment type is available on the selected dates
+      #check if each copy of the equipment category is available on the selected dates
       for equip in equipment:
         reservations = models.Reservation.objects.all().filter(equipment=equip, delivery_date__lte=index_date, return_date__gte=index_date).exclude(status='N')
         reservation_count = reservations.count()

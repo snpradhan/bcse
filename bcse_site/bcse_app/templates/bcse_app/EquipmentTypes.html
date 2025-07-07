@@ -3,15 +3,15 @@
 {% load base_extras %}
 
 {% block configuration %}
-  <h1> Equipment Types </h1>
+  <h1> Equipment Categories </h1>
   <div class="button-row">
-    <a class="btn" href="{% url 'bcse:equipmentTypeNew' %}" role="button">Create Equipment Type</a>
+    <a class="btn" href="{% url 'bcse:equipmentTypeNew' %}" role="button">Create Equipment Category</a>
   </div>
   <div class="search_results static">
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
-          <th> Equipment Type ID</th>
+          <th> Equipment Category ID</th>
           <th> Name </th>
           <th> Short Name </th>
           <th> Status </th>
@@ -62,7 +62,7 @@
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <a class="dropdown-item delete action" data-href="{% url 'bcse:equipmentTypeDelete' equipment_type.id %}"
-                    data-title="the equipment type <strong>{{equipment_type.name}}</strong>">
+                    data-title="the equipment category <strong>{{equipment_type.name}}</strong>">
                       Delete
                     </a>
                   </li>

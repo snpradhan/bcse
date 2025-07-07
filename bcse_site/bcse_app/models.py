@@ -344,11 +344,11 @@ class UserProfile(models.Model):
       return '%s, %s (%s)' % (self.user.last_name, self.user.first_name, self.user.email)
 
 class EquipmentType(models.Model):
-  name = models.CharField(null=False, max_length=256, help_text='Name of Equipment Type')
+  name = models.CharField(null=False, max_length=256, help_text='Name of Equipment Category')
   short_name = models.CharField(null=True, blank=True, max_length=256, help_text='Short name for displaying on the calendar')
   description = RichTextField(null=True, blank=True)
   unit_cost = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0)], help_text='Unit cost for the equipment')
-  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment type')
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image at least 400x289 in resolution that represents this equipment category')
   tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   order = models.IntegerField(null=False, blank=False)
   featured =  models.BooleanField(default=True, help_text='If marked "Featured", this equipment will be displayed on "The Baxter Box Program" page')

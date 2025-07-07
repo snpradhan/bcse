@@ -534,7 +534,7 @@ class BaxterBoxSearchForm(forms.Form):
           field.initial = initials[field_name]
 
 ####################################
-# Equipment Type Form
+# Equipment Category Form
 ####################################
 class EquipmentTypeForm(ModelForm):
 
@@ -577,6 +577,8 @@ class EquipmentForm(ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(EquipmentForm, self).__init__(*args, **kwargs)
+    self.fields['equipment_type'].label = 'Equipment Category'
+
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
@@ -587,7 +589,7 @@ class EquipmentForm(ModelForm):
 ####################################
 class EquipmentAvailabilityForm (forms.Form):
 
-  equipment_types = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  equipment_types = forms.ModelMultipleChoiceField(required=False, label=u'Equipment Categories', queryset=models.EquipmentType.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   selected_month = forms.DateField(required=True, initial=datetime.date.today, label=u'Month/Year', widget=forms.widgets.DateInput(format="%B %Y"))
 
   def __init__(self, *args, **kwargs):
