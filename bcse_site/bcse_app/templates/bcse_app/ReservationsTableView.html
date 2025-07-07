@@ -330,7 +330,7 @@
                         View Feedback
                       </a>
                     </li>
-                  {% elif reservation.status == 'I' %}
+                  {% elif reservation.status in 'CI' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
@@ -338,7 +338,7 @@
                       </a>
                     </li>
                   {% endif %}
-                  {% if reservation.status == 'I' %}
+                  {% if reservation.status in 'CI' %}
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}?reservation_id={{reservation.id}}" href="#">Create Feedback</a>
