@@ -156,12 +156,6 @@
               </ul>
             </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
-            <td>
-              <i class="fa-solid fa-mitten"></i> <i class="fa-solid fa-glasses"></i>
-              {{reservation.include_gloves_goggles|yesno:"Yes,No"}}
-            </td>
-          {% endif %}
 
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GL' in columns %}
             <td>

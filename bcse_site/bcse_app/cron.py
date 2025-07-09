@@ -63,8 +63,8 @@ def export_reservations():
   date_format.num_format_str = 'mm/dd/yyyy'
   date_format.borders = borders
 
-  columns = ['ID', 'Reservation Made On', 'User', 'User Email', 'Activity', 'Kit', 'Consumables', 'Include Gloves/Goggles', 'Equipment', 'Pickup/Return Notes', 'Delivery Date', 'Return Date', 'Delivery Address', 'Delivery Distance (miles)', 'Delivery Travel Time (mins)', 'Admin Notes', 'Help Needed?', 'Assigned To', 'Confirmation Email Sent?', 'Status']
-  font_styles = [font_style, date_format, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_format, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style]
+  columns = ['ID', 'Reservation Made On', 'User', 'User Email', 'Activity', 'Kit', 'Consumables', 'Include Gloves', 'Include Goggles', 'Equipment', 'Pickup/Return Notes', 'Delivery Date', 'Return Date', 'Delivery Address', 'Delivery Distance (miles)', 'Delivery Travel Time (mins)', 'Admin Notes', 'Help Needed?', 'Assigned To', 'Confirmation Email Sent?', 'Status']
+  font_styles = [font_style, date_format, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_format, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style]
 
   ws = wb.add_sheet('Reservations')
   row_num = 0
@@ -128,7 +128,8 @@ def export_reservations():
            activity,
            kit,
            consumables,
-           "Yes" if reservation.include_gloves_goggles else "No",
+           "Yes" if reservation.include_gloves else "No",
+           "Yes" if reservation.include_goggles else "No",
            equipment,
            reservation.notes,
            reservation.delivery_date,
