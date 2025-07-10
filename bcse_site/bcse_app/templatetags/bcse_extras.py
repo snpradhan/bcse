@@ -239,6 +239,15 @@ def get_reservation_feedback(context, reservation_id):
     return None
 
 @register.simple_tag(takes_context=True)
+def activate_reservation_feedback(context, reservation_id):
+  request = context.get('request')
+  reservation = models.Reservation.objects.get(id=reservation_id)
+  if reservation.delivery_date + datetime.timedelta(days=14) <= datetime.date.today():
+    return True
+  else:
+    return False
+
+@register.simple_tag(takes_context=True)
 def get_baxterbox_feedback_survey(context):
   request = context.get('request')
   survey = models.Survey.objects.all().filter(status='A', survey_type='B').first()

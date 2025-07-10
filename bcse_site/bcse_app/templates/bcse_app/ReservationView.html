@@ -242,18 +242,19 @@
                           {% endif %}
                         </div>
                         <div>
-                          {% if reservation.status == 'I' %}
                             {% get_reservation_feedback reservation.id as reservation_feedback %}
                             {% if reservation_feedback %}
                               <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' reservation_feedback.survey.id reservation_feedback.UUID %}" href="#">
                                 View Feedback
                               </a>
                             {% else %}
-                              <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
-                                Send Feedback Email
-                              </a>
+                              {% activate_reservation_feedback reservation.id as activate_feedback %}
+                              {% if activate_feedback %}
+                                <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
+                                  Send Feedback Email
+                                </a>
+                              {% endif %}
                             {% endif %}
-                          {% endif %}
                         </div>
                       </div>
                     </td>
@@ -306,7 +307,7 @@
           {% if user.userProfile.user_role in 'AS'%}
             <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}" data-title="this reservation">Delete</button>
           {% else %}
-            {% if reservation.status != 'D' %}
+            {% if reservation.status != 'N' %}
               {% if reservation.status in 'IO' %}
                 <a class="btn btn-danger warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel</a>
               {% elif reservation.delivery_date|is_past %}

@@ -330,22 +330,25 @@
                         View Feedback
                       </a>
                     </li>
-                  {% elif reservation.status in 'CI' %}
+                  {% else %}
+                    {% activate_reservation_feedback reservation.id as activate_feedback %}
+                    {% if activate_feedback %}
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
+                          Send Feedback Email
+                        </a>
+                      </li>
+                    {% endif %}
+                  {% endif %}
+                  {% if reservation.status != 'N' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
-                        Send Feedback Email
-                      </a>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}?reservation_id={{reservation.id}}" href="#">Create Feedback</a>
                     </li>
                   {% endif %}
-                  {% if reservation.status in 'CI' %}
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}?reservation_id={{reservation.id}}" href="#">Create Feedback</a>
-                  </li>
-                  {% endif %}
 
-                  {% if reservation.status not in 'UD' %}
+                  {% if reservation.status not in 'UN' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" data-title="confirmation" href="#">
@@ -359,22 +362,22 @@
                     </li>
                   {% endif %}
 
-                  {% if reservation.status != 'D' %}
+                  {% if reservation.status != 'N' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
                     </li>
                   {% endif %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
-                    </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
+                  </li>
                 {% else %}
-                  {% if reservation.status != 'D' %}
+                  {% if reservation.status != 'N' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       {% if reservation.status in 'IO' %}
