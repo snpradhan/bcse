@@ -1019,7 +1019,7 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
 ####################################
 class WorkshopEmailForm(ModelForm):
 
-  registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration statuses this email is sent to. Email will be bcc\'d to these addresses.')
+  registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, required=False, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration statuses this email is sent to. Email will be bcc\'d to these addresses.')
 
   class Meta:
     model = models.WorkshopEmail
@@ -1051,6 +1051,18 @@ class WorkshopEmailForm(ModelForm):
 
     if self.instance.id:
       self.fields['registration_statuses'].initial = self.instance.get_registration_status()
+
+  def clean(self):
+    cleaned_data = super(WorkshopEmailForm, self).clean()
+    registration_statuses = cleaned_data.get('registration_statuses')
+    email_to = cleaned_data.get('email_to')
+    email_cc = cleaned_data.get('email_cc')
+    email_bcc = cleaned_data.get('email_bcc')
+
+    if not registration_statuses and email_to is None and email_cc is None and email_bcc is None:
+      self.fields['registration_statuses'].widget.attrs['class'] += ' error'
+      self.add_error('registration_statuses', 'This field is required if To, Cc and Bcc fields are empty')
+
 
 ####################################
 # Registration Email Message Form

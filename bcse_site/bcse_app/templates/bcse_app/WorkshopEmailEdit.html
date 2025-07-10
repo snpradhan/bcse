@@ -21,7 +21,7 @@
       <div class="modal-body">
         {{form.workshop.as_hidden}}
         <div class="form-group mb-3">
-          <label for="id_{{form.registration_statuses.name}}">{{ form.registration_statuses.label|title }} (<span class="required">*</span>)</label>
+          <label for="id_{{form.registration_statuses.name}}">{{ form.registration_statuses.label|title }}</label>
           <div>{{form.registration_statuses}}</div>
           <div class="warning">{{form.registration_statuses.help_text}}</div>
           <div class="error">{{ form.registration_statuses.errors }}</div>

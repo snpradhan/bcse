@@ -511,7 +511,7 @@ class RegistrationEmailMessage(models.Model):
 
 class WorkshopEmail(models.Model):
   workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_email")
-  registration_status = models.CharField(null=False, blank=False, max_length=50, help_text='One or more registration statuses this email is sent to. Email will be bcc''d to these addresses.')
+  registration_status = models.CharField(null=True, blank=True, max_length=50, help_text='One or more registration statuses this email is sent to. Email will be bcc''d to these addresses.')
   registration_email_addresses = models.TextField(null=True, blank=True)
   email_to = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')
   email_cc = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')
@@ -544,7 +544,7 @@ class WorkshopEmail(models.Model):
     if self.registration_status:
       return '<br>'.join([value for key, value in WORKSHOP_REGISTRATION_STATUS_CHOICES if key in self.registration_status.split(',')])
     else:
-      return None
+      return ""
 
   def set_registration_status(self, status_list):
     self.registration_status = ','.join(status_list)

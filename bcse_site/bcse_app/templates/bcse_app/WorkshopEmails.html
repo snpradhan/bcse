@@ -32,6 +32,7 @@
               <td>{{email.id}}</td>
               <td>{{email.get_registration_status_display|safe}}</td>
               <td>
+                {% if email.get_registration_status_display %}
                   <a data-bs-toggle="collapse" href="#registrants_{{email.id}}" role="button" aria-expanded="false" aria-controls="registrants_{{email.id}}">
                     View emails                   </a>
                   <div class="collapse" id="registrants_{{email.id}}">
@@ -45,6 +46,7 @@
                       {% endfor %}
                     {% endif %}
                   </div>
+                {% endif %}
               </td>
               <td>
                 {% if email.email_to %}

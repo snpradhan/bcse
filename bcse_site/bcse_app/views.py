@@ -9313,10 +9313,13 @@ def send_workshop_email(id=id, cron=False):
     workshop_email = models.WorkshopEmail.objects.get(id=id)
     workshop_id = workshop_email.workshop.id
 
-    if workshop_email.registration_status and workshop_email.email_subject and workshop_email.email_message:
+    if workshop_email.email_subject and workshop_email.email_message:
+
       #get the receipients
-      registration_status = workshop_email.registration_status.split(',')
-      registration_email_addresses = list(models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status).values_list('user__user__email', flat=True))
+      registration_email_addresses = None
+      if workshop_email.registration_status:
+        registration_status = workshop_email.registration_status.split(',')
+        registration_email_addresses = list(models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status).values_list('user__user__email', flat=True))
 
       email_to = [settings.DEFAULT_FROM_EMAIL]
       if workshop_email.email_to:
@@ -9390,7 +9393,8 @@ def send_workshop_email(id=id, cron=False):
         if sent:
           workshop_email.email_status = 'S'
           workshop_email.sent_date = datetime.datetime.now()
-          workshop_email.registration_email_addresses = ';'.join(registration_email_addresses)
+          if registration_email_addresses:
+            workshop_email.registration_email_addresses = ';'.join(registration_email_addresses)
           workshop_email.save()
           message = (True, 'The email message with id %s has been sent' % id)
         else:
