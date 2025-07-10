@@ -14,6 +14,7 @@
             <th>ID</th>
             <th>Registration Status(s)</th>
             <th>Registration Email(s)</th>
+            <th>Photo Release Incomplete</th>
             <th>To</th>
             <th>Cc</th>
             <th>Bcc</th>
@@ -48,6 +49,7 @@
                   </div>
                 {% endif %}
               </td>
+              <td>{% if email.photo_release_incomplete %}<i class="fas fa-check">{% endif %}</td>
               <td>
                 {% if email.email_to %}
                   <a data-bs-toggle="collapse" href="#to_{{email.id}}" role="button" aria-expanded="false" aria-controls="to_{{email.id}}">

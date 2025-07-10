@@ -512,6 +512,7 @@ class RegistrationEmailMessage(models.Model):
 class WorkshopEmail(models.Model):
   workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_email")
   registration_status = models.CharField(null=True, blank=True, max_length=50, help_text='One or more registration statuses this email is sent to. Email will be bcc''d to these addresses.')
+  photo_release_incomplete = models.BooleanField(default=False, help_text='If checked, this email will be sent to users with incomplete photo release within the selected registration status.')
   registration_email_addresses = models.TextField(null=True, blank=True)
   email_to = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')
   email_cc = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')

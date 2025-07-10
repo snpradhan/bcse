@@ -9319,7 +9319,12 @@ def send_workshop_email(id=id, cron=False):
       registration_email_addresses = None
       if workshop_email.registration_status:
         registration_status = workshop_email.registration_status.split(',')
-        registration_email_addresses = list(models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status).values_list('user__user__email', flat=True))
+        if workshop_email.photo_release_incomplete:
+          registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status, user__photo_release_complete=False)
+        else:
+          registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status)
+
+        registration_email_addresses = list(registrations.values_list('user__user__email', flat=True))
 
       email_to = [settings.DEFAULT_FROM_EMAIL]
       if workshop_email.email_to:

@@ -1036,6 +1036,8 @@ class WorkshopEmailForm(ModelForm):
         field.widget.attrs['class'] = 'form-control datepicker'
       elif field_name == 'scheduled_time':
         field.widget.attrs['class'] = 'form-control timepicker'
+      elif field_name == 'photo_release_incomplete':
+        field.widget.attrs['class'] = 'form-check-input'
       else:
         if field_name == 'email_to':
           field.label = 'To'
