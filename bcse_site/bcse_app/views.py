@@ -5201,13 +5201,13 @@ def userProfileEdit(request, id=''):
       work_place_form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
 
       if request.user.userProfile.user_role != 'A' and request.user.userProfile.work_place.status == 'I':
-        userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile", initial={'work_place': None})
+        userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile", initial={'work_place': None}, update_required=update_required)
       else:
-        userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile")
+        userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile", update_required=update_required)
 
       context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
       if update_required:
-        messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
+        messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your %s workplace below." % (userProfile.modified_date.strftime('%b %d, %Y'), 'IEIN and ' if userProfile.user_role == 'T' else ''))
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
@@ -5230,7 +5230,7 @@ def userProfileEdit(request, id=''):
       old_password = userProfile.user.password
 
       userForm = forms.UserForm(data, instance=userProfile.user, user=request.user, prefix='user')
-      userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile")
+      userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile", update_required=update_required)
       work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, prefix='work_place')
 
       response_data = {}

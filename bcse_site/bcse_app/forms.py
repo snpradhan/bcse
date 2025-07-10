@@ -246,6 +246,7 @@ class UserProfileForm (ModelForm):
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
+    update_required = kwargs.pop('update_required')
     self.user = user
     super(UserProfileForm, self).__init__(*args, **kwargs)
     self.fields['twitter_handle'].label = 'Twitter ID'
@@ -264,6 +265,9 @@ class UserProfileForm (ModelForm):
     for field_name, field in list(self.fields.items()):
       if field_name not in ['new_work_place_flag', 'subscribe', 'photo_release_complete']:
         field.widget.attrs['class'] = 'form-control'
+        if field_name in ['iein', 'work_place'] and update_required:
+          field.widget.attrs['class'] += ' border-warning'
+
       else:
         field.widget.attrs['class'] = 'form-check-input'
       field.widget.attrs['aria-describedby'] = field.label
