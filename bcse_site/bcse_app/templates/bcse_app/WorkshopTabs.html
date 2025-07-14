@@ -47,7 +47,7 @@
         {% endif %}
         <button class="btn download" type="button">Export Registrants</button>
       </li>
-    {% elif tab == 'emails' and not workshop.cancelled%}
+    {% elif tab == 'emails'%}
        <li class="nav-item right">
         <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopEmailNew' workshop.id %}" href="#">Create Email</a>
       </li>
