@@ -242,7 +242,8 @@ def get_reservation_feedback(context, reservation_id):
 def activate_reservation_feedback(context, reservation_id):
   request = context.get('request')
   reservation = models.Reservation.objects.get(id=reservation_id)
-  if reservation.delivery_date + datetime.timedelta(days=14) <= datetime.date.today():
+  #activate reservation feedback link only if status is checked in or completed and 14 days have passed since delivery date
+  if reservation.status in 'OI' and reservation.delivery_date + datetime.timedelta(days=14) <= datetime.date.today():
     return True
   else:
     return False
