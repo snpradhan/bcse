@@ -1556,7 +1556,7 @@ class ReservationsSearchForm(forms.Form):
       if field_name in ['equipment', 'status', 'columns', 'color']:
         field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
       if field_name == 'sort_by':
-        field.help_text = 'The default sort is (Delivery Date followed by Return date) in descending order for Unconfirmed/Confirmed/Checked In/Cancelled reservations and (Return Date) in descending order for Checked Out reservations.'
+        field.help_text = 'The default sort is (Delivery Date followed by Return date) in descending order for Unconfirmed/Confirmed/Completed/Cancelled reservations and (Return Date) in descending order for Checked Out reservations.'
 
 
       if initials:

@@ -1731,7 +1731,7 @@ def reservationDelete(request, id=''):
     if '' != id:
       reservation = models.Reservation.objects.get(id=id)
 
-      #reservations that are checked out or checked in cannot be deleted
+      #reservations that are checked out or completed cannot be deleted
       if reservation.status in ['O', 'I']:
         raise CustomException('This reservation is %s and cannot be deleted' % reservation.get_status_display())
 
@@ -1769,7 +1769,7 @@ def reservationCancel(request, id=''):
       #non admin/staff users cannot cancel reservations that they do not own
       if request.user.userProfile.user_role not in ['A', 'S'] and reservation.user.user != request.user:
         raise CustomException('You do not have the permission to cancel this reservation')
-      #reservations that are checked out or checked in cannot be cancelled
+      #reservations that are checked out or completed cannot be cancelled
       if request.user.userProfile.user_role not in ['A', 'S'] and reservation.status in ['O', 'I']:
         raise CustomException('This reservation is %s and cannot be cancelled' % reservation.get_status_display())
 
@@ -8945,7 +8945,7 @@ def reservationConfirmationEmailView(request, id):
 
 #####################################################
 # SEND FEEDBACK REQUEST EMAIL TO THE USER
-# AFTER A RESERVATION IS CHECKED IN
+# AFTER A RESERVATION IS CHECKED OUT OR COMPLETED
 #####################################################
 def reservationFeedbackEmailSend(request, id):
   try:

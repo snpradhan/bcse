@@ -80,8 +80,7 @@ RESERVATION_STATUS_CHOICES = (
   ('U', 'Unconfirmed'),
   ('R', 'Confirmed'),
   ('O', 'Checked Out'),
-  ('I', 'Checked In'),
-  ('C', 'Completed'),
+  ('I', 'Completed'),
   ('N', 'Cancelled'),
 )
 
