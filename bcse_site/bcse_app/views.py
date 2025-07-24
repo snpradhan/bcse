@@ -3789,10 +3789,6 @@ def workshopRegistrationCancel(request, workshop_id='', id=''):
       if registration.workshop_registration_setting.workshop.id != workshop.id:
         raise CustomException('Registration does not belong to the workshop')
 
-      #delete associated workshop application
-      workshop_applications = models.WorkshopApplication.objects.all().filter(registration=registration)
-      for workshop_application in workshop_applications:
-        workshop_application.application.delete()
       registration.status = 'N'
       registration.save()
       messages.success(request, "Registration has been cancelled")
@@ -7314,7 +7310,7 @@ def surveyEdit(request, id=''):
       form = forms.SurveyForm(instance=survey)
       context = {'form': form, 'surveyComponents': surveyComponents}
       if surveySubmissions:
-        messages.warning(request, "This survey has %s user submissions. Please be carefull with the modification." % surveySubmissions.count())
+        messages.warning(request, "This survey has %s user submissions. Please be careful with the modification." % surveySubmissions.count())
       return render(request, 'bcse_app/SurveyEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
@@ -7884,6 +7880,7 @@ def surveyComponentEdit(request, survey_id='', id=''):
         response_data['success'] = True
       else:
         print(form.errors)
+        messages.error(request, 'Please check the form below for missing required fields or duplicate Page/Order entry')
         context = {'form': form, 'survey': survey}
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/SurveyComponentEdit.html', context, request)
@@ -7986,6 +7983,9 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
       #connecting parameters
       workshop_id = request.GET.get('workshop_id', '')
+      if survey.survey_type == 'W' and workshop_id:
+        workshop = models.Workshop.objects.get(id=workshop_id)
+
       reservation_id = request.GET.get('reservation_id', '')
       if '' == page_num:
         page_num = 1
@@ -8039,6 +8039,12 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
         if survey.survey_type == 'W' and workshop_id:
           context['workshop_id'] = workshop_id
+          if user and user.user_role != 'A' and page_num == 1 and workshop.registration_setting.registration_type == 'R':
+            userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user-profile')
+            context['userProfileForm'] = userProfileForm
+            context['photo_release_url'] = settings.PHOTO_RELEASE_URL
+            context['workshop'] = workshop
+
         elif survey.survey_type == 'B' and reservation_id:
           context['reservation_id'] = reservation_id
 
@@ -8066,6 +8072,12 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           #workshop application
           if survey.survey_type == 'W' and workshop_id:
             context['workshop_id'] = workshop_id
+            if user and user.user_role != 'A' and next_page_num == 1 and workshop.registration_setting.registration_type == 'R':
+              userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user-profile')
+              context['userProfileForm'] = userProfileForm
+              context['photo_release_url'] = settings.PHOTO_RELEASE_URL
+              context['workshop'] = workshop
+
           #reservation feedback
           elif survey.survey_type == 'B' and reservation_id:
             context['reservation_id'] = reservation_id
@@ -8080,6 +8092,10 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           if user and user.user_role == 'A' and page_num == 1:
             form = forms.SurveySubmissionForm(data, instance=submission)
             if form.is_valid() and formset.is_valid():
+              is_valid = True
+          elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type == 'W' and workshop_id and workshop.registration_setting.registration_type == 'R':
+            userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(data, instance=user, prefix='user-profile')
+            if userProfileForm.is_valid() and formset.is_valid():
               is_valid = True
           else:
             if formset.is_valid():
@@ -8098,7 +8114,8 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                 except  models.SurveySubmissionWorkPlace.DoesNotExist:
                   submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
                   submission_work_place.save()
-
+            elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type == 'W' and workshop_id and workshop.registration_setting.registration_type == 'R':
+              userProfileForm.save()
             for response_form in formset:
               response_form.save()
 
@@ -8116,7 +8133,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
               context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': next_page_num, 'total_pages': total_pages}
 
-              #workshop application
+              #workshop application/questionnaire
               if survey.survey_type == 'W' and workshop_id:
                 context['workshop_id'] = workshop_id
               #reservation feedback
@@ -8138,14 +8155,14 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
               #workshop application
               if survey.survey_type == 'W' and workshop_id:
-                workshop = models.Workshop.objects.get(id=workshop_id)
-                #get or create registration and set status to Apply
+                registration_setting_status = workshopRegistrationSettingStatus(workshop)
+                #get or create registration and set status to default registration status
                 try:
                   registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
-                  registration.status = 'A'
+                  registration.status = registration_setting_status['default_registration_status']
                   registration.save()
                 except models.Registration.DoesNotExist:
-                  registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status='A')
+                  registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
 
                 #create registration - workplace association
                 if registration.user.work_place:
@@ -8159,7 +8176,10 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
 
                 models.WorkshopApplication.objects.create(registration=registration, application=submission)
-                messages.success(request, 'Your application has been submitted')
+                if workshop.registration_setting.registration_type == 'R':
+                  messages.success(request, 'Your questionnaire has been submitted')
+                else:
+                  messages.success(request, 'Your application has been submitted')
               #reservation feedback
               elif survey.survey_type == 'B' and reservation_id:
                 reservation = models.Reservation.objects.get(id=reservation_id)
@@ -8196,6 +8216,11 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
               if survey.survey_type == 'W' and workshop_id:
                 context['workshop_id'] = workshop_id
+                if user and user.user_role != 'A' and page_num == 1 and workshop.registration_setting.registration_type == 'R':
+                  context['userProfileForm'] = userProfileForm
+                  context['photo_release_url'] = settings.PHOTO_RELEASE_URL
+                  context['workshop'] = workshop
+
               elif survey.survey_type == 'B' and reservation_id:
                 context['reservation_id'] = reservation_id
               response_data['success'] = False
@@ -8357,9 +8382,20 @@ def surveySubmissionViewModal(request, id='', submission_uuid=''):
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view survey submission')
     survey = models.Survey.objects.get(id=id)
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to view survey submission')
+    elif request.user.userProfile.user_role not in ['A', 'S']:
+      if survey.survey_type == 'W':
+        try:
+          workshop = models.Workshop.objects.get(registration_setting__application=survey)
+          if request.user.userProfile.id not in workshop.teacher_leaders.all().values_list('teacher__id', flat=True):
+            raise CustomException('You do not have the permission to view survey submission')
+        except models.Workshop.DoesNotExist:
+          raise CustomException('You do not have the permission to view survey submission')
+      else:
+        raise CustomException('You do not have the permission to view survey submission')
+
     submission = models.SurveySubmission.objects.get(UUID=submission_uuid, survey=survey)
     surveyResponses = models.SurveyResponse.objects.all().filter(submission=submission).order_by('survey_component__page', 'survey_component__order')
     context = {'survey': survey, 'submission': submission, 'surveyResponses': surveyResponses}

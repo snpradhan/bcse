@@ -60,6 +60,9 @@
               {{form.status.as_hidden}}
             </div>
             <hr>
+          {% elif user.is_authenticated and user.userProfile.user_role != 'A' and page_num == 1 and userProfileForm %}
+            {% include "bcse_app/WorkshopRegistrationQuestionnaire.html" with form=userProfileForm workshop=workshop%}
+            <hr>
           {% endif %}
           {{formset.management_form}}
           {% if formset|length > 0 %}
@@ -196,11 +199,27 @@
               {% else %}
                 {% if survey.resource_url %}
                   <button class="btn next" type="button" id="submit_bottom_with_download" data-name='{{survey.name|replace_space:"_"}}.pdf' data-href='{{survey.resource_url}}'>
-                    Submit
+                    {% if survey.survey_type == 'W' %}
+                      {% if workshop and workshop.registration_setting.registration_type == 'R' %}
+                        Complete Registration
+                      {% else %}
+                        Submit Application
+                      {% endif %}
+                    {% else %}
+                      Submit
+                    {% endif %}
                   </button>
                 {% else %}
                    <button class="btn next" type="submit" id="submit_bottom">
-                    Submit
+                    {% if survey.survey_type == 'W' %}
+                      {% if workshop and workshop.registration_setting.registration_type == 'R' %}
+                        Complete Registration
+                      {% else %}
+                        Submit Application
+                      {% endif %}
+                    {% else %}
+                      Submit
+                    {% endif %}
                   </button>
                 {% endif %}
               {% endif %}

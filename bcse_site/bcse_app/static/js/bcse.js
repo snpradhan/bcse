@@ -479,6 +479,14 @@ function exportTablesToExcel(tables, filename, filter) {
 
     // Convert tables to worksheet
     ws[i] = XLSX.utils.table_to_sheet(table_element[i]);
+     // Set all cell types in the sheet to string
+    Object.keys(ws[i]).forEach((cellAddress) => {
+      if (cellAddress[0] !== '!') {
+        ws[i][cellAddress].t = 's'; // Force text
+        ws[i][cellAddress].z = '@';  // Excel "Text" format
+      }
+    });
+
 
     // Iterate through each row and remove the cells in the columns to ignore
     for (let rowIndex = 0; rowIndex < table_element[i].rows.length; rowIndex++) {

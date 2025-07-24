@@ -21,6 +21,8 @@
         <th> Registration Status </th>
         {% if user.userProfile.user_role in 'AS' %}
           <th class='ignore-column'> Action </th>
+        {% elif user.userProfile.user_role in 'TP' and workshop.id and workshop|is_workshop_teacher_leader:user.userProfile %}
+          <th class='ignore-column'> Action </th>
         {% endif %}
       </tr>
     </thead>
@@ -64,7 +66,12 @@
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' application.survey.id application.UUID %}" href="#">
-                        View Application
+                        View
+                        {% if registrant.workshop_registration_setting.registration_type == 'A' %}
+                          Application
+                        {% else %}
+                          Questionnaire
+                        {% endif %}
                       </a>
                   </li>
                   {% endif %}
@@ -73,6 +80,29 @@
                     <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' registrant.user.id %}">View User Profile</a>
                   </li>
                 </ul>
+              </div>
+            </td>
+          {% elif user.userProfile.user_role in 'TP' and workshop.id and workshop|is_workshop_teacher_leader:user.userProfile %}
+            <td class="noExl">
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" {% if workshop.cancelled %} disabled {% endif %}>
+                  Action
+                </button>
+                {% get_registrant_application registrant.id as application %}
+                {% if application %}
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' application.survey.id application.UUID %}" href="#">
+                        View
+                        {% if registrant.workshop_registration_setting.registration_type == 'A' %}
+                          Application
+                        {% else %}
+                          Questionnaire
+                        {% endif %}
+                      </a>
+                    </li>
+                  </ul>
+                {% endif %}
               </div>
             </td>
           {% endif %}

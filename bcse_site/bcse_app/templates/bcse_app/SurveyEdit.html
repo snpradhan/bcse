@@ -25,7 +25,7 @@
         <div class="error">{{ form.survey_type.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.resource_url.name}}" class="form-label"> {{form.resource_url.label|title}}</label>
+        <label for="id_{{form.resource_url.name}}" class="form-label"> {{form.resource_url.label}} <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.resource_url.help_text}}"></i></label>
         <div>{{form.resource_url}}</div>
         <div class="error">{{ form.resource_url.errors }}</div>
       </div>
@@ -136,6 +136,12 @@
           $('#id_email_confirmation_message').closest('.form-group').hide();
         }
       });
+
+      $('#id_survey_type').on('change', function(e){
+        if($(this).val() == 'W'){
+          displayInfoDialog('Note', "A survey of the type 'Workshop Application/Questionnaire' can only be associated with one specific workshop.", false);
+        }
+      })
 
       $('#id_email_confirmation').trigger('change');
 

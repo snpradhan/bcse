@@ -108,7 +108,7 @@ NUM_OF_CLASS_CHOICES = (
 SURVEY_TYPE_CHOICES = (
   ('A', 'Async Learning'),
   ('C', 'Case Study'),
-  ('W', 'Workshop Application'),
+  ('W', 'Workshop Application/Questionnaire'),
   ('B', 'Baxter Box Feedback'),
   ('O', 'Other'),
 )
@@ -331,7 +331,7 @@ class UserProfile(models.Model):
   instagram_handle = models.CharField(null=True, blank=True, max_length=20)
   subscribe =  models.BooleanField(default=False)
   photo_release_complete = models.BooleanField(default=False)
-  dietary_preference = models.CharField(null=True, blank=True, max_length=256, help_text="Your dietary preference will be saved in your profile")
+  dietary_preference = models.CharField(null=True, blank=True, max_length=256)
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   name_pronounciation = models.CharField(null=True, blank=True, max_length=256)
   created_date = models.DateTimeField(auto_now_add=True)
@@ -445,7 +445,7 @@ class TeacherLeader(models.Model):
 class WorkshopRegistrationSetting(models.Model):
   workshop = models.OneToOneField(Workshop, null=False, related_name="registration_setting", on_delete=models.CASCADE)
   registration_type = models.CharField(null=True, blank=True, max_length=1, choices=WORKSHOP_REGISTRATION_TYPE_CHOICES)
-  application = models.ForeignKey('Survey', null=True, blank=True, related_name="registration_setting", on_delete=models.SET_NULL)
+  application = models.ForeignKey('Survey', null=True, blank=True, related_name="registration_setting", on_delete=models.SET_NULL, help_text='If selected, users must complete the chosen application or questionnaire before their registration is recorded.')
   capacity = models.IntegerField(null=True, blank=True, help_text='Maximum capacity for this workshop. Leave blank for unlimited capacity')
   enable_waitlist = models.BooleanField(default=True)
   waitlist_capacity = models.IntegerField(null=True, blank=True, help_text='Capacity for the waitlist. Leave blank for unlimited waitlist capacity')
@@ -808,7 +808,7 @@ class Collaborator(models.Model):
 class Survey(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Survey')
   survey_type = models.CharField(max_length=1, choices=SURVEY_TYPE_CHOICES)
-  resource_url = models.URLField(null=True, blank=True)
+  resource_url = models.URLField(null=True, blank=True, help_text="URL to a document/artifact/certificate that is downloaded to the user's device once the survey is submitted.")
   email_confirmation =  models.BooleanField(default=False, help_text='Email confirmation is only sent if the user is logged in while filling out the survey or there is in email field component in the survey.')
   email_confirmation_message = models.CharField(null=True, blank=True, max_length=256, help_text='Confirmation message to send via email')
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)

@@ -24,6 +24,7 @@
         {% if form.instance.id and form.instance.application.survey_submission.all|length %}
           {{form.application.as_hidden}}
         {% endif %}
+        <div class="warning">{{ form.application.help_text }}</div>
         <div class="error">{{ form.application.errors }}</div>
       </div>
       <div class="form-group mb-3">
@@ -120,7 +121,8 @@
           $('#id_capacity').closest('.form-group').show();
           $('#id_enable_waitlist').prop('checked', true).closest('.form-group').show();
           $('#id_enable_waitlist').trigger('change');
-          $('#id_application').val("").closest('.form-group').hide();
+          $('#id_application').closest('.form-group').find('label').html('Questionnaire Survey');
+          $('#id_application').closest('.form-group').show();
           $('#id_external_registration_link').val("").closest('.form-group').hide();
           $('#id_external_link_label').val("").closest('.form-group').hide();
           $('#id_isbe_link').closest('.form-group').show();
@@ -132,6 +134,7 @@
           $('#id_isbe_link').val("").closest('.form-group').hide();
 
           if($(this).val() == 'A') {
+            $('#id_application').closest('.form-group').find('label').html('Application Survey');
             $('#id_application').closest('.form-group').show();
             $('#id_external_registration_link').val("").closest('.form-group').hide();
             $('#id_external_link_label').val("").closest('.form-group').hide();
@@ -141,6 +144,17 @@
             $('#id_external_registration_link').closest('.form-group').show();
             $('#id_external_link_label').closest('.form-group').show();
           }
+          else {
+            $('#id_application').val("").closest('.form-group').hide();
+            $('#id_external_registration_link').val("").closest('.form-group').hide();
+            $('#id_external_link_label').val("").closest('.form-group').hide();
+          }
+        }
+      });
+
+      $('#id_application').on('click', function(e){
+        if($('option', this).length == 1){
+          displayInfoDialog("Note", "Please create a survey of the type 'Workshop Application/Questionnaire' and select it here before continuing.", false);
         }
       });
 

@@ -48,14 +48,18 @@
             </button>
             <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
           {% else %}
-            {% if workshop.registration_setting.registration_type == 'R' %}
-              <button hidden class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
-                Register
-              </button>
-            {% else %}
-              {% if workshop.registration_setting.application %}
-                <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" href="#">
+            {% if workshop.registration_setting.application %}
+              <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" href="#">
+                {% if workshop.registration_setting.registration_type == 'R' %}
+                  Register
+                {% else %}
                   Apply
+                {% endif %}
+              </a>
+            {% else %}
+              {% if workshop.registration_setting.registration_type == 'R' %}
+                <a class="btn modal-open registration_questionnaire_link" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationQuestionnaire' workshop.id %}" href="#">
+                  Register
                 </a>
               {% else %}
                 <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
@@ -63,6 +67,7 @@
                 </button>
               {% endif %}
             {% endif %}
+
           {% endif %}
         </div>
       </form>

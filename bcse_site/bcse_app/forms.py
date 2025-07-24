@@ -1003,7 +1003,7 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['dietary_preference']
+    fields = ['dietary_preference', 'iein']
 
   def __init__(self, *args, **kwargs):
 
@@ -1012,7 +1012,13 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
-      field.widget.attrs['placeholder'] = field.help_text
+      if field_name == 'dietary_preference':
+        field.widget.attrs['placeholder'] = 'Your dietary preference will be saved in your profile'
+        field.help_text = 'Your dietary preference will be saved in your profile'
+      elif field_name == 'iein':
+        field.widget.attrs['placeholder'] = 'Your IEIN will be saved in your profile'
+        field.help_text = 'Your IEIN will be saved in your profile'
+
 
 ####################################
 # Workshop Email Form
@@ -1312,6 +1318,8 @@ class SurveyForm(ModelForm):
         field.label = 'Send Email Confirmation to Respondent'
       else:
         field.widget.attrs['class'] = 'form-control'
+        if field_name == 'resource_url':
+          field.label = 'Resource URL'
       field.widget.attrs['placeholder'] = field.help_text
 
 
