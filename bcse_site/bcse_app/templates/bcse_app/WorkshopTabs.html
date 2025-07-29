@@ -46,6 +46,16 @@
           <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
         {% endif %}
         <button class="btn download" type="button">Export Registrants</button>
+        {% if workshop.registration_setting.application and workshop.registration_setting.application.survey_submission.all|length > 0 %}
+          <a class="btn" href="{% url 'bcse:surveySubmissionsExport' workshop.registration_setting.application.id %}">
+            Export
+            {% if workshop.registration_setting.registration_type == 'R' %}
+              Questionnaire
+            {% else %}
+              Applications
+            {% endif %}
+          </a>
+        {% endif %}
       </li>
     {% elif tab == 'emails'%}
        <li class="nav-item right">
@@ -62,7 +72,21 @@
       <li class="nav-item">
         <label><a class="nav-link {% if tab == 'registrants' %}active{% endif %}" href="{% url 'bcse:workshopRegistrants' workshop.id %}">Registrants</a></label>
       </li>
+      {% if tab == 'registrants' and workshop.registration_setting.application and workshop.registration_setting.application.survey_submission.all|length > 0 %}
+        <li class="nav-item right">
+          <a class="btn" href="{% url 'bcse:surveySubmissionsExport' workshop.registration_setting.application.id %}">
+            Export
+            {% if workshop.registration_setting.registration_type == 'R' %}
+              Questionnaire
+            {% else %}
+              Applications
+            {% endif %}
+          </a>
+        </li>
+      {% endif %}
+
     {% endif %}
+
   </ul>
 {% endif %}
 

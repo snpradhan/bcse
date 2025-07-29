@@ -41,12 +41,6 @@
 </table>
 <div class="workshops_registrants search_results">
 </div>
-<div class="form-group right">
-  {% if user.userProfile.user_role in 'AS' and not workshop.cancelled %}
-    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#upload" data-href="{% url 'bcse:workshopRegistrantsUpload' workshop.id %}" href="#">Upload Registrants</a>
-  {% endif %}
-  <button class="btn download" type="button">Export Registrants</button>
-</div>
 
 <script type="text/javascript">
   $(function (){

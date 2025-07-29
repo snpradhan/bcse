@@ -7447,12 +7447,22 @@ def surveySubmissionsSearch(request, id='', download=False):
   """
   try:
 
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+    survey = models.Survey.objects.get(id=id)
+    if request.user.is_anonymous:
       raise CustomException('You do not have the permission to search survey submissions')
+    elif request.user.userProfile.user_role not in ['A', 'S']:
+      if survey.survey_type == 'W':
+        try:
+          workshop = models.Workshop.objects.get(registration_setting__application=survey)
+          if request.user.userProfile.id not in workshop.teacher_leaders.all().values_list('teacher__id', flat=True):
+            raise CustomException('You do not have the permission to search survey submission')
+        except models.Workshop.DoesNotExist:
+          raise CustomException('You do not have the permission to search survey submission')
+      else:
+        raise CustomException('You do not have the permission to search survey submission')
+
 
     if request.method == 'GET':
-
-      survey = models.Survey.objects.get(id=id)
 
       query_filter = Q(survey=survey)
       email_filter = None
@@ -7579,15 +7589,21 @@ def surveySubmissionsExport(request, survey_id='', submission_uuid=''):
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to export survey responses')
+    survey = models.Survey.objects.get(id=survey_id)
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to export survey submission')
+    elif request.user.userProfile.user_role not in ['A', 'S']:
+      if survey.survey_type == 'W':
+        try:
+          workshop = models.Workshop.objects.get(registration_setting__application=survey)
+          if request.user.userProfile.id not in workshop.teacher_leaders.all().values_list('teacher__id', flat=True):
+            raise CustomException('You do not have the permission to export survey submission')
+        except models.Workshop.DoesNotExist:
+          raise CustomException('You do not have the permission to export survey submission')
+      else:
+        raise CustomException('You do not have the permission to export survey submission')
 
     if request.method == 'GET':
-      if '' != survey_id:
-        survey = models.Survey.objects.get(id=survey_id)
-      else:
-        raise models.Survey.DoesNotExist
-
       filters = None
       if '' != submission_uuid:
         surveySubmissions = models.SurveySubmission.objects.all().filter(survey=survey, UUID=submission_uuid)
@@ -7644,8 +7660,22 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions, filters='
   """
 
   is_admin = None
-  if not request.user.is_anonymous and request.user.userProfile.user_role in ['A', 'S']:
-    is_admin = True
+  if not request.user.is_anonymous:
+    if request.user.userProfile.user_role in ['A', 'S']:
+      is_admin = True
+    else:
+      if survey.survey_type == 'W':
+        try:
+          workshop = models.Workshop.objects.get(registration_setting__application=survey)
+          if request.user.userProfile.id in workshop.teacher_leaders.all().values_list('teacher__id', flat=True):
+            is_admin = True
+          else:
+            raise CustomException('You do not have the permission to export survey submission')
+        except models.Workshop.DoesNotExist:
+          raise CustomException('You do not have the permission to export survey submission')
+      else:
+        raise CustomException('You do not have the permission to export survey submission')
+
   else:
     is_admin = False
 
