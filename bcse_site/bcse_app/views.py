@@ -1258,6 +1258,41 @@ def equipmentDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+@login_required
+def equipmentOverbookedReservations(request, id='', reservation_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view equipment overbooked schedule')
+    equipment = models.Equipment.objects.get(id=id)
+    current_reservation = models.Reservation.objects.get(id=reservation_id)
+    overbooked_reservations = models.Reservation.objects.all().filter(Q(equipment=equipment), ~Q(status='N'), Q(Q(delivery_date__range=(current_reservation.delivery_date, current_reservation.return_date)) | Q(return_date__range=(current_reservation.delivery_date, current_reservation.return_date)))).exclude(id=current_reservation.id).distinct()
+    available_equipment = equipmentAvailableForReservation(request, id, reservation_id)
+    context = {'equipment': equipment, 'current_reservation': current_reservation, 'overbooked_reservations': overbooked_reservations, 'available_equipment': available_equipment}
+    return render(request, 'bcse_app/EquipmentOverbookedReservations.html', context)
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required
+def equipmentAvailableForReservation(request, id='', reservation_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view equipment availability')
+
+    equipment = models.Equipment.objects.get(id=id)
+    current_reservation = models.Reservation.objects.get(id=reservation_id)
+    other_equipment_sets = models.Equipment.objects.all().filter(equipment_type=equipment.equipment_type, status='A').exclude(id=equipment.id)
+    available_equipment_sets = []
+    for other_equipment_set in other_equipment_sets:
+      overbooked_reservations = models.Reservation.objects.all().filter(Q(equipment=other_equipment_set), ~Q(status='N'), Q(Q(delivery_date__range=(current_reservation.delivery_date, current_reservation.return_date)) | Q(return_date__range=(current_reservation.delivery_date, current_reservation.return_date)))).distinct().count()
+      if overbooked_reservations == 0:
+        available_equipment_sets.append(other_equipment_set)
+    return available_equipment_sets
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ####################################
 # DELETE ACTIVITY
 ####################################
@@ -1419,28 +1454,32 @@ def reservationEdit(request, id=''):
 
       if form.is_valid():
 
-        equipment_types = form.cleaned_data['equipment_types']
         savedReservation = None
 
-        if equipment_types:
-          availability_data = getAvailabilityData(request, id)
-          is_available = availability_data['is_available']
-          equipment_availability_matrix = availability_data['equipment_availability_matrix']
-          availability_calendar = availability_data['availability_calendar']
+        if 'equipment_types' in form.cleaned_data:
+          equipment_types = form.cleaned_data['equipment_types']
 
-          if is_available:
-            savedReservation = form.save()
-            savedReservation.equipment.clear()
+          if equipment_types:
+            availability_data = getAvailabilityData(request, id)
+            is_available = availability_data['is_available']
+            equipment_availability_matrix = availability_data['equipment_availability_matrix']
+            availability_calendar = availability_data['availability_calendar']
 
-            for equipment_type, availability in equipment_availability_matrix.items():
-              savedReservation.equipment.add(availability['most_available_equip'])
+            if is_available:
+              savedReservation = form.save()
+              savedReservation.equipment.clear()
 
-            savedReservation.save()
+              for equipment_type, availability in equipment_availability_matrix.items():
+                savedReservation.equipment.add(availability['most_available_equip'])
 
-          else:
-            messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
-            context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar, 'reservation_settings': reservation_settings }
-            return render(request, 'bcse_app/ReservationEdit.html', context)
+              savedReservation.save()
+
+            else:
+              messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
+              context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar, 'reservation_settings': reservation_settings }
+              return render(request, 'bcse_app/ReservationEdit.html', context)
+        elif 'equipment' in form.cleaned_data:
+          savedReservation = form.save()
         else:
           savedReservation = form.save()
           savedReservation.equipment.clear()
@@ -2160,7 +2199,8 @@ def checkAvailabilityForAdmin(request, equipment_types, selected_month):
         reservations = models.Reservation.objects.all().filter(equipment=equip, delivery_date__lte=index_date, return_date__gte=index_date).exclude(status='N')
         reservation_count = reservations.count()
         if reservation_count > 0:
-          equipment_availability_matrix[equipment_type][index_date][equip] = {'available': False, 'location': reservations.first().user.work_place}
+          locations = reservations.values_list('reservation_to_work_place__work_place__name', flat=True)
+          equipment_availability_matrix[equipment_type][index_date][equip] = {'available': False, 'locations': locations}
         else:
           equipment_availability_matrix[equipment_type][index_date][equip] = {'available': True}
 

@@ -87,8 +87,10 @@ urlpatterns = [
     path('equipmentType/<int:id>/view', views.equipmentTypeView, name='equipmentTypeView'),
     path('adminConfiguration/equipment/<int:id>/edit', views.equipmentEdit, name='equipmentEdit'),
     path('adminConfiguration/equipment/<int:id>/delete', views.equipmentDelete, name='equipmentDelete'),
+    path('adminConfiguration/equipment/<int:id>/overbooking/<int:reservation_id>', views.equipmentOverbookedReservations, name='equipmentOverbookedReservations'),
     path('adminConfiguration/equipment/new', views.equipmentEdit, name='equipmentNew'),
     path('adminConfiguration/equipments/', views.equipments, name='equipments'),
+
     path('adminConfiguration/baxter_box/usage_report/', views.baxterBoxUsageReport, name='baxterBoxUsageReport'),
     path('adminConfiguration/baxter_box/usage_report/search', views.baxterBoxUsageReportSearch, name='baxterBoxUsageReportSearch'),
     path('adminConfiguration/baxter_box/blackout_date/<int:id>/edit', views.blackoutDateEdit, name='blackoutDateEdit'),

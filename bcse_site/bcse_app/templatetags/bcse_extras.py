@@ -325,3 +325,18 @@ def get_registrants_email(workshop_email):
     registration_email_addresses = list(registrations.values_list('user__user__email', flat=True))
 
   return registration_email_addresses
+
+@register.filter
+def get_reservation_equipment_types(reservation):
+  equipment_type_ids = list(set(list(reservation.equipment.all().values_list('equipment_type', flat=True))))
+  equipment_types = models.EquipmentType.objects.all().filter(id__in=equipment_type_ids)
+  return equipment_types
+
+@register.filter
+def is_equipment_overbooked(equipment, reservation):
+  overbooked = models.Reservation.objects.all().filter(Q(equipment=equipment), ~Q(status='N'), Q(Q(delivery_date__range=(reservation.delivery_date, reservation.return_date)) | Q(return_date__range=(reservation.delivery_date, reservation.return_date)))).exclude(id=reservation.id).distinct().count()
+  if overbooked > 0:
+    return True
+  else:
+    return False
+

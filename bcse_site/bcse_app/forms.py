@@ -616,7 +616,7 @@ class ReservationForm(ModelForm):
 
   class Meta:
     model = models.Reservation
-    exclude = ('equipment', 'email_sent', 'confirmation_email_dates', 'feedback_status', 'feedback_email_count', 'feedback_email_date', 'created_by', 'created_date', 'modified_date')
+    exclude = ('email_sent', 'confirmation_email_dates', 'feedback_status', 'feedback_email_count', 'feedback_email_date', 'created_by', 'created_date', 'modified_date')
     widgets = {
       'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
       'notes': forms.Textarea(attrs={'rows':3}),
@@ -642,7 +642,7 @@ class ReservationForm(ModelForm):
             field.widget.attrs['class'] = 'form-control datepicker reservation_return_date reservation_date'
             field.widget.attrs['title'] = 'Click here to open a calender popup to select return date'
           field.widget.attrs['readonly'] = True
-        elif field_name == 'activity':
+        elif field_name in ['activity', 'equipment']:
           field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
@@ -686,6 +686,9 @@ class ReservationForm(ModelForm):
     self.fields['notes'].label = 'Please provide any additional information that would be useful, such as your preferred pick-up and return times, and any directions for parking and entering your school.'
     self.fields['assignee'].label = 'Select the BCSE team member in-charge of this reservation.'
     self.fields['additional_help_needed'].label = 'I need additional help.'
+    self.fields['equipment'].help_text = 'Manually selecting individual equipment sets may result in overbooking. \
+    Please manually resolve any overbooking that may occur from this modification. \
+    Any overbooking from this reservation will be identified on the Reservation Confirmation page as well as the User Reservations page.'
 
     if user.user_role not in ['A', 'S']:
       self.fields.pop('assignee')
@@ -693,11 +696,16 @@ class ReservationForm(ModelForm):
       self.fields.pop('admin_notes')
       self.fields.pop('color')
       self.fields.pop('consumables')
+      self.fields.pop('equipment')
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
       self.fields['activity'].queryset = models.Activity.objects.all()
       self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
       self.fields['consumables'].queryset = models.Consumable.objects.all().filter(status='A')
+      if self.instance.id:
+        self.fields.pop('equipment_types')
+      else:
+        self.fields.pop('equipment')
 
   def is_valid(self):
     valid = super(ReservationForm, self).is_valid()
