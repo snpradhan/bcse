@@ -421,14 +421,26 @@ function bindBaxterBoxTabs() {
 }
 
 function equalheight() {
-  var maxHeight = 0;
-  $('.availability_row').height('auto');
-  $('.availability_row').each(function () {
-    if ($(this).height() > maxHeight) {
-      maxHeight = $(this).height();
+  var maxHeight = [];
+  var count = 0;
+  $('.admin_calendar .availability_row').height('auto');
+  $('.admin_calendar tr').each(function(){
+    count = $(this).find('td .availability_row').length;
+    maxHeight = Array(count).fill(0);
+    $(this).find('.availability_row').each(function () {
+      if ($(this).height() > maxHeight[$(this).index()]) {
+        maxHeight[$(this).index()] = $(this).height();
+      }
+    });
+    var allZeros = maxHeight.every(function(value){
+      return value === 0;
+    })
+    if(!allZeros){
+      $(this).find('.availability_row').each(function () {
+        $(this).height(maxHeight[$(this).index()]);
+      });
     }
   });
-  $('.availability_row').height(maxHeight);
 }
 
 

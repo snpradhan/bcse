@@ -1,0 +1,174 @@
+<div class="modal-dialog modal-xl">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left"> {{equipment.name}} - Reservations </h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="vignetteMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="modal-body">
+
+      <h4>Current Reservation</h4>
+      <table class="table table-bordered table-striped export" id="current_reservations">
+        <thead>
+          <tr>
+            <th>Reservation ID</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Workplace</th>
+            <th>Delivery Date</th>
+            <th>Return Date</th>
+            <th>Reservation Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{current_reservation.id}}</td>
+            <td>{{current_reservation.user.user.last_name}}, {{current_reservation.user.user.first_name}}</td>
+            <td>{{current_reservation.user.user.email}}</td>
+            <td>
+              {% if current_reservation.delivery_address %}
+                {{current_reservation.delivery_address.street_address_1}}<br>
+                {% if current_reservation.delivery_address.street_address_2 %}
+                  {{current_reservation.delivery_address.street_address_2}}<br>
+                {% endif %}
+                {{current_reservation.delivery_address.city}}, {{current_reservation.delivery_address.state}} {{current_reservation.delivery_address.zip_code}}
+              {% else %}
+                {% with work_place=current_reservation.reservation_to_work_place.work_place %}
+                  {{work_place.name}}<br>
+                  {{work_place.street_address_1}}<br>
+                  {% if work_place.street_address_2 %}
+                    {{work_place.street_address_2}}<br>
+                  {% endif %}
+                  {% if work_place.city %}
+                    {{work_place.city}},
+                  {% endif %}
+                  {{work_place.state}} {{work_place.zip_code}}
+                {% endwith %}
+              {% endif %}
+            </td>
+            <td>{{current_reservation.delivery_date|date:"l, F j, Y"}}</td>
+            <td>{{current_reservation.return_date|date:"l, F j, Y"}}</td>
+            <td>{{current_reservation.get_status_display}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:reservationEdit' current_reservation.id %}" target="_blank">Edit</a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <hr>
+      <h4>Overbooked Reservations</h4>
+      <table class="table table-bordered table-striped export" id="overbooked_reservations">
+      <thead>
+        <tr>
+          <th>Reservation ID</th>
+          <th>User</th>
+          <th>Email</th>
+          <th>Workplace</th>
+          <th>Delivery Date</th>
+          <th>Return Date</th>
+          <th>Reservation Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reservation in overbooked_reservations %}
+          <tr>
+            <td>{{reservation.id}}</td>
+            <td>{{reservation.user.user.last_name}}, {{reservation.user.user.first_name}}</td>
+            <td>{{reservation.user.user.email}}</td>
+            <td>
+              {% if reservation.delivery_address %}
+                {{reservation.delivery_address.street_address_1}}<br>
+                {% if reservation.delivery_address.street_address_2 %}
+                  {{reservation.delivery_address.street_address_2}}<br>
+                {% endif %}
+                {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+              {% else %}
+                {% with work_place=reservation.reservation_to_work_place.work_place %}
+                  {{work_place.name}}<br>
+                  {{work_place.street_address_1}}<br>
+                  {% if work_place.street_address_2 %}
+                    {{work_place.street_address_2}}<br>
+                  {% endif %}
+                  {% if work_place.city %}
+                    {{work_place.city}},
+                  {% endif %}
+                  {{work_place.state}} {{work_place.zip_code}}
+                {% endwith %}
+              {% endif %}
+            </td>
+            <td>{{reservation.delivery_date|date:"l, F j, Y"}}</td>
+            <td>{{reservation.return_date|date:"l, F j, Y"}}</td>
+            <td>{{reservation.get_status_display}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:reservationView' reservation.id %}" target="_blank">View</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}" target="_blank">Edit</a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <hr>
+    <h4>Available Equipment</h4>
+    {% if available_equipment %}
+      <table class="table table-bordered table-striped export" id="available_equipment">
+        <thead>
+          <tr><th>Equipment Set</th></tr>
+        </thead>
+        <tbody>
+          {% for equipment in available_equipment %}
+            <tr>
+              <td>{{equipment.name}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="warning">Available equipment sets not found</div>
+    {% endif %}
+
+    </div>
+    <div class="modal-footer">
+      <div class="form-group buttons">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">Close</button>
+      </div>
+    </div>
+    
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+
+    
+
+  });
+</script>
+

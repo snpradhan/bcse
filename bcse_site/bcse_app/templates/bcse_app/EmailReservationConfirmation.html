@@ -117,12 +117,12 @@
              </tr>
            {% endif %}
            {% if reservation.equipment %}
-             {% for equipment in reservation.equipment.all %}
+             {% for equipment_type in reservation|get_reservation_equipment_types %}
                <tr class="kit">
                   <td class="details" align="left" style="{% if not forloop.last %} border-bottom: 1px solid #767676; {% endif %} padding: 8px 0; word-wrap: normal;" colspan="2">
-                     <div class="title" style="font-weight: 600;">{{equipment.equipment_type.name}} </div>
+                     <div class="title" style="font-weight: 600;">{{equipment_type.name}} </div>
                      <div class="description">
-                        {{equipment.equipment_type.description|safe}}
+                        {{equipment_type.description|safe}}
                      </div>
                   </td>
                </tr>

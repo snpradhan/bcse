@@ -151,19 +151,36 @@
               </label>
               <div class="error">{{ form.equipment_not_needed.errors }}</div>
             </div>
-            <div class="form-group mb-4">
-              <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}
-                {% if form.equipment_types.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div id="id_{{form.equipment_types.name}}">
-                {% for equipment_type in form.equipment_types %}
-                  <div> {{equipment_type}} </div>
-                {% endfor %}
+            {% if form.equipment_types %}
+              <div class="form-group mb-4">
+                <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}
+                  {% if form.equipment_types.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div id="id_{{form.equipment_types.name}}">
+                  {% for equipment_type in form.equipment_types %}
+                    <div> {{equipment_type}} </div>
+                  {% endfor %}
+                </div>
+                <div class="error">{{ form.equipment_types.errors }}</div>
               </div>
-              <div class="error">{{ form.equipment_types.errors }}</div>
-            </div>
+            {% elif form.equipment %}
+              <div class="form-group mb-4">
+                <label for="id_{{form.equipment.name}}" class="form-label"> {{form.equipment.label}}
+                  {% if form.equipment.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div id="id_{{form.equipment.name}}">
+                  <div> {{form.equipment}} </div>
+                  <div class="warning">{{form.equipment.help_text}}</div>
+                  <div class="error">{{ form.equipment.errors }}</div>
+
+                </div>
+              </div>
+            {% endif %}
+
 
             <div class="form-group mb-2 row">
               <div class="col">
@@ -795,6 +812,9 @@
               //reset equipment selection
               $('#id_equipment_types input.form-check-input').prop("checked", false).prop('required', false).prop('disabled', true).trigger('change');
               $('#id_equipment_types').closest('.form-group').hide();
+              $('#id_equipment .select2').val(null).trigger('change');
+              $('#id_equipment').closest('.form-group').hide();
+
               //reset and disable return date
               $('input#id_return_date').val('');
               $('input#id_return_date').prop('disabled', true);
@@ -806,6 +826,7 @@
             else{
               $('#id_equipment_types input.form-check-input').prop('required', true).prop('disabled', false);
               $('#id_equipment_types').closest('.form-group').show();
+              $('#id_equipment').closest('.form-group').show();
               $('input#id_return_date').prop('disabled', false);
               $('input#id_return_date').closest('.col').show();
               $('input#id_return_date').closest('.col').find('span.required').show();
