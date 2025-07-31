@@ -71,7 +71,8 @@
                                              {% leftnavactive request 'usage_report' %}
                                              {% leftnavactive request 'reservations' %}
                                              {% leftnavactive request 'reservation_colors' %}
-                                             {% leftnavactive request 'availabilityCalendar' %}"
+                                             {% leftnavactive request 'availabilityCalendar' %}
+                                             {% leftnavactive request 'reservationCalendar' %}"
                                              id="baxter_box_config">
                 <li class="{% if 'activities' in request.path or 'activity' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:activities' %}">Activities</a>
@@ -101,6 +102,9 @@
                 </li>
                 <li class="{% if 'availabilityCalendar' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:adminAvailabilityCalendar' %}">Availability Calendar</a>
+                </li>
+                <li class="{% if 'reservationCalendar' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:adminReservationCalendar' %}">Reservation Calendar</a>
                 </li>
               </ul>
             </li>

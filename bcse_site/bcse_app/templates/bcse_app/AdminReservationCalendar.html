@@ -1,0 +1,24 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block media %}
+  {{block.super}}
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js'></script>
+{% endblock %}
+
+{% block configuration %}
+  <h1> Reservation Calendar </h1>
+  {% include "bcse_app/ReservationsSearch.html" with display='calendar' %}
+  <div class="form-group" id="spinner">
+    <img src="/static/img/page-loader.gif" class="icon"/>
+  </div>
+  <div class="reservations search_results">
+  </div>
+  <script type="text/javascript">
+    $(function (){
+      $('form#reservation_filter_form').submit();
+    });
+  </script>
+  
+{% endblock %}

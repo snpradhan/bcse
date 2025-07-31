@@ -1,0 +1,46 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+<div id="calendar"></div>
+<script type="text/javascript">
+  $(function (){
+    const reservations = {{ events|safe }}
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek', //,timeGridWeek,timeGridDay,listWeek'
+      },
+      events: reservations,
+      eventContent: function(arg) {
+        console.log(arg);
+        const event = arg.event;
+        const isStart = arg.isStart;
+        const isEnd = arg.isEnd;
+
+        // Add symbols only at start or end of event
+        let symbolPrefix = isStart ? '<i class="fas fa-shopping-cart" aria-hidden="true"></i><i class="fas fa-arrow-right" aria-hidden="true"></i> ' : '';
+        let symbolSuffix = !isStart && isEnd ? ' <i class="fas fa-arrow-left" aria-hidden="true"></i><i class="fas fa-shopping-cart" aria-hidden="true"></i>' : '';
+
+        return {
+          html: `<div title="${event.title}"><div>${symbolPrefix}</div>` + `<div class="event_title">${event.title}</div>` + `<div>${symbolSuffix}</div></div>`
+        };
+      },
+      eventClick: function(info) {
+        info.jsEvent.preventDefault(); // prevent default browser navigation
+
+        if (info.event.url) {
+          window.open(info.event.url, '_blank'); // open in new tab
+        }
+      }
+
+    });
+    calendar.render();
+
+});
+
+</script>
+  
+

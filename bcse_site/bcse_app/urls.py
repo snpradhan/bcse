@@ -18,6 +18,7 @@ urlpatterns = [
     path('reservation/<int:id>/viewconfirmationemail', views.reservationConfirmationEmailView, name='reservationConfirmationEmailView'),
     path('reservation/new', views.reservationEdit, name='reservationNew'),
     path('reservations', views.reservations, name='reservations'),
+    path('reservations/search/<str:display>', views.reservationsSearch, name='reservationsSearch'),
     path('reservations/search/', views.reservationsSearch, name='reservationsSearch'),
     path('reservations/dismissMessages', views.reservationMessageDismiss, name='reservationMessageDismiss'),
     path('reservation/<int:reservation_id>/deliveryAddress/edit', views.reservationDeliveryAddressEdit, name='reservationDeliveryAddressEdit'),
@@ -84,6 +85,8 @@ urlpatterns = [
     path('adminConfiguration/equipmentType/new', views.equipmentTypeEdit, name='equipmentTypeNew'),
     path('adminConfiguration/equipmentTypes/', views.equipmentTypes, name='equipmentTypes'),
     path('adminConfiguration/availabilityCalendar/', views.adminAvailabilityCalendar, name='adminAvailabilityCalendar'),
+    path('adminConfiguration/reservationCalendar/', views.adminReservationCalendar, name='adminReservationCalendar'),
+
     path('equipmentType/<int:id>/view', views.equipmentTypeView, name='equipmentTypeView'),
     path('adminConfiguration/equipment/<int:id>/edit', views.equipmentEdit, name='equipmentEdit'),
     path('adminConfiguration/equipment/<int:id>/delete', views.equipmentDelete, name='equipmentDelete'),
