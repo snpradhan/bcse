@@ -129,9 +129,9 @@
                       <a class="dropdown-item" href="{% url 'bcse:workshops' 'list' 'current' %}">Workshops</a>
                     </li>
 
-                    <li class="{% navactive request 'bcse:workshopView' 184 %}"><a class="dropdown-item" href="{% url 'bcse:workshopView' 184 %}">The Baxter Center Symposium</a></li>
+                    <li class="{% navactive request 'bcse:workshopView' 184 %}"><a class="dropdown-item" href="{% url 'bcse:workshopView' 184 %}">Symposium</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
-                    <li class="{% navactive request 'bcse:teacherLeadershipOpportunities' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></li>
+                    <li class="{% navactive request 'bcse:teacherLeadershipOpportunities' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunities' %}">Teacher Leadership Opportunities</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
                       <li class="{% navactive request 'bcse:workshopsExtra' 'table' 'all' 'my' %}">
                         <a class="dropdown-item" href="{% url 'bcse:workshopsExtra' 'table' 'all' 'my' %}">My Workshops</a>
@@ -163,10 +163,10 @@
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li class="{% navactive request 'bcse:baxterBoxInfo' %}">
-                      <a class="dropdown-item" href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box Program</a>
+                      <a class="dropdown-item" href="{% url 'bcse:baxterBoxInfo' %}">Box Program</a>
                     </li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'lab_grant' %}">
-                      <a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Lab Grants</a>
+                      <a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Lab Grants Program</a>
                     </li>
                     {% if user.is_authenticated %}
                       <li class="{% navactive request 'bcse:reservations' %}">
@@ -388,11 +388,11 @@
           </div>
           <div>
             <h4 class="credit"><a href="{% url 'bcse:workshops' 'list' 'current' %}">Workshops</a></h4>
-            <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Baxter Symposium</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'baxter_symposium' %}">Symposium</a></h4>
             <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></h4>
-            <h4 class="credit"><a href="{% url 'bcse:teacherLeadershipOpportunities' %}"> Leadership Opportunities</a></h4>
-            <h4 class="credit"><a href="{% url 'bcse:baxterBoxInfo' %}">Baxter Box Program</a></h4>
-            <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Lab Grants</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:teacherLeadershipOpportunities' %}">Teacher Leadership Opportunities</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:baxterBoxInfo' %}">Box Program</a></h4>
+            <h4 class="credit"><a href="{% url 'bcse:standalonePageAliasView' 'lab_grant' %}">Lab Grants Program</a></h4>
           </div>
           <div>
             <h4 class="credit"> <a href="{% url 'bcse:aboutBCSE' %}">About</a></h4>
