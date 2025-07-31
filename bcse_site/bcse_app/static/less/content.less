@@ -1384,6 +1384,21 @@ body {
         flex: 0 0 85%;
         padding-left: 1em;
         width: 80%;
+
+        #calendar {
+          .fc-event-main > div, .fc-list-event-title > div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1em;
+
+            .event_title {
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+
+        }
       }
     }
     /*****************************

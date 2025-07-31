@@ -12,7 +12,6 @@ $(function (){
     var result_container = $(this).closest('.content').find('.search_results');
     const queryString = $(form).serialize();
     var url = $(form).attr('action')+'?'+queryString;
-    console.log(queryString);
     $.ajax({
       type: $(form).attr('method'),
       url: url,

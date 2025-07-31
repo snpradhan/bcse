@@ -1827,7 +1827,7 @@ def reservationCancel(request, id=''):
 ##########################################################
 # FILTER RESERVATIONS BASED ON FILTER CRITERIA
 ##########################################################
-def reservationsSearch(request):
+def reservationsSearch(request, display='table'):
   """
   reservationsSearch is called from the path 'reservations/search'
   :param request: request from the browser
@@ -1868,33 +1868,49 @@ def reservationsSearch(request):
       delivery_after = request.GET.get('reservation_search-delivery_after', '')
       return_before = request.GET.get('reservation_search-return_before', '')
       status = request.GET.getlist('reservation_search-status', '')
+      color = request.GET.getlist('reservation_search-color', '')
+
       sort_by = request.GET.get('reservation_search-sort_by', '')
       columns = request.GET.getlist('reservation_search-columns', '')
       rows_per_page = request.GET.get('reservation_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
-      color = request.GET.getlist('reservation_search-color', '')
       feedback_status = request.GET.get('reservation_search-feedback_status', '')
       page = request.GET.get('page', '')
 
-      #set session variable
-      request.session['reservations_search'] = {
-        'keywords': keywords,
-        'user': user,
-        'work_place': work_place,
-        'assignee': assignee,
-        'activity': activity,
-        'consumable': consumable,
-        'equipment': equipment,
-        'delivery_after': delivery_after,
-        'return_before': return_before,
-        'status': status,
-        'sort_by': sort_by,
-        'columns': columns,
-        'rows_per_page': rows_per_page,
-        'color': color,
-        'feedback_status': feedback_status,
-        'page': page
-      }
-
+      if display == 'table':
+        #set session variable
+        request.session['reservations_search'] = {
+          'keywords': keywords,
+          'user': user,
+          'work_place': work_place,
+          'assignee': assignee,
+          'activity': activity,
+          'consumable': consumable,
+          'equipment': equipment,
+          'delivery_after': delivery_after,
+          'return_before': return_before,
+          'status': status,
+          'color': color,
+          'sort_by': sort_by,
+          'columns': columns,
+          'rows_per_page': rows_per_page,
+          'feedback_status': feedback_status,
+          'page': page
+        }
+      else:
+        #set session variable
+        request.session['reservations_search_calendar'] = {
+          'keywords': keywords,
+          'user': user,
+          'work_place': work_place,
+          'assignee': assignee,
+          'activity': activity,
+          'consumable': consumable,
+          'equipment': equipment,
+          'delivery_after': delivery_after,
+          'return_before': return_before,
+          'status': status,
+          'color': color,
+        }
 
       if keywords:
         keyword_filter = Q(activity__name__icontains=keywords) | Q(other_activity_name__icontains=keywords)
@@ -1978,52 +1994,77 @@ def reservationsSearch(request):
 
       reservations = reservations.distinct()
 
-      reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=Q(~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile))))
-      reservations = reservations.annotate(primary_date=Case(When(status='O', then=('return_date')), When(status__in=['N', 'I', 'R', 'U'], then=('delivery_date'))))
-      reservations = reservations.annotate(secondary_date=Case(When(status='O', then=('delivery_date')), When(status__in=['N', 'I', 'R', 'U'], then=('return_date'))))
+      if display == 'table':
+        reservations = reservations.annotate(new_messages=Count('reservation_messages', filter=Q(~Q(reservation_messages__created_by=request.user.userProfile) & ~Q(reservation_messages__viewed_by=request.user.userProfile))))
+        reservations = reservations.annotate(primary_date=Case(When(status='O', then=('return_date')), When(status__in=['N', 'I', 'R', 'U'], then=('delivery_date'))))
+        reservations = reservations.annotate(secondary_date=Case(When(status='O', then=('delivery_date')), When(status__in=['N', 'I', 'R', 'U'], then=('return_date'))))
 
-      direction = request.GET.get('direction') or 'asc'
-      ignorecase = request.GET.get('ignorecase') or 'false'
+        direction = request.GET.get('direction') or 'asc'
+        ignorecase = request.GET.get('ignorecase') or 'false'
 
-      sort_order = []
-      if sort_by:
-        if sort_by == 'user':
-          sort_order.append({'order_by': 'user__user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
-          sort_order.append({'order_by': 'user__user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
-        elif sort_by == 'activity':
-          sort_order.append({'order_by': 'activity__name', 'direction': 'asc', 'ignorecase': 'true'})
-          sort_order.append({'order_by': 'other_activity_name', 'direction': 'asc', 'ignorecase': 'true'})
+        sort_order = []
+        if sort_by:
+          if sort_by == 'user':
+            sort_order.append({'order_by': 'user__user__last_name', 'direction': 'asc', 'ignorecase': 'true'})
+            sort_order.append({'order_by': 'user__user__first_name', 'direction': 'asc', 'ignorecase': 'true'})
+          elif sort_by == 'activity':
+            sort_order.append({'order_by': 'activity__name', 'direction': 'asc', 'ignorecase': 'true'})
+            sort_order.append({'order_by': 'other_activity_name', 'direction': 'asc', 'ignorecase': 'true'})
 
-        elif sort_by == 'delivery_date_asc':
-          sort_order.append({'order_by': 'delivery_date', 'direction': 'asc', 'ignorecase': 'false'})
-          sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
-        elif sort_by == 'delivery_date_desc':
-          sort_order.append({'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'})
-          sort_order.append({'order_by': 'return_date', 'direction': 'desc', 'ignorecase': 'false'})
-        elif sort_by == 'return_date_asc':
-          sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
-        elif sort_by == 'return_date_desc':
-          sort_order.append({'order_by': 'return_date', 'direction': 'desc', 'ignorecase': 'false'})
+          elif sort_by == 'delivery_date_asc':
+            sort_order.append({'order_by': 'delivery_date', 'direction': 'asc', 'ignorecase': 'false'})
+            sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
+          elif sort_by == 'delivery_date_desc':
+            sort_order.append({'order_by': 'delivery_date', 'direction': 'desc', 'ignorecase': 'false'})
+            sort_order.append({'order_by': 'return_date', 'direction': 'desc', 'ignorecase': 'false'})
+          elif sort_by == 'return_date_asc':
+            sort_order.append({'order_by': 'return_date', 'direction': 'asc', 'ignorecase': 'false'})
+          elif sort_by == 'return_date_desc':
+            sort_order.append({'order_by': 'return_date', 'direction': 'desc', 'ignorecase': 'false'})
 
-        elif sort_by == 'created_date_asc':
-          sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
-        elif sort_by == 'created_date_desc':
-          sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
+          elif sort_by == 'created_date_asc':
+            sort_order.append({'order_by': 'created_date', 'direction': 'asc', 'ignorecase': 'false'})
+          elif sort_by == 'created_date_desc':
+            sort_order.append({'order_by': 'created_date', 'direction': 'desc', 'ignorecase': 'false'})
 
-        elif sort_by == 'status':
-          sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
-        elif sort_by == 'new_messages':
-          sort_order.append({'order_by': 'new_messages', 'direction': 'desc', 'ignorecase': 'false'})
+          elif sort_by == 'status':
+            sort_order.append({'order_by': 'status', 'direction': 'asc', 'ignorecase': 'true'})
+          elif sort_by == 'new_messages':
+            sort_order.append({'order_by': 'new_messages', 'direction': 'desc', 'ignorecase': 'false'})
+        else:
+          sort_order.append({'order_by': 'primary_date', 'direction': 'desc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'secondary_date', 'direction': 'desc', 'ignorecase': 'false'})
+
+        reservations = paginate(request, reservations, sort_order, rows_per_page, page)
+
+        context = {'reservations': reservations, 'tag': 'reservations', 'columns': columns}
+        response_data = {}
+        response_data['success'] = True
+        response_data['html'] = render_to_string('bcse_app/ReservationsTableView.html', context, request)
       else:
-        sort_order.append({'order_by': 'primary_date', 'direction': 'desc', 'ignorecase': 'false'})
-        sort_order.append({'order_by': 'secondary_date', 'direction': 'desc', 'ignorecase': 'false'})
+        reservations = reservations.order_by('delivery_date')
+        reservation_schedule_matrix = []
+        for reservation in reservations:
+          schedule = {}
+          if hasattr(reservation, 'reservation_to_work_place'):
+            schedule['title'] = '%s - %s' % (reservation.reservation_to_work_place.work_place.name, reservation.user.user.get_full_name())
+          else:
+            schedule['title'] = '%s - %s' % ('No Workplace', reservation.user.user.get_full_name())
+          schedule['start'] = reservation.delivery_date.strftime('%Y-%m-%d')
+          schedule['url'] = '/reservation/%s/view'%reservation.id
+          schedule['display'] = 'block'
+          schedule['allDay'] = 'true'
 
-      reservations = paginate(request, reservations, sort_order, rows_per_page, page)
+          if reservation.return_date:
+            return_date = reservation.return_date + datetime.timedelta(days=1)
+            schedule['end'] = return_date.strftime('%Y-%m-%d')
 
-      context = {'reservations': reservations, 'tag': 'reservations', 'columns': columns}
-      response_data = {}
-      response_data['success'] = True
-      response_data['html'] = render_to_string('bcse_app/ReservationsTableView.html', context, request)
+          reservation_schedule_matrix.append(schedule)
+
+        context = {'events': json.dumps(reservation_schedule_matrix)}
+        response_data = {}
+        response_data['success'] = True
+        response_data['html'] = render_to_string('bcse_app/ReservationsCalendarView.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -2208,6 +2249,21 @@ def checkAvailabilityForAdmin(request, equipment_types, selected_month):
 
 
   return equipment_availability_matrix
+
+####################################
+# RESERVATION SCHEDULE
+####################################
+
+def adminReservationCalendar(request):
+
+  if request.session.get('reservations_search_calendar', False):
+    searchForm = forms.ReservationsSearchForm(user=request.user, initials=request.session['reservations_search_calendar'], prefix="reservation_search")
+  else:
+    searchForm = forms.ReservationsSearchForm(user=request.user, initials=None, prefix="reservation_search")
+
+  context = {'searchForm': searchForm}
+  return render(request, 'bcse_app/AdminReservationCalendar.html', context)
+
 
 
 ###################################################
