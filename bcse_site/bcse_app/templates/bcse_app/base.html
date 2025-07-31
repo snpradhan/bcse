@@ -362,18 +362,13 @@
     <footer>
       {% block footer %}
         <div class="partners" onclick="location.href='/about/partners'">
-          <div class="partner baxter">
-            <img src="{% staticfile 'img/baxter_foundation.png' %}">
-          </div>
-          <div class="partner ocep">
-            <img src="{% staticfile 'img/OCEP.png' %}">
-          </div>
-          <div class="partner lmsa">
-            <img src="{% staticfile 'img/logos/LMSA_logo.png' %}">
-          </div>
-          <div class="partner rlhs">
-            <img src="{% staticfile 'img/logos/RLHS_logo.jpg' %}">
-          </div>
+          {% for partner in partners %}
+            {% if partner.image %}
+              <div class="partner">
+                <img src="{{partner.image.url}}">
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
         <div class="credits">
           <div>
