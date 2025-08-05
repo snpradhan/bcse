@@ -9123,10 +9123,15 @@ def create_registration(request, email, workshop_id, registration_status=None):
       registration_status = default_registration_status
 
     user = models.UserProfile.objects.get(user__email=email.lower())
-    workshop_registration, created = models.Registration.objects.get_or_create(workshop_registration_setting=workshop.registration_setting, status=registration_status, user=user)
-    if user.work_place:
-      registration_work_place = models.RegistrationWorkPlace(registration=workshop_registration, work_place=user.work_place)
-      registration_work_place.save()
+    try:
+      workshop_registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=user)
+      created = False
+    except models.Registration.DoesNotExist:
+      workshop_registration = models.Registration.objects.create(workshop_registration_setting=workshop.registration_setting, status=registration_status, user=user)
+      created = True
+      if user.work_place:
+        registration_work_place = models.RegistrationWorkPlace(registration=workshop_registration, work_place=user.work_place)
+        registration_work_place.save()
 
     if created:
       return True
