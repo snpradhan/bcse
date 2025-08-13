@@ -8149,6 +8149,12 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
             for response_form in formset:
               response_form.save()
 
+            if survey.survey_type == 'B' and reservation_id:
+              reservation = models.Reservation.objects.get(id=reservation_id)
+              models.ReservationFeedback.objects.get_or_create(reservation=reservation, feedback=submission)
+              reservation.feedback_status = 'I'
+              reservation.save()
+
             if autosave:
               print('autosave')
               response_data['success'] = True
@@ -8169,10 +8175,6 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               #reservation feedback
               elif survey.survey_type == 'B' and reservation_id:
                 context['reservation_id'] = reservation_id
-                reservation = models.Reservation.objects.get(id=reservation_id)
-                #reservation feedback in progress
-                reservation.feedback_status = 'I'
-                reservation.save()
 
               response_data['success'] = True
               response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
@@ -8216,7 +8218,6 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                 #reservation feedback submitted
                 reservation.feedback_status = 'S'
                 reservation.save()
-                models.ReservationFeedback.objects.create(reservation=reservation, feedback=submission)
                 messages.success(request, 'Your feedback has been submitted')
               #other surveys
               else:
