@@ -129,7 +129,7 @@
                       <a class="dropdown-item" href="{% url 'bcse:workshops' 'list' 'current' %}">Workshops</a>
                     </li>
 
-                    <li class="{% navactive request 'bcse:workshopView' 184 %}"><a class="dropdown-item" href="{% url 'bcse:workshopView' 184 %}">Symposium</a></li>
+                    <li class="{% navactive request 'bcse:standalonePageIdView' 96 %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageIdView' 96 %}">Symposium</a></li>
                     <li class="{% navactive request 'bcse:standalonePageAliasView' 'ret' %}"><a class="dropdown-item" href="{% url 'bcse:standalonePageAliasView' 'ret' %}">Research Experience for Teachers</a></li>
                     <li class="{% navactive request 'bcse:teacherLeadershipOpportunities' %}"><a class="dropdown-item" href="{% url 'bcse:teacherLeadershipOpportunities' %}">Teacher Leadership Opportunities</a></li>
                     {% if user.is_authenticated and user.userProfile.user_role not in 'AS' %}
