@@ -4346,7 +4346,7 @@ def workshopsBaseQuery(request, extra='', user_id=''):
     if request.user.userProfile.user_role in ['A', 'S']:
       #fetch user workshops to display on user profile
       if user_id:
-        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user__id=user_id), ~Q(registration_setting__workshop_registrants__status='N'))
+        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user__id=user_id))
       #fetch all workshops to display on workshops page
       else:
         workshops = models.Workshop.objects.all()
@@ -4354,7 +4354,7 @@ def workshopsBaseQuery(request, extra='', user_id=''):
     else:
       #fetch my workshops
       if extra =='my' or request.user.userProfile.id == user_id:
-        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user=request.user.userProfile), ~Q(registration_setting__workshop_registrants__status='N'))
+        workshops = models.Workshop.objects.all().filter(Q(registration_setting__workshop_registrants__user=request.user.userProfile))
       #fetch teacher leader workshops
       elif extra == 'teacher':
         workshops = models.Workshop.objects.all().filter(teacher_leaders__teacher=request.user.userProfile)
