@@ -1483,7 +1483,6 @@ def reservationEdit(request, id=''):
           savedReservation.equipment.clear()
           savedReservation.save()
 
-        print('savedReservation', savedReservation)
         # when teacher makes/edits a reservation, save the mapped consumables on the reservation
         if savedReservation.activity_kit_not_needed:
           savedReservation.consumables.clear()
@@ -2053,6 +2052,8 @@ def reservationsSearch(request, display='table'):
           schedule['url'] = '/reservation/%s/view'%reservation.id
           schedule['display'] = 'block'
           schedule['allDay'] = 'true'
+          if reservation.color:
+            schedule['color'] = reservation.color.color
 
           if reservation.return_date:
             return_date = reservation.return_date + datetime.timedelta(days=1)
