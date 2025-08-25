@@ -136,6 +136,7 @@
                 {% if form.include_goggles.field.required %}
                   (<span class="required">*</span>)
                 {% endif %}
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.include_goggles.help_text}}"></i>
               </label>
               <div class="error">{{ form.include_goggles.errors }}</div>
             </div>
@@ -449,8 +450,7 @@
         }
 
         function bindReservationSubmit(){
-          $('button#reservationSubmit').on('click', function(e){
-            $(this).off('click');
+          $('button#reservationSubmit').off('click').on('click', function(e){
             var dates_valid = validateDates();
             if (dates_valid) {
               //$('select#id_equipment_types_to option').prop('selected', true);
@@ -693,6 +693,7 @@
         //validate delivery and return dates
         function validateDates() {
           var equipment_not_needed = $('input#id_equipment_not_needed').is(':checked');
+          var include_goggles = $('input#id_include_goggles').is(':checked');
           var equipment_selected = getSelectedEquipment();
 
           var delivery_date = $('input#id_delivery_date').datepicker('getDate');
@@ -706,8 +707,8 @@
           max_reservation_date.setDate(max_reservation_date.getDate() + reservation_max_advance_days);
           max_reservation_date.setHours(0, 0, 0, 0);
 
-          //if equipment is selected,
-          if (!equipment_not_needed && equipment_selected) {
+          //if equipment is selected or goggles is requested,
+          if (!equipment_not_needed && equipment_selected || include_goggles) {
             //delivery and return dates are both required
             if (delivery_date == null || return_date == null) {
               displayWarningDialog('Please select both delivery and return dates.');
@@ -815,12 +816,14 @@
               $('#id_equipment .select2').val(null).trigger('change');
               $('#id_equipment').closest('.form-group').hide();
 
-              //reset and disable return date
-              $('input#id_return_date').val('');
-              $('input#id_return_date').prop('disabled', true);
-              $('input#id_return_date').closest('.col').hide();
-              $('input#id_return_date').closest('.col').find('span.required').hide();
-              clearCalendar();
+              //reset and disable return date if borrow googles remains unchecked
+              if(!$('#id_include_goggles').is(':checked')) {
+                $('input#id_return_date').val('');
+                $('input#id_return_date').prop('disabled', true);
+                $('input#id_return_date').closest('.col').hide();
+                $('input#id_return_date').closest('.col').find('span.required').hide();
+                clearCalendar();
+              }
             }
             //checkbox unchecked
             else{
@@ -833,6 +836,20 @@
             }
             toggleCheckAvailability();
           });
+        }
+
+        function bindGogglesRequested() {
+          $('#id_include_goggles').on('change', function(e){
+            if($(this).is(':checked')) {
+              $('input#id_return_date').prop('disabled', false);
+              $('input#id_return_date').closest('.col').show();
+              $('input#id_return_date').closest('.col').find('span.required').show();
+            }
+            else {
+              $('input#id_equipment_not_needed').trigger('change');
+            }
+          });
+
         }
 
         function bindNumOfClasses() {
@@ -978,8 +995,9 @@
         bindReservationSubmit();
         bindClearDates();
         bindUserSelection();
-        bindConfirmWorkplace()
-        toggleConfirmWorkplace()
+        bindConfirmWorkplace();
+        toggleConfirmWorkplace();
+        bindGogglesRequested();
         init();
       }
     });
