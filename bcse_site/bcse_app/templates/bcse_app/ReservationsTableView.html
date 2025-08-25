@@ -37,9 +37,6 @@
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
           <th> Consumables </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GG' in columns %}
-          <th> Include Gloves/Goggles </th>
-        {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GL' in columns %}
           <th> Include Gloves </th>
         {% endif %}
@@ -95,6 +92,9 @@
         {% endif %}
         {% if 'ST' in columns or tag == 'profile' %}
           <th> Status </th>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'profile' %}
+          <th> Workplace </th>
         {% endif %}
         <th class='ignore-column'> Action </th>
       </tr>
@@ -299,6 +299,9 @@
           {% endif %}
           {% if 'ST' in columns or tag == 'profile' %}
             <td> {{reservation.get_status_display}} </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'profile' %}
+            <td> {{reservation.reservation_to_work_place.work_place}} </td>
           {% endif %}
           <td class='noExl'>
             <div class="btn-group">

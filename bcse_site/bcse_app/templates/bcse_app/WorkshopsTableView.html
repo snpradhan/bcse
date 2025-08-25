@@ -36,6 +36,9 @@
           {% else %}
             {% if extra != 'teacher' %}
               <th> Registration Status </th>
+              {% if user.userProfile.user_role in 'AS' %}
+                <th>Workplace</th>
+              {% endif %}
             {% endif %}
           {% endif %}
           <th class='ignore-column'> Action </th>
@@ -128,6 +131,9 @@
               {% endif %}
               {% if extra != 'teacher' %}
                 <td>{{registration.get_status_display}}</td>
+                {% if user.userProfile.user_role in 'AS' %}
+                  <td>{{registration.registration_to_work_place.work_place}}</td>
+                {% endif %}
                 <td width="15%">
                   {% if workshop.status == 'A'%}
                     <div class="btn-group">
