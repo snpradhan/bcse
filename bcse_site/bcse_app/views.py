@@ -1456,28 +1456,26 @@ def reservationEdit(request, id=''):
 
         savedReservation = None
 
-        if 'equipment_types' in form.cleaned_data:
-          equipment_types = form.cleaned_data['equipment_types']
 
-          if equipment_types:
-            availability_data = getAvailabilityData(request, id)
-            is_available = availability_data['is_available']
-            equipment_availability_matrix = availability_data['equipment_availability_matrix']
-            availability_calendar = availability_data['availability_calendar']
+        if 'equipment_types' in form.cleaned_data and form.cleaned_data['equipment_types']:
+          availability_data = getAvailabilityData(request, id)
+          is_available = availability_data['is_available']
+          equipment_availability_matrix = availability_data['equipment_availability_matrix']
+          availability_calendar = availability_data['availability_calendar']
 
-            if is_available:
-              savedReservation = form.save()
-              savedReservation.equipment.clear()
+          if is_available:
+            savedReservation = form.save()
+            savedReservation.equipment.clear()
 
-              for equipment_type, availability in equipment_availability_matrix.items():
-                savedReservation.equipment.add(availability['most_available_equip'])
+            for equipment_type, availability in equipment_availability_matrix.items():
+              savedReservation.equipment.add(availability['most_available_equip'])
 
-              savedReservation.save()
+            savedReservation.save()
 
-            else:
-              messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
-              context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar, 'reservation_settings': reservation_settings }
-              return render(request, 'bcse_app/ReservationEdit.html', context)
+          else:
+            messages.error(request, "Selected equipment is unavailable for the selected dates. Please revise your dates and try making reservation again.")
+            context = {'form': form, 'is_available': is_available, 'availability_calendar': availability_calendar, 'reservation_settings': reservation_settings }
+            return render(request, 'bcse_app/ReservationEdit.html', context)
         elif 'equipment' in form.cleaned_data:
           savedReservation = form.save()
         else:
@@ -1485,6 +1483,7 @@ def reservationEdit(request, id=''):
           savedReservation.equipment.clear()
           savedReservation.save()
 
+        print('savedReservation', savedReservation)
         # when teacher makes/edits a reservation, save the mapped consumables on the reservation
         if savedReservation.activity_kit_not_needed:
           savedReservation.consumables.clear()
