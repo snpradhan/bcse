@@ -682,7 +682,7 @@ class ReservationForm(ModelForm):
     self.fields['more_num_of_classes'].label = 'Number of classes more than 4'
     self.fields['include_gloves'].label = 'I would like to get gloves.'
     self.fields['include_goggles'].label = 'I would like to borrow goggles.'
-    self.fields['include_goggles'].help_text = 'Gloves will need to be returned.'
+    self.fields['include_goggles'].help_text = 'Goggles will need to be returned.'
     self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
     self.fields['notes'].label = 'Please provide any additional information that would be useful, such as your preferred pick-up and return times, and any directions for parking and entering your school.'
     self.fields['assignee'].label = 'Select the BCSE team member in-charge of this reservation.'
