@@ -2052,8 +2052,12 @@ def reservationsSearch(request, display='table'):
           schedule['url'] = '/reservation/%s/view'%reservation.id
           schedule['display'] = 'block'
           schedule['allDay'] = 'true'
+          schedule['textColor'] = 'black'
           if reservation.color:
             schedule['color'] = reservation.color.color
+          else:
+            schedule['color'] = '#cccccc' #default mid gray
+
 
           if reservation.return_date:
             return_date = reservation.return_date + datetime.timedelta(days=1)
