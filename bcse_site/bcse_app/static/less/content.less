@@ -882,15 +882,13 @@ body {
           border: 1px solid #ced4da;
           border-radius: 0.25rem;
           padding: 0.375rem 0.75rem;
-          display: flex;
-          flex-direction: column;
-          flex-wrap: wrap;
-          max-height: 40em;
-          gap: 0.5em;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-gap: 0.5em;
 
           & > div {
-            width: 50%;
             label {
+              display: flex;
               input {
                 margin-right: 0.25em;
               }
