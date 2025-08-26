@@ -242,11 +242,19 @@ def get_reservation_feedback(context, reservation_id):
 def activate_reservation_feedback(context, reservation_id):
   request = context.get('request')
   reservation = models.Reservation.objects.get(id=reservation_id)
-  #activate reservation feedback link only if status is checked in or completed and 14 days have passed since delivery date
-  if reservation.status in 'OI' and reservation.delivery_date + datetime.timedelta(days=14) <= datetime.date.today():
-    return True
+  #for reservations with return date, activate feedback link when it is marked completed
+  if reservation.status == 'I':
+    if reservation.return_date:
+      return True
+    else:
+      #for reservations without return date, activate feedback link when it is marked complete and 14 days have passed since delivery date
+      if reservation.delivery_date + datetime.timedelta(days=14) <= datetime.date.today():
+        return True
+      else:
+        return False
   else:
     return False
+
 
 @register.simple_tag(takes_context=True)
 def get_baxterbox_feedback_survey(context):
