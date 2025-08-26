@@ -8125,11 +8125,11 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           #for workshop applications, delete all previous submissions
           incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, user=user, application_to_registration__registration__workshop_registration_setting__workshop__id=workshop_id)
           incomplete_submissions.delete()
-        elif survey.survey_type == 'B' and reservation_id:
+        '''elif survey.survey_type == 'B' and reservation_id:
           #for baxter box survey, delete all incomplete submissions
           incomplete_submissions = models.SurveySubmission.objects.all().filter(survey=survey, status='I', feedback_to_reservation__reservation__id=reservation_id)
           incomplete_submissions.delete()
-
+        '''
         submission = models.SurveySubmission.objects.create(UUID=uuid.uuid4(), survey=survey, ip_address=request.META['REMOTE_ADDR'])
         print('new submission')
         if user and page_num == 1:
