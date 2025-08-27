@@ -9,9 +9,11 @@
     <h1 class="center"> Create Activity </h1>
   {% endif %}
   <div class="admin_form">
-    <form method="post" enctype="multipart/form-data" id="formWorkshopCategory">
+    <form method="post" enctype="multipart/form-data" id="formActivity">
       {% csrf_token %}
       {{form.media}}
+      {{form.id}}
+
       <div class="form-group mb-3">
         <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
         <div>{{form.name}}</div>
@@ -48,6 +50,44 @@
         <label for="id_{{form.inventory.name}}" class="form-label"> {{form.inventory.label|title}}</label>
         <div>{{form.inventory}}</div>
         <div class="error">{{ form.inventory.errors }}</div>
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label">Inventory <button type="button" class="btn" onclick="cloneForm('activityinventory_set', 'inventory_formset')">Add </button> </label>
+        <table class="table table-condensed table-bordered">
+          <thead>
+            <tr>
+              <th>Storage Location</th>
+              <th>Count</th>
+              <th>Expiration Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="inventory_formset">
+            {{formset.management_form}}
+            {% for form in formset %}
+
+              {{form.id}}
+              <tr class="form-row">
+                 <td>
+                  {{form.storage_location}}
+                  <div class="error">{{ form.storage_location.errors }}</div>
+                </td>
+                <td>
+                  {{form.count}}
+                  <div class="error">{{ form.count.errors }}</div>
+                </td>
+                <td>
+                  {{form.expiration_date}}
+                  <div class="error">{{ form.expiration_date.errors }}</div>
+                </td>
+                <td>
+                  {{form.DELETE.as_hidden}}
+                  <button type="button" class="btn btn-danger delete_inventory"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
       <div class="form-group mb-3">
         <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label|title}}</label>
@@ -107,4 +147,18 @@
 
     </form>
   </div>
+
+<script type="text/javascript">
+  $(function(){
+    $('.delete_inventory').on('click', function(e){
+      formRow = $(this).closest('.form-row');
+      deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
+
+      if (deleteInput) {
+        $(deleteInput).val('on'); // Mark for deletion
+        $(formRow).hide();
+      }
+    });
+  });
+</script>
 {% endblock %}

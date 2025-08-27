@@ -7,6 +7,8 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.db.models import Q, F, CharField
 from django.db.models.functions import Lower
+from django.db.models import Sum, Window
+from django.db.models.functions import Coalesce
 import datetime, time
 from .utils import Calendar, AdminCalendar
 import calendar
@@ -31,7 +33,7 @@ from django.core.mail import EmailMessage
 import pyexcel
 import boto3
 from botocore.exceptions import ClientError
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, inlineformset_factory
 import uuid
 from urllib.request import urlretrieve, urlcleanup
 from django.core.files import File
@@ -736,22 +738,28 @@ def activityEdit(request, id=''):
       activity = models.Activity()
 
     tags = models.SubTag.objects.all().filter(status='A')
+    InventoryInlineFormset = inlineformset_factory(models.Activity, models.ActivityInventory, form=forms.ActivityInventoryForm, extra=1, can_delete=True)
 
     if request.method == 'GET':
       form = forms.ActivityForm(instance=activity)
-      context = {'form': form, 'tags': tags}
+      formset = InventoryInlineFormset(instance=activity)
+      context = {'form': form, 'formset': formset, 'tags': tags}
       return render(request, 'bcse_app/ActivityEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
+      print(data)
       form = forms.ActivityForm(data, files=request.FILES, instance=activity)
-      if form.is_valid():
+      formset = InventoryInlineFormset(data, instance=activity)
+      if form.is_valid() and formset.is_valid():
         savedActivity = form.save()
+        formset.save()
         messages.success(request, "Activity saved")
         return shortcuts.redirect('bcse:activityEdit', id=savedActivity.id)
       else:
         print(form.errors)
+        print(formset.errors)
         messages.error(request, "Activity could not be saved. Check the errors below.")
-        context = {'form': form, 'categories': categories}
+        context = {'form': form, 'formset': formset, 'tags': tags}
         return render(request, 'bcse_app/ActivityEdit.html', context)
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
@@ -779,36 +787,57 @@ def activityUpdate(request, id='', reservation_id=''):
 
     activity = models.Activity.objects.get(id=id)
     ConsumableFormSet = modelformset_factory(models.Consumable, form=forms.ConsumableUpdateForm, can_delete=False, can_order=False, extra=0)
+    InventoryInlineFormset = inlineformset_factory(models.Activity, models.ActivityInventory, form=forms.ActivityInventoryForm, extra=1, can_delete=True)
+    ConsumableInventoryInlineFormset = inlineformset_factory(models.Consumable, models.ConsumableInventory, form=forms.ConsumableInventoryForm, extra=1, can_delete=True)
+
 
     if request.method == 'GET':
       form = forms.ActivityUpdateForm(instance=activity, prefix="activity")
+      inventory_formset = InventoryInlineFormset(instance=activity)
       if '' != reservation_id:
         reservation = models.Reservation.objects.get(id=reservation_id)
         formset = ConsumableFormSet(queryset=reservation.consumables.all(), prefix="consumables")
       else:
         formset = ConsumableFormSet(queryset=activity.consumables.all(), prefix="consumables")
-      context = {'activity': activity, 'form': form, 'formset': formset}
+
+      consumable_inventory_formsets = [ConsumableInventoryInlineFormset(instance=ci_form.instance, prefix=f'ci-{i}') for i, ci_form in enumerate(formset.forms)]
+      context = {'activity': activity, 'form': form, 'formset': formset, 'inventory_formset': inventory_formset, 'consumable_inventory_formsets': consumable_inventory_formsets}
       return render(request, 'bcse_app/ActivityUpdateModal.html', context)
+
     elif request.method == 'POST':
       data = request.POST.copy()
       form = forms.ActivityUpdateForm(data, instance=activity, prefix="activity")
+      inventory_formset = InventoryInlineFormset(data, instance=activity)
       if '' != reservation_id:
         reservation = models.Reservation.objects.get(id=reservation_id)
         formset = ConsumableFormSet(data, queryset=reservation.consumables.all(), prefix="consumables")
       else:
         formset = ConsumableFormSet(data, queryset=activity.consumables.all(), prefix="consumables")
 
+      consumable_inventory_formsets = []
+      for i, ci_form in enumerate(formset.forms):
+        prefix = f'ci-{i}'
+        instance = ci_form.instance
+        consumable_inventory_formset = ConsumableInventoryInlineFormset(data, instance=instance, prefix=prefix)
+        consumable_inventory_formsets.append(consumable_inventory_formset)
+
       response_data = {}
-      if form.is_valid() and formset.is_valid():
+      if form.is_valid() and formset.is_valid() and inventory_formset.is_valid() and all([cifs.is_valid() for cifs in consumable_inventory_formsets]):
         form.save()
         formset.save()
+        inventory_formset.save()
+        for cifs in consumable_inventory_formsets:
+          cifs.save()
         response_data['success'] = True
         messages.success(request, 'Activity %s updated' % id)
       else:
         print('form errors', form.errors)
         print('formset errors', formset.errors)
+        print('inventory formset errors', inventory_formset.errors)
+        for cifs in consumable_inventory_formsets:
+          print('consumable inventory formset %s errors' % forloop.counter, inventory_formset.errors)
         response_data['success'] = False
-        context = {'activity': activity, 'form': form, 'formset': formset}
+        context = {'activity': activity, 'form': form, 'formset': formset, 'inventory_formset': inventory_formset, 'consumable_inventory_formsets': consumable_inventory_formsets}
         response_data['html'] = render_to_string('bcse_app/ActivityUpdateModal.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -881,6 +910,7 @@ def activityView(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
 def get_low_stock_message(id=''):
   try:
     if '' != id:
@@ -951,22 +981,27 @@ def consumableEdit(request, id=''):
     else:
       consumable = models.Consumable()
 
+    InventoryInlineFormset = inlineformset_factory(models.Consumable, models.ConsumableInventory, form=forms.ConsumableInventoryForm, extra=1, can_delete=True)
 
     if request.method == 'GET':
       form = forms.ConsumableForm(instance=consumable)
-      context = {'form': form}
+      formset = InventoryInlineFormset(instance=consumable)
+      context = {'form': form, 'formset': formset}
       return render(request, 'bcse_app/ConsumableEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
       form = forms.ConsumableForm(data, files=request.FILES, instance=consumable)
-      if form.is_valid():
+      formset = InventoryInlineFormset(data, instance=consumable)
+      if form.is_valid() and formset.is_valid():
         savedConsumable = form.save()
+        formset.save()
         messages.success(request, "Consumable saved")
         return shortcuts.redirect('bcse:consumableEdit', id=savedConsumable.id)
       else:
         print(form.errors)
+        print(formset.errors)
         messages.error(request, "Consumable could not be saved. Check the errors below.")
-        context = {'form': form}
+        context = {'form': form, 'formset': formset}
         return render(request, 'bcse_app/ConsumableEdit.html', context)
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
@@ -985,22 +1020,28 @@ def consumableUpdate(request, id=''):
       raise CustomException('You do not have the permission to update consumable')
 
     consumable = models.Consumable.objects.get(id=id)
+    InventoryInlineFormset = inlineformset_factory(models.Consumable, models.ConsumableInventory, form=forms.ConsumableInventoryForm, extra=1, can_delete=True)
+
     if request.method == 'GET':
       form = forms.ConsumableUpdateForm(instance=consumable)
-      context = {'form': form, 'consumable': consumable}
+      formset = InventoryInlineFormset(instance=consumable)
+      context = {'form': form, 'formset': formset, 'consumable': consumable}
       return render(request, 'bcse_app/ConsumableUpdateModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
       form = forms.ConsumableUpdateForm(data, instance=consumable)
+      formset = InventoryInlineFormset(data, instance=consumable)
       response_data = {}
-      if form.is_valid():
+      if form.is_valid() and formset.is_valid():
         form.save()
+        formset.save()
         response_data['success'] = True
         messages.success(request, 'Consumable %s updated' % id)
       else:
         print(form.errors)
+        print(formset.errors)
         response_data['success'] = False
-        context = {'form': form, 'consumable': consumable}
+        context = {'form': form, 'formset': formset, 'consumable': consumable}
         response_data['html'] = render_to_string('bcse_app/ConsumableUpdateModal.html', context, request)
 
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -1822,6 +1863,7 @@ def reservationCancel(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 ##########################################################
 # FILTER RESERVATIONS BASED ON FILTER CRITERIA
 ##########################################################
@@ -2777,6 +2819,273 @@ def baxterBoxUsageReportSearch(request):
 
     return http.HttpResponseNotAllowed(['GET'])
 
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################################
+# BAXTER BOX INVENTORY TABLE VIEW
+####################################################
+@login_required
+def baxterBoxInventory(request):
+  """
+  baxterBoxInventory is called from the path 'adminConfiguration'
+  :param request: request from the browser
+  :returns: rendered template 'bcse_app/BaxterBoxInventory.html', which is a table view of inventories of lab kits and consumables
+  :raises CustomException: redirects user to page they were on before encountering error
+  """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view baxter box inventory')
+
+    if request.session.get('box_inventory_search', False):
+      searchForm = forms.BaxterBoxInventorySearchForm(initials=request.session['box_inventory_search'], prefix="box_inventory_search")
+      page = request.session['box_inventory_search']['page']
+    else:
+      searchForm = forms.BaxterBoxInventorySearchForm(initials=None, prefix="box_inventory_search")
+      page = 1
+
+    context = {'searchForm': searchForm, 'page': page}
+    return render(request, 'bcse_app/BaxterBoxInventory.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# FILTER BAXTER BOX INVENTORY BASED ON FILTER CRITERIA
+##########################################################
+def baxterBoxInventorySearch(request):
+  """
+  baxterBoxInventorySearch is called from the path 'baxterBoxInventory'
+  :param request: request from the browser
+  :returns: list of inventory that match search criteria in the template 'bcse_app/BaxterBoxInventoryTableView.html' or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to no permission for viewing reservations
+  """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view baxter box inventory')
+    else:
+
+      activity_inventory = models.ActivityInventory.objects.annotate(name=F('activity__name'), color=F('activity__color__color'), color_description=F('activity__color__description'), inventory_type=Value('A', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('activity'), F('storage_location')])).values('id', 'name', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count')
+      consumable_inventory = models.ConsumableInventory.objects.annotate(name=F('consumable__name'), color=F('consumable__color__color'), color_description=F('consumable__color__description'),  inventory_type=Value('C', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('consumable'), F('storage_location')])).values('id', 'name', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count')
+
+    if request.method == 'GET':
+
+      activity_query_filter = Q()
+      consumable_query_filter = Q()
+
+      activities = request.GET.getlist('box_inventory_search-activities', '')
+      consumables = request.GET.getlist('box_inventory_search-consumables', '')
+      storage_locations = request.GET.getlist('box_inventory_search-storage_locations', '')
+      expiration_date = request.GET.get('box_inventory_search-expiration_date_after', '')
+      color = request.GET.getlist('box_inventory_search-color', '')
+      inventory_type = request.GET.get('box_inventory_search-inventory_type', '')
+
+      sort_by = request.GET.get('box_inventory_search-sort_by', '')
+      rows_per_page = request.GET.get('box_inventory_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page', '')
+
+     #set session variable
+      request.session['box_inventory_search'] = {
+        'activities': activities,
+        'consumables': consumables,
+        'expiration_date': expiration_date,
+        'storage_locations': storage_locations,
+        'color': color,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if expiration_date:
+        expiration_date = datetime.datetime.strptime(expiration_date, '%B %d, %Y')
+        expiration_date_filter = Q(expiration_date__gte=expiration_date)
+
+
+      if activities or inventory_type == 'kit':
+        if activities:
+          activity_query_filter = Q(activity__in=activities)
+        if expiration_date:
+          activity_query_filter = activity_query_filter & expiration_date_filter
+        if color:
+          activity_query_filter = activity_query_filter & Q(activity__color__id__in=color)
+
+        if storage_locations:
+          activity_query_filter = activity_query_filter & Q(storage_location__in=storage_locations)
+
+        inventory = activity_inventory.filter(activity_query_filter)
+
+      elif consumables or inventory_type == 'consumable':
+        if consumables:
+          consumable_query_filter = Q(consumable__in=consumables)
+        if expiration_date:
+          consumable_query_filter = consumable_query_filter & expiration_date_filter
+        if color:
+          consumable_query_filter = consumable_query_filter & Q(consumable__color__id__in=color)
+        if storage_locations:
+          consumable_query_filter = consumable_query_filter & Q(storage_location__in=storage_locations)
+
+        inventory = consumable_inventory.filter(consumable_query_filter)
+
+      else:
+
+        if expiration_date:
+          activity_query_filter = activity_query_filter & expiration_date_filter
+          consumable_query_filter = consumable_query_filter & expiration_date_filter
+
+        if color:
+          activity_color_filter = Q(activity__color__id__in=color)
+          consumable_color_filter =  Q(consumable__color__id__in=color)
+
+          activity_query_filter = activity_query_filter & activity_color_filter
+          consumable_query_filter = consumable_query_filter & consumable_color_filter
+
+        if storage_locations:
+          activity_query_filter = activity_query_filter & Q(storage_location__in=storage_locations)
+          consumable_query_filter = consumable_query_filter & Q(storage_location__in=storage_locations)
+
+        activity_inventory = activity_inventory.filter(activity_query_filter)
+        consumable_inventory = consumable_inventory.filter(consumable_query_filter)
+
+        inventory = activity_inventory.union(consumable_inventory)
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      sort_order = []
+      if sort_by:
+        if sort_by == 'name':
+          sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'storage_location', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'expiration_date_asc':
+          sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'expiration_date_desc':
+          sort_order.append({'order_by': 'expiration_date', 'direction': 'desc', 'ignorecase': 'false'})
+        elif sort_by == 'count':
+          sort_order.append({'order_by': 'count', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'storage_location', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})
+
+      inventory = paginate(request, inventory, sort_order, rows_per_page, page)
+
+      context = {'inventory': inventory}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/BaxterBoxInventoryTableView.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################################
+# INVENTORY EDIT
+####################################################
+@login_required
+def inventoryEdit(request, id='', inventory_type='A'):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit inventory')
+
+    if inventory_type == 'A':
+      if id != '':
+        inventory = models.ActivityInventory.objects.get(id=id)
+      else:
+        inventory = models.ActivityInventory()
+    else:
+      if id != '':
+        inventory = models.ConsumableInventory.objects.get(id=id)
+      else:
+        inventory = models.ConsumableInventory()
+
+    if request.method == 'GET':
+      if inventory_type == 'A':
+        form = forms.ActivityInventoryForm(instance=inventory)
+      else:
+        form = forms.ConsumableInventoryForm(instance=inventory)
+
+      context = {'form': form, 'inventory_type': inventory_type}
+      return render(request, 'bcse_app/InventoryEdit.html', context)
+
+    elif request.method == 'POST':
+
+      data = request.POST.copy()
+      if inventory_type == 'A':
+        form = forms.ActivityInventoryForm(data, instance=inventory)
+      else:
+        form = forms.ConsumableInventoryForm(data, instance=inventory)
+      response_data = {}
+      if form.is_valid():
+        saved_inventory = form.save()
+        if 'inventory_color' in form.cleaned_data:
+          inventory_color = form.cleaned_data['inventory_color']
+          if inventory_type == 'A':
+            activity = saved_inventory.activity
+            activity.color = inventory_color
+            activity.save()
+          else:
+            consumable = saved_inventory.consumable
+            consumable.color = inventory_color
+            consumable.save()
+        messages.success(request, "Inventory saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Inventory could not be saved. Check the errors below.")
+        context = {'form': form, 'inventory_type': inventory_type}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/InventoryEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.ActivityInventory.DoesNotExist:
+    messages.success(request, "Activity Inventory not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.ConsumableInventory.DoesNotExist:
+    messages.success(request, "Consumable Inventory not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################################
+# INVENTORY DELETE
+####################################################
+@login_required
+def inventoryDelete(request, id='', inventory_type='A'):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete inventory')
+
+    if inventory_type == 'A':
+      if id != '':
+        inventory = models.ActivityInventory.objects.get(id=id)
+    else:
+      if id != '':
+        inventory = models.ConsumableInventory.objects.get(id=id)
+
+    if inventory:
+      inventory.delete()
+      messages.success(request, "Inventory deleted")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.ActivityInventory.DoesNotExist:
+    messages.success(request, "Activity Inventory not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.ConsumableInventory.DoesNotExist:
+    messages.success(request, "Consumable Inventory not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))

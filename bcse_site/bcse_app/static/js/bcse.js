@@ -550,4 +550,43 @@ function exportReservations() {
   });
 }
 
+function cloneForm(prefix, parent) {
+  console.log(parent);
+  const formset = document.getElementById(parent);
+  console.log(formset);
+  const totalFormsInput = document.getElementById('id_'+prefix+'-TOTAL_FORMS');
+  const totalForms = parseInt(totalFormsInput.value, 10);
+
+  const lastForm = formset.querySelector('.form-row:last-child');
+  const newForm = lastForm.cloneNode(true);
+
+  // Update attributes in the cloned form
+  newForm.id = `form-${totalForms}`;
+  const inputs = newForm.querySelectorAll('input, select, textarea');
+
+  inputs.forEach(input => {
+    // Update name and id attributes
+    const nameRegex = new RegExp(`${prefix}-(\\d+)-`);
+    input.name = input.name.replace(nameRegex, `${prefix}-${totalForms}-`);
+    input.id = input.id.replace(nameRegex, `id_${prefix}-${totalForms}-`);
+
+    // Destroy any existing datepicker on the clone
+    if (input.classList.contains('hasDatepicker')) {
+      $.datepicker.destroy && $.datepicker.destroy(input);  // Optional
+      input.classList.remove('hasDatepicker');
+      //newInput.removeAttribute('id'); // remove old id to avoid duplicate IDs
+    }
+
+
+    // Clear the value
+    input.value = '';
+  });
+  console.log(newForm);
+
+  // Append new form and update TOTAL_FORMS
+  formset.appendChild(newForm);
+  totalFormsInput.value = totalForms + 1;
+  bindDateTimePicker();
+  $(newForm).show();
+}
 

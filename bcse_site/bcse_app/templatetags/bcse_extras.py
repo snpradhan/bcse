@@ -14,6 +14,10 @@ def get_item(dictionary, key):
   return dictionary.get(key)
 
 @register.filter
+def get_list_item(lst, index):
+  return lst[index]
+
+@register.filter
 def daterange(start_date, end_date):
   delta = end_date - start_date
   days = delta.days + 1
@@ -347,4 +351,9 @@ def is_equipment_overbooked(equipment, reservation):
     return True
   else:
     return False
+
+@register.filter
+def get_storage_label(key, default='Unknown'):
+    return dict(models.INVENTORY_STORAGE_LOCATION).get(key, 'Unknown')
+
 

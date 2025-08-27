@@ -1,0 +1,122 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% if inventory %}
+  {% include "bcse_app/Pagination.html" with model=inventory location='top'%}
+  <table class="table table-bordered table-striped" id="baxter_box_inventory">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Storage </th>
+        <th>Total Count</th>
+        <th>Count</th>
+        <th>Expiration Date</th>
+        <th class='ignore-column'> Action </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inv in inventory %}
+        {% if inv.color %}
+          <tr style="background-color: {{inv.color}};" title="{{inv.color_description}}">
+        {% else %}
+          <tr>
+        {% endif %}
+          <td>{{inv.name}}</td>
+          <td>
+            {% if inv.inventory_type == 'A' %}
+              Activity Kit
+            {% else %}
+              Consumable
+            {% endif %}
+          </td>
+          <td>{{inv.storage_location|get_storage_label}}</td>
+          <td>{{inv.total_count}}</td>
+          <td>{{inv.count}}</td>
+          <td>{{inv.expiration_date}}</td>
+          <td class='noExl'>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:inventoryEdit' inv.id inv.inventory_type %}">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:inventoryDelete' inv.id inv.inventory_type %}"
+                  data-title="this inventory">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=inventory location='bottom'%}
+{% else %}
+  <div class="warning center">No inventory matching your search criteria found</div>
+{% endif %}
+
+<script type="text/javascript">
+  $(function (){
+    function groupTableAndStripe(tableId, columnIndices) {
+      const table = document.getElementById(tableId);
+      const tbody = table.tBodies[0];
+      const rows = Array.from(tbody.rows);
+      let isStriped = false;
+
+      // Step 1: Group and merge cells by column indices
+      columnIndices.forEach(colIndex => {
+        let prevCell = null;
+        let prevKey = '';
+        let rowspan = 1;
+
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const cell = row.cells[colIndex];
+
+          // Composite key based on column values up to this index
+          let key = '';
+          for (let j = 0; j <= colIndex; j++) {
+            key += row.cells[j]?.textContent.trim() + '|';
+          }
+
+          if (prevCell && key === prevKey) {
+            rowspan++;
+            cell.parentNode.removeChild(cell);
+            prevCell.rowSpan = rowspan;
+            if (colIndex == 0 && isStriped) {
+              row.classList.add('striped');
+            }
+          } else {
+            prevCell = cell;
+            prevKey = key;
+            rowspan = 1;
+            if (colIndex == 0) {
+              if (!isStriped) {
+                row.classList.add('striped');
+                isStriped = true;
+              }
+              else {
+                isStriped = false;
+              }
+            }
+
+          }
+        }
+      });
+    }
+
+    if($('#id_box_inventory_search-sort_by').val() == 'name' && $("#baxter_box_inventory").length ) {
+      $("#baxter_box_inventory").removeClass('table-striped');
+      groupTableAndStripe("baxter_box_inventory", [3, 2, 1, 0]); // Group by Department and Role
+    }
+
+
+  });
+</script>

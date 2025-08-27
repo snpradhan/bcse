@@ -390,6 +390,35 @@ class ActivityForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
+####################################
+# Activity Inventory Form
+####################################
+class ActivityInventoryForm(ModelForm):
+
+  inventory_color = forms.ModelChoiceField(required=False, queryset=models.ReservationColor.objects.all().filter(target__in=['K']))
+
+
+  class Meta:
+    model = models.ActivityInventory
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(ActivityInventoryForm, self).__init__(*args, **kwargs)
+
+    if self.instance and self.instance.id:
+      self.fields['inventory_color'].initial = self.instance.activity.color
+    else:
+      self.fields.pop('inventory_color')
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'activity':
+        field.widget.attrs['class'] = 'form-control select2'
+      elif field_name == 'expiration_date':
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
 
 ##########################################################
 # Activity Update Form
@@ -440,6 +469,36 @@ class ConsumableForm(ModelForm):
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
+# Consumable Inventory Form
+####################################
+class ConsumableInventoryForm(ModelForm):
+
+  inventory_color = forms.ModelChoiceField(required=False, queryset=models.ReservationColor.objects.all().filter(target__in=['K']))
+
+  class Meta:
+    model = models.ConsumableInventory
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(ConsumableInventoryForm, self).__init__(*args, **kwargs)
+
+    if self.instance and self.instance.id:
+      self.fields['inventory_color'].initial = self.instance.consumable.color
+    else:
+      self.fields.pop('inventory_color')
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'consumable':
+        field.widget.attrs['class'] = 'form-control select2'
+      elif field_name == 'expiration_date':
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -503,6 +562,7 @@ class SubTagForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 
+
 ####################################
 # Baxter Box Search Form
 ####################################
@@ -530,6 +590,51 @@ class BaxterBoxSearchForm(forms.Form):
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control select2'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+      if initials:
+        if field_name in initials:
+          field.initial = initials[field_name]
+
+
+####################################
+# Baxter Box Inventory Search Form
+####################################
+class BaxterBoxInventorySearchForm(forms.Form):
+  activities = forms.ModelMultipleChoiceField(required=False, label=u'Activities', queryset=models.Activity.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  consumables = forms.ModelMultipleChoiceField(required=False, label=u'Consumables', queryset=models.Consumable.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  color = forms.ModelMultipleChoiceField(required=False, label=u'Color', queryset=models.ReservationColor.objects.all().filter(target__in=['K']).order_by('name'))
+  expiration_date_after = forms.DateField(required=False, label=u'Expiration Date on/after')
+  storage_locations = forms.MultipleChoiceField(required=False, choices=models.INVENTORY_STORAGE_LOCATION)
+  inventory_type = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('kit', 'Activity Kit'),
+                                                       ('consumable', 'Consumable'),
+                                                       ),
+                                              initial='name')
+  sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('name', 'Name'),
+                                                       ('expiration_date_asc', 'Expiration Date (Asc)'),
+                                                       ('expiration_date_desc', 'Expiration Date (Desc)'),
+                                                       ('count', 'Count'),
+                                                       ),
+                                              initial='name')
+  rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
+
+
+  def __init__(self, *args, **kwargs):
+    initials = kwargs.pop('initials')
+    super(BaxterBoxInventorySearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+
+      if field_name in ['activities', 'consumables', 'color', 'storage_locations']:
+        field.widget.attrs['class'] = 'form-control select2'
+      elif field_name == 'expiration_date_after':
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 

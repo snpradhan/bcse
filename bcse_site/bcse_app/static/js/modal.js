@@ -12,6 +12,7 @@ function bindModalOpen() {
       }
       bindTooltipTrigger();
       bindDateTimePicker();
+      bindSelect2();
 
     });
   });

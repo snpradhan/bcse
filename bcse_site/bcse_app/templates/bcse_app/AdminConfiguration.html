@@ -68,6 +68,7 @@
                                              {% leftnavactive request 'equipments' %}
                                              {% leftnavactive request 'equipment' %}
                                              {% leftnavactive request 'settings' %}
+                                             {% leftnavactive request 'inventory' %}
                                              {% leftnavactive request 'usage_report' %}
                                              {% leftnavactive request 'reservations' %}
                                              {% leftnavactive request 'reservation_colors' %}
@@ -79,6 +80,9 @@
                 </li>
                 <li class="{% if 'consumables' in request.path or 'consumable' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:consumables' %}">Consumables</a>
+                </li>
+                <li class="{% if 'inventory' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:baxterBoxInventory' %}">Inventory</a>
                 </li>
                 <li class="{% if 'equipmentType' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:equipmentTypes' %}">Equipment Categories</a>

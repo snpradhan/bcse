@@ -242,6 +242,12 @@ YES_NO_CHOICES = (
   (True, 'Yes'),
 )
 
+INVENTORY_STORAGE_LOCATION = (
+  ('RO', 'Room Temp'),
+  ('RE', 'Refrigerator'),
+  ('FR', 'Freezer')
+)
+
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
   YEAR_CHOICES.append((x, x))
@@ -589,6 +595,17 @@ class Activity(models.Model):
   def __str__(self):
       return '%s' % (self.name)
 
+class ActivityInventory(models.Model):
+  activity = models.ForeignKey(Activity, null=False, blank=False, on_delete=models.CASCADE)
+  count = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(0)])
+  expiration_date = models.DateField(null=False)
+  storage_location = models.CharField(null=False, max_length=2, choices=INVENTORY_STORAGE_LOCATION)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['activity__name', 'storage_location', 'expiration_date']
+
 
 class Consumable(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Consumable')
@@ -607,6 +624,16 @@ class Consumable(models.Model):
   def __str__(self):
       return '%s' % (self.name)
 
+class ConsumableInventory(models.Model):
+  consumable = models.ForeignKey(Consumable, null=False, blank=False, on_delete=models.CASCADE)
+  count = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(0)])
+  expiration_date = models.DateField(null=False)
+  storage_location = models.CharField(null=False, max_length=2, choices=INVENTORY_STORAGE_LOCATION)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['consumable__name', 'storage_location', 'expiration_date']
 
 class Tag(models.Model):
   name = models.CharField(null=False, max_length=256, unique=True, help_text='Name of the Tag')

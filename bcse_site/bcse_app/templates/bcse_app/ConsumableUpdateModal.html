@@ -29,6 +29,43 @@
           <div class="error">{{ form.inventory.errors }}</div>
         </div>
         <div class="form-group mb-3">
+          <label class="form-label">Inventory <button type="button" class="btn" onclick="cloneForm('consumableinventory_set', 'inventory_formset')">Add </button> </label>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>Storage Location</th>
+                <th>Count</th>
+                <th>Expiration Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="inventory_formset">
+              {{formset.management_form}}
+              {% for form in formset %}
+                {{form.id}}
+                <tr class="form-row">
+                  <td>
+                    {{form.storage_location}}
+                    <div class="error">{{ form.storage_location.errors }}</div>
+                  </td>
+                  <td>
+                    {{form.count}}
+                    <div class="error">{{ form.count.errors }}</div>
+                  </td>
+                  <td>
+                    {{form.expiration_date}}
+                    <div class="error">{{ form.expiration_date.errors }}</div>
+                  </td>
+                  <td>
+                    {{form.DELETE.as_hidden}}
+                    <button type="button" class="btn btn-danger delete_inventory"><i class="fa-solid fa-trash-can"></i></button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="form-group mb-3">
           <label for="id_{{form.notes.name}}">
             {{ form.notes.label|title }}
             {% if form.notes.field.required %}
@@ -108,6 +145,17 @@
         }
       });
     });
+
+    $('.delete_inventory').on('click', function(e){
+      formRow = $(this).closest('.form-row');
+      deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
+
+      if (deleteInput) {
+        $(deleteInput).val('on'); // Mark for deletion
+        $(formRow).hide();
+      }
+    });
+
 
   });
 </script>

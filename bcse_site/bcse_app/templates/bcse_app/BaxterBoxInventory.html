@@ -1,0 +1,23 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1 class="center"> Baxter Box Inventory </h1>
+   <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:inventoryNew' 'A' %}">Create Activity Inventory</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:inventoryNew' 'C' %}">Create Consumable Inventory</a>
+  </div>
+  {% include "bcse_app/BaxterBoxInventorySearch.html" %}
+  <div class="form-group" id="spinner">
+    <img src="/static/img/page-loader.gif" class="icon"/>
+  </div>
+   <div class="search_results">
+   </div>
+   
+  <script type="text/javascript">
+    $(function (){
+      $('form#inventory_filter_form').submit();      
+    });
+  </script>
+{% endblock %}
