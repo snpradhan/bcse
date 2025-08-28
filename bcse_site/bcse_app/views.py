@@ -8150,6 +8150,12 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
           submission_work_place.save()
 
+        if survey.survey_type == 'B' and reservation_id:
+          reservation = models.Reservation.objects.get(id=reservation_id)
+          models.ReservationFeedback.objects.get_or_create(reservation=reservation, feedback=submission)
+          reservation.feedback_status = 'I'
+          reservation.save()
+
 
       if page_num <= total_pages:
           surveyComponents = getSurveyComponents(request, survey.id, submission, page_num)
@@ -8248,12 +8254,6 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               userProfileForm.save()
             for response_form in formset:
               response_form.save()
-
-            if survey.survey_type == 'B' and reservation_id:
-              reservation = models.Reservation.objects.get(id=reservation_id)
-              models.ReservationFeedback.objects.get_or_create(reservation=reservation, feedback=submission)
-              reservation.feedback_status = 'I'
-              reservation.save()
 
             if autosave:
               print('autosave')
