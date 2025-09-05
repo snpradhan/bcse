@@ -68,6 +68,17 @@
             <div><i class="fas fa-fw fa-map-marker-alt" aria-hidden="true" title="Workshop Location"></i></div>
             <div>{{workshop.location}}</div>
           </div>
+          {% if workshop.collaborators.all %}
+            <div class="location">
+              <div><i class="far fa-fw fa-puzzle" aria-hidden="true" title="Workshop Collaborator(s)"></i></div>
+              <div>
+                {% for collaborator in workshop.collaborators.all %}
+                  <a href="{{collaborator.url}}" target="_blank">{{collaborator.name}}</a>
+                  {% if not forloop.last %}<br>{% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
           {% if workshop.teacher_leaders.all %}
             <div class="location">
               <div><i class="far fa-fw fa-person-chalkboard" aria-hidden="true" title="Workshop Facilitator(s)"></i></div>

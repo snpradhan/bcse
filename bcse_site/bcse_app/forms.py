@@ -910,6 +910,8 @@ class WorkshopForm(ModelForm):
 
     self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A').order_by('name')
     self.fields['credits'].label = 'ISBE PD Hours'
+    self.fields['collaborators'].queryset = models.Collaborator.objects.all().filter(status='A').order_by('name')
+
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['enable_registration', 'featured', 'cancelled']:
@@ -917,7 +919,7 @@ class WorkshopForm(ModelForm):
           field.widget.attrs['class'] = 'form-control datepicker'
         elif field_name in ['start_time', 'end_time']:
           field.widget.attrs['class'] = 'form-control timepicker'
-        elif field_name in ['teacher_leaders', 'tags']:
+        elif field_name in ['teacher_leaders', 'tags', 'collaborators']:
           field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'

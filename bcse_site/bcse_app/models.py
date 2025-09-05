@@ -393,6 +393,7 @@ class WorkshopCategory(models.Model):
 
 class Workshop (models.Model):
   workshop_category = models.ForeignKey(WorkshopCategory, null=False, related_name="workshop", on_delete=models.CASCADE)
+  collaborators = models.ManyToManyField('Collaborator', null=True, blank=True, related_name="workshops")
   teacher_leaders = models.ManyToManyField('TeacherLeader', null=True, blank=True, related_name="workshops")
   name = models.CharField(null=False, max_length=256, help_text='Name of Workshop')
   sub_title = models.CharField(null=True, blank=True, max_length=256)
