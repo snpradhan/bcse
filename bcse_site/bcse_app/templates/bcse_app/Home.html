@@ -11,9 +11,24 @@
    {{block.super}}
    <div class="content" id="home">
       {% include "bcse_app/HomepageSlides.html" %}
-      {% for homepage_block in homepage_blocks %}
-         {% include "bcse_app/HomepageBlockView.html" with homepage_block=homepage_block %}
-      {% endfor %}
+      <div class="homepage_block">
+         <h1>Our Work in the Chicagoland Area</h1>
+         <div id="outreach_testimonials" class="row">
+            {% include "bcse_app/Outreach.html" %}
+            <div class="testimonials">
+               <h3>What teachers are saying</h3>
+               <div class="testimonial left">
+                  "The BCSE allows teachers to stay up to date with the advancement of technology in science. By helping the teachers stay up to date and by providing activities that can be implanted into the classroom, it allows the future generation to have exposure to new developments in biotechnology at a young age. This hopefully will inspire the students to pursue careers in science."
+               </div>
+               <div class="testimonial left">
+                  "The BCSE helps out teachers who teach at schools with limited resources get the resources and instructive know how they otherwise would not be able to obtain."</div>
+               <div class="testimonial left">
+                  "Holy moly, this center is GREAT! I appreciate your outreach, enthusiasm, and expertise. It is really amazing to have this kind of access to a research institution and you are all so helpful in making this type of science accessible to our students."
+               </div>
+            </div>
+         </div>
+      </div>
+
       <div class="homepage_block">
          <div id="map_instagram">
             <div id="map">
@@ -26,23 +41,9 @@
             </div>
          </div>
       </div>
-      <div class="homepage_block">
-         <h1>Our Work in the Chicagoland Area</h1>
-         <div id="outreach_testimonials" class="row">
-            {% include "bcse_app/Outreach.html" %}
-            <div class="testimonials">
-               <h3>What our teachers are saying</h3>
-               <div class="testimonial left">
-                  The BCSE allows teachers to stay up to date with the advancement of technology in science. By helping the teachers stay up to date and by providing activities that can be implanted into the classroom, it allows the future generation to have exposure to new developments in biotechnology at a young age. This hopefully will inspire the students to pursue careers in science.
-               </div>
-               <div class="testimonial left">
-                  The BCSE helps out teachers who teach at schools with limited resources get the resources and instructive know how they otherwise would not be able to obtain.</div>
-               <div class="testimonial left">
-                  Holy moly, this center is GREAT! I appreciate your outreach, enthusiasm, and expertise. It is really amazing to have this kind of access to a research institution and you are all so helpful in making this type of science accessible to our students.
-               </div>
-            </div>
-         </div>
-      </div>
+      {% for homepage_block in homepage_blocks %}
+         {% include "bcse_app/HomepageBlockView.html" with homepage_block=homepage_block %}
+      {% endfor %}
       <!--div class="homepage_block">
          <h1>Land Acknowledgment</h1>
          <img class="curve" alt="" src="{% staticfile 'img/land_acknowledgement.png' %}">
