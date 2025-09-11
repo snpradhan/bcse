@@ -47,6 +47,13 @@ urlpatterns = [
     path('workshop/<int:workshop_id>/email/<int:id>/edit', views.workshopEmailEdit, name='workshopEmailEdit'),
     path('workshop/<int:workshop_id>/email/new', views.workshopEmailEdit, name='workshopEmailNew'),
     path('workshop/<int:workshop_id>/email/<int:id>/delete', views.workshopEmailDelete, name='workshopEmailDelete'),
+
+    path('workshop/<int:workshop_id>/registration_emails', views.workshopRegistrationEmails, name='workshopRegistrationEmails'),
+    path('workshop/<int:workshop_id>/registration_emails/<int:id>/edit', views.workshopRegistrationEmailEdit, name='workshopRegistrationEmailEdit'),
+    path('workshop/<int:workshop_id>/registration_emails/new', views.workshopRegistrationEmailEdit, name='workshopRegistrationEmailNew'),
+    path('workshop/<int:workshop_id>/registration_emails/<int:id>/delete', views.workshopRegistrationEmailDelete, name='workshopRegistrationEmailDelete'),
+    path('workshop/<int:workshop_id>/registration_emails/<int:id>/preview', views.workshopRegistrationEmailPreview, name='workshopRegistrationEmailPreview'),
+
     path('workshop/<int:workshop_id>/email/<int:id>/preview', views.workshopEmailPreview, name='workshopEmailPreview'),
     path('workshop/<int:workshop_id>/email/<int:id>/send', views.workshopEmailSend, name='workshopEmailSend'),
     path('workshop/<int:workshop_id>/email/<int:id>/copy', views.workshopEmailCopy, name='workshopEmailCopy'),

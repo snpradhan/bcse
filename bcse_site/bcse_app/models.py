@@ -509,6 +509,19 @@ class RegistrationEmailMessage(models.Model):
   class Meta:
       ordering = ['registration_status']
 
+class WorkshopRegistrationEmail(models.Model):
+  workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_registration_email")
+  registration_status = models.CharField(null=False, blank=False, max_length=1, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
+  email_subject = models.CharField(null=False, max_length=256)
+  email_message = RichTextField(null=False, blank=False)
+  include_calendar_invite = models.BooleanField(default=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['registration_status']
+      unique_together = ('workshop', 'registration_status')
+
 class WorkshopEmail(models.Model):
   workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_email")
   registration_status = models.CharField(null=True, blank=True, max_length=50, help_text='One or more registration statuses this email is sent to. Email will be bcc''d to these addresses.')
@@ -932,7 +945,13 @@ def check_registration_status_change(sender, instance, **kwargs):
     current_date = current_datetime.date()
     #only send email notification if the workshop hasn't ended
     if current_date < workshop.end_date:
-      confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
+      try:
+        #get email message from Workshop first
+        confirmation_message_object = WorkshopRegistrationEmail.objects.get(workshop=workshop, registration_status=instance.status)
+      except WorkshopRegistrationEmail.DoesNotExist:
+        #get general registration email message for the respective registration status
+        confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
+
       userProfile = instance.user
       registration_setting = workshop.registration_setting
 
@@ -1060,7 +1079,7 @@ def check_workplace_address_change(sender, instance, **kwargs):
 #
 # Replace workshop registration message tokens before sending out an email
 #
-def replace_workshop_tokens(text, workshop, registration):
+def replace_workshop_tokens(text, workshop, registration=''):
   replaced_text = text
   replaced_text = replaced_text.replace('[workshop_category]', workshop.workshop_category.name or '')
   replaced_text = replaced_text.replace('[workshop_title]', workshop.name or '')
@@ -1075,7 +1094,7 @@ def replace_workshop_tokens(text, workshop, registration):
   replaced_text = replaced_text.replace('[isbe_url]', workshop.registration_setting.isbe_link or '')
 
   photo_release_text = ''
-  if not registration.user.photo_release_complete:
+  if registration and not registration.user.photo_release_complete:
     photo_release_text = 'We do not have a photo release on file for you. Please click <a href="%s">here</a> to complete it before attending this event.' % settings.PHOTO_RELEASE_URL
   replaced_text = replaced_text.replace('[photo_release_url]', photo_release_text or '')
 

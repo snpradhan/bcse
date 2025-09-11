@@ -4255,7 +4255,7 @@ def workshopEmails(request, workshop_id=''):
   :param request: request from the browser
   :param workshop_id='': id of workshop
   :param id='': id of workshop email
-  :returns: rendered template 'bcse_app/WorkshopEmail.html, HTML view of workshop emails or error page
+  :returns: rendered template 'bcse_app/WorkshopEmails.html, HTML view of workshop emails or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
   """
@@ -4282,6 +4282,171 @@ def workshopEmails(request, workshop_id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+################################################
+# WORKSHOP REGISTRATION EMAILS
+################################################
+def workshopRegistrationEmails(request, workshop_id=''):
+  """
+  workshopRegistrationEmails is called from the path 'workshop/edit'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :returns: rendered template 'bcse_app/WorkshopRegistrationEmails.html, HTML view of workshop emails or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop email')
+
+    if request.method == 'GET':
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      registration_emails = models.WorkshopRegistrationEmail.objects.all().filter(workshop__id=workshop_id)
+      context = {'workshop': workshop, 'registration_emails': registration_emails}
+      messages.success(request, 'These registration emails are sent when users apply/register to/for this workshop. <br> You can only create one email message per registration status.')
+      return render(request, 'bcse_app/WorkshopRegistrationEmails.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopRegistrationEmail.DoesNotExist:
+    messages.success(request, "Workshop Registration Email not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+####################################################
+# EDIT WORKSHOP REGISTRATION EMAIL
+####################################################
+@login_required
+def workshopRegistrationEmailEdit(request, id='', workshop_id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit workshop registration email')
+
+    workshop = models.Workshop.objects.get(id=workshop_id)
+
+    if '' != id:
+      registration_email = models.WorkshopRegistrationEmail.objects.get(id=id)
+    else:
+      registration_email = models.WorkshopRegistrationEmail(workshop=workshop)
+
+    if request.method == 'GET':
+      form = forms.WorkshopRegistrationEmailForm(instance=registration_email)
+      context = {'form': form, 'workshop': workshop}
+      return render(request, 'bcse_app/WorkshopRegistrationEmailEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.WorkshopRegistrationEmailForm(data, files=request.FILES, instance=registration_email)
+      response_data = {}
+      if form.is_valid():
+        savedMessage = form.save()
+        messages.success(request, "Workshop Registration email saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Workshop Registration email could not be saved. Check the errors below.")
+        context = {'form': form, 'workshop': workshop}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/WorkshopRegistrationEmailEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Workshop.DoesNotExist:
+    messages.error(request, 'Workshop does not exist')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopRegistrationEmail.DoesNotExist:
+    messages.error(request, 'Workshop Registration Email does not exist')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################################
+# DELETE WORKSHOP REGISTRATION EMAIL
+####################################################
+@login_required
+def workshopRegistrationEmailDelete(request, id='', workshop_id=''):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete workshop registration email')
+    if '' != id:
+      registration_email = models.WorkshopRegistrationEmail.objects.get(id=id)
+      if registration_email.workshop.id != workshop_id:
+        raise CustomException('This email id does not belong to the workshop')
+
+      registration_email.delete()
+      messages.success(request, "Workshop Registration email with id %s deleted" % id)
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except WorkshopRegistrationEmail.DoesNotExist:
+    messages.error(request, 'Workshop Registration Email not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# PREVIEW WORKSHOP REGISTRATION EMAIL
+################################################
+def workshopRegistrationEmailPreview(request, id='', workshop_id=''):
+  """
+  workshopRegistrationEmailPreview is called from the path 'workshop/<workshop_id>/emails/'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :param id='': id of workshop registration email
+  :returns: rendered template 'bcse_app/WorkshopRegistrationEmailPreview.html
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to preview workshop registration email')
+
+    if '' != id:
+      workshop_registration_email = models.WorkshopRegistrationEmail.objects.get(id=id)
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      if workshop_registration_email.workshop.id != workshop.id:
+        raise CustomException('The workshop registration email does not belong to the workshop')
+
+      current_site = Site.objects.get_current()
+      domain = current_site.domain
+
+      subject = workshop_registration_email.email_subject
+      subject = models.replace_workshop_tokens(subject, workshop)
+
+      if domain != 'bcse.northwestern.edu':
+        subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+      email_body = workshop_registration_email.email_message
+      email_body = models.replace_workshop_tokens(email_body, workshop)
+
+      context = {'email_body': email_body, 'subject': subject}
+
+      return render(request, 'bcse_app/WorkshopEmailView.html', context)
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.WorkshopRegistrationEmail.DoesNotExist:
+    messages.success(request, "Workshop Registration Email not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 def userRegistration(request, workshop_id, user_id):
   """
   userRegistration is called from the path 'workshops/edit'

@@ -1,0 +1,173 @@
+{% load base_extras %}
+{% load bcse_extras %}
+
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Email for: {{workshop.name}}</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="uploadMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:workshopRegistrationEmailEdit' workshop.id form.instance.id  %} {% else %} {% url 'bcse:workshopRegistrationEmailNew' workshop.id %}{% endif %}"  id="formWorkshopRegistrationEmail">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="modal-body">
+        {{form.workshop.as_hidden}}
+        <div class="form-group mb-3">
+          <label for="id_{{form.registration_status.name}}" class="form-label"> {{form.registration_status.label|title}}</label>
+          <div>{{form.registration_status}}</div>
+          <div class="error">{{ form.registration_status.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.email_subject.name}}" class="form-label"> {{form.email_subject.label|title}}</label>
+          <div>{{form.email_subject}}</div>
+          <div class="error">{{ form.email_subject.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.email_message.name}}" class="form-label"> {{form.email_message.label|title}}</label>
+          <div>{{form.email_message}}</div>
+          <div class="error">{{ form.email_message.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.include_calendar_invite.name}}" class="form-label"> {{form.include_calendar_invite.label|title}}</label>
+          <div>{{form.include_calendar_invite}}</div>
+          <div class="error">{{ form.include_calendar_invite.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <a role="button" data-bs-toggle="collapse" aria-expanded="false" href="#replacement_patterns" aria-controls="replacement_patterns">
+           <label class="form-label">Replacement Patterns</label>
+          </a>
+          <div class="collapse" id="replacement_patterns">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>[workshop_category]</td>
+                  <td>Workshop Category</td>
+                </tr>
+                <tr>
+                  <td>[workshop_title]</td>
+                  <td>Workshop Title</td>
+                </tr>
+                <tr>
+                  <td>[workshop_sub_title]</td>
+                  <td>Workshop Sub Title</td>
+                </tr>
+                <tr>
+                  <td>[workshop_start_date]</td>
+                  <td>Workshop Start Date</td>
+                </tr>
+                <tr>
+                  <td>[workshop_start_time]</td>
+                  <td>Workshop Start Time</td>
+                </tr>
+                <tr>
+                  <td>[workshop_end_date]</td>
+                  <td>Workshop End Date</td>
+                </tr>
+                <tr>
+                  <td>[workshop_end_time]</td>
+                  <td>Workshop End Time</td>
+                </tr>
+                <tr>
+                  <td>[workshop_summary]</td>
+                  <td>Workshop Summary</td>
+                </tr>
+                <tr>
+                  <td>[workshop_location]</td>
+                  <td>Workshop Location</td>
+                </tr>
+                <tr>
+                  <td>[workshop_meetup_url]</td>
+                  <td>Workshop Meetup URL</td>
+                </tr>
+                <tr>
+                  <td>[isbe_url]</td>
+                  <td>ISBE URL</td>
+                </tr>
+                <tr>
+                  <td>[photo_release_url]</td>
+                  <td>Photo Release URL</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="warning">You may use one or more replacement patterns in the Subject or Message fields</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+          <button type="submit" id="save_button" class="btn btn-success">
+            Save
+          </button>
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function (){
+
+    $('select.select2').select2({
+      placeholder: {
+        id: '-1', // the value of the option
+      }
+    });
+
+    $("#formWorkshopRegistrationEmail").submit(function(e) {
+      e.preventDefault();
+      for (var instance in CKEDITOR.instances) {
+        CKEDITOR.instances[instance].updateElement();
+      }
+      var formData = new FormData(this);
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+
+        beforeSend: function(){
+          $('#formWorkshopEmail #spinner').show();
+        },
+        complete: function(){
+          $('#formWorkshopEmail #spinner').hide();
+        },
+        success: function(data, status) {
+          if(data['success'] == true){
+            //$('#general').modal('toggle');
+            window.parent.location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(e){
+          displayErrorDialog();
+        }
+      });
+    });
+
+
+  });
+</script>
+

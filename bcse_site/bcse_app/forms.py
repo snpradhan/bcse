@@ -1103,6 +1103,26 @@ class RegistrationEmailMessageForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
+# Worksho Registration Email Form
+####################################
+class WorkshopRegistrationEmailForm(ModelForm):
+
+  class Meta:
+    model = models.WorkshopRegistrationEmail
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(WorkshopRegistrationEmailForm, self).__init__(*args, **kwargs)
+    for field_name, field in list(self.fields.items()):
+      if field_name in ['include_calendar_invite']:
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
+####################################
 # Workshop Category Form
 ####################################
 class WorkshopCategoryForm(ModelForm):

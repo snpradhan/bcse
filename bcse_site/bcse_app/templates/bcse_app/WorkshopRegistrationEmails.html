@@ -1,0 +1,60 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+ <div class="workshop_container">
+    <h1 class="center"> {{workshop}}</h1>
+    {% include "bcse_app/WorkshopTabs.html" with tab='registration_emails' %}
+    {% if registration_emails %}
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> Message ID</th>
+          <th> Registration Status </th>
+          <th> Subject </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for email in registration_emails %}
+          <tr>
+            <td> {{email.id}}</td>
+            <td> {{email.get_registration_status_display}} </td>
+            <td> {{email.email_subject}} </td>
+            <td> {{email.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{email.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationEmailEdit' email.workshop.id email.id %}">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationEmailPreview' email.workshop.id email.id %}">Preview</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopRegistrationEmailDelete' email.workshop.id email.id %}"
+                    data-title="registration email message for status <strong>{{email.get_registration_status_display}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="warning center">Workshop Registration Emails not found</div>
+    {% endif %}
+  </div>
+{% endblock %}
