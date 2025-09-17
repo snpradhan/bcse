@@ -1893,6 +1893,7 @@ def reservationsSearch(request, display='table'):
       return_before_filter = None
       status_filter = None
       assignee_filter = None
+      pickup_assignee_filter = None
       color_filter = None
       feedback_status_filter = None
 
@@ -1900,6 +1901,7 @@ def reservationsSearch(request, display='table'):
       user = request.GET.get('reservation_search-user', '')
       work_place = request.GET.get('reservation_search-work_place', '')
       assignee = request.GET.get('reservation_search-assignee', '')
+      pickup_assignee = request.GET.get('reservation_search-pickup_assignee', '')
       activity = request.GET.getlist('reservation_search-activity', '')
       consumable = request.GET.getlist('reservation_search-consumable', '')
       equipment = request.GET.getlist('reservation_search-equipment', '')
@@ -1921,6 +1923,7 @@ def reservationsSearch(request, display='table'):
           'user': user,
           'work_place': work_place,
           'assignee': assignee,
+          'pickup_assignee': pickup_assignee,
           'activity': activity,
           'consumable': consumable,
           'equipment': equipment,
@@ -1941,6 +1944,7 @@ def reservationsSearch(request, display='table'):
           'user': user,
           'work_place': work_place,
           'assignee': assignee,
+          'pickup_assignee': pickup_assignee,
           'activity': activity,
           'consumable': consumable,
           'equipment': equipment,
@@ -1966,6 +1970,9 @@ def reservationsSearch(request, display='table'):
 
       if assignee:
         assignee_filter = Q(assignee=assignee)
+
+      if pickup_assignee:
+        pickup_assignee_filter = Q(pickup_assignee=pickup_assignee)
 
       if activity:
         activity_filter = Q(activity__in=activity)
@@ -2004,6 +2011,8 @@ def reservationsSearch(request, display='table'):
         query_filter = query_filter & workplace_filter
       if assignee_filter:
         query_filter = query_filter & assignee_filter
+      if pickup_assignee_filter:
+        query_filter = query_filter & pickup_assignee_filter
       if activity_filter:
         query_filter = query_filter & activity_filter
       if consumable_filter:
@@ -2093,6 +2102,8 @@ def reservationsSearch(request, display='table'):
           schedule['display'] = 'block'
           schedule['allDay'] = 'true'
           schedule['textColor'] = 'black'
+          schedule['delivery_assignee'] = reservation.assignee.initials
+          schedule['pickup_assignee'] = reservation.pickup_assignee.initials
           if reservation.color:
             schedule['color'] = reservation.color.color
           else:

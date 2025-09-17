@@ -37,7 +37,7 @@
           <div class="error">{{ form.color.errors }}</div>
         </div>
         <div class="form-group mb-3">
-          <label for="id_{{form.color.name}}">
+          <label for="id_{{form.status.name}}">
             {{ form.status.label }}
             {% if form.status.field.required %}
               (<span class="required">*</span>)
@@ -45,6 +45,26 @@
           </label>
           <div>{{form.status}}</div>
           <div class="error">{{ form.status.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.assignee.name}}">
+            {{ form.assignee.label }}
+            {% if form.assignee.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.assignee}}</div>
+          <div class="error">{{ form.assignee.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.pickup_assignee.name}}">
+            {{ form.pickup_assignee.label }}
+            {% if form.pickup_assignee.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.pickup_assignee}}</div>
+          <div class="error">{{ form.pickup_assignee.errors }}</div>
         </div>
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>

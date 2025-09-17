@@ -148,7 +148,8 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('DI', 'Delivery Distance'),
   ('DT', 'Delivery Time'),
   ('AN', 'Admin Notes'),
-  ('AT', 'Assigned To'),
+  ('AT', 'Delivery Assigned To'),
+  ('PA', 'Pickup Assigned To'),
   ('ST', 'Reservation Status'),
   ('ES', 'Confirmation Email Sent'),
   ('FS', 'Feedback Status'),
@@ -348,6 +349,12 @@ class UserProfile(models.Model):
 
   def __str__(self):
       return '%s, %s (%s)' % (self.user.last_name, self.user.first_name, self.user.email)
+
+  @property
+  def initials(self):
+    first = self.user.first_name[:1] if self.user.first_name else ''
+    last = self.user.last_name[:1] if self.user.last_name else ''
+    return '%s.%s.' % (first.upper(), last.upper())
 
 class EquipmentType(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of Equipment Category')
@@ -672,6 +679,7 @@ def get_placeholder_reservation_assignee():
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)
   assignee = models.ForeignKey(UserProfile, null=True, blank=True, default=get_placeholder_reservation_assignee, related_name='assigned_reservations', on_delete=models.SET_NULL)
+  pickup_assignee = models.ForeignKey(UserProfile, null=True, blank=True, default=get_placeholder_reservation_assignee, related_name='pickup_assigned_reservations', on_delete=models.SET_NULL)
   activity = models.ForeignKey(Activity, null=True, blank=True, on_delete=models.CASCADE)
   consumables = models.ManyToManyField('Consumable', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
   num_of_classes = models.CharField(null=False, blank=False, max_length=1, choices=NUM_OF_CLASS_CHOICES)

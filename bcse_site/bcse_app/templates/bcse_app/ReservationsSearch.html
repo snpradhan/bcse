@@ -81,6 +81,13 @@
             <div class="error">{{ searchForm.assignee.errors }}</div>
           </div>
         {% endif %}
+        {% if searchForm.pickup_assignee %}
+          <div class="form-group">
+            <label for="id_{{searchForm.pickup_assignee.name}}" class="form-label"> {{searchForm.pickup_assignee.label|title}}</label>
+            <div>{{searchForm.pickup_assignee}}</div>
+            <div class="error">{{ searchForm.pickup_assignee.errors }}</div>
+          </div>
+        {% endif %}
         {% if searchForm.color %}
           <div class="form-group">
             <label for="id_{{searchForm.color.name}}" class="form-label">

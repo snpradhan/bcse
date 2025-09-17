@@ -81,7 +81,10 @@
             <th> Help Needed? </th>
           {% endif %}
           {% if 'AT' in columns %}
-            <th> Assigned To </th>
+            <th> Delivery Assigned To </th>
+          {% endif %}
+          {% if 'PA' in columns %}
+            <th> Pickup Assigned To </th>
           {% endif %}
           {% if 'ES' in columns %}
             <th> Confirmation Email Sent? </th>
@@ -282,6 +285,9 @@
             {% if 'AT' in columns %}
               <td>{{reservation.assignee.user.get_full_name|default:"Not Assigned"}}</td>
             {% endif %}
+            {% if 'PA' in columns %}
+              <td>{{reservation.pickup_assignee.user.get_full_name|default:"Not Assigned"}}</td>
+            {% endif %}
             {% if 'ES' in columns %}
               <td>{{reservation.email_sent|yesno:"Yes,No"}}</td>
             {% endif %}
@@ -328,7 +334,7 @@
                 </li>
                 {% if user.userProfile.user_role in 'AS' %}
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Update Color/Status/Notes</a></li>
+                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Quick Update</a></li>
                   {% if reservation.activity %}
                     <li><hr class="dropdown-divider"></li>
                     <li>

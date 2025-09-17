@@ -775,7 +775,8 @@ class ReservationForm(ModelForm):
     self.fields['include_goggles'].help_text = 'Goggles will need to be returned.'
     self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
     self.fields['notes'].label = 'Please provide any additional information that would be useful, such as your preferred pick-up and return times, and any directions for parking and entering your school.'
-    self.fields['assignee'].label = 'Select the BCSE team member in-charge of this reservation.'
+    self.fields['assignee'].label = 'Delivery Assigned To'
+    self.fields['pickup_assignee'].label = 'Pickup Assigned To'
     self.fields['additional_help_needed'].label = 'I need additional help.'
     self.fields['equipment'].help_text = 'Manually selecting individual equipment sets may result in overbooking. \
     Please manually resolve any overbooking that may occur from this modification. \
@@ -792,6 +793,7 @@ class ReservationForm(ModelForm):
       self.fields.pop('equipment')
     else:
       self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
+      self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
       self.fields['activity'].queryset = models.Activity.objects.all()
       self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
       self.fields['consumables'].queryset = models.Consumable.objects.all().filter(status='A')
@@ -868,7 +870,7 @@ class ReservationUpdateForm(ModelForm):
 
   class Meta:
     model = models.Reservation
-    fields = ['color', 'status', 'admin_notes']
+    fields = ['color', 'status', 'admin_notes', 'assignee', 'pickup_assignee']
     widgets = {
       'admin_notes': forms.Textarea(attrs={'rows':3}),
     }
@@ -879,6 +881,10 @@ class ReservationUpdateForm(ModelForm):
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
     self.fields['color'].label = 'Box Sub-Status'
     self.fields['status'].label = 'Reservation Status'
+    self.fields['assignee'].label = 'Delivery Assigned To'
+    self.fields['pickup_assignee'].label = 'Pickup Assigned To'
+    self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
+    self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
@@ -1634,7 +1640,8 @@ class ReservationsSearchForm(forms.Form):
   user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
   work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                   )
-  assignee = forms.ModelChoiceField(required=False, label=u'Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
+  assignee = forms.ModelChoiceField(required=False, label=u'Delivery Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
+  pickup_assignee = forms.ModelChoiceField(required=False, label=u'Pickup Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
 
   activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
@@ -1669,6 +1676,7 @@ class ReservationsSearchForm(forms.Form):
       self.fields.pop('user')
       self.fields.pop('work_place')
       self.fields.pop('assignee')
+      self.fields.pop('pickup_assignee')
       self.fields.pop('color')
       self.fields.pop('feedback_status')
       self.fields.pop('consumable')
