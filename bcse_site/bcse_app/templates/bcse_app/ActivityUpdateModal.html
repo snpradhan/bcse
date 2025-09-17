@@ -74,7 +74,10 @@
                         <div class="error">{{ form.count.errors }}</div>
                       </td>
                       <td>
-                        {{form.expiration_date}}
+                         <div class="input-group">
+                            {{form.expiration_date}}
+                            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                          </div>
                         <div class="error">{{ form.expiration_date.errors }}</div>
                       </td>
                       <td>
@@ -139,9 +142,9 @@
                   <table class="table table-condensed table-bordered">
                     <thead>
                       <tr>
+                        <th>Storage Location</th>
                         <th>Count</th>
                         <th>Expiration Date</th>
-                        <th>Storage Location</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -151,16 +154,19 @@
                         {{form.id}}
                         <tr class="form-row">
                           <td>
+                            {{form.storage_location}}
+                            <div class="error">{{ form.storage_location.errors }}</div>
+                          </td>
+                          <td>
                             {{form.count}}
                             <div class="error">{{ form.count.errors }}</div>
                           </td>
                           <td>
-                            {{form.expiration_date}}
+                             <div class="input-group">
+                                {{form.expiration_date}}
+                                <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                              </div>
                             <div class="error">{{ form.expiration_date.errors }}</div>
-                          </td>
-                          <td>
-                            {{form.storage_location}}
-                            <div class="error">{{ form.storage_location.errors }}</div>
                           </td>
                           <td>
                             {{form.DELETE.as_hidden}}

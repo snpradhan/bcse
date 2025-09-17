@@ -41,7 +41,11 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:inventoryEdit' inv.id inv.inventory_type %}">Edit</a>
+                  {% if inv.inventory_type == 'A' %}
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityUpdate' inv.parent_id %}">Update Inventory</a>
+                  {% else %}
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:consumableUpdate' inv.parent_id %}">Update Inventory</a>
+                  {% endif %}
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>

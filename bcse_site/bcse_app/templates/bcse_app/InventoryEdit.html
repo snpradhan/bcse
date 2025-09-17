@@ -76,19 +76,6 @@
           <div>{{form.storage_location}}</div>
           <div class="error">{{ form.storage_location.errors }}</div>
         </div>
-
-        {% if form.inventory_color %}
-          <div class="form-group mb-3">
-            <label for="id_{{form.inventory_color.name}}" class="form-label">
-              {{ form.inventory_color.label }}
-              {% if form.inventory_color.field.required %}
-                (<span class="required">*</span>)
-              {% endif %}
-            </label>
-            <div>{{form.inventory_color}}</div>
-            <div class="error">{{ form.inventory_color.errors }}</div>
-          </div>
-        {% endif %}
         
       </div>
       <div class="modal-footer">

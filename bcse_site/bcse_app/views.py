@@ -834,8 +834,6 @@ def activityUpdate(request, id='', reservation_id=''):
         print('form errors', form.errors)
         print('formset errors', formset.errors)
         print('inventory formset errors', inventory_formset.errors)
-        for cifs in consumable_inventory_formsets:
-          print('consumable inventory formset %s errors' % forloop.counter, inventory_formset.errors)
         response_data['success'] = False
         context = {'activity': activity, 'form': form, 'formset': formset, 'inventory_formset': inventory_formset, 'consumable_inventory_formsets': consumable_inventory_formsets}
         response_data['html'] = render_to_string('bcse_app/ActivityUpdateModal.html', context, request)
@@ -2868,8 +2866,8 @@ def baxterBoxInventorySearch(request):
       raise CustomException('You do not have the permission to view baxter box inventory')
     else:
 
-      activity_inventory = models.ActivityInventory.objects.annotate(name=F('activity__name'), color=F('activity__color__color'), color_description=F('activity__color__description'), inventory_type=Value('A', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('activity'), F('storage_location')])).values('id', 'name', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count')
-      consumable_inventory = models.ConsumableInventory.objects.annotate(name=F('consumable__name'), color=F('consumable__color__color'), color_description=F('consumable__color__description'),  inventory_type=Value('C', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('consumable'), F('storage_location')])).values('id', 'name', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count')
+      activity_inventory = models.ActivityInventory.objects.annotate(name=F('activity__name'), parent_id=F('activity_id'), color=F('activity__color__color'), color_description=F('activity__color__description'), inventory_type=Value('A', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('activity'), F('storage_location')])).values('id', 'name', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count')
+      consumable_inventory = models.ConsumableInventory.objects.annotate(name=F('consumable__name'), parent_id=F('consumable_id'), color=F('consumable__color__color'), color_description=F('consumable__color__description'),  inventory_type=Value('C', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('consumable'), F('storage_location')])).values('id', 'name', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count')
 
     if request.method == 'GET':
 
@@ -3025,16 +3023,6 @@ def inventoryEdit(request, id='', inventory_type='A'):
       response_data = {}
       if form.is_valid():
         saved_inventory = form.save()
-        if 'inventory_color' in form.cleaned_data:
-          inventory_color = form.cleaned_data['inventory_color']
-          if inventory_type == 'A':
-            activity = saved_inventory.activity
-            activity.color = inventory_color
-            activity.save()
-          else:
-            consumable = saved_inventory.consumable
-            consumable.color = inventory_color
-            consumable.save()
         messages.success(request, "Inventory saved")
         response_data['success'] = True
       else:

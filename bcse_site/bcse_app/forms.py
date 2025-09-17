@@ -395,20 +395,12 @@ class ActivityForm(ModelForm):
 ####################################
 class ActivityInventoryForm(ModelForm):
 
-  inventory_color = forms.ModelChoiceField(required=False, queryset=models.ReservationColor.objects.all().filter(target__in=['K']))
-
-
   class Meta:
     model = models.ActivityInventory
     exclude = ('created_date', 'modified_date')
 
   def __init__(self, *args, **kwargs):
     super(ActivityInventoryForm, self).__init__(*args, **kwargs)
-
-    if self.instance and self.instance.id:
-      self.fields['inventory_color'].initial = self.instance.activity.color
-    else:
-      self.fields.pop('inventory_color')
 
     for field_name, field in list(self.fields.items()):
       if field_name == 'activity':
@@ -478,19 +470,12 @@ class ConsumableForm(ModelForm):
 ####################################
 class ConsumableInventoryForm(ModelForm):
 
-  inventory_color = forms.ModelChoiceField(required=False, queryset=models.ReservationColor.objects.all().filter(target__in=['K']))
-
   class Meta:
     model = models.ConsumableInventory
     exclude = ('created_date', 'modified_date')
 
   def __init__(self, *args, **kwargs):
     super(ConsumableInventoryForm, self).__init__(*args, **kwargs)
-
-    if self.instance and self.instance.id:
-      self.fields['inventory_color'].initial = self.instance.consumable.color
-    else:
-      self.fields.pop('inventory_color')
 
     for field_name, field in list(self.fields.items()):
       if field_name == 'consumable':

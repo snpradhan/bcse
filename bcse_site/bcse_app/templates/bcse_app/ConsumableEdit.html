@@ -49,7 +49,10 @@
                   <div class="error">{{ form.count.errors }}</div>
                 </td>
                 <td>
-                  {{form.expiration_date}}
+                   <div class="input-group">
+                      {{form.expiration_date}}
+                      <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                    </div>
                   <div class="error">{{ form.expiration_date.errors }}</div>
                 </td>
                 <td>
