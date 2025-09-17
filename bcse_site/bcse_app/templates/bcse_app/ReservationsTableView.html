@@ -91,7 +91,7 @@
           {% endif %}
         {% endif %}
         {% if 'ST' in columns or tag == 'profile' %}
-          <th> Status </th>
+          <th> Reservation Status </th>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'profile' %}
           <th> Workplace </th>

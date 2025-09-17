@@ -149,7 +149,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('DT', 'Delivery Time'),
   ('AN', 'Admin Notes'),
   ('AT', 'Assigned To'),
-  ('ST', 'Status'),
+  ('ST', 'Reservation Status'),
   ('ES', 'Confirmation Email Sent'),
   ('FS', 'Feedback Status'),
 )
