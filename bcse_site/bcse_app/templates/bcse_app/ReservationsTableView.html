@@ -13,7 +13,7 @@
       <button class="btn download profile" type="button">Export Reservations</button>
     </div>
   {% endif %}
-  <table class="table table-bordered table-striped export" id="baxter_box_reservations">
+  <table class="table table-bordered {% if tag != 'reservations' %} table-striped {% endif %} export" id="baxter_box_reservations">
     <thead>
       <tr>
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
