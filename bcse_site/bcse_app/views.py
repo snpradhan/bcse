@@ -4303,7 +4303,7 @@ def workshopRegistrationEmails(request, workshop_id=''):
       workshop = models.Workshop.objects.get(id=workshop_id)
       registration_emails = models.WorkshopRegistrationEmail.objects.all().filter(workshop__id=workshop_id)
       context = {'workshop': workshop, 'registration_emails': registration_emails}
-      messages.success(request, 'These registration emails are sent when users apply/register to/for this workshop. <br> You can only create one email message per registration status.')
+      messages.success(request, 'These automated registration emails are sent when users apply/register to/for this workshop. <br> You can only create one email message per registration status.')
       return render(request, 'bcse_app/WorkshopRegistrationEmails.html', context)
 
     return http.HttpResponseNotAllowed(['GET'])

@@ -19,10 +19,10 @@
           <label><a class="nav-link {% if tab == 'registrants' %}active{% endif %}" href="{% url 'bcse:workshopRegistrants' workshop.id %}">Registrants</a></label>
         </li>
         <li class="nav-item">
-          <label><a class="nav-link {% if tab == 'emails' %}active{% endif %}" href="{% url 'bcse:workshopEmails' workshop.id %}">Emails</a></label>
+          <label><a class="nav-link {% if tab == 'emails' %}active{% endif %}" href="{% url 'bcse:workshopEmails' workshop.id %}">Ad Hoc Emails</a></label>
         </li>
         <li class="nav-item">
-          <label><a class="nav-link {% if tab == 'registration_emails' %}active{% endif %}" href="{% url 'bcse:workshopRegistrationEmails' workshop.id %}">Registration Emails</a></label>
+          <label><a class="nav-link {% if tab == 'registration_emails' %}active{% endif %}" href="{% url 'bcse:workshopRegistrationEmails' workshop.id %}">Automated Emails</a></label>
         </li>
       {% endif %}
     {% elif tab == 'edit' %}
@@ -62,11 +62,11 @@
       </li>
     {% elif tab == 'emails'%}
        <li class="nav-item right">
-        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopEmailNew' workshop.id %}" href="#">Create Email</a>
+        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopEmailNew' workshop.id %}" href="#">Create Ad Hoc Email</a>
       </li>
     {% elif tab == 'registration_emails'%}
        <li class="nav-item right">
-        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationEmailNew' workshop.id %}" href="#">Create Registration Email</a>
+        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationEmailNew' workshop.id %}" href="#">Create Automated Email</a>
       </li>
     {% endif %}
   </ul>
