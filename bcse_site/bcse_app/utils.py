@@ -71,6 +71,77 @@ class Calendar(HTMLCalendar):
     return cal
 
 
+class CalendarEquipmentSet(HTMLCalendar):
+  def __init__(self, year=None, month=None):
+    self.year = year
+    self.month = month
+    super(CalendarEquipmentSet, self).__init__()
+
+  def formatday(self, day, availability_matrix, delivery_date, return_date):
+    #events_per_day = events.filter(start_time__day=day)
+    d = ''
+
+    is_in_range = False
+
+    if day != 0:
+      index_date = date(self.year, self.month, day)
+      dayofweek = index_date.strftime('%a')
+      if index_date >= delivery_date and index_date <= return_date:
+        is_in_range = True
+
+      if is_in_range:
+        for equipment, availability in availability_matrix.items():
+          is_available = availability['availability_dates'][index_date]['available']
+          if is_available:
+            d += f'<div class="available"> {equipment.name}</div>'
+          else:
+            locations = availability['availability_dates'][index_date]['locations']
+
+            d += f'<div class="unavailable"> {equipment.name} <i class="fas fa-at"></i> '
+            if len(locations) > 1:
+              d += '<ul>'
+              for location in locations:
+                d += f'<li>{location}</li>'
+              d += '<ul>'
+            else:
+              d += locations[0]
+            d += f'</div>'
+
+
+
+        return f"<td class='selected_date'> \
+                  <div class='date'>\
+                    <div> {day} </div> \
+                  </div> \
+                  <div> {d} </div> \
+                </td>"
+      else:
+        return f"<td class='out_of_range'> \
+                  <div class='date'> \
+                    <div> {day} </div> \
+                  </div> \
+                  <div> </div> \
+                </td>"
+
+    return "<td></td>"
+
+  def formatweek(self, theweek, availability_matrix, delivery_date, return_date):
+    week = ''
+    for d, weekday in theweek:
+      week += self.formatday(d, availability_matrix, delivery_date, return_date)
+    return f'<tr> {week} </tr>'
+
+  def formatmonth(self, withyear=True, availability_matrix={}, delivery_date=None, return_date=None):
+    #events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
+    cal = f'<table class="calendar table table-bordered">\n'
+    cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
+    cal += f'{self.formatweekheader()}\n'
+    for week in self.monthdays2calendar(self.year, self.month):
+      cal += f'{self.formatweek(week, availability_matrix, delivery_date, return_date)}\n'
+    cal += f'</table>'
+    return cal
+
+
 class AdminCalendar(HTMLCalendar):
   def __init__(self, year=None, month=None):
     self.year = year

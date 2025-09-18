@@ -10,7 +10,7 @@ from django.db.models.functions import Lower
 from django.db.models import Sum, Window
 from django.db.models.functions import Coalesce
 import datetime, time
-from .utils import Calendar, AdminCalendar
+from .utils import Calendar, AdminCalendar, CalendarEquipmentSet
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
@@ -2134,18 +2134,35 @@ def reservationsSearch(request, display='table'):
 ####################################
 def getAvailabilityData(request, id=''):
   data = request.POST.copy()
-  equipment_types = models.EquipmentType.objects.all().filter(id__in=request.POST.getlist('equipment_types', ''))
+
   delivery_date = datetime.datetime.strptime(request.POST.get('delivery_date'), '%B %d, %Y').date()
   return_date = datetime.datetime.strptime(request.POST.get('return_date'), '%B %d, %Y').date()
 
   start_date = delivery_date.replace(day=1)
   end_date = return_date.replace(day=calendar.monthrange(return_date.year, return_date.month)[1])
-  equipment_availability_matrix = checkAvailability(request, id, equipment_types, start_date, end_date, delivery_date, return_date)
-  is_available = all([equipment_type['is_available'] for equipment_type in equipment_availability_matrix.values()])
+  equipment_availability_matrix = None
+  calender_type = None
+  is_available = False
+
+  if request.POST.getlist('equipment_types'):
+    equipment_types = models.EquipmentType.objects.all().filter(id__in=request.POST.getlist('equipment_types', ''))
+    equipment_availability_matrix = checkAvailability(request, id, equipment_types, start_date, end_date, delivery_date, return_date)
+    is_available = all([equipment_type['is_available'] for equipment_type in equipment_availability_matrix.values()])
+    calender_type = 'ET'
+
+  elif request.POST.getlist('equipment'):
+    equipment_sets = models.Equipment.objects.all().filter(id__in=request.POST.getlist('equipment', ''))
+    equipment_availability_matrix = checkEquipmentSetAvailability(request, id, equipment_sets, delivery_date, return_date)
+    is_available = all([equipment_set['is_available'] for equipment_set in equipment_availability_matrix.values()])
+    calender_type = 'ES'
+
   availability_calendar = []
   index_date = start_date
   while index_date <= end_date:
-    cal = Calendar(index_date.year, index_date.month)
+    if calender_type == 'ET':
+      cal = Calendar(index_date.year, index_date.month)
+    else:
+      cal = CalendarEquipmentSet(index_date.year, index_date.month)
     cal.setfirstweekday(6)
     availability_calendar.append(cal.formatmonth(withyear=True, availability_matrix=equipment_availability_matrix, delivery_date=delivery_date, return_date=return_date))
     index_date += relativedelta(months=1)
@@ -2165,9 +2182,9 @@ def getAvailabilityData(request, id=''):
                        'availability_calendar': availability_calendar}
     return availability_data
 
-####################################
-# CHECK EQUIPMENT AVAILABILITY
-####################################
+########################################################################
+# CHECK EQUIPMENT AVAILABILITY FOR SELECTED EQUIPMENT TYPES
+########################################################################
 def checkAvailability(request, current_reservation_id, equipment_types, start_date, end_date, delivery_date, return_date):
   equipment_availability_matrix = {}
   delta = return_date - delivery_date
@@ -2219,6 +2236,40 @@ def checkAvailability(request, current_reservation_id, equipment_types, start_da
 
   return equipment_availability_matrix
 
+
+########################################################################
+# CHECK EQUIPMENT AVAILABILITY FOR SELECTED EQUIPMENT SETS
+########################################################################
+def checkEquipmentSetAvailability(request, current_reservation_id, equipment_sets, delivery_date, return_date):
+  equipment_availability_matrix = {}
+  delta = return_date - delivery_date
+  reservation_days = delta.days + 1
+
+  oneday = datetime.timedelta(days=1)
+
+  #iterate each equipment set selected
+  for equipment in equipment_sets:
+    equipment_availability_matrix[equipment] = {}
+    equipment_availability_matrix[equipment]['availability_dates'] = {}
+
+    index_date = delivery_date
+
+    while index_date <= return_date:
+      reservations = models.Reservation.objects.all().filter(equipment=equipment, delivery_date__lte=index_date, return_date__gte=index_date).exclude(status='N')
+      if current_reservation_id != '':
+        reservations = reservations.exclude(id=current_reservation_id)
+      reservation_count = reservations.count()
+      if reservation_count > 0:
+        locations = reservations.values_list('reservation_to_work_place__work_place__name', flat=True)
+        equipment_availability_matrix[equipment]['availability_dates'][index_date] = {'available': False, 'locations': locations}
+      else:
+        equipment_availability_matrix[equipment]['availability_dates'][index_date] = {'available': True}
+
+      index_date += oneday
+
+    equipment_availability_matrix[equipment]['is_available'] = all(availability['available'] for idx_date, availability in equipment_availability_matrix[equipment]['availability_dates'].items())
+
+  return equipment_availability_matrix
 
 
 ####################################
