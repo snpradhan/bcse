@@ -2102,8 +2102,8 @@ def reservationsSearch(request, display='table'):
           schedule['display'] = 'block'
           schedule['allDay'] = 'true'
           schedule['textColor'] = 'black'
-          schedule['delivery_assignee'] = reservation.assignee.initials
-          schedule['pickup_assignee'] = reservation.pickup_assignee.initials
+          schedule['delivery_assignee'] = reservation.assignee.initials if reservation.assignee else ''
+          schedule['pickup_assignee'] = reservation.pickup_assignee.initials if reservation.pickup_assignee else ''
           if reservation.color:
             schedule['color'] = reservation.color.color
           else:
