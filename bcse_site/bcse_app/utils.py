@@ -71,6 +71,61 @@ class Calendar(HTMLCalendar):
     return cal
 
 
+class CalendarEquipmentSet(Calendar):
+  def __init__(self, year=None, month=None):
+    self.year = year
+    self.month = month
+    super(Calendar, self).__init__()
+
+  def formatday(self, day, availability_matrix, delivery_date, return_date):
+    #events_per_day = events.filter(start_time__day=day)
+    d = ''
+
+    is_in_range = False
+
+    if day != 0:
+      index_date = date(self.year, self.month, day)
+      dayofweek = index_date.strftime('%a')
+      if index_date >= delivery_date and index_date <= return_date:
+        is_in_range = True
+
+      if is_in_range:
+        for equipment, availability in availability_matrix.items():
+          is_available = availability[index_date]['available']
+          if is_available:
+            d += f'<div class="available"> {equipment.name}</div>'
+          else:
+            locations = availability[index_date]['locations']
+
+            d += f'<div class="unavailable"> {equipment.name} <i class="fas fa-at"></i>'
+            if len(locations) > 1:
+              d += '<ul>'
+              for location in locations:
+                d += f'<li>{location}</li>'
+              d += '<ul>'
+            else:
+              d += locations[0]
+            d += f'</div>'
+
+
+
+        return f"<td class='selected_date'> \
+                  <div class='date'>\
+                    <div> {day} </div> \
+                  </div> \
+                  <div> {d} </div> \
+                </td>"
+      else:
+        return f"<td class='out_of_range'> \
+                  <div class='date'> \
+                    <div> {day} </div> \
+                  </div> \
+                  <div> </div> \
+                </td>"
+
+    return "<td></td>"
+
+
 class AdminCalendar(HTMLCalendar):
   def __init__(self, year=None, month=None):
     self.year = year

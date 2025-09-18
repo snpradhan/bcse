@@ -542,6 +542,12 @@
           })
           return selectedEquipment;
         }
+
+        function getSelectedEquipmentSets() {
+          var selectedEquipmentSets = $('#id_equipment').val();
+          return selectedEquipmentSets;
+        }
+
         function getSelectedConsumables() {
           var selectedConsumables = $('#id_consumables').val();
           return selectedConsumables;
@@ -685,7 +691,7 @@
           if($('input#id_equipment_not_needed').is(':checked')){
             $('button#check_availability').prop('disabled', true);
           }
-          else if(getSelectedEquipment().length > 0 && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
+          else if((getSelectedEquipment().length > 0 || getSelectedEquipmentSets().length > 0 )&& $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
 
             $('button#check_availability').prop('disabled', false);
           }
@@ -704,6 +710,7 @@
           var equipment_not_needed = $('input#id_equipment_not_needed').is(':checked');
           var include_goggles = $('input#id_include_goggles').is(':checked');
           var equipment_selected = getSelectedEquipment();
+          var equipment_set_selected = getSelectedEquipmentSets();
 
           var delivery_date = $('input#id_delivery_date').datepicker('getDate');
           var return_date = $('input#id_return_date').datepicker('getDate');
@@ -717,7 +724,7 @@
           max_reservation_date.setHours(0, 0, 0, 0);
 
           //if equipment is selected or goggles is requested,
-          if (!equipment_not_needed && equipment_selected || include_goggles) {
+          if (!equipment_not_needed && equipment_selected || equipment_set_selected || include_goggles) {
             //delivery and return dates are both required
             if (delivery_date == null || return_date == null) {
               displayWarningDialog('Please select both delivery and return dates.');
