@@ -544,7 +544,11 @@
         }
 
         function getSelectedEquipmentSets() {
-          var selectedEquipmentSets = $('#id_equipment').val();
+          var selectedEquipmentSets = [];
+          if($('select#id_equipment').val()) {
+            selectedEquipmentSets = $('select#id_equipment').val();
+
+          }
           return selectedEquipmentSets;
         }
 
@@ -691,7 +695,7 @@
           if($('input#id_equipment_not_needed').is(':checked')){
             $('button#check_availability').prop('disabled', true);
           }
-          else if((getSelectedEquipment().length > 0 || getSelectedEquipmentSets().length > 0 )&& $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
+          else if((getSelectedEquipment().length > 0 || getSelectedEquipmentSets().length > 0 ) && $('input#id_delivery_date').datepicker('getDate') && $('input#id_return_date').datepicker('getDate')) {
 
             $('button#check_availability').prop('disabled', false);
           }
@@ -928,6 +932,9 @@
 
         function bindEquipmentSelection() {
           $('#id_equipment_types input.form-check-input').on('change', function(){
+            toggleCheckAvailability();
+          });
+          $('#id_equipment').on('change', function(){
             toggleCheckAvailability();
           });
         }

@@ -71,11 +71,11 @@ class Calendar(HTMLCalendar):
     return cal
 
 
-class CalendarEquipmentSet(Calendar):
+class CalendarEquipmentSet(HTMLCalendar):
   def __init__(self, year=None, month=None):
     self.year = year
     self.month = month
-    super(Calendar, self).__init__()
+    super(CalendarEquipmentSet, self).__init__()
 
   def formatday(self, day, availability_matrix, delivery_date, return_date):
     #events_per_day = events.filter(start_time__day=day)
@@ -124,6 +124,22 @@ class CalendarEquipmentSet(Calendar):
                 </td>"
 
     return "<td></td>"
+
+  def formatweek(self, theweek, availability_matrix, delivery_date, return_date):
+    week = ''
+    for d, weekday in theweek:
+      week += self.formatday(d, availability_matrix, delivery_date, return_date)
+    return f'<tr> {week} </tr>'
+
+  def formatmonth(self, withyear=True, availability_matrix={}, delivery_date=None, return_date=None):
+    #events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
+    cal = f'<table class="calendar table table-bordered">\n'
+    cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
+    cal += f'{self.formatweekheader()}\n'
+    for week in self.monthdays2calendar(self.year, self.month):
+      cal += f'{self.formatweek(week, availability_matrix, delivery_date, return_date)}\n'
+    cal += f'</table>'
+    return cal
 
 
 class AdminCalendar(HTMLCalendar):

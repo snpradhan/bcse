@@ -10,7 +10,7 @@ from django.db.models.functions import Lower
 from django.db.models import Sum, Window
 from django.db.models.functions import Coalesce
 import datetime, time
-from .utils import Calendar, AdminCalendar, CalenderEquipmentSet
+from .utils import Calendar, AdminCalendar, CalendarEquipmentSet
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
@@ -2142,6 +2142,7 @@ def getAvailabilityData(request, id=''):
   end_date = return_date.replace(day=calendar.monthrange(return_date.year, return_date.month)[1])
   equipment_availability_matrix = None
   calender_type = None
+  is_available = False
 
   if request.POST.getlist('equipment_types'):
     equipment_types = models.EquipmentType.objects.all().filter(id__in=request.POST.getlist('equipment_types', ''))
@@ -2151,7 +2152,7 @@ def getAvailabilityData(request, id=''):
 
   elif request.POST.getlist('equipment'):
     equipment_sets = models.Equipment.objects.all().filter(id__in=request.POST.getlist('equipment', ''))
-    equipment_availability_matrix = checkEquipmentSetAvailability(request, id, equipment_types, start_date, end_date, delivery_date, return_date)
+    equipment_availability_matrix = checkEquipmentSetAvailability(request, id, equipment_sets, start_date, end_date, delivery_date, return_date)
     calender_type = 'ES'
 
   availability_calendar = []
@@ -2262,8 +2263,6 @@ def checkEquipmentSetAvailability(request, current_reservation_id, equipment_set
         equipment_availability_matrix[equipment][index_date] = {'available': False, 'locations': locations}
       else:
         equipment_availability_matrix[equipment][index_date] = {'available': True}
-        if index_date >= delivery_date and index_date <= return_date:
-          available_days += 1
 
       index_date += oneday
 
