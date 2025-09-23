@@ -153,6 +153,7 @@
                                              {% navactive request 'bcse:reservations' %}
                                              {% navactive request 'bcse:standalonePageAliasView' 'lab_grant' %}
                                              {% navactive request 'bcse:adminAvailabilityCalendar' %}
+                                             {% navactive request 'bcse:adminReservationCalendar' %}
                                              {% navactive request 'bcse:baxterBoxUsageReport' %}">
                   {% with new_message_count=user.userProfile|get_all_reservations_new_message_count %}
                   <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">
@@ -182,6 +183,10 @@
                         </a>
                       </li>
                       {% if user.userProfile.user_role in 'AS' %}
+                         <li class="{% navactive request 'bcse:adminReservationCalendar' %}">
+                          <a class="dropdown-item" href="{% url 'bcse:adminReservationCalendar' %}">Reservation Calendar</a>
+                        </li>
+
                         <li class="{% navactive request 'bcse:adminAvailabilityCalendar' %}">
                           <a class="dropdown-item" href="{% url 'bcse:adminAvailabilityCalendar' %}">
                             Availability Calendar
