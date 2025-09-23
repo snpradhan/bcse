@@ -789,14 +789,15 @@ class ReservationForm(ModelForm):
 
     if user.user_role not in ['A', 'S']:
       self.fields.pop('assignee')
+      self.fields.pop('pickup_assignee')
       self.fields.pop('more_num_of_classes')
       self.fields.pop('admin_notes')
       self.fields.pop('color')
       self.fields.pop('consumables')
       self.fields.pop('equipment')
     else:
-      self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
-      self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
+      self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S'], user__is_active=True).order_by('user__last_name', 'user__first_name')
+      self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S'], user__is_active=True).order_by('user__last_name', 'user__first_name')
       self.fields['activity'].queryset = models.Activity.objects.all()
       self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['R', 'B'])
       self.fields['consumables'].queryset = models.Consumable.objects.all().filter(status='A')
@@ -886,8 +887,8 @@ class ReservationUpdateForm(ModelForm):
     self.fields['status'].label = 'Reservation Status'
     self.fields['assignee'].label = 'Delivery Assigned To'
     self.fields['pickup_assignee'].label = 'Pickup Assigned To'
-    self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
-    self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name')
+    self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S'], user__is_active=True).order_by('user__last_name', 'user__first_name')
+    self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S'], user__is_active=True).order_by('user__last_name', 'user__first_name')
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
