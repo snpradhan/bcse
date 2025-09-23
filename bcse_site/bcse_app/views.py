@@ -3024,8 +3024,23 @@ def baxterBoxInventorySearch(request):
           sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})
         elif sort_by == 'expiration_date_desc':
           sort_order.append({'order_by': 'expiration_date', 'direction': 'desc', 'ignorecase': 'false'})
-        elif sort_by == 'count':
+        elif sort_by == 'count_asc':
           sort_order.append({'order_by': 'count', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'storage_location', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'count_desc':
+          sort_order.append({'order_by': 'count', 'direction': 'desc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'storage_location', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'total_count_asc':
+          sort_order.append({'order_by': 'total_count', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'storage_location', 'direction': 'asc', 'ignorecase': 'false'})
+          sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})
+        elif sort_by == 'total_count_desc':
+          sort_order.append({'order_by': 'total_count', 'direction': 'desc', 'ignorecase': 'false'})
           sort_order.append({'order_by': 'name', 'direction': 'asc', 'ignorecase': 'false'})
           sort_order.append({'order_by': 'storage_location', 'direction': 'asc', 'ignorecase': 'false'})
           sort_order.append({'order_by': 'expiration_date', 'direction': 'asc', 'ignorecase': 'false'})

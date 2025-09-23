@@ -601,7 +601,10 @@ class BaxterBoxInventorySearchForm(forms.Form):
                                                        ('name', 'Name'),
                                                        ('expiration_date_asc', 'Expiration Date (Asc)'),
                                                        ('expiration_date_desc', 'Expiration Date (Desc)'),
-                                                       ('count', 'Count'),
+                                                       ('count_asc', 'Count (Asc)'),
+                                                       ('count_desc', 'Count (Desc)'),
+                                                       ('total_count_asc', 'Total Count (Asc)'),
+                                                       ('total_count_desc', 'Total Count (Desc)')
                                                        ),
                                               initial='name')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
