@@ -3,7 +3,7 @@
 
 {% if inventory %}
   {% include "bcse_app/Pagination.html" with model=inventory location='top'%}
-  <table class="table table-bordered table-striped" id="baxter_box_inventory">
+  <table class="table table-bordered" id="baxter_box_inventory">
     <thead>
       <tr>
         <th>Name</th>
@@ -72,7 +72,6 @@
       const table = document.getElementById(tableId);
       const tbody = table.tBodies[0];
       const rows = Array.from(tbody.rows);
-      let isStriped = false;
 
       // Step 1: Group and merge cells by column indices
       columnIndices.forEach(colIndex => {
@@ -94,30 +93,16 @@
             rowspan++;
             cell.parentNode.removeChild(cell);
             prevCell.rowSpan = rowspan;
-            if (colIndex == 0 && isStriped) {
-              row.classList.add('striped');
-            }
           } else {
             prevCell = cell;
             prevKey = key;
             rowspan = 1;
-            if (colIndex == 0) {
-              if (!isStriped) {
-                row.classList.add('striped');
-                isStriped = true;
-              }
-              else {
-                isStriped = false;
-              }
-            }
-
           }
         }
       });
     }
 
     if($('#id_box_inventory_search-sort_by').val() == 'name' && $("#baxter_box_inventory").length ) {
-      $("#baxter_box_inventory").removeClass('table-striped');
       groupTableAndStripe("baxter_box_inventory", [3, 2, 1, 0]); // Group by Department and Role
     }
 
