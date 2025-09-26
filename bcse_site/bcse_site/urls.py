@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.contrib.auth import views as auth_views
 from ckeditor_uploader import views as ckeditor_views
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -24,7 +25,30 @@ from bcse_app.views import UserAutocomplete, RegistrantAutocomplete, WorkplaceAu
 urlpatterns = [
     path('', include('bcse_app.urls', namespace="bcse")),
     path('admin/', admin.site.urls),
-    path('password_reset/', include('password_reset.urls')),
+
+    path('password_reset/',
+         auth_views.PasswordResetView.as_view(
+             template_name='password_reset/password_reset_form.html',
+             html_email_template_name='password_reset/password_reset_email.html',
+             email_template_name='password_reset/password_reset_email.txt',
+             subject_template_name='password_reset/password_reset_subject.txt',
+             success_url='/password_reset/done/'
+         ), name='password_reset'),
+    path('password_reset/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='password_reset/password_reset_done.html'
+         ), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='password_reset/password_reset_confirm.html',
+             success_url='/reset/done/',
+             post_reset_login=False,
+         ), name='password_reset_confirm'),
+    path('reset/done/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='password_reset/password_reset_complete.html'
+         ), name='password_reset_complete'),
+
     path('user-autocomplete/', UserAutocomplete.as_view(), name='user-autocomplete'),
     path('teacher-leader-autocomplete/', TeacherLeaderAutocomplete.as_view(), name='teacher-leader-autocomplete'),
     path('registrant-autocomplete/', RegistrantAutocomplete.as_view(), name='registrant-autocomplete'),
