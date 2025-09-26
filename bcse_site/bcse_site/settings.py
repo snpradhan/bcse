@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'compressor',
-    'password_reset',
     'django_crontab',
     'dbbackup', #django-dbbackup
     'django_recaptcha',
@@ -110,7 +109,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bcse_site.wsgi.application'
 
 
-
+SILENCED_SYSTEM_CHECKS = ["ckeditor.W001"]
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = False
 CKEDITOR_RESTRICT_BY_USER = True
