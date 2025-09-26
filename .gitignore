@@ -1,5 +1,7 @@
 bcse_site/bcse_site/base_settings.py
 bcse_site/**/__pycache__
 env/*
+venv/*
+venv4.2/*
 www/*
 bcse_site/.DS_Store
