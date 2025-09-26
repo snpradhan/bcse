@@ -67,6 +67,8 @@ class NextParameterMiddleware(MiddlewareMixin):
     target = None
     if redirect_url.find('password_reset') == 1:
       target = '#password'
+    elif redirect_url.find('reset') == 1:
+      target = '#password'
     elif redirect_url.find('signin') == 1:
       target = '#signin'
     elif redirect_url.find('signup') == 1:
@@ -107,3 +109,14 @@ class DomainMiddleware(MiddlewareMixin):
       request.domain = 'stage'
 
 
+class AjaxDetectionMiddleware:
+    """
+    Re-adds the `is_ajax()` method to the request object
+    to support older code in Django 4.x+.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request.is_ajax = lambda: request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        return self.get_response(request)
