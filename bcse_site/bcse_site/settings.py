@@ -63,10 +63,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'bcse_app.middleware.AjaxDetectionMiddleware',
     'bcse_app.middleware.UpdateSession',
     'bcse_app.middleware.OnlineNowMiddleware',
     'bcse_app.middleware.NextParameterMiddleware',
     'bcse_app.middleware.DomainMiddleware',
+
 
 ]
 
