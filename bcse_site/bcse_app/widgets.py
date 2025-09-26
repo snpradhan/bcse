@@ -1,8 +1,8 @@
 #widgets.py
 from django.forms.widgets import FileInput, ClearableFileInput
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy
 from django.utils.html import format_html
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django import forms
 from django.forms.widgets import Select
@@ -10,8 +10,8 @@ from django.forms.widgets import Select
 
 
 class NotClearableFileInput(FileInput):
-    initial_text = ugettext_lazy('Currently')
-    input_text = ugettext_lazy('Change')
+    initial_text = gettext_lazy('Currently')
+    input_text = gettext_lazy('Change')
 
     template_with_initial = '%(initial_text)s: %(initial)s <br />%(input_text)s: %(input)s'
 
@@ -29,7 +29,7 @@ class NotClearableFileInput(FileInput):
             template = self.template_with_initial
             substitutions['initial'] = format_html(self.url_markup_template,
                                                value.url,
-                                               force_text(value))
+                                               force_str(value))
 
         return mark_safe(template % substitutions)
 
