@@ -13,7 +13,7 @@ django-ckeditor==6.7.0
 django-compressor==3.1
 django-crontab==0.7.1
 django-dbbackup==4.0.1
-django-js-asset==2.0
+django-js-asset==2.0.0
 django-localflavor==3.1
 django-recaptcha==4.0.0
 django-storages==1.12.3
@@ -28,7 +28,8 @@ lml==0.1.0
 mailchimp-marketing==3.0.80
 openpyxl==3.0.10
 Pillow==9.0.0
-psycopg2-binary==2.9.3
+psycopg==3.2.10
+psycopg-binary==3.2.10
 pyexcel==0.7.0
 pyexcel-io==0.6.6
 pyexcel-xls==0.7.0
