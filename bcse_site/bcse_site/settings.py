@@ -215,6 +215,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+COMPRESS_ENABLED = True
+
 COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
 )
