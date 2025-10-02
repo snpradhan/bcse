@@ -3062,6 +3062,23 @@ def baxterBoxInventorySearch(request):
 
 
 ####################################################
+# INVENTORY CREATE
+####################################################
+@login_required
+def inventoryCreate(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to create inventory')
+
+    form = forms.InventoryForm()
+    context = {'form': form}
+    return render(request, 'bcse_app/InventoryCreate.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################################
 # INVENTORY EDIT
 ####################################################
 @login_required

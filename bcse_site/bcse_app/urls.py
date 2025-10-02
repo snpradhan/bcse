@@ -126,7 +126,7 @@ urlpatterns = [
 
     path('adminConfiguration/baxter_box/inventory/', views.baxterBoxInventory, name='baxterBoxInventory'),
     path('adminConfiguration/baxter_box/inventory/search', views.baxterBoxInventorySearch, name='baxterBoxInventorySearch'),
-
+    path('adminConfiguration/baxter_box/inventory/create', views.inventoryCreate, name='inventoryCreate'),
     path('adminConfiguration/baxter_box/inventory/<int:id>/<str:inventory_type>/edit', views.inventoryEdit, name='inventoryEdit'),
     path('adminConfiguration/baxter_box/inventory/<str:inventory_type>/new', views.inventoryEdit, name='inventoryNew'),
     path('adminConfiguration/baxter_box/inventory/<int:id>/<str:inventory_type>/delete', views.inventoryDelete, name='inventoryDelete'),

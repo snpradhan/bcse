@@ -5,7 +5,7 @@ function bindModalOpen() {
     var url = $(this).data('href');
     var target = $(this).data('bs-target');
     $(target).load(url, function() {
-      $(this).show();
+      $(target).show();
       console.log('opening modal');
       if($(parentModal).length){
         $(parentModal).hide();

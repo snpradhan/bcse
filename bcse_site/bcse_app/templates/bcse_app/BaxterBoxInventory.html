@@ -5,8 +5,7 @@
 {% block configuration %}
   <h1 class="center"> Baxter Box Inventory </h1>
    <div class="button-row">
-    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:inventoryNew' 'A' %}">Create Activity Inventory</a>
-    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:inventoryNew' 'C' %}">Create Consumable Inventory</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:inventoryCreate' %}">Create Inventory</a>
   </div>
   {% include "bcse_app/BaxterBoxInventorySearch.html" %}
   <div class="form-group" id="spinner">

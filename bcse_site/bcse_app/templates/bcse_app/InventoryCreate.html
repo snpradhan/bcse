@@ -1,0 +1,83 @@
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left"> Create Inventory </h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="inventoryMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.inventory_type.name}}" class="form-label">
+            {{ form.inventory_type.label|title }}
+            (<span class="required">*</span>)
+          </label>
+          <div>{{form.inventory_type}}</div>
+          <div class="error">{{ form.inventory_type.errors }}</div>
+        </div>
+
+        <div id="inventory_form">
+        </div>
+        
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <a id="create_activity_inventory" class="btn create_inventory d-none" data-href="{% url 'bcse:inventoryNew' 'A' %}">Create Activity Inventory</a>
+        <a id="create_consumable_inventory" class="btn create_inventory d-none"  data-href="{% url 'bcse:inventoryNew' 'C' %}">Create Consumable Inventory</a>
+          <button type="button" class="btn btn-success save" style="display: none;">
+            Save
+          </button>
+        </div>
+      </div>
+
+  </div>
+
+  </div>
+
+<script type="text/javascript">
+  $(function (){
+
+    $('select#id_inventory_type').on('change', function(){
+      if($(this).val() == 'kit') {
+        $('#create_activity_inventory').click();
+      }
+      else if($(this).val() == 'consumable') {
+        $('#create_consumable_inventory').click();
+      }
+      else {
+        $('#inventory_form').html('');
+        $('button.save').hide();
+      }
+    });
+
+    $('.create_inventory').click(function(){
+      var url = $(this).data('href');
+      var target = '#inventory_form';
+      $(target).load(url, function() {
+
+        bindTooltipTrigger();
+        bindDateTimePicker();
+        bindSelect2();
+        $('button.save').show();
+        $('.save').on('click', function(){
+          if($('#formInventory').get(0).checkValidity()){
+            $('#formInventory').submit();
+          }
+          else {
+            displayWarningDialog('Please fill in all required fields.');
+          }
+        })
+
+      });
+    });
+
+
+
+  });
+</script>
+

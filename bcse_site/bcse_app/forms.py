@@ -390,6 +390,26 @@ class ActivityForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
+
+####################################
+# Inventory Form
+####################################
+class InventoryForm(forms.Form):
+
+  inventory_type = forms.ChoiceField(required=False, choices=(('', '---------'),
+                                                       ('kit', 'Activity Kit'),
+                                                       ('consumable', 'Consumable'),
+                                                       ),)
+
+  def __init__(self, *args, **kwargs):
+    super(InventoryForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
 ####################################
 # Activity Inventory Form
 ####################################
