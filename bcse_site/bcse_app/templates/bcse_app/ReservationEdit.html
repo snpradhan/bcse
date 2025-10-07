@@ -728,7 +728,7 @@
           max_reservation_date.setHours(0, 0, 0, 0);
 
           //if equipment is selected or goggles is requested,
-          if (!equipment_not_needed && equipment_selected || equipment_set_selected || include_goggles) {
+          if (!equipment_not_needed && equipment_selected.length > 0 || equipment_set_selected.length > 0 || include_goggles) {
             //delivery and return dates are both required
             if (delivery_date == null || return_date == null) {
               displayWarningDialog('Please select both delivery and return dates.');
