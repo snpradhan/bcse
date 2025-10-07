@@ -427,6 +427,7 @@ class ActivityInventoryForm(ModelForm):
         field.widget.attrs['class'] = 'form-control select2'
       elif field_name == 'expiration_date':
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       else:
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
@@ -502,6 +503,7 @@ class ConsumableInventoryForm(ModelForm):
         field.widget.attrs['class'] = 'form-control select2'
       elif field_name == 'expiration_date':
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       else:
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
@@ -640,6 +642,7 @@ class BaxterBoxInventorySearchForm(forms.Form):
         field.widget.attrs['class'] = 'form-control select2'
       elif field_name == 'expiration_date_after':
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       else:
         field.widget.attrs['class'] = 'form-control'
 
@@ -719,6 +722,7 @@ class EquipmentAvailabilityForm (forms.Form):
 
       if field_name == 'selected_month':
         field.widget.attrs['class'] = 'form-control datepicker availability'
+        field.widget.attrs['readonly'] = True
 
 
 class ReservationForm(ModelForm):
@@ -957,6 +961,7 @@ class BaxterBoxBlackoutDateForm(ModelForm):
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control datepicker'
+      field.widget.attrs['readonly'] = True
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -1041,6 +1046,7 @@ class WorkshopForm(ModelForm):
       if field_name not in ['enable_registration', 'featured', 'cancelled']:
         if field_name in ['start_date', 'end_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
+          field.widget.attrs['readonly'] = True
         elif field_name in ['start_time', 'end_time']:
           field.widget.attrs['class'] = 'form-control timepicker'
         elif field_name in ['teacher_leaders', 'tags', 'collaborators']:
@@ -1073,6 +1079,7 @@ class WorkshopRegistrationSettingForm(ModelForm):
       if field_name not in ['enable_waitlist']:
         if field_name in ['open_date', 'close_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
+          field.widget.attrs['readonly'] = True
         elif field_name in ['open_time', 'close_time']:
           field.widget.attrs['class'] = 'form-control timepicker'
         else:
@@ -1175,6 +1182,7 @@ class WorkshopEmailForm(ModelForm):
         field.widget.attrs['class'] = 'form-control select2'
       elif field_name == 'scheduled_date':
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       elif field_name == 'scheduled_time':
         field.widget.attrs['class'] = 'form-control timepicker'
       elif field_name == 'photo_release_incomplete':
@@ -1579,6 +1587,7 @@ class SurveySubmissionForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       if field_name == 'response_date':
          field.widget.attrs['class'] = 'form-control datepicker'
+         field.widget.attrs['readonly'] = True
       elif field_name == 'user':
         field.widget.attrs['class'] = 'form-control select2'
         if self.instance.user and self.instance.user.id:
@@ -1710,6 +1719,7 @@ class ReservationsSearchForm(forms.Form):
     for field_name, field in self.fields.items():
       if field_name in ['delivery_after', 'return_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       elif field_name in ['activity', 'equipment', 'consumable']:
         field.widget.attrs['class'] = 'form-control select2'
       else:
@@ -1785,6 +1795,7 @@ class WorkshopsSearchForm(forms.Form):
     for field_name, field in self.fields.items():
       if field_name in ['starts_after', 'ends_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       elif 'tag' in field_name:
         field.widget.attrs['class'] = 'form-control select2'
         field.widget.attrs['aria-describedby'] = field.label
@@ -1844,6 +1855,7 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
 
       if field_name in ['starts_after', 'ends_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       elif field_name in ['workshop_category', 'workshop', 'status', 'user', 'work_place', 'user_role'] or 'tag' in field_name:
         field.widget.attrs['class'] = 'form-control select2'
       else:
@@ -1894,6 +1906,7 @@ class UsersSearchForm(forms.Form):
     for field_name, field in self.fields.items():
       if field_name in ['joined_after', 'joined_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       else:
         field.widget.attrs['class'] = 'form-control'
 
@@ -1977,6 +1990,7 @@ class BaxterBoxUsageSearchForm(forms.Form):
     for field_name, field in self.fields.items():
       if field_name in ['from_date', 'to_date']:
         field.widget.attrs['class'] = 'form-control datepicker'
+        field.widget.attrs['readonly'] = True
       elif field_name in ['work_place', 'user', 'activity', 'equipment', 'consumable', 'status'] or 'tag' in field_name:
         field.widget.attrs['class'] = 'form-control select2'
       else:
