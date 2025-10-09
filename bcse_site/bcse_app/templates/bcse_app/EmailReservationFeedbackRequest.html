@@ -10,7 +10,7 @@
          {% if reservation.activity %}
             {{reservation.activity.name}}
          {% else %}
-            {{reservation.other_activity}}
+            {{reservation.other_activity_name}}
          {% endif %}. Please <a href="https://{{domain}}/?next=/signin/?next=/?next=/survey/{{survey.id}}/submission/new?reservation_id={{reservation.id}}">click here</a> to complete a short survey to provide your feedback. This feedback helps us improve our resources for awesome teachers like you. Thank you so much for your time!
       </p>
    </div>
