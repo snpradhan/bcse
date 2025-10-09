@@ -149,16 +149,7 @@
       });
     });
 
-    $('.delete_inventory').on('click', function(e){
-      formRow = $(this).closest('.form-row');
-      deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
-
-      if (deleteInput) {
-        $(deleteInput).val('on'); // Mark for deletion
-        $(formRow).hide();
-      }
-    });
-
+    bindInventoryRowDelete();
 
   });
 </script>

@@ -165,6 +165,10 @@ function bindDateTimePicker() {
     scrollbar: true,
 
   });
+
+  $('.fa-calendar').on('click', function(){
+    $(this).closest('.input-group').find('.datepicker').datepicker("show");
+  });
 }
 
 function bindTooltipTrigger() {
@@ -404,6 +408,18 @@ function bindCalendarNavigation() {
   $(window).bind("resize", equalheight);
 }
 
+function bindInventoryRowDelete() {
+  $('.delete_inventory').on('click', function(e){
+    formRow = $(this).closest('.form-row');
+    deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
+
+    if (deleteInput) {
+      $(deleteInput).val('on'); // Mark for deletion
+      $(formRow).hide();
+    }
+  });
+}
+
 function bindBaxterBoxTabs() {
   if ($('input#current_tab').val() == 'activities_tab') {
     $('a#activities_tab').trigger('click');
@@ -587,6 +603,7 @@ function cloneForm(prefix, parent) {
   formset.appendChild(newForm);
   totalFormsInput.value = totalForms + 1;
   bindDateTimePicker();
+  bindInventoryRowDelete();
   $(newForm).show();
 }
 

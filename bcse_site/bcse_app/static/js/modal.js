@@ -22,7 +22,7 @@ $(function (){
   bindModalOpen();
 
   $('.modal').on('hidden.bs.modal', function () {
-    $('.datepicker').datepicker('destroy');
+    bindDateTimePicker();
   });
 
 });
