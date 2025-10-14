@@ -155,35 +155,14 @@ function bindDateTimePicker() {
       beforeShow: function(input, inst) {
         const $input = $(input);
         const isInModal = $input.closest('.modal').length > 0;
-
         if (isInModal) {
           // Append to modal to avoid z-index issues
           inst.dpDiv.appendTo($input.closest('.modal'));
-
-          // Reposition on show
-          setTimeout(function () {
-            const offset = $input.offset();
-            const scrollTop = $(window).scrollTop();
-            inst.dpDiv.css({
-              top: offset.top + $input.outerHeight() - scrollTop,
-              left: offset.left,
-              position: 'absolute'
-            });
-          }, 0);
         } else {
           // Default behavior
           inst.dpDiv.appendTo('body');
         }
       },
-      onChangeMonthYear: function(year, month, inst) {
-        const $input = $(inst.input);
-        const offset = $input.offset();
-        const scrollTop = $(window).scrollTop();
-        inst.dpDiv.css({
-          top: offset.top + $input.outerHeight() - scrollTop,
-          left: offset.left
-        });
-      }
     });
   });
 

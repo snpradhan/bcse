@@ -1,19 +1,18 @@
 function bindModalOpen() {
   $(".modal-open").click(function(e){
     e.stopImmediatePropagation();
-    var parentModal = $(this).closest('.modal')
+    var parentModal = $(this).closest('.modal');
     var url = $(this).data('href');
     var target = $(this).data('bs-target');
+
     $(target).load(url, function() {
       $(target).show();
-      console.log('opening modal');
-      if($(parentModal).length){
-        $(parentModal).hide();
+      if (parentModal.length) {
+        parentModal.hide();
       }
       bindTooltipTrigger();
       bindDateTimePicker();
       bindSelect2();
-
     });
   });
 }
@@ -23,6 +22,10 @@ $(function (){
 
   $('.modal').on('hidden.bs.modal', function () {
     bindDateTimePicker();
+  });
+
+  $('.modal').on('scroll', function(){
+    $('.datepicker').blur().datepicker('hide');
   });
 
 });
