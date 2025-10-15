@@ -73,13 +73,31 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'bcse_site.urls'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_S3_REGION_NAME = 'us-east-1'
-AWS_S3_HOST = 's3-us-east-1.amazonaws.com'
-AWS_S3_URL = '%s.%s/' % (AWS_STORAGE_BUCKET_NAME, AWS_S3_HOST)
-AWS_S3_SECURE_URLS = True       # use http instead of https
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_QUERYSTRING_AUTH = False
 AWS_DEFAULT_ACL = 'public-read'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "region_name": AWS_S3_REGION_NAME,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+
+#AWS_S3_SECURE_URLS = True       # use http instead of https
 
 DBBACKUP_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 DBBACKUP_STORAGE_OPTIONS = {
