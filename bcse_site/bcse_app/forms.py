@@ -418,6 +418,9 @@ class ActivityInventoryForm(ModelForm):
   class Meta:
     model = models.ActivityInventory
     exclude = ('created_date', 'modified_date')
+    widgets = {
+      'expiration_date': forms.DateInput(format='%B %d, %Y'),
+    }
 
   def __init__(self, *args, **kwargs):
     super(ActivityInventoryForm, self).__init__(*args, **kwargs)
@@ -494,6 +497,9 @@ class ConsumableInventoryForm(ModelForm):
   class Meta:
     model = models.ConsumableInventory
     exclude = ('created_date', 'modified_date')
+    widgets = {
+      'expiration_date': forms.DateInput(format='%B %d, %Y'),
+    }
 
   def __init__(self, *args, **kwargs):
     super(ConsumableInventoryForm, self).__init__(*args, **kwargs)
@@ -738,6 +744,8 @@ class ReservationForm(ModelForm):
       'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
       'notes': forms.Textarea(attrs={'rows':3}),
       'admin_notes': forms.Textarea(attrs={'rows':3}),
+      'delivery_date': forms.DateInput(format='%B %d, %Y'),
+      'return_date': forms.DateInput(format='%B %d, %Y'),
       #'other_activity': forms.CheckboxInput(),
     }
 
@@ -954,6 +962,10 @@ class BaxterBoxBlackoutDateForm(ModelForm):
   class Meta:
     model = models.BaxterBoxBlackoutDate
     fields = ['start_date', 'end_date']
+    widgets = {
+      'start_date': forms.DateInput(format='%B %d, %Y'),
+      'end_date': forms.DateInput(format='%B %d, %Y'),
+    }
 
   def __init__(self, *args, **kwargs):
 
@@ -1032,6 +1044,10 @@ class WorkshopForm(ModelForm):
     widgets = {
       'image': widgets.ClearableFileInput,
       'display_date': forms.Textarea(attrs={'rows':3}),
+      'start_date': forms.DateInput(format='%B %d, %Y'),
+      'end_date': forms.DateInput(format='%B %d, %Y'),
+      'start_time': forms.TimeInput(format='%I:%M %p'),
+      'end_time': forms.TimeInput(format='%I:%M %p'),
     }
 
   def __init__(self, *args, **kwargs):
@@ -1049,6 +1065,7 @@ class WorkshopForm(ModelForm):
           field.widget.attrs['readonly'] = True
         elif field_name in ['start_time', 'end_time']:
           field.widget.attrs['class'] = 'form-control timepicker'
+          field.input_formats = ['%I:%M %p']
         elif field_name in ['teacher_leaders', 'tags', 'collaborators']:
           field.widget.attrs['class'] = 'form-control select2'
         else:
@@ -1066,6 +1083,12 @@ class WorkshopRegistrationSettingForm(ModelForm):
   class Meta:
     model = models.WorkshopRegistrationSetting
     exclude = ('created_date', 'modified_date')
+    widgets = {
+      'open_date': forms.DateInput(format='%B %d, %Y'),
+      'close_date': forms.DateInput(format='%B %d, %Y'),
+      'open_time': forms.TimeInput(format='%I:%M %p'),
+      'close_time': forms.TimeInput(format='%I:%M %p'),
+    }
 
 
   def __init__(self, *args, **kwargs):
@@ -1082,6 +1105,7 @@ class WorkshopRegistrationSettingForm(ModelForm):
           field.widget.attrs['readonly'] = True
         elif field_name in ['open_time', 'close_time']:
           field.widget.attrs['class'] = 'form-control timepicker'
+          field.input_formats = ['%I:%M %p']
         else:
           field.widget.attrs['class'] = 'form-control'
           if field_name == 'application':
@@ -1172,6 +1196,10 @@ class WorkshopEmailForm(ModelForm):
   class Meta:
     model = models.WorkshopEmail
     exclude = ('registration_status', 'registration_email_addresses', 'email_status', 'sent_date', 'created_date', 'modified_date')
+    widgets = {
+      'scheduled_date': forms.DateInput(format='%B %d, %Y'),
+      'scheduled_time': forms.TimeInput(format='%I:%M %p'),
+    }
 
   def __init__(self, *args, **kwargs):
 
@@ -1185,6 +1213,7 @@ class WorkshopEmailForm(ModelForm):
         field.widget.attrs['readonly'] = True
       elif field_name == 'scheduled_time':
         field.widget.attrs['class'] = 'form-control timepicker'
+        field.input_formats = ['%I:%M %p']
       elif field_name == 'photo_release_incomplete':
         field.widget.attrs['class'] = 'form-check-input'
       else:
