@@ -61,6 +61,9 @@
                 <a class="btn modal-open registration_questionnaire_link" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationQuestionnaire' workshop.id %}" href="#">
                   Register
                 </a>
+                <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit" style="display: none;">
+                  Register
+                </button>
               {% else %}
                 <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
                   Apply
