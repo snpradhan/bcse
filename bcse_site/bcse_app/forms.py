@@ -1508,6 +1508,9 @@ class SurveyForm(ModelForm):
       if field_name == 'email_confirmation':
         field.widget.attrs['class'] = 'form-check-input'
         field.label = 'Send Email Confirmation to Respondent'
+      elif field_name == 'admin_notification':
+        field.widget.attrs['class'] = 'form-check-input'
+        field.label = 'Send Email Notification to Admins'
       else:
         field.widget.attrs['class'] = 'form-control'
         if field_name == 'resource_url':

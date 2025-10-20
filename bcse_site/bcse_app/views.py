@@ -8314,7 +8314,6 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions, filters='
   :param surveySubmissions: submissions associated with the survey passed as parameter
   :returns: excel sheet with generated submissions from a survey
   """
-
   is_admin = None
   if not request.user.is_anonymous:
     if request.user.userProfile.user_role in ['A', 'S']:
@@ -8326,11 +8325,11 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions, filters='
           if request.user.userProfile.id in workshop.teacher_leaders.all().values_list('teacher__id', flat=True):
             is_admin = True
           else:
-            raise CustomException('You do not have the permission to export survey submission')
+            is_admin = False
         except models.Workshop.DoesNotExist:
           raise CustomException('You do not have the permission to export survey submission')
       else:
-        raise CustomException('You do not have the permission to export survey submission')
+        is_admin = False
 
   else:
     is_admin = False
@@ -8364,6 +8363,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions, filters='
 
   #include all columns for admins
   if is_admin:
+
     #survey stats header
     columns = ['Survey ID', 'Survey Name', 'Total Responses', 'In-Progress', 'Submitted', 'Reviewed']
     font_styles = [font_style,font_style,font_style,font_style,font_style, font_style]
@@ -8434,6 +8434,7 @@ def generateSurveySubmissionsExcel(request, survey, surveySubmissions, filters='
       col_num += 1
 
     row_num += 2
+
   ##########################################
   #non-admin survey submission confirmation
   else:
@@ -8975,19 +8976,20 @@ def surveySubmissionEmailSend(request, survey, user, submission):
       email.send(fail_silently=True)
 
   #send confirmation email to admins
-  subject = '%s - New Submission' % survey.name
+  if survey.admin_notification:
+    subject = '%s - New Submission' % survey.name
 
-  if domain != 'bcse.northwestern.edu':
-    subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
-  email_body = '%s has submitted <strong>%s</strong> survey.  Please click <a href="https://%s%s">here</a> to review the submission.' % (user.user.get_full_name() if user else 'A user', survey.name, domain, reverse('bcse:surveySubmissionView', args=[survey.id, submission.UUID]))
+    email_body = '%s has submitted <strong>%s</strong> survey.  Please click <a href="https://%s%s">here</a> to review the submission.' % (user.user.get_full_name() if user else 'A user', survey.name, domain, reverse('bcse:surveySubmissionView', args=[survey.id, submission.UUID]))
 
-  context = {'email_body': email_body, 'domain': domain}
-  body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
+    context = {'email_body': email_body, 'domain': domain}
+    body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
-  email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.DEFAULT_FROM_EMAIL])
-  email.content_subtype = "html"
-  email.send(fail_silently=True)
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.DEFAULT_FROM_EMAIL])
+    email.content_subtype = "html"
+    email.send(fail_silently=True)
 
 def getSurveyComponents(request, survey_id, submission, page_num):
   """

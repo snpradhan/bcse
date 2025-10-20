@@ -10,6 +10,8 @@
           <th rowspan="2"> Name </th>
           <th rowspan="2"> Type </th>
           <th rowspan="2"> Status </th>
+          <th rowspan="2"> User Notification</th>
+          <th rowspan="2"> Admin Notification</th>
           <th colspan="2" width="30%"> Submission URL</th>
           <th rowspan="2"> # of Responses</th>
           <th rowspan="2"> Created Date</th>
@@ -28,6 +30,8 @@
             <td> {{survey.name}} </td>
             <td> {{survey.get_survey_type_display}} </td>
             <td> {{survey.get_status_display}} </td>
+            <td> {{survey.email_confirmation|yesno|title}} </td>
+            <td> {{survey.admin_notification|yesno|title}} </td>
             <td>
               {% if survey.survey_type == 'A' or survey.survey_type == 'C' %}
                 {{domain}}/?next=signin/?next=/?next=/survey/{{survey.id}}/submission/new

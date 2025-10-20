@@ -860,6 +860,7 @@ class Survey(models.Model):
   resource_url = models.URLField(null=True, blank=True, help_text="URL to a document/artifact/certificate that is downloaded to the user's device once the survey is submitted.")
   email_confirmation =  models.BooleanField(default=False, help_text='Email confirmation is only sent if the user is logged in while filling out the survey or there is in email field component in the survey.')
   email_confirmation_message = models.CharField(null=True, blank=True, max_length=256, help_text='Confirmation message to send via email')
+  admin_notification =  models.BooleanField(default=False, help_text='Send email notification to admins when a survey is submitted.')
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
