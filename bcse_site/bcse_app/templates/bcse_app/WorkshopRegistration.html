@@ -51,7 +51,11 @@
             {% if workshop.registration_setting.application %}
               <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshop.registration_setting.application.id %}?workshop_id={{workshop.id}}" href="#">
                 {% if workshop.registration_setting.registration_type == 'R' %}
-                  Register
+                  {% if workshop.registration_setting.capacity_reached %}
+                    Add to Waitlist
+                  {% else %}
+                    Register
+                  {% endif %}
                 {% else %}
                   Apply
                 {% endif %}
@@ -59,7 +63,11 @@
             {% else %}
               {% if workshop.registration_setting.registration_type == 'R' %}
                 <a class="btn modal-open registration_questionnaire_link" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationQuestionnaire' workshop.id %}" href="#">
-                  Register
+                  {% if workshop.registration_setting.capacity_reached %}
+                    Add to Waitlist
+                  {% else %}
+                    Register
+                  {% endif %}
                 </a>
                 <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit" style="display: none;">
                   Register
