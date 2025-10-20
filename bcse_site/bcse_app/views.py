@@ -8732,10 +8732,12 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
         if survey.survey_type == 'W' and workshop_id:
           context['workshop_id'] = workshop_id
-          if user and user.user_role != 'A' and page_num == 1 and workshop.registration_setting.registration_type == 'R':
-            userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user-profile')
-            context['userProfileForm'] = userProfileForm
-            context['photo_release_url'] = settings.PHOTO_RELEASE_URL
+          if user and user.user_role != 'A' and workshop.registration_setting.registration_type == 'R':
+            if page_num == 1:
+              userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user-profile')
+              context['userProfileForm'] = userProfileForm
+              context['photo_release_url'] = settings.PHOTO_RELEASE_URL
+
             context['workshop'] = workshop
 
         elif survey.survey_type == 'B' and reservation_id:
@@ -8765,10 +8767,11 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           #workshop application
           if survey.survey_type == 'W' and workshop_id:
             context['workshop_id'] = workshop_id
-            if user and user.user_role != 'A' and next_page_num == 1 and workshop.registration_setting.registration_type == 'R':
-              userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user-profile')
-              context['userProfileForm'] = userProfileForm
-              context['photo_release_url'] = settings.PHOTO_RELEASE_URL
+            if user and user.user_role != 'A' and workshop.registration_setting.registration_type == 'R':
+              if next_page_num == 1:
+                userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user-profile')
+                context['userProfileForm'] = userProfileForm
+                context['photo_release_url'] = settings.PHOTO_RELEASE_URL
               context['workshop'] = workshop
 
           #reservation feedback
@@ -8829,6 +8832,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               #workshop application/questionnaire
               if survey.survey_type == 'W' and workshop_id:
                 context['workshop_id'] = workshop_id
+                context['workshop'] = workshop
               #reservation feedback
               elif survey.survey_type == 'B' and reservation_id:
                 context['reservation_id'] = reservation_id
