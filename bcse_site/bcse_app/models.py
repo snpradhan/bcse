@@ -480,6 +480,14 @@ class WorkshopRegistrationSetting(models.Model):
   def __str__(self):
       return '%s' % (self.workshop.name)
 
+  def capacity_reached(self):
+    if self.registration_type == 'R' and self.capacity:
+      registrants = self.workshop_registrants.all().filter(status='R')
+      if registrants.count() >= self.capacity:
+        return True
+
+    return False
+
 class Registration(models.Model):
   workshop_registration_setting = models.ForeignKey(WorkshopRegistrationSetting, verbose_name='Workshop', related_name='workshop_registrants', on_delete=models.CASCADE)
   user = models.ForeignKey(UserProfile, related_name='registered_workshops', on_delete=models.CASCADE)
