@@ -56,6 +56,7 @@
                     <th>Storage Location</th>
                     <th>Count</th>
                     <th>Expiration Date</th>
+                    <th>Notes</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -79,6 +80,10 @@
                             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                           </div>
                         <div class="error">{{ form.expiration_date.errors }}</div>
+                      </td>
+                      <td>
+                        {{form.notes}}
+                        <div class="error">{{ form.notes.errors }}</div>
                       </td>
                       <td>
                         {{form.DELETE.as_hidden}}
@@ -145,6 +150,7 @@
                         <th>Storage Location</th>
                         <th>Count</th>
                         <th>Expiration Date</th>
+                        <th>Notes</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -167,6 +173,10 @@
                                 <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                               </div>
                             <div class="error">{{ form.expiration_date.errors }}</div>
+                          </td>
+                          <td>
+                            {{form.notes}}
+                            <div class="error">{{ form.notes.errors }}</div>
                           </td>
                           <td>
                             {{form.DELETE.as_hidden}}
