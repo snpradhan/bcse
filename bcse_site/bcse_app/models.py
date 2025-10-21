@@ -615,6 +615,7 @@ class ActivityInventory(models.Model):
   count = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(0)])
   expiration_date = models.DateField(null=False)
   storage_location = models.CharField(null=False, max_length=2, choices=INVENTORY_STORAGE_LOCATION)
+  notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -644,6 +645,7 @@ class ConsumableInventory(models.Model):
   count = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(0)])
   expiration_date = models.DateField(null=False)
   storage_location = models.CharField(null=False, max_length=2, choices=INVENTORY_STORAGE_LOCATION)
+  notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

@@ -58,6 +58,16 @@
     <div>{{form.storage_location}}</div>
     <div class="error">{{ form.storage_location.errors }}</div>
   </div>
+  <div class="form-group mb-3">
+    <label for="id_{{form.notes.name}}" class="form-label">
+      {{ form.notes.label }}
+      {% if form.notes.field.required %}
+      (<span class="required">*</span>)
+      {% endif %}
+    </label>
+    <div>{{form.notes}}</div>
+    <div class="error">{{ form.notes.errors }}</div>
+  </div>
 
 </form>
 
