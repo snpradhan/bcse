@@ -154,6 +154,10 @@
 
                       </td>
                   </tr>
+                  <tr>
+                    <th>Workplace Notes</th>
+                    <td>{{reservation.reservation_to_work_place.work_place.admin_notes|default_if_none:""}}</td>
+                  </tr>
                 {% endif %}
                 <tr>
                   <th>Delivery Address:</th>
