@@ -64,8 +64,16 @@
       </div>
     {% endif %}
     <div class="mb-1">
+      <label>Profile Created:</label>
+      <div>{{userProfile.created_date|date:"F j, Y g:i A" }}</div>
+    </div>
+    <div class="mb-1">
       <label>Profile Last Updated:</label>
       <div>{{userProfile.modified_date|date:"F j, Y g:i A" }}</div>
+    </div>
+    <div class="mb-1">
+      <label>Last Login:</label>
+      <div>{{userProfile.user.last_login|date:"F j, Y g:i A" }}</div>
     </div>
 
   </div>
