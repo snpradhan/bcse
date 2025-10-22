@@ -68,6 +68,9 @@
           <th> Delivery Address </th>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          {% if 'WN' in columns %}
+            <th> Workplace Notes </th>
+          {% endif %}
           {% if 'DI' in columns %}
             <th> Delivery Distance (miles) </th>
           {% endif %}
@@ -258,6 +261,9 @@
             </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+            {% if 'WN' in columns %}
+              <td> {{reservation.reservation_to_work_place.work_place.admin_notes|default_if_none:""}} </td>
+            {% endif %}
             {% if reservation.delivery_address %}
               {% if 'DI' in columns %}
                 <td> {{reservation.delivery_address.distance_from_base|default_if_none:""}} </td>

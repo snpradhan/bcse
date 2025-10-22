@@ -1346,7 +1346,11 @@ class WorkPlaceForm(ModelForm):
     exclude = ('id', 'term_id', 'created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base')
 
   def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
     super(WorkPlaceForm, self).__init__(*args, **kwargs)
+
+    if user.is_anonymous or user.userProfile.user_role not in 'AS':
+      self.fields.pop('admin_notes')
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'

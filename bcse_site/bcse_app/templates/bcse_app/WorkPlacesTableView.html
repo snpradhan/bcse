@@ -53,6 +53,9 @@
         {% if 'AW' in columns %}
           <th> # of Workshop Registrations </th>
         {% endif %}
+        {% if 'AN' in columns %}
+          <th> Admin Notes </th>
+        {% endif %}
         {% if 'ST' in columns %}
           <th> Status </th>
         {% endif %}
@@ -115,6 +118,9 @@
           {% endif %}
           {% if 'AW' in columns %}
             <td> {{work_place.work_place_to_registration.count}} </td>
+          {% endif %}
+          {% if 'AN' in columns %}
+            <td> {{work_place.admin_notes|default_if_none:""}} </td>
           {% endif %}
           {% if 'ST' in columns %}
             <td> {{work_place.get_status_display}} </td>
