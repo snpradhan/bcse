@@ -153,6 +153,7 @@ urlpatterns = [
     path('adminConfiguration/users/upload', views.usersUpload, name='usersUpload'),
     path('adminConfiguration/users/export', views.usersExport, name='usersExport'),
     path('adminConfiguration/workPlace/<int:id>/edit', views.workPlaceEdit, name='workPlaceEdit'),
+    path('adminConfiguration/workPlace/<int:id>/update', views.workPlaceUpdate, name='workPlaceUpdate'),
     path('adminConfiguration/workPlace/<int:id>/delete', views.workPlaceDelete, name='workPlaceDelete'),
     path('adminConfiguration/workPlace/new', views.workPlaceEdit, name='workPlaceNew'),
     path('adminConfiguration/workPlaces/search', views.workPlacesSearch, name='workPlacesSearch'),

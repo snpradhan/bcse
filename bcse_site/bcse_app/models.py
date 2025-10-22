@@ -145,6 +145,7 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('UN', 'Pickup/Return Notes'),
   ('HP', 'Help Needed'),
   ('DA', 'Delivery Address'),
+  ('WN', 'Workplace Notes'),
   ('DI', 'Delivery Distance'),
   ('DT', 'Delivery Time'),
   ('AN', 'Admin Notes'),
@@ -195,6 +196,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('NU', '# of Users'),
   ('AR', '# of Reservations'),
   ('AW', '# of Workshop Registrations'),
+  ('AN', 'Admin Notes'),
   ('ST', 'Status'),
   ('CD', 'Created Date'),
   ('MD', 'Modified Date'),
@@ -307,6 +309,7 @@ class WorkPlace(models.Model):
   time_from_base = models.CharField(null=True, blank=True, max_length=256)
   distance_from_base = models.CharField(null=True, blank=True, max_length=256)
   term_id = models.IntegerField(null=True, blank=True)#delete this field after import
+  admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
@@ -316,6 +319,9 @@ class WorkPlace(models.Model):
 
   def __str__(self):
       return '%s' % (self.name)
+
+  def get_full_address(self):
+    return '%s <br> %s %s, %s, %s' % (self.street_address_1, self.street_address_2 + '<br>' if self.street_address_2 else '', self.city, self.state, self.zip_code)
 
 #
 # Placeholder workplace to assign to users when the users' workplace is deleted

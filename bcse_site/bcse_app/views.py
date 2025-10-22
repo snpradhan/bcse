@@ -569,7 +569,7 @@ def userSignup(request):
 
     if request.user.is_anonymous or request.user.userProfile.user_role in ['A', 'S']:
       form = forms.SignUpForm(user=request.user)
-      work_place_form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
+      work_place_form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
       context = {'form': form, 'work_place_form': work_place_form}
       return render(request, 'bcse_app/SignUpModal.html', context)
     else:
@@ -581,7 +581,7 @@ def userSignup(request):
     response_data = {}
 
     form = forms.SignUpForm(user=request.user, files=request.FILES, data=request.POST)
-    work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, prefix='work_place')
+    work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, user=request.user, prefix='work_place')
 
     if form.is_valid():
       # checking for bot signup
@@ -5850,7 +5850,7 @@ def userProfileEdit(request, id=''):
 
     if request.method == 'GET':
       userForm = forms.UserForm(instance=userProfile.user, user=request.user, prefix="user")
-      work_place_form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
+      work_place_form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
 
       if request.user.userProfile.user_role != 'A' and request.user.userProfile.work_place.status == 'I':
         userProfileForm = forms.UserProfileForm(instance=userProfile, user=request.user, prefix="user_profile", initial={'work_place': None}, update_required=update_required)
@@ -5883,7 +5883,7 @@ def userProfileEdit(request, id=''):
 
       userForm = forms.UserForm(data, instance=userProfile.user, user=request.user, prefix='user')
       userProfileForm = forms.UserProfileForm(data, files=request.FILES,  instance=userProfile, user=request.user, prefix="user_profile", update_required=update_required)
-      work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, prefix='work_place')
+      work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, user=request.user, prefix='work_place')
 
       response_data = {}
 
@@ -7039,12 +7039,12 @@ def workPlaceEdit(request, id=''):
       work_place = models.WorkPlace()
 
     if request.method == 'GET':
-      form = forms.WorkPlaceForm(instance=work_place, prefix='work_place')
+      form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
       context = {'form': form}
       return render(request, 'bcse_app/WorkPlaceEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.WorkPlaceForm(data, instance=work_place, prefix='work_place')
+      form = forms.WorkPlaceForm(data, instance=work_place, user=request.user, prefix='work_place')
       response_data = {}
       if form.is_valid():
         savedWorkPlace = form.save()
@@ -7064,6 +7064,46 @@ def workPlaceEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+###################################################
+# UPDATE WORKPLACE NOTES
+###################################################
+@login_required
+def workPlaceUpdate(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to update workplace notes')
+
+    workplace = models.WorkPlace.objects.get(id=id)
+
+    if request.method == 'GET':
+      form = forms.WorkPlaceUpdateForm(instance=workplace)
+      context = {'form': form}
+      return render(request, 'bcse_app/WorkplaceUpdateModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.WorkPlaceUpdateForm(data, instance=workplace)
+      response_data = {}
+      if form.is_valid():
+        savedWorkPlace = form.save()
+        response_data['success'] = True
+        messages.success(request, 'Workplace %s updated' % id)
+      else:
+        print(form.errors)
+        response_data['success'] = False
+        context = {'form': form}
+        response_data['html'] = render_to_string('bcse_app/WorkplaceUpdateModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.WorkPlace.DoesNotExist as e:
+    messages.error(request, 'Workplace does not exists')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # DELETE WORKPLACE

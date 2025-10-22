@@ -68,6 +68,9 @@
           <th> Delivery Address </th>
         {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          {% if 'WN' in columns %}
+            <th> Workplace Notes </th>
+          {% endif %}
           {% if 'DI' in columns %}
             <th> Delivery Distance (miles) </th>
           {% endif %}
@@ -253,11 +256,22 @@
                     {{work_place.city}},
                   {% endif %}
                   {{work_place.state}} {{work_place.zip_code}}
+                  {% if work_place.admin_notes %}
+                  <i class="fas fa-info-circle" type="button" data-bs-toggle="collapse" data-bs-target="#reservation_{{reservation.id}}_workplace_notes" aria-expanded="false" aria-controls="reservation_{{reservation.id}}_workplace_notes"></i>
+                  <div class="collapse" id="reservation_{{reservation.id}}_workplace_notes">
+                    <hr>
+                    Note: {{work_place.admin_notes}}
+                  </div>
+
+                  {% endif %}
                 {% endwith %}
               {% endif %}
             </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+            {% if 'WN' in columns %}
+              <td> {{reservation.reservation_to_work_place.work_place.admin_notes|default_if_none:""}} </td>
+            {% endif %}
             {% if reservation.delivery_address %}
               {% if 'DI' in columns %}
                 <td> {{reservation.delivery_address.distance_from_base|default_if_none:""}} </td>
@@ -341,6 +355,12 @@
                       <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:reservationActivityUpdate' reservation.activity.id reservation.id %}">Update Inventory</a>
                     </li>
                   {% endif %}
+                  <li><hr class="dropdown-divider"></li>
+                  {% with work_place=reservation.reservation_to_work_place.work_place %}
+                     <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' work_place.id %}">Update Workplace Notes</a>
+                    </li>
+                  {% endwith %}
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
                   {% get_reservation_feedback reservation.id as reservation_feedback %}
