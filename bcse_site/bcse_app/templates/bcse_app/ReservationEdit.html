@@ -160,9 +160,7 @@
                   {% endif %}
                 </label>
                 <div id="id_{{form.equipment_types.name}}">
-                  {% for equipment_type in form.equipment_types %}
-                    <div> {{equipment_type}} </div>
-                  {% endfor %}
+                  <!-- Equipment selection will be loaded via an ajax all -->
                 </div>
                 <div class="error">{{ form.equipment_types.errors }}</div>
               </div>
@@ -614,6 +612,7 @@
                         $('#id_equipment_types input[name="equipment_types"]').val(selected_equipment);
                         bindEquipmentSelection();
                       }
+                      bindModalOpen();
                     }
                     else {
                       displayErrorDialog();
@@ -649,6 +648,7 @@
                         $('#id_equipment_types input[name="equipment_types"]').val(selected_equipment);
                         bindEquipmentSelection();
                       }
+                      bindModalOpen();
                     }
                     else {
                       displayErrorDialog();
