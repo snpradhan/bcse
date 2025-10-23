@@ -16,6 +16,7 @@
           <th> Hex </th>
           <th> Color </th>
           <th> Description </th>
+          <th> Order </th>
           <th> Low Stock </th>
           <th> Low Stock Message</th>
           <th> Rank </th>
@@ -33,6 +34,7 @@
             <td> {{color.color|upper}} </td>
             <td> <div class="color" style="background-color: {{color.color}};"></div></td>
             <td> {{color.description}} </td>
+            <td> {{color.order|default_if_none:""}} </td>
             <td> {{color.low_stock|yesno:"Yes,No"}}</td>
             <td> {{color.low_stock_message|default_if_none:""}}</td>
             <td> {{color.rank|default_if_none:""}}</td>
