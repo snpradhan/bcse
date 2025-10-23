@@ -51,6 +51,18 @@
           <div class="error">{{ form.description.errors }}</div>
         </div>
         <div class="form-group mb-3">
+          <label for="id_{{form.order.name}}" class="form-label"> {{form.order.label}}
+            {% if form.order.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.order.help_text}}"></i>
+          </label>
+          <div class="input-group">
+            {{form.order}}
+          </div>
+          <div class="error">{{ form.order.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
           <label for="id_{{form.low_stock.name}}" class="form-label"> {{form.low_stock.label|title}}
             {% if form.low_stock.field.required %}
               (<span class="required">*</span>)

@@ -617,7 +617,7 @@ class BaxterBoxSearchForm(forms.Form):
 class BaxterBoxInventorySearchForm(forms.Form):
   activities = forms.ModelMultipleChoiceField(required=False, label=u'Activities', queryset=models.Activity.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   consumables = forms.ModelMultipleChoiceField(required=False, label=u'Consumables', queryset=models.Consumable.objects.all().filter(status='A').order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
-  color = forms.ModelMultipleChoiceField(required=False, label=u'Inventory Status', queryset=models.ReservationColor.objects.all().filter(target__in=['K']).order_by('name'))
+  color = forms.ModelMultipleChoiceField(required=False, label=u'Inventory Status', queryset=models.ReservationColor.objects.all().filter(target__in=['K']))
   expiration_date_after = forms.DateField(required=False, label=u'Expiration Date on/after')
   storage_locations = forms.MultipleChoiceField(required=False, choices=models.INVENTORY_STORAGE_LOCATION)
   inventory_type = forms.ChoiceField(required=False, choices=(('', '---------'),
@@ -1016,7 +1016,7 @@ class BaxterBoxMessageForm(ModelForm):
 class ReservationColorForm(ModelForm):
   class Meta:
     model = models.ReservationColor
-    fields = ['name', 'color', 'description', 'low_stock', 'low_stock_message', 'rank', 'target']
+    fields = ['name', 'color', 'description', 'low_stock', 'low_stock_message', 'rank', 'target', 'order']
     widgets = {
         'color': TextInput(attrs={'type': 'color'}),
         'low_stock_message': forms.Textarea(attrs={'rows':2}),
@@ -1755,7 +1755,7 @@ class ReservationsSearchForm(forms.Form):
                                                        ('status', 'Reservation Status')))
   columns = forms.MultipleChoiceField(required=False, choices=models.RESERVATION_TABLE_COLUMN_CHOICES, initial=['CR', 'UR', 'KT', 'CO', 'EQ', 'CC', 'DA', 'DD', 'RD', 'AN', 'HP', 'ST', 'GG', 'GO', 'GL'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
-  color = forms.ModelMultipleChoiceField(required=False, label=u'Box Sub-Status', queryset=models.ReservationColor.objects.all().filter(target__in=['R', 'B']).order_by('name'))
+  color = forms.ModelMultipleChoiceField(required=False, label=u'Box Sub-Status', queryset=models.ReservationColor.objects.all().filter(target__in=['R', 'B']))
 
 
   def __init__(self, *args, **kwargs):
