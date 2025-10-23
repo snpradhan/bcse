@@ -9,6 +9,11 @@
     {% endif %}
 
     <div class="activity_info">
+      <div class="activity_image">
+        {% if activity.image and activity.image.url %}
+          <img src="{{activity.image.url}}"/>
+        {% endif %}
+      </div>
       <div class="activity_details">
         <div class="wysiwyg_content">{{activity.description|safe}}</div>
       </div>
