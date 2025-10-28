@@ -144,7 +144,7 @@ var timeout = null;
 
 function bindDateTimePicker() {
 
-  $('.datepicker').datepicker('destroy');
+  $('.datepicker:not(.reservation_date):not(.availability)').datepicker('destroy');
   $(".datepicker:not(.reservation_date):not(.availability)").each(function(){
 
     $(this).datepicker({
