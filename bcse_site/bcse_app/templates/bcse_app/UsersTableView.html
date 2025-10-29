@@ -91,7 +91,7 @@
             <td> {{user_profile.work_place|default_if_none:""}} </td>
           {% endif %}
           {% if 'IE' in columns %}
-            <td> {{user_profile.IEIN|default_if_none:""}} </td>
+            <td> {{user_profile.iein|default_if_none:""}} </td>
           {% endif %}
           {% if 'GT' in columns %}
             <td> {{user_profile.get_grades_taught_display|default_if_none:""}} </td>

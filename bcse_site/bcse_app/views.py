@@ -6792,14 +6792,19 @@ def usersUpload(request):
             phone_number = row[4]
             twitter_handle = row[5]
             instagram_handle = row[6]
-            term_id = row[7]
+            name_pronounciation = row[7]
+            dietary_preference = row[8]
+            photo_release_complete = row[9]
+            iein = row[10]
+            admin_notes = row[11]
+            workplace_id = row[12]
             if email:
               if User.objects.all().filter(username=email.lower()).count() == 0:
                 if first_name:
                   if last_name:
                     if user_role:
                       #all required fields available to create user
-                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle, term_id)
+                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle, name_pronounciation, dietary_preference, photo_release_complete, iein, admin_notes, workplace_id)
                       new_users += 1
                       upload_status.append("User created")
                     else:
@@ -7350,13 +7355,19 @@ def workshopRegistrantsUpload(request, id=''):
             phone_number = row[4]
             twitter_handle = row[5]
             instagram_handle = row[6]
+            name_pronounciation = row[7]
+            dietary_preference = row[8]
+            photo_release_complete = row[9]
+            iein = row[10]
+            admin_notes = row[11]
+            workplace_id = row[12]
             if email:
               if User.objects.all().filter(username=email.lower()).count() == 0:
                 if first_name:
                   if last_name:
                     if user_role:
                       #all required fields available to create user
-                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle)
+                      newUser = create_user(request, email, first_name, last_name, user_roles[user_role], phone_number, twitter_handle, instagram_handle, name_pronounciation, dietary_preference, photo_release_complete, iein, admin_notes, workplace_id)
                       created = create_registration(request, email, workshop.id)
                       if created:
                         new_registrants += 1
@@ -9842,7 +9853,7 @@ def send_reservation_message_email(request, reservation_message):
 #####################################################
 # CREATE A NEW USER WITH RANDOM PASSWORD
 #####################################################
-def create_user(request, email, first_name, last_name, user_role, phone_number, twitter_handle, instagram_handle, term_id=None):
+def create_user(request, email, first_name, last_name, user_role, phone_number, twitter_handle, instagram_handle, name_pronounciation, dietary_preference, photo_release_complete, iein, admin_notes, workplace_id):
   #all required fields available to create user
   user = User.objects.create_user(email.lower(),
                     email.lower(),
@@ -9859,9 +9870,25 @@ def create_user(request, email, first_name, last_name, user_role, phone_number, 
     newUser.twitter_handle = twitter_handle
   if instagram_handle:
     newUser.instagram_handle = instagram_handle
-  if term_id and isinstance(term_id, int):
-    work_place = models.WorkPlace.objects.all().filter(term_id=term_id).first()
-    newUser.work_place = work_place
+  if name_pronounciation:
+    newUser.name_pronounciation = name_pronounciation
+  if dietary_preference:
+    newUser.dietary_preference = dietary_preference
+  if photo_release_complete:
+    if photo_release_complete == 'Yes':
+      newUser.photo_release_complete = True
+    else:
+      newUser.photo_release_complete = False
+  if iein:
+    newUser.iein = iein
+  if admin_notes:
+    newUser.admin_notes = admin_notes
+  if workplace_id and isinstance(workplace_id, int):
+    try:
+      work_place = models.WorkPlace.objects.get(id=workplace_id)
+      newUser.work_place = work_place
+    except models.WorkPlace.DoesNotExist:
+      pass
   newUser.user = user
   newUser.validation_code = get_random_string(length=5)
   newUser.save()
