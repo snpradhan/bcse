@@ -49,6 +49,7 @@ import pytz
 import sys
 from django.urls import reverse
 from django.contrib.postgres.aggregates import ArrayAgg
+from itertools import chain
 
 # Create your views here.
 
@@ -505,10 +506,10 @@ def userSignin(request, user_email=''):
     form = forms.SignInForm(data)
     response_data = {}
     if form.is_valid():
-      email = form.cleaned_data['email'].lower()
-      password = form.cleaned_data['password']
-      user = authenticate(username=email, password=password)
-
+      #email = form.cleaned_data['email'].lower()
+      #password = form.cleaned_data['password']
+      #user = authenticate(username=email, password=password)
+      user = form.user
       if user.is_active:
         login(request, user)
         messages.success(request, "You have signed in")
@@ -612,6 +613,7 @@ def userSignup(request):
       newUser.phone_number = form.cleaned_data['phone_number']
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
+      newUser.secondary_email = form.cleaned_data['secondary_email']
       if request.FILES:
         newUser.image = request.FILES['image']
       if form.cleaned_data['subscribe']:
@@ -2563,7 +2565,7 @@ def baxterBoxUsageReportSearch(request):
       for workplace in workplaces:
         workplace_usage[workplace.id] = {'name': workplace.name, 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'classes': 0, 'students': 0}
       for user in users:
-        user_usage[user.id] = {'name': '%s, %s' % (user.user.last_name, user.user.first_name), 'email': user.user.email, 'current_workplace': user.work_place.name, 'associated_workplaces': [], 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'classes': 0, 'students': 0}
+        user_usage[user.id] = {'name': '%s, %s' % (user.user.last_name, user.user.first_name), 'email': user.user.email, 'secondary_email': user.secondary_email, 'current_workplace': user.work_place.name, 'associated_workplaces': [], 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'classes': 0, 'students': 0}
 
 
       query_filter = Q()
@@ -5293,7 +5295,7 @@ def workshopRegistrantsSearch(request, id=''):
       }
 
       if email:
-        email_filter = Q(user__user__email__icontains=email)
+        email_filter = Q(Q(user__user__email__icontains=email) | Q(user__secondary_email__icontains=email))
         query_filter = query_filter & email_filter
 
       if first_name:
@@ -5899,49 +5901,57 @@ def userProfileEdit(request, id=''):
       work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, user=request.user, prefix='work_place')
 
       response_data = {}
+      has_error = False
 
       if userForm.is_valid(userProfile.user.id) and userProfileForm.is_valid():
 
-        savedUser = userForm.save(commit=False)
-        savedUserProfile = userProfileForm.save(commit=False)
+        primary_email = userForm.cleaned_data.get('email')
+        secondary_email = userProfileForm.cleaned_data.get('secondary_email')
 
-        new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
-        if new_work_place_flag:
-          if work_place_form.is_valid():
-            #create a new school entry
-            new_work_place = work_place_form.save(commit=False)
-            new_work_place.save()
-            savedUserProfile.work_place = new_work_place
-          else:
-            print(work_place_form.errors)
-            context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
-            if update_required:
-              messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
+        if primary_email == secondary_email:
+          userProfileForm.add_error('secondary_email', 'Please choose a secondary email different from the primary email.')
+          has_error = True
+        else:
+          savedUser = userForm.save(commit=False)
+          savedUserProfile = userProfileForm.save(commit=False)
 
-            response_data['success'] = False
-            response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
-            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+          new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
+          if new_work_place_flag:
+            if work_place_form.is_valid():
+              #create a new school entry
+              new_work_place = work_place_form.save(commit=False)
+              new_work_place.save()
+              savedUserProfile.work_place = new_work_place
+            else:
+              print(work_place_form.errors)
+              context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
+              if update_required:
+                messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
 
-        savedUser.save()
-        savedUserProfile.save()
+              response_data['success'] = False
+              response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
+              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+          savedUser.save()
+          savedUserProfile.save()
 
 
-        new_password = savedUserProfile.user.password
-        if request.user.id == userProfile.user.id and new_password != old_password:
-          update_session_auth_hash(request, userProfile.user)
+          new_password = savedUserProfile.user.password
+          if request.user.id == userProfile.user.id and new_password != old_password:
+            update_session_auth_hash(request, userProfile.user)
 
-        userDetails = {'email_address': savedUserProfile.user.email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
-        if savedUserProfile.phone_number:
-          userDetails['phone_number'] = savedUserProfile.phone_number
-        #user unsubscribed
-        if subscribed and not savedUserProfile.subscribe:
-          subscription(userDetails, 'delete', subscriber_hash)
-        #user subscribed
-        elif not subscribed and savedUserProfile.subscribe:
-          subscription(userDetails, 'add')
-        #user email, first name or last name changed
-        elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
-          subscription(userDetails, 'update', subscriber_hash)
+          userDetails = {'email_address': savedUserProfile.user.email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
+          if savedUserProfile.phone_number:
+            userDetails['phone_number'] = savedUserProfile.phone_number
+          #user unsubscribed
+          if subscribed and not savedUserProfile.subscribe:
+            subscription(userDetails, 'delete', subscriber_hash)
+          #user subscribed
+          elif not subscribed and savedUserProfile.subscribe:
+            subscription(userDetails, 'add')
+          #user email, first name or last name changed
+          elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
+            subscription(userDetails, 'update', subscriber_hash)
 
         messages.success(request, "User profile saved successfully")
         response_data['success'] = True
@@ -5949,6 +5959,10 @@ def userProfileEdit(request, id=''):
         response_data['redirect_url'] =  redirect_url
 
       else:
+        has_error = True
+
+
+      if has_error:
         print(userForm.errors)
         print(userProfileForm.errors)
         context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
@@ -6563,7 +6577,7 @@ def usersSearch(request):
       }
 
       if email:
-        email_filter = Q(user__email__icontains=email)
+        email_filter = Q(Q(user__email__icontains=email) | Q(user__userProfile__secondary_email__icontains=email))
 
       if first_name:
         first_name_filter = Q(user__first_name__icontains=first_name)
@@ -8225,7 +8239,8 @@ def surveySubmissionsSearch(request, id='', download=False):
       }
 
       if email:
-        email_filter = Q(user__user__email__icontains=email)
+        email_filter = Q(Q(user__user__email__icontains=email) | Q(user__secondary_email__icontains=email))
+
 
       if first_name:
         first_name_filter = Q(user__user__first_name__icontains=first_name)
@@ -9020,18 +9035,20 @@ def surveySubmissionEmailSend(request, survey, user, submission):
 
   #check if email confirmation needs to be sent to the respondant
   if survey.email_confirmation and survey.email_confirmation_message:
-    respondant_email = None
+    respondant_emails = []
     #check if email address is available
     if user and user.user.email:
       #user is logged in, so email is available in their profile
-      respondant_email = user.user.email
+      respondant_emails = [user.user.email]
+      if user.secondary_email:
+        respondant_emails.append(user.secondary_email)
     else:
       #check if email is part of the survey response
       email_responses = models.SurveyResponse.objects.all().filter(submission=submission, survey_component__component_type='EM')
       if email_responses:
-        respondant_email = email_responses.first().response
+        respondant_emails = [email_responses.first().response]
 
-    if respondant_email:
+    if respondant_emails:
       filename = "/tmp/survey_%s_submission_%s.xls"% (survey.id, submission.UUID)
       surveySubmissions = models.SurveySubmission.objects.all().filter(UUID=submission.UUID)
       wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
@@ -9046,7 +9063,7 @@ def surveySubmissionEmailSend(request, survey, user, submission):
       context = {'email_body': email_body, 'domain': domain}
       body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
-      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [respondant_email])
+      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, respondant_emails)
       email.attach_file(filename, 'application/ms-excel')
 
       email.content_subtype = "html"
@@ -9677,7 +9694,8 @@ def reservationConfirmationEmailSend(request, id):
 
     context = {'reservation': reservation, 'domain': domain}
     body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
-    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
@@ -9767,7 +9785,9 @@ def reservationFeedbackEmailSend(request, id):
     context = {'reservation': reservation, 'survey': survey, 'domain': domain}
 
     body = get_template('bcse_app/EmailReservationFeedbackRequest.html').render(context)
-    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
+
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
@@ -9826,7 +9846,9 @@ def reservationReceiptEmailSend(request, id):
 
     context = {'reservation': reservation, 'domain': domain}
     body = get_template('bcse_app/EmailReservationRequest.html').render(context)
-    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
+
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
@@ -9866,7 +9888,9 @@ def send_reservation_message_email(request, reservation_message):
 
   context = {'reservation_message': reservation_message, 'domain': domain}
   body = get_template('bcse_app/EmailNewMessage.html').render(context)
-  receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation_message.reservation.user.id)).exclude(id=reservation_message.created_by.id).values_list('user__email', flat=True)
+  qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation_message.reservation.user.id)).exclude(id=reservation_message.created_by.id).values_list('user__email', 'secondary_email')
+  receipients = [email for email in chain.from_iterable(qs) if email]
+
   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
   email.content_subtype = "html"
   email.send(fail_silently=True)
@@ -10037,7 +10061,7 @@ class UserAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
     qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
     if self.q:
-      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q))
+      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q) | Q(user__userProfile__secondary_email__icontains=self.q))
 
     return qs
 
@@ -10066,7 +10090,7 @@ class RegistrantAutocomplete(autocomplete.Select2QuerySetView):
       qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
 
       if self.q:
-        qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q))
+        qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q) | Q(user__userProfile__secondary_email__icontains=self.q))
     else:
       qs = models.UserProfile.objects.none()
 
@@ -10149,7 +10173,8 @@ def send_workshop_email(id=id, cron=False):
         else:
           registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status)
 
-        registration_email_addresses = list(registrations.values_list('user__user__email', flat=True))
+        qs = registrations.values_list('user__user__email', 'user__secondary_email')
+        registration_email_addresses = [email for email in chain.from_iterable(qs) if email]
 
       email_to = [settings.DEFAULT_FROM_EMAIL]
       if workshop_email.email_to:

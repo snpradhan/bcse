@@ -20,6 +20,7 @@ from ckeditor_uploader import views as ckeditor_views
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.views.i18n import JavaScriptCatalog
+from bcse_app.forms import SecondaryEmailPasswordResetForm
 from bcse_app.views import UserAutocomplete, RegistrantAutocomplete, WorkplaceAutocomplete, WorkplaceAllAutocomplete, TeacherLeaderAutocomplete
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
 
     path('password_reset/',
          auth_views.PasswordResetView.as_view(
+             form_class=SecondaryEmailPasswordResetForm,
              template_name='password_reset/password_reset_form.html',
              html_email_template_name='password_reset/password_reset_email.html',
              email_template_name='password_reset/password_reset_email.txt',

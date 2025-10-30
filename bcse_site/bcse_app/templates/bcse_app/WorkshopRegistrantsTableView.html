@@ -33,7 +33,14 @@
             <td> {{registrant.id}}</td>
             <td> {{registrant.user.id}}</td>
           {% endif %}
-          <td> {{registrant.user.user.email}} </td>
+          <td>
+            {{registrant.user.user.email}}
+            {% if registrant.user.secondary_email %}
+              <br>
+              {{registrant.user.secondary_email}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+            {% endif %}
+          </td>
           <td> {{registrant.user.user.get_full_name}}</td>
           <td> {{registrant.user.get_user_role_display}}</td>
           <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>

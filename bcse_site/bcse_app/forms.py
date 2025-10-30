@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import ModelForm
+from django.contrib.auth.forms import PasswordResetForm
 from bcse_app import models, widgets, utils
 from django.forms.widgets import TextInput
 from django.contrib.auth.models import User
@@ -11,13 +12,20 @@ from dal import autocomplete
 import datetime
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
+from django.template.loader import render_to_string, get_template
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.conf import settings
+from django.contrib.sites.models import Site
 
 ####################################
 # Login Form
 ####################################
 class SignInForm (forms.Form):
   email = forms.CharField(required=True, max_length=75, label='Email',
-                              error_messages={'required': 'Email is required'})
+                              error_messages={'required': 'Email is required'}, help_text='You may use your primary or secondary email to login')
   password = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Password',
                               error_messages={'required': 'Password is required'})
 
@@ -27,7 +35,7 @@ class SignInForm (forms.Form):
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
-      field.widget.attrs['placeholder'] = field.help_text
+      #field.widget.attrs['placeholder'] = field.help_text
 
 
   def clean_email(self):
@@ -44,14 +52,22 @@ class SignInForm (forms.Form):
       self.fields['password'].widget.attrs['class'] += ' error'
 
     if email is not None:
-      if User.objects.filter(email=email.lower()).count() == 0:
+      primary_email = None
+      if User.objects.filter(email=email.lower()).count() == 1:
+        primary_email = email.lower()
+      elif models.UserProfile.objects.filter(secondary_email=email.lower()).count() == 1:
+        primary_email = models.UserProfile.objects.get(secondary_email=email.lower()).user.email
+      else:
         self.add_error('email', 'Email is incorrect.')
         self.fields['email'].widget.attrs['class'] += ' error'
-      elif password is not None:
-        user = authenticate(username=email.lower(), password=password)
+
+      if primary_email and password is not None:
+        user = authenticate(username=primary_email.lower(), password=password)
         if user is None:
           self.add_error('password', 'Password is incorrect.')
           self.fields['password'].widget.attrs['class'] += ' error'
+        else:
+          self.user = user
 
 ####################################
 # Registration Form
@@ -62,6 +78,7 @@ class SignUpForm (forms.Form):
   first_name = forms.CharField(required=True, max_length=30, label='First Name')
   last_name = forms.CharField(required=True, max_length=30, label='Last Name')
   name_pronounciation = forms.CharField(required=False, max_length=30, label='Name Pronounciation')
+  secondary_email = forms.EmailField(required=False, max_length=75, label='Secondary Email', help_text="Secondary email can be used to Sign In and reset password.  Any email sent to your user account via the BCSE website will be sent to both primary and secondary email addresses.")
   password1 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Password')
   password2 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Confirm Password')
   user_role = forms.ChoiceField(required=True, choices=(('', '---------'),)+models.USER_ROLE_CHOICES, label='I am a')
@@ -71,7 +88,7 @@ class SignUpForm (forms.Form):
                                                                   attrs={'data-placeholder': 'Start typing the name if your workplace ...', 'dropdownParent': '#signup_workplace_select'}),
                                   )
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
-  iein = forms.CharField(required=False, max_length=20, label='IEIN #')
+  iein = forms.CharField(required=False, max_length=20, label='IEIN')
   grades_taught = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.GRADES_CHOICES, label='Grades Taught')
   twitter_handle = forms.CharField(required=False, max_length=20, label='Twitter ID')
   instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
@@ -100,13 +117,16 @@ class SignUpForm (forms.Form):
           field.initial = True
 
       field.widget.attrs['aria-describedby'] = field.label
-      field.widget.attrs['placeholder'] = field.help_text
+      #field.widget.attrs['placeholder'] = field.help_text
 
   def clean_email(self):
     return self.cleaned_data['email'].strip()
 
   def clean_confirm_email(self):
     return self.cleaned_data['confirm_email'].strip()
+
+  def clean_secondary_email(self):
+    return self.cleaned_data['secondary_email'].strip()
 
   def clean(self):
     cleaned_data = super(SignUpForm, self).clean()
@@ -120,10 +140,11 @@ class SignUpForm (forms.Form):
     work_place = cleaned_data.get('work_place')
     new_work_place_flag = cleaned_data.get('new_work_place_flag')
     print(new_work_place_flag, 'new workplace flag')
+    secondary_email = cleaned_data.get('secondary_email')
 
     if email is None:
       self.fields['email'].widget.attrs['class'] += ' error'
-    elif User.objects.filter(email=email.lower()).count() > 0:
+    elif User.objects.filter(email=email.lower()).count() > 0 or models.UserProfile.objects.filter(secondary_email=email.lower()).count() > 0:
       self.add_error('email', 'This email is already taken. Please choose another.')
       self.fields['email'].widget.attrs['class'] += ' error'
     elif 'confirm_email' in self.fields and email != confirm_email:
@@ -149,6 +170,88 @@ class SignUpForm (forms.Form):
     if work_place is None and not new_work_place_flag:
       self.fields['work_place'].widget.attrs['class'] += ' error'
       self.add_error('work_place', 'Workplace is required.')
+
+    if secondary_email is not None:
+      if email == secondary_email:
+        self.add_error('secondary_email', 'Please choose a secondary email different from the primary email.')
+        self.fields['secondary_email'].widget.attrs['class'] += ' error'
+      if User.objects.filter(email=secondary_email.lower()).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).count() > 0:
+        self.add_error('secondary_email', 'This email is already taken. Please choose another.')
+        self.fields['secondary_email'].widget.attrs['class'] += ' error'
+
+
+#######################################################
+# Override the password reset form to allow secondary email
+#######################################################
+class SecondaryEmailPasswordResetForm(PasswordResetForm):
+
+  def get_users(self, email):
+    """Return users matching primary or secondary email."""
+    email = email.lower()
+
+    # 1) match primary email
+    users = list(
+      User.objects.filter(email__iexact=email, is_active=True)
+    )
+
+    # 2) match secondary email
+    profile_users = User.objects.filter(
+      userProfile__secondary_email__iexact=email,
+      is_active=True
+    )
+
+    users.extend(list(profile_users))
+    return users
+
+  def send_mail(self, subject_template_name, email_template_name,
+                context, from_email, to_email, html_email_template_name=None):
+
+    """Override to always send to the user-entered email."""
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+
+    subject = render_to_string(subject_template_name, context).strip()
+
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+    #body = render_to_string(email_template_name, context)
+    body = get_template(email_template_name).render(context)
+
+    #send_mail(subject, body, from_email, [to_email])
+    email = EmailMultiAlternatives(subject, body, settings.DEFAULT_FROM_EMAIL, [to_email])
+    # attach HTML version
+    if html_email_template_name:
+      html_body = get_template(html_email_template_name).render(context)
+      email.attach_alternative(html_body, "text/html")
+
+    sent = email.send(fail_silently=True)
+
+  def save(self, domain_override=None,
+           subject_template_name='password_reset/password_reset_subject.txt',
+           email_template_name='password_reset/password_reset_email.html',
+           use_https=False, token_generator=default_token_generator,
+           from_email=None, request=None, html_email_template_name='password_reset/password_reset_email.html',
+           extra_email_context=None):
+
+    email = self.cleaned_data["email"]  # the address user typed
+    current_site = Site.objects.get_current()
+
+    for user in self.get_users(email):
+      context = {
+        'email': email,                # send TO this address
+        'domain': current_site.domain,
+        'site_name': current_site.name,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'user': user,
+        'token': token_generator.make_token(user),
+        'protocol': 'https' if use_https else 'http',
+      }
+      self.send_mail(
+        subject_template_name, email_template_name,
+        context, from_email, email, html_email_template_name
+      )
 
 
 ####################################
@@ -221,7 +324,7 @@ class UserForm(ModelForm):
     if email is None or email == '':
       self.add_error('email', 'Email is required')
       valid = False
-    elif User.objects.filter(email=email.lower()).exclude(id=user_id).count() > 0:
+    elif User.objects.filter(email=email.lower()).exclude(id=user_id).count() > 0 or models.UserProfile.objects.filter(secondary_email=email.lower()).exclude(user__id=user_id).count() > 0:
       self.add_error('email', 'This email is already taken. Please choose another.')
       valid = False
 
@@ -237,7 +340,7 @@ class UserProfileForm (ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation']
+    fields = ['secondary_email', 'work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation']
     widgets = {
       'image': widgets.ClearableFileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
@@ -278,6 +381,7 @@ class UserProfileForm (ModelForm):
     cleaned_data = super(UserProfileForm, self).clean()
     work_place = cleaned_data.get('work_place')
     new_work_place_flag = cleaned_data.get('new_work_place_flag')
+    secondary_email = cleaned_data.get('secondary_email')
 
     #check fields for Teacher, Student and School Administrator
     if user.is_authenticated:
@@ -285,6 +389,17 @@ class UserProfileForm (ModelForm):
         if work_place is None and not new_work_place_flag:
           self.fields['work_place'].widget.attrs['class'] += ' error'
           self.add_error('work_place', 'Workplace is required.')
+
+
+    if secondary_email is not None:
+      #print(secondary_email)
+      if self.instance.id:
+        if User.objects.filter(email=secondary_email.lower()).exclude(userProfile__id=self.instance.id).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).exclude(id=self.instance.id).count() > 0:
+          self.add_error('secondary_email', 'This email is already taken. Please choose another.')
+          self.fields['secondary_email'].widget.attrs['class'] += ' error'
+      elif User.objects.filter(email=secondary_email.lower()).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).count() > 0:
+        self.add_error('secondary_email', 'This email is already taken. Please choose another.')
+        self.fields['secondary_email'].widget.attrs['class'] += ' error'
 
 
 
@@ -1882,7 +1997,7 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
   workshop_category = forms.ModelMultipleChoiceField(required=False, queryset=models.WorkshopCategory.objects.all().order_by(Lower('name')), widget=forms.SelectMultiple(attrs={'size':6}))
   workshop = forms.ModelMultipleChoiceField(required=False, queryset=models.Workshop.objects.all().filter(cancelled=False).order_by(Lower('name'), 'start_date').distinct(), widget=forms.SelectMultiple(attrs={'size':6}))
   #user = forms.ModelChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
-  user = forms.ModelMultipleChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=forms.SelectMultiple(attrs={'size':6}))
+  user = forms.ModelMultipleChoiceField(required=False, label=u'Registrant', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
   user_role = forms.MultipleChoiceField(required=False, label=u"Registrant's User Role", choices=models.USER_ROLE_CHOICES)
   #work_place = forms.ModelChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),)
   work_place = forms.ModelMultipleChoiceField(required=False, label=u"Registrant's Workplace", queryset=models.WorkPlace.objects.all(), widget=forms.SelectMultiple(attrs={'size':6}))
@@ -2022,7 +2137,7 @@ class BaxterBoxUsageSearchForm(forms.Form):
   from_date = forms.DateField(required=False, label=u'From')
   to_date = forms.DateField(required=False, label=u'To')
   work_place = forms.ModelMultipleChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=forms.SelectMultiple(attrs={'size':7}))
-  user = forms.ModelMultipleChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=forms.SelectMultiple(attrs={'size':7}))
+  user = forms.ModelMultipleChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
   activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':7}))
   equipment = forms.ModelMultipleChoiceField(required=False, queryset=models.EquipmentType.objects.all().order_by('order'), widget=forms.SelectMultiple(attrs={'size':7}))
   consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':5}))

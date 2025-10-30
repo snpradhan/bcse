@@ -18,7 +18,12 @@
       <div class="modal-body">
         {% for field in form %}
           <div class="form-group mb-3">
-            <label for="id_{{field.name}}">{{ field.label }}</label>
+            <label for="id_{{field.name}}">
+              {{ field.label }}
+              {% if field.help_text %}
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{field.help_text}}"></i>
+              {% endif %}
+            </label>
             <div>{{field}}</div>
             <div class="error">{{ field.errors }}</div>
           </div>

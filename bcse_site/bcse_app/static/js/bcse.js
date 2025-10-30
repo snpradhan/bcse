@@ -45,6 +45,7 @@ $(function (){
           bindModalOpen();
           bindWarningAction();
           bindUseAjax();
+          bindTooltipTrigger();
         }
         else{
           displayErrorDialog();
