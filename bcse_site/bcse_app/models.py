@@ -333,6 +333,7 @@ def get_placeholder_workplace():
 
 class UserProfile(models.Model):
   user = models.OneToOneField(User, unique=True, null=False, related_name="userProfile", on_delete=models.CASCADE)
+  secondary_email = models.EmailField(null=True, blank=True, max_length=256, help_text="Secondary email can be used to Sign In.  Any email sent to the primary email will also be sent to the secondary email.")
   work_place = models.ForeignKey(WorkPlace, null=False, blank=False, related_name="users", default=get_placeholder_workplace, on_delete=models.SET(get_placeholder_workplace))
   user_role = models.CharField(max_length=1, choices=USER_ROLE_CHOICES)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Profile image')

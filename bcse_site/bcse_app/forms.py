@@ -44,11 +44,17 @@ class SignInForm (forms.Form):
       self.fields['password'].widget.attrs['class'] += ' error'
 
     if email is not None:
-      if User.objects.filter(email=email.lower()).count() == 0:
+      primary_email = None
+      if User.objects.filter(email=email.lower()).count() == 1:
+        primary_email = email.lower()
+      elif models.UserProfile.objects.filter(secondary_email=email.lower()).count() == 1:
+        primary_email = models.UserProfile.objects.get(secondary_email=email.lower()).user.email
+      else:
         self.add_error('email', 'Email is incorrect.')
         self.fields['email'].widget.attrs['class'] += ' error'
-      elif password is not None:
-        user = authenticate(username=email.lower(), password=password)
+
+      if primary_email and password is not None:
+        user = authenticate(username=primary_email.lower(), password=password)
         if user is None:
           self.add_error('password', 'Password is incorrect.')
           self.fields['password'].widget.attrs['class'] += ' error'
@@ -62,6 +68,7 @@ class SignUpForm (forms.Form):
   first_name = forms.CharField(required=True, max_length=30, label='First Name')
   last_name = forms.CharField(required=True, max_length=30, label='Last Name')
   name_pronounciation = forms.CharField(required=False, max_length=30, label='Name Pronounciation')
+  secondary_email = forms.EmailField(required=False, max_length=75, label='Secondary Email', help_text="Secondary email can be used to Sign In.  Any email sent to the primary email will also be sent to the secondary email.")
   password1 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Password')
   password2 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Confirm Password')
   user_role = forms.ChoiceField(required=True, choices=(('', '---------'),)+models.USER_ROLE_CHOICES, label='I am a')
@@ -100,13 +107,16 @@ class SignUpForm (forms.Form):
           field.initial = True
 
       field.widget.attrs['aria-describedby'] = field.label
-      field.widget.attrs['placeholder'] = field.help_text
+      #field.widget.attrs['placeholder'] = field.help_text
 
   def clean_email(self):
     return self.cleaned_data['email'].strip()
 
   def clean_confirm_email(self):
     return self.cleaned_data['confirm_email'].strip()
+
+  def clean_secondary_email(self):
+    return self.cleaned_data['secondary_email'].strip()
 
   def clean(self):
     cleaned_data = super(SignUpForm, self).clean()
@@ -120,10 +130,11 @@ class SignUpForm (forms.Form):
     work_place = cleaned_data.get('work_place')
     new_work_place_flag = cleaned_data.get('new_work_place_flag')
     print(new_work_place_flag, 'new workplace flag')
+    secondary_email = cleaned_data.get('secondary_email')
 
     if email is None:
       self.fields['email'].widget.attrs['class'] += ' error'
-    elif User.objects.filter(email=email.lower()).count() > 0:
+    elif User.objects.filter(email=email.lower()).count() > 0 or models.UserProfile.objects.filter(secondary_email=email.lower()).count() > 0:
       self.add_error('email', 'This email is already taken. Please choose another.')
       self.fields['email'].widget.attrs['class'] += ' error'
     elif 'confirm_email' in self.fields and email != confirm_email:
@@ -150,7 +161,13 @@ class SignUpForm (forms.Form):
       self.fields['work_place'].widget.attrs['class'] += ' error'
       self.add_error('work_place', 'Workplace is required.')
 
-
+    if secondary_email is not None:
+      if email == secondary_email:
+        self.add_error('secondary_email', 'Please choose a secondary email different from the primary email.')
+        self.fields['secondary_email'].widget.attrs['class'] += ' error'
+      if User.objects.filter(email=secondary_email.lower()).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).count() > 0:
+        self.add_error('secondary_email', 'This email is already taken. Please choose another.')
+        self.fields['secondary_email'].widget.attrs['class'] += ' error'
 ####################################
 # User Form
 ####################################
@@ -221,7 +238,7 @@ class UserForm(ModelForm):
     if email is None or email == '':
       self.add_error('email', 'Email is required')
       valid = False
-    elif User.objects.filter(email=email.lower()).exclude(id=user_id).count() > 0:
+    elif User.objects.filter(email=email.lower()).exclude(id=user_id).count() > 0 or models.UserProfile.objects.filter(secondary_email=email.lower()).exclude(user__id=user_id).count() > 0:
       self.add_error('email', 'This email is already taken. Please choose another.')
       valid = False
 
@@ -237,7 +254,7 @@ class UserProfileForm (ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation']
+    fields = ['secondary_email', 'work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation']
     widgets = {
       'image': widgets.ClearableFileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
@@ -278,6 +295,7 @@ class UserProfileForm (ModelForm):
     cleaned_data = super(UserProfileForm, self).clean()
     work_place = cleaned_data.get('work_place')
     new_work_place_flag = cleaned_data.get('new_work_place_flag')
+    secondary_email = cleaned_data.get('secondary_email')
 
     #check fields for Teacher, Student and School Administrator
     if user.is_authenticated:
@@ -285,6 +303,17 @@ class UserProfileForm (ModelForm):
         if work_place is None and not new_work_place_flag:
           self.fields['work_place'].widget.attrs['class'] += ' error'
           self.add_error('work_place', 'Workplace is required.')
+
+
+    if secondary_email is not None:
+      #print(secondary_email)
+      if self.instance.id:
+        if User.objects.filter(email=secondary_email.lower()).exclude(userProfile__id=self.instance.id).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).exclude(id=self.instance.id).count() > 0:
+          self.add_error('secondary_email', 'This email is already taken. Please choose another.')
+          self.fields['secondary_email'].widget.attrs['class'] += ' error'
+      elif User.objects.filter(email=secondary_email.lower()).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).count() > 0:
+        self.add_error('secondary_email', 'This email is already taken. Please choose another.')
+        self.fields['secondary_email'].widget.attrs['class'] += ' error'
 
 
 

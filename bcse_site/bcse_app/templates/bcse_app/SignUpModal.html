@@ -69,10 +69,18 @@
           </div>
         </div>
         <div class="row mb-3">
-          <div class="form-group col-md-12">
+          <div class="form-group col-md-6">
             <label for="id_{{form.name_pronounciation.name}}" class="form-label"> {{form.name_pronounciation.label}}</label>
             <div>{{form.name_pronounciation}}</div>
             <div class="error">{{ form.name_pronounciation.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{form.secondary_email.name}}" class="form-label">
+              {{form.secondary_email.label}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.secondary_email.help_text}}"></i>
+            </label>
+            <div>{{form.secondary_email}}</div>
+            <div class="error">{{ form.secondary_email.errors }}</div>
           </div>
         </div>
 

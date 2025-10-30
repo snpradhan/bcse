@@ -612,6 +612,7 @@ def userSignup(request):
       newUser.phone_number = form.cleaned_data['phone_number']
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
+      newUser.secondary_email = form.cleaned_data['secondary_email']
       if request.FILES:
         newUser.image = request.FILES['image']
       if form.cleaned_data['subscribe']:
@@ -5886,55 +5887,67 @@ def userProfileEdit(request, id=''):
       work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, user=request.user, prefix='work_place')
 
       response_data = {}
+      has_error = False
 
       if userForm.is_valid(userProfile.user.id) and userProfileForm.is_valid():
 
-        savedUser = userForm.save(commit=False)
-        savedUserProfile = userProfileForm.save(commit=False)
+        primary_email = userForm.cleaned_data.get('email')
+        secondary_email = userProfileForm.cleaned_data.get('secondary_email')
 
-        new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
-        if new_work_place_flag:
-          if work_place_form.is_valid():
-            #create a new school entry
-            new_work_place = work_place_form.save(commit=False)
-            new_work_place.save()
-            savedUserProfile.work_place = new_work_place
-          else:
-            print(work_place_form.errors)
-            context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
-            if update_required:
-              messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
+        if primary_email == secondary_email:
+          userProfileForm.add_error('secondary_email', 'Please choose a secondary email different from the primary email.')
+          has_error = True
+        else:
+          savedUser = userForm.save(commit=False)
+          savedUserProfile = userProfileForm.save(commit=False)
 
-            response_data['success'] = False
-            response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
-            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+          new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
+          if new_work_place_flag:
+            if work_place_form.is_valid():
+              #create a new school entry
+              new_work_place = work_place_form.save(commit=False)
+              new_work_place.save()
+              savedUserProfile.work_place = new_work_place
+            else:
+              print(work_place_form.errors)
+              context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
+              if update_required:
+                messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
 
-        savedUser.save()
-        savedUserProfile.save()
+              response_data['success'] = False
+              response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
+              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+          savedUser.save()
+          savedUserProfile.save()
 
 
-        new_password = savedUserProfile.user.password
-        if request.user.id == userProfile.user.id and new_password != old_password:
-          update_session_auth_hash(request, userProfile.user)
+          new_password = savedUserProfile.user.password
+          if request.user.id == userProfile.user.id and new_password != old_password:
+            update_session_auth_hash(request, userProfile.user)
 
-        userDetails = {'email_address': savedUserProfile.user.email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
-        if savedUserProfile.phone_number:
-          userDetails['phone_number'] = savedUserProfile.phone_number
-        #user unsubscribed
-        if subscribed and not savedUserProfile.subscribe:
-          subscription(userDetails, 'delete', subscriber_hash)
-        #user subscribed
-        elif not subscribed and savedUserProfile.subscribe:
-          subscription(userDetails, 'add')
-        #user email, first name or last name changed
-        elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
-          subscription(userDetails, 'update', subscriber_hash)
+          userDetails = {'email_address': savedUserProfile.user.email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
+          if savedUserProfile.phone_number:
+            userDetails['phone_number'] = savedUserProfile.phone_number
+          #user unsubscribed
+          if subscribed and not savedUserProfile.subscribe:
+            subscription(userDetails, 'delete', subscriber_hash)
+          #user subscribed
+          elif not subscribed and savedUserProfile.subscribe:
+            subscription(userDetails, 'add')
+          #user email, first name or last name changed
+          elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
+            subscription(userDetails, 'update', subscriber_hash)
 
-        messages.success(request, "User profile saved successfully")
-        response_data['success'] = True
-        response_data['work_place'] = savedUserProfile.work_place.name
-        response_data['redirect_url'] =  redirect_url
+          messages.success(request, "User profile saved successfully")
+          response_data['success'] = True
+          response_data['work_place'] = savedUserProfile.work_place.name
+          response_data['redirect_url'] =  redirect_url
       else:
+        has_error = True
+
+
+      if has_error:
         print(userForm.errors)
         print(userProfileForm.errors)
         context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
