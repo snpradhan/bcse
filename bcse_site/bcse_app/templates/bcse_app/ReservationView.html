@@ -26,7 +26,14 @@
                   </tr>
                   <tr>
                     <th>User Email:</th>
-                    <td>{{reservation.user.user.email}}</td>
+                    <td>
+                      {{reservation.user.user.email}}
+                      {% if reservation.user.secondary_email %}
+                        <br>
+                        {{reservation.user.secondary_email}}
+                        <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+                      {% endif %}
+                    </td>
                   </tr>
                 {% endif %}
                 <tr>

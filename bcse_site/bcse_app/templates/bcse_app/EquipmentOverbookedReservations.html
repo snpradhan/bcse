@@ -31,7 +31,14 @@
           <tr>
             <td>{{current_reservation.id}}</td>
             <td>{{current_reservation.user.user.last_name}}, {{current_reservation.user.user.first_name}}</td>
-            <td>{{current_reservation.user.user.email}}</td>
+            <td>
+              {{current_reservation.user.user.email}}
+              {% if current_reservation.user.secondary_email %}
+                <br>
+                {{current_reservation.user.secondary_email}}
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+              {% endif %}
+            </td>
             <td>
               {% if current_reservation.delivery_address %}
                 {{current_reservation.delivery_address.street_address_1}}<br>
@@ -91,7 +98,14 @@
           <tr>
             <td>{{reservation.id}}</td>
             <td>{{reservation.user.user.last_name}}, {{reservation.user.user.first_name}}</td>
-            <td>{{reservation.user.user.email}}</td>
+            <td>
+              {{reservation.user.user.email}}
+              {% if reservation.user.secondary_email %}
+                <br>
+                {{reservation.user.secondary_email}}
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+              {% endif %}
+            </td>
             <td>
               {% if reservation.delivery_address %}
                 {{reservation.delivery_address.street_address_1}}<br>

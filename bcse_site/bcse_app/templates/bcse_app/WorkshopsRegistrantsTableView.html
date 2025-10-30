@@ -160,7 +160,14 @@
             <tr>
               <td>{{user.id}}</td>
               <td>{{user.user.last_name}}, {{user.user.first_name}}</td>
-              <td>{{user.user.email}}</td>
+              <td>
+                {{user.user.email}}
+                {% if user.secondary_email %}
+                  <br>
+                  {{user.secondary_email}}
+                  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+                {% endif %}
+              </td>
               <td>{{user.get_user_role_display}}</td>
               <td>{{user.total_workshops}}</td>
               <td>{{user.total_workplaces}}</td>
@@ -221,7 +228,14 @@
               <td> {{registrant.workshop_registration_setting.workshop.end_date|date:"F j, Y"}}</td>
               <td> {{registrant.id}}</td>
               <td> {{registrant.user.id}}</td>
-              <td> {{registrant.user.user.email}} </td>
+              <td>
+                {{registrant.user.user.email}}
+                {% if registrant.user.secondary_email %}
+                  <br>
+                  {{registrant.user.secondary_email}}
+                  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+                {% endif %}
+              </td>
               <td> {{registrant.user.user.get_full_name}}</td>
               <td> {{registrant.user.get_user_role_display}}</td>
               <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>

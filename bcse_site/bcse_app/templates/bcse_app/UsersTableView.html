@@ -79,7 +79,14 @@
             <td> {{user_profile.name_pronounciation|default_if_none:""}} </td>
           {% endif %}
           {% if 'EM' in columns %}
-            <td> {{user_profile.user.email}} </td>
+            <td>
+              {{user_profile.user.email}}
+              {% if user_profile.secondary_email %}
+                <br>
+                {{user_profile.secondary_email}}
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+              {% endif %}
+            </td>
           {% endif %}
           {% if 'PN' in columns %}
             <td> {{user_profile.phone_number|default_if_none:""}} </td>

@@ -66,7 +66,14 @@
             <td>{{submission.user.id|default_if_none:""}}</td>
           {% endif %}
           {% if 'EM' in columns %}
-            <td>{{submission.user.user.email|default_if_none:""}}</td>
+            <td>
+              {{submission.user.user.email|default_if_none:""}}
+              {% if submission.user.secondary_email %}
+                <br>
+                {{submission.user.secondary_email}}
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+              {% endif %}
+            </td>
           {% endif %}
           {% if 'FN' in columns %}
             <td>{{submission.user.user.get_full_name|default_if_none:""}}</td>

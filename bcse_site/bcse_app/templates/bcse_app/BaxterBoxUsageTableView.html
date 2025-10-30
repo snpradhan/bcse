@@ -238,7 +238,14 @@
           {% for user in user_usage %}
             <tr>
               <td>{{user.name}}</td>
-              <td>{{user.email}}</td>
+              <td>
+                {{user.email}}
+                {% if user.secondary_email %}
+                  <br>
+                  {{user.secondary_email}}
+                  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+                {% endif %}
+              </td>
               <td>{{user.current_workplace}}</td>
               <td>
                 <ul>

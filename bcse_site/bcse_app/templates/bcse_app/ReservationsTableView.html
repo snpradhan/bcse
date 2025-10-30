@@ -128,7 +128,14 @@
             <td> {{reservation.user.user.last_name}}, {{reservation.user.user.first_name}} </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
-            <td> {{reservation.user.user.email}} </td>
+            <td>
+              {{reservation.user.user.email}}
+              {% if reservation.user.secondary_email %}
+                <br>
+                {{reservation.user.secondary_email}}
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+              {% endif %}
+            </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'AC' in columns %}
             <td>
