@@ -17,13 +17,20 @@
       {% include "bcse_app/WorkshopTabs.html" with workshop=form.instance tab='edit' %}
 
       <div class="form-group mb-3">
-        <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}</label>
+        <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}
+          {% if form.workshop_category.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.workshop_category}}</div>
         <div class="error">{{ form.workshop_category.errors }}</div>
       </div>
       <div class="form-group mb-3">
         <label for="id_{{form.collaborators.name}}" class="form-label">
           {{form.collaborators.label|title}}
+          {% if form.collaborators.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
         </label>
         <div>{{form.collaborators}}</div>
         <div class="error">{{ form.collaborators.errors }}</div>
@@ -31,23 +38,41 @@
       <div class="form-group mb-3">
         <label for="id_{{form.teacher_leaders.name}}" class="form-label">
           {{form.teacher_leaders.label|title}}
+          {% if form.teacher_leaders.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
         </label>
         <div>{{form.teacher_leaders}}</div>
         <div class="error">{{ form.teacher_leaders.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.name.name}}" class="form-label"> {{form.name.label|title}}</label>
+        <label for="id_{{form.name.name}}" class="form-label">
+          {{form.name.label|title}}
+          {% if form.name.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.name}}</div>
         <div class="error">{{ form.name.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.sub_title.name}}" class="form-label"> {{form.sub_title.label|title}}</label>
+        <label for="id_{{form.sub_title.name}}" class="form-label">
+          {{form.sub_title.label|title}}
+          {% if form.sub_title.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.sub_title}}</div>
         <div class="error">{{ form.sub_title.errors }}</div>
       </div>
       <div class="form-group mb-3 row">
         <div class="col">
-          <label for="id_{{form.start_date.name}}" class="form-label"> {{form.start_date.label|title}}</label>
+          <label for="id_{{form.start_date.name}}" class="form-label">
+            {{form.start_date.label|title}}
+            {% if form.start_date.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
           <div class="input-group">
             {{form.start_date}}
             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
@@ -55,7 +80,10 @@
           <div class="error">{{ form.start_date.errors }}</div>
         </div>
         <div class="col">
-          <label for="id_{{form.start_time.name}}" class="form-label"> {{form.start_time.label|title}}</label>
+          <label for="id_{{form.start_time.name}}" class="form-label">
+            {{form.start_time.label|title}}
+            (<span class="required">*</span>)
+          </label>
           <div class="input-group">
             {{form.start_time}}
             <span class="input-group-text"><i class="fa fa-clock"></i></span>
@@ -65,7 +93,12 @@
       </div>
       <div class="form-group mb-3 row">
         <div class="col">
-          <label for="id_{{form.end_date.name}}" class="form-label"> {{form.end_date.label|title}}</label>
+          <label for="id_{{form.end_date.name}}" class="form-label">
+            {{form.end_date.label|title}}
+            {% if form.end_date.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
           <div class="input-group">
             {{form.end_date}}
             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
@@ -73,7 +106,10 @@
           <div class="error">{{ form.end_date.errors }}</div>
         </div>
         <div class="col">
-          <label for="id_{{form.end_time.name}}" class="form-label"> {{form.end_time.label|title}}</label>
+          <label for="id_{{form.end_time.name}}" class="form-label">
+            {{form.end_time.label|title}}
+            (<span class="required">*</span>)
+          </label>
           <div class="input-group">
             {{form.end_time}}
             <span class="input-group-text"><i class="fa fa-clock"></i></span>
@@ -82,23 +118,43 @@
         </div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.display_date.name}}" class="form-label"> {{form.display_date.label|title}}</label>
+        <label for="id_{{form.display_date.name}}" class="form-label">
+          {{form.display_date.label|title}}
+          {% if form.display_date.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.display_date}}</div>
         <div class="error">{{ form.display_date.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.summary.name}}" class="form-label"> {{form.summary.label|title}}</label>
+        <label for="id_{{form.summary.name}}" class="form-label">
+          {{form.summary.label|title}}
+          {% if form.summary.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.summary}}</div>
         <div class="error">{{ form.summary.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.description.name}}" class="form-label"> {{form.description.label|title}}</label>
+        <label for="id_{{form.description.name}}" class="form-label">
+          {{form.description.label|title}}
+          {% if form.description.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.description}}</div>
         <div class="error">{{ form.description.errors }}</div>
       </div>
 
       <div class="form-group mb-3">
-        <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}</label>
+        <label for="id_{{form.image.name}}" class="form-label">
+          {{form.image.label|title}}
+          {% if form.image.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         {% if form.instance.id and form.instance.image.url %}
           <div class="image_preview">
             <img src="{{form.instance.image.url}}" class="icon" alt="">
@@ -110,32 +166,61 @@
 
 
       <div class="form-group mb-3">
-        <label for="id_{{form.location.name}}" class="form-label"> {{form.location.label|title}}</label>
+        <label for="id_{{form.location.name}}" class="form-label">
+          {{form.location.label|title}}
+          {% if form.location.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.location}}</div>
         <div class="error">{{ form.location.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.perks.name}}" class="form-label"> {{form.perks.label|title}}</label>
+        <label for="id_{{form.perks.name}}" class="form-label">
+          {{form.perks.label|title}}
+          {% if form.perks.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.perks}}</div>
         <div class="error">{{ form.perks.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.credits.name}}" class="form-label"> {{form.credits.label}}</label>
+        <label for="id_{{form.credits.name}}" class="form-label">
+          {{form.credits.label}}
+          {% if form.credits.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.credits}}</div>
         <div class="error">{{ form.credits.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.enable_registration.name}}" class="form-label"> {{form.enable_registration.label|title}}</label>
+        <label for="id_{{form.enable_registration.name}}" class="form-label">
+          {{form.enable_registration.label|title}}
+          {% if form.enable_registration.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.enable_registration}}</div>
         <div class="error">{{ form.enable_registration.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.meetup_link.name}}" class="form-label"> {{form.meetup_link.label|title}}</label>
+        <label for="id_{{form.meetup_link.name}}" class="form-label">
+          {{form.meetup_link.label|title}}
+          {% if form.meetup_link.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
         <div>{{form.meetup_link}}</div>
         <div class="error">{{ form.meetup_link.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.tags.name}}" class="form-label"> {{form.tags.label|title}}
+        <label for="id_{{form.tags.name}}" class="form-label">
+          {{form.tags.label|title}}
+          {% if form.tags.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
         </label>
         <div>{{form.tags}}</div>
         <div class="error">{{ form.tags.errors }}</div>
@@ -143,6 +228,9 @@
       <div class="form-group mb-3">
         <label for="id_{{form.featured.name}}" class="form-label">
           {{form.featured.label|title}}
+          {% if form.featured.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.featured.help_text}}"></i>
         </label>
         <div>{{form.featured}}</div>
@@ -151,13 +239,21 @@
       <div class="form-group mb-3">
         <label for="id_{{form.cancelled.name}}" class="form-label">
           {{form.cancelled.label|title}}
+          {% if form.cancelled.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}</label>
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.cancelled.help_text}}"></i>
         </label>
         <div>{{form.cancelled}}</div>
         <div class="error">{{ form.cancelled.errors }}</div>
       </div>
       <div class="form-group mb-3">
-        <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label|title}}</label>
+        <label for="id_{{form.status.name}}" class="form-label">
+          {{form.status.label|title}}
+          {% if form.status.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}</label>
+        </label>
         <div>{{form.status}}</div>
         <div class="error">{{ form.status.errors }}</div>
       </div>
