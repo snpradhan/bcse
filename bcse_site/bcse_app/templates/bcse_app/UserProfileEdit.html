@@ -39,10 +39,19 @@
             <div class="error">{{ userForm.last_name.errors }}</div>
           </div>
         </div>
-        <div class="form-group mb-3">
-          <label for="id_{{userProfileForm.name_pronounciation.name}}" class="form-label"> {{userProfileForm.name_pronounciation.label|title}}</label>
-          <div>{{userProfileForm.name_pronounciation}}</div>
-          <div class="error">{{ userProfileForm.name_pronounciation.errors }}</div>
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{userProfileForm.name_pronounciation.name}}" class="form-label"> {{userProfileForm.name_pronounciation.label|title}}</label>
+            <div>{{userProfileForm.name_pronounciation}}</div>
+            <div class="error">{{ userProfileForm.name_pronounciation.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{userProfileForm.secondary_email.name}}" class="form-label"> {{userProfileForm.secondary_email.label|title}}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{userProfileForm.secondary_email.help_text}}"></i>
+            </label>
+            <div>{{userProfileForm.secondary_email}}</div>
+            <div class="error">{{ userProfileForm.secondary_email.errors }}</div>
+          </div>
         </div>
         <div class="row mb-3">
           <div class="form-group col-md-6">
