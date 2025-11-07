@@ -94,6 +94,16 @@ STORAGES = {
             "region_name": AWS_S3_REGION_NAME,
         },
     },
+    "dbbackup": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_DBBACKUP_BUCKET_NAME,
+            "region_name": AWS_S3_REGION_NAME,
+            'default_acl': 'private',
+        },
+    },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
@@ -103,14 +113,6 @@ STORAGES = {
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
 
 #AWS_S3_SECURE_URLS = True       # use http instead of https
-
-DBBACKUP_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-DBBACKUP_STORAGE_OPTIONS = {
-    'access_key': AWS_ACCESS_KEY_ID,
-    'secret_key': AWS_SECRET_ACCESS_KEY,
-    'bucket_name': AWS_DBBACKUP_BUCKET_NAME,
-    'default_acl': 'private',
-}
 
 TEMPLATES = [
     {
