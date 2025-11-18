@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import ModelForm
+from django.contrib.auth.forms import PasswordResetForm
 from bcse_app import models, widgets, utils
 from django.forms.widgets import TextInput
 from django.contrib.auth.models import User
@@ -11,13 +12,20 @@ from dal import autocomplete
 import datetime
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
+from django.template.loader import render_to_string, get_template
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.conf import settings
+from django.contrib.sites.models import Site
 
 ####################################
 # Login Form
 ####################################
 class SignInForm (forms.Form):
   email = forms.CharField(required=True, max_length=75, label='Email',
-                              error_messages={'required': 'Email is required'})
+                              error_messages={'required': 'Email is required'}, help_text='You may use your primary or secondary email to login')
   password = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Password',
                               error_messages={'required': 'Password is required'})
 
@@ -27,7 +35,7 @@ class SignInForm (forms.Form):
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
-      field.widget.attrs['placeholder'] = field.help_text
+      #field.widget.attrs['placeholder'] = field.help_text
 
 
   def clean_email(self):
@@ -58,6 +66,8 @@ class SignInForm (forms.Form):
         if user is None:
           self.add_error('password', 'Password is incorrect.')
           self.fields['password'].widget.attrs['class'] += ' error'
+        else:
+          self.user = user
 
 ####################################
 # Registration Form
@@ -68,7 +78,7 @@ class SignUpForm (forms.Form):
   first_name = forms.CharField(required=True, max_length=30, label='First Name')
   last_name = forms.CharField(required=True, max_length=30, label='Last Name')
   name_pronounciation = forms.CharField(required=False, max_length=30, label='Name Pronounciation')
-  secondary_email = forms.EmailField(required=False, max_length=75, label='Secondary Email', help_text="Secondary email can be used to Sign In.  Any email sent to the primary email will also be sent to the secondary email.")
+  secondary_email = forms.EmailField(required=False, max_length=75, label='Secondary Email', help_text="Secondary email can be used to Sign In and reset password.  Any email sent to your user account via the BCSE website will be sent to both primary and secondary email addresses.")
   password1 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Password')
   password2 = forms.CharField(required=True, widget=forms.PasswordInput(render_value=False), label='Confirm Password')
   user_role = forms.ChoiceField(required=True, choices=(('', '---------'),)+models.USER_ROLE_CHOICES, label='I am a')
@@ -78,7 +88,7 @@ class SignUpForm (forms.Form):
                                                                   attrs={'data-placeholder': 'Start typing the name if your workplace ...', 'dropdownParent': '#signup_workplace_select'}),
                                   )
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
-  iein = forms.CharField(required=False, max_length=20, label='IEIN #')
+  iein = forms.CharField(required=False, max_length=20, label='IEIN')
   grades_taught = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.GRADES_CHOICES, label='Grades Taught')
   twitter_handle = forms.CharField(required=False, max_length=20, label='Twitter ID')
   instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
@@ -168,6 +178,82 @@ class SignUpForm (forms.Form):
       if User.objects.filter(email=secondary_email.lower()).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).count() > 0:
         self.add_error('secondary_email', 'This email is already taken. Please choose another.')
         self.fields['secondary_email'].widget.attrs['class'] += ' error'
+
+
+#######################################################
+# Override the password reset form to allow secondary email
+#######################################################
+class SecondaryEmailPasswordResetForm(PasswordResetForm):
+
+  def get_users(self, email):
+    """Return users matching primary or secondary email."""
+    email = email.lower()
+
+    # 1) match primary email
+    users = list(
+      User.objects.filter(email__iexact=email, is_active=True)
+    )
+
+    # 2) match secondary email
+    profile_users = User.objects.filter(
+      userProfile__secondary_email__iexact=email,
+      is_active=True
+    )
+
+    users.extend(list(profile_users))
+    return users
+
+  def send_mail(self, subject_template_name, email_template_name,
+                context, from_email, to_email, html_email_template_name=None):
+
+    """Override to always send to the user-entered email."""
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+
+    subject = render_to_string(subject_template_name, context).strip()
+
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+    #body = render_to_string(email_template_name, context)
+    body = get_template(email_template_name).render(context)
+
+    #send_mail(subject, body, from_email, [to_email])
+    email = EmailMultiAlternatives(subject, body, settings.DEFAULT_FROM_EMAIL, [to_email])
+    # attach HTML version
+    if html_email_template_name:
+      html_body = get_template(html_email_template_name).render(context)
+      email.attach_alternative(html_body, "text/html")
+
+    sent = email.send(fail_silently=True)
+
+  def save(self, domain_override=None,
+           subject_template_name='password_reset/password_reset_subject.txt',
+           email_template_name='password_reset/password_reset_email.html',
+           use_https=False, token_generator=default_token_generator,
+           from_email=None, request=None, html_email_template_name='password_reset/password_reset_email.html',
+           extra_email_context=None):
+
+    email = self.cleaned_data["email"]  # the address user typed
+    current_site = Site.objects.get_current()
+
+    for user in self.get_users(email):
+      context = {
+        'email': email,                # send TO this address
+        'domain': current_site.domain,
+        'site_name': current_site.name,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'user': user,
+        'token': token_generator.make_token(user),
+        'protocol': 'https' if use_https else 'http',
+      }
+      self.send_mail(
+        subject_template_name, email_template_name,
+        context, from_email, email, html_email_template_name
+      )
+
+
 ####################################
 # User Form
 ####################################

@@ -505,10 +505,10 @@ def userSignin(request, user_email=''):
     form = forms.SignInForm(data)
     response_data = {}
     if form.is_valid():
-      email = form.cleaned_data['email'].lower()
-      password = form.cleaned_data['password']
-      user = authenticate(username=email, password=password)
-
+      #email = form.cleaned_data['email'].lower()
+      #password = form.cleaned_data['password']
+      #user = authenticate(username=email, password=password)
+      user = form.user
       if user.is_active:
         login(request, user)
         messages.success(request, "You have signed in")
