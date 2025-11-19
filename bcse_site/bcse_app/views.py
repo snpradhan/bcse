@@ -10147,7 +10147,8 @@ def send_workshop_email(id=id, cron=False):
         else:
           registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status)
 
-        registration_email_addresses = list(registrations.values_list('user__user__email', flat=True))
+        qs = registrations.values_list('user__user__email', 'user__secondary_email')
+        registration_email_addresses = [email for email in chain.from_iterable(qs) if email]
 
       email_to = [settings.DEFAULT_FROM_EMAIL]
       if workshop_email.email_to:
