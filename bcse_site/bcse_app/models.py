@@ -1021,7 +1021,10 @@ def check_registration_status_change(sender, instance, **kwargs):
       context = {'email_body': email_body, 'domain': domain}
       body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
-      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [userProfile.user.email])
+      email_addresses = [userProfile.user.email]
+      if userProfile.secondary_email:
+        email_addresses.append(userProfile.secondary_email)
+      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, email_addresses)
 
       #check if calendar invite needs to be attached
       if confirmation_message_object.include_calendar_invite:
