@@ -18,6 +18,14 @@
       <div>{{userProfile.user.get_full_name}}</div>
     </div>
     <div class="mb-1">
+      <label>Primary Email:</label>
+      <div>{{userProfile.user.email}}</div>
+    </div>
+    <div class="mb-1">
+      <label>Secondary Email:</label>
+      <div>{{userProfile.secondary_email|default_if_none:""}}</div>
+    </div>
+    <div class="mb-1">
       <label>Name Pronounciation:</label>
       <div>{{userProfile.name_pronounciation|default_if_none:""}}</div>
     </div>

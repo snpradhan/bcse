@@ -2554,7 +2554,7 @@ def baxterBoxUsageReportSearch(request):
       for workplace in workplaces:
         workplace_usage[workplace.id] = {'name': workplace.name, 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'classes': 0, 'students': 0}
       for user in users:
-        user_usage[user.id] = {'name': '%s, %s' % (user.user.last_name, user.user.first_name), 'email': user.user.email, 'current_workplace': user.work_place.name, 'associated_workplaces': [], 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'classes': 0, 'students': 0}
+        user_usage[user.id] = {'name': '%s, %s' % (user.user.last_name, user.user.first_name), 'email': user.user.email, 'secondary_email': user.secondary_email, 'current_workplace': user.work_place.name, 'associated_workplaces': [], 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'classes': 0, 'students': 0}
 
 
       query_filter = Q()
@@ -5284,7 +5284,7 @@ def workshopRegistrantsSearch(request, id=''):
       }
 
       if email:
-        email_filter = Q(user__user__email__icontains=email)
+        email_filter = Q(Q(user__user__email__icontains=email) | Q(user__secondary_email__icontains=email))
         query_filter = query_filter & email_filter
 
       if first_name:
@@ -6562,7 +6562,7 @@ def usersSearch(request):
       }
 
       if email:
-        email_filter = Q(user__email__icontains=email)
+        email_filter = Q(Q(user__email__icontains=email) | Q(user__userProfile__secondary_email__icontains=email))
 
       if first_name:
         first_name_filter = Q(user__first_name__icontains=first_name)
@@ -8219,7 +8219,8 @@ def surveySubmissionsSearch(request, id='', download=False):
       }
 
       if email:
-        email_filter = Q(user__user__email__icontains=email)
+        email_filter = Q(Q(user__user__email__icontains=email) | Q(user__secondary_email__icontains=email))
+
 
       if first_name:
         first_name_filter = Q(user__user__first_name__icontains=first_name)
@@ -10028,7 +10029,7 @@ class UserAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
     qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
     if self.q:
-      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q))
+      qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q) | Q(user__userProfile__secondary_email__icontains=self.q))
 
     return qs
 
@@ -10057,7 +10058,7 @@ class RegistrantAutocomplete(autocomplete.Select2QuerySetView):
       qs = models.UserProfile.objects.all().filter(user__is_active=True).order_by('user__last_name', 'user__first_name')
 
       if self.q:
-        qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q))
+        qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q) | Q(user__email__icontains=self.q) | Q(user__userProfile__secondary_email__icontains=self.q))
     else:
       qs = models.UserProfile.objects.none()
 
