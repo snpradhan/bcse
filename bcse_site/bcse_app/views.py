@@ -49,6 +49,7 @@ import pytz
 import sys
 from django.urls import reverse
 from django.contrib.postgres.aggregates import ArrayAgg
+from itertools import chain
 
 # Create your views here.
 
@@ -9669,7 +9670,8 @@ def reservationConfirmationEmailSend(request, id):
 
     context = {'reservation': reservation, 'domain': domain}
     body = get_template('bcse_app/EmailReservationConfirmation.html').render(context)
-    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
@@ -9759,7 +9761,9 @@ def reservationFeedbackEmailSend(request, id):
     context = {'reservation': reservation, 'survey': survey, 'domain': domain}
 
     body = get_template('bcse_app/EmailReservationFeedbackRequest.html').render(context)
-    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
+
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
@@ -9818,7 +9822,9 @@ def reservationReceiptEmailSend(request, id):
 
     context = {'reservation': reservation, 'domain': domain}
     body = get_template('bcse_app/EmailReservationRequest.html').render(context)
-    receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', flat=True)
+    qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
+
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
@@ -9858,7 +9864,9 @@ def send_reservation_message_email(request, reservation_message):
 
   context = {'reservation_message': reservation_message, 'domain': domain}
   body = get_template('bcse_app/EmailNewMessage.html').render(context)
-  receipients = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation_message.reservation.user.id)).exclude(id=reservation_message.created_by.id).values_list('user__email', flat=True)
+  qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation_message.reservation.user.id)).exclude(id=reservation_message.created_by.id).values_list('user__email', 'secondary_email')
+  receipients = [email for email in chain.from_iterable(qs) if email]
+
   email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
   email.content_subtype = "html"
   email.send(fail_silently=True)
