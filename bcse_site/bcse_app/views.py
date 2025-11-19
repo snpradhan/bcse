@@ -9013,18 +9013,20 @@ def surveySubmissionEmailSend(request, survey, user, submission):
 
   #check if email confirmation needs to be sent to the respondant
   if survey.email_confirmation and survey.email_confirmation_message:
-    respondant_email = None
+    respondant_emails = []
     #check if email address is available
     if user and user.user.email:
       #user is logged in, so email is available in their profile
-      respondant_email = user.user.email
+      respondant_emails = [user.user.email]
+      if user.secondary_email:
+        respondant_emails.append(user.secondary_email)
     else:
       #check if email is part of the survey response
       email_responses = models.SurveyResponse.objects.all().filter(submission=submission, survey_component__component_type='EM')
       if email_responses:
-        respondant_email = email_responses.first().response
+        respondant_emails = [email_responses.first().response]
 
-    if respondant_email:
+    if respondant_emails:
       filename = "/tmp/survey_%s_submission_%s.xls"% (survey.id, submission.UUID)
       surveySubmissions = models.SurveySubmission.objects.all().filter(UUID=submission.UUID)
       wb = generateSurveySubmissionsExcel(request, survey, surveySubmissions)
@@ -9039,7 +9041,7 @@ def surveySubmissionEmailSend(request, survey, user, submission):
       context = {'email_body': email_body, 'domain': domain}
       body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
-      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [respondant_email])
+      email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, respondant_emails)
       email.attach_file(filename, 'application/ms-excel')
 
       email.content_subtype = "html"
