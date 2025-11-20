@@ -5859,7 +5859,10 @@ def userProfileEdit(request, id=''):
 
       context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
       if update_required:
-        messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your %s workplace below." % (userProfile.modified_date.strftime('%b %d, %Y'), 'IEIN and ' if userProfile.user_role == 'T' else ''))
+        if userProfile.work_place.id == models.get_placeholder_workplace():
+          messages.warning(request, "Your profile is incomplete. <br> Please update your %s workplace below." % ('IEIN and ' if userProfile.user_role == 'T' else ''))
+        else:
+          messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your %s workplace below." % (userProfile.modified_date.strftime('%b %d, %Y'), 'IEIN and ' if userProfile.user_role == 'T' else ''))
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
@@ -10100,7 +10103,9 @@ def profile_update_required(userProfile):
     else:
       cutoff_date = datetime.datetime.strptime("%s-%s-%s 00:00"%(current_year-1, cutoff_month, cutoff_day), "%Y-%m-%d %H:%M").replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
 
-    if profile_modified < cutoff_date:
+    if userProfile.work_place.id == models.get_placeholder_workplace():
+      return True
+    elif profile_modified < cutoff_date:
       return True
     else:
       return False
