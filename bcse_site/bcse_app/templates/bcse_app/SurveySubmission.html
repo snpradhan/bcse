@@ -16,7 +16,7 @@
           {{survey.name}}
         {% endif %}
       </h3>
-      <button type="button" class="btn-close" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div id="SurveyMsg" class="msg">
       <ul class="errorlist">
@@ -309,31 +309,6 @@
         });
       });
 
-
-
-      $('.btn-close').on('click', function(e){
-        e.preventDefault();
-        var modal = $(this).closest('.modal');
-        bootbox.confirm({ title: 'Confirm',
-          message: "<p>Do you want to close this popup?</p>",
-          buttons: {
-            confirm: {
-                label: 'Confirm',
-                className: 'btn btn-small btn-danger'
-            },
-            cancel: {
-                label: 'Cancel',
-                className: 'btn btn-small'
-            }
-          },
-          closeButton: true,
-          callback: function(result){
-            if (result == true) {
-              $(modal).modal('hide');
-            }
-          },
-        });
-      });
 
       $('.response select').on('change', function(e){
         var show = $(this).find(":selected").hasClass('other');

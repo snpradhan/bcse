@@ -2,7 +2,6 @@ $(function (){
 
   $(".copyright_year").html(new Date().getFullYear());
 
-
   //generic filter form submit handler
   $('form.filter_form').on('submit', function(e){
     e.preventDefault();
@@ -137,6 +136,7 @@ $(function (){
   bindSelect2();
   bindTooltipTrigger();
   bindDateTimePicker();
+  bindUnsavedChangesWarning();
 
 });
 
@@ -620,3 +620,128 @@ function cloneForm(prefix, parent) {
   $(newForm).show();
 }
 
+function bindUnsavedChangesWarning() {
+
+  // Track dirty state per form
+  function initializeForm($form) {
+    if ($form.data("isTracking")) return; // avoid double tracking
+    $form.data("isDirty", false);
+    $form.data("isTracking", true);
+  }
+
+  /// Track standard fields
+  $(document).on("input change", "form input, form textarea, form select", function(e) {
+    if (e.originalEvent !== undefined) { // ignore programmatic triggers
+      var $form = $(this).closest("form");
+      initializeForm($form);
+      $form.data("isDirty", true);
+    }
+  });
+  // Track Select2 fields
+  $(document).on("select2:select select2:unselect", "select", function(e) {
+      var $form = $(this).closest("form");
+      initializeForm($form);
+      $form.data("isDirty", true);
+  });
+  // Track CKEditor fields (v4 or v5)
+  if (typeof CKEDITOR !== 'undefined') {
+      // CKEditor v4
+      for (var name in CKEDITOR.instances) {
+          CKEDITOR.instances[name].on('change', function() {
+              var $form = $(this.element.$).closest("form");
+              initializeForm($form);
+              $form.data("isDirty", true);
+          });
+      }
+
+      // Listen for dynamically added CKEditor instances
+      CKEDITOR.on('instanceReady', function(ev) {
+          ev.editor.on('change', function() {
+              var $form = $(ev.editor.element.$).closest("form");
+              initializeForm($form);
+              $form.data("isDirty", true);
+          });
+      });
+  }
+
+
+  // Reset dirty on submit
+  $(document).on("submit", "form", function() {
+    $(this).data("isDirty", false);
+  });
+
+  // Helper: check if any form is dirty (all forms)
+  function anyFormDirty() {
+    return $("form").filter(function() {
+      return $(this).data("isDirty") === true;
+    }).length > 0;
+  }
+
+  // Helper: check if any form inside a specific modal is dirty
+  function modalFormsDirty($modal) {
+    return $modal.find("form").filter(function() {
+      return $(this).data("isDirty") === true;
+    }).length > 0;
+  }
+
+  // Warn on tab close / refresh
+  $(window).off("beforeunload.unsaved").on("beforeunload.unsaved", function(e) {
+    if (anyFormDirty()) {
+      var message = "You have unsaved changes. Are you sure you want to leave?";
+      console.log(message);
+      e.preventDefault();
+      e.returnValue = message;
+      return message;
+    }
+  });
+
+  // Warn on in-page navigation links
+  $(document).off("click.unsaved", "a").on("click.unsaved", "a", function(e) {
+    if (anyFormDirty()) {
+      e.preventDefault();
+      var href = $(this).attr("href");
+
+      bootbox.confirm({
+        title: "Unsaved Changes",
+        message: "You have unsaved changes on this page. Are you sure you want to leave this page?",
+        buttons: {
+          confirm: { label: 'Leave', className: 'btn-danger' },
+          cancel: { label: 'Stay', className: 'btn-secondary' }
+        },
+        closeButton: false,
+        callback: function(result) {
+          if (result) {
+            $("form").data("isDirty", false);
+            window.location.href = href;
+          }
+        }
+      });
+    }
+  });
+
+  // Warn when closing a Bootstrap modal if it contains dirty forms
+  $(document).on("hide.bs.modal", ".modal", function(e) {
+    var $modal = $(this);
+
+    if (modalFormsDirty($modal)) {
+      e.preventDefault(); // prevent modal from closing immediately
+
+      bootbox.confirm({
+        title: "Unsaved Changes",
+        message: "You have unsaved changes in this popup. Are you sure you want to close it?",
+        buttons: {
+          confirm: { label: 'Leave', className: 'btn-danger' },
+          cancel: { label: 'Stay', className: 'btn-secondary' }
+        },
+        closeButton: false,
+        callback: function(result) {
+          if (result) {
+            // Reset dirty state for forms in this modal
+            $modal.find("form").data("isDirty", false);
+            $modal.modal("hide"); // manually hide modal
+          }
+        }
+      });
+    }
+  });
+}
