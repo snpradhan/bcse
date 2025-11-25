@@ -89,7 +89,42 @@
       e.preventDefault();
       var href = $(this).attr("href");
       $(this).closest('form').data("isDirty", false);
-      window.location.href = href;
+
+      $('#signin').modal('hide');
+      $('#signin').one('hidden.bs.modal', function () {
+
+        bootbox.dialog({
+          title: "Do you already have an account?",
+          message: "Before creating a new account:\
+                    <br><br>\
+                    <strong>Do you already have an account but just forgot your password?</strong>",
+          buttons: {
+            signup: {
+              label: 'No, create a new account',
+              className: 'btn-primary',
+              callback: function() {
+                window.location.href = href;
+              },
+            },
+            reset: {
+              label: 'Yes, reset my password',
+              className: 'btn-warning',
+              callback: function() {
+                window.location.href = '/?next=/password_reset/';
+              },
+            },
+            signin: {
+              label: 'Proceed with Log In',
+              className: 'btn-secondary',
+              callback: function() {
+                window.location.href = '/?next=/signin/';
+              },
+            },
+          },
+          closeButton: false,
+        });
+
+      });
     });
 
     $('#resetPassword').on('click', function(e) {
