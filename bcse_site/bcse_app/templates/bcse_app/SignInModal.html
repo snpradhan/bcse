@@ -34,10 +34,10 @@
           </button>
           <br><br>
           <div>
-            Don't have an account? <a href="?next={% url 'bcse:signup' %}"><strong><u>Sign Up</u></strong></a>
+            Don't have an account? <a href="?next={% url 'bcse:signup' %}" id="signUp"><strong><u>Sign Up</u></strong></a>
           </div>
           <div>
-            <a href="?next={% url 'password_reset' %}"><u>Forgot Password?</u></a>
+            <a href="?next={% url 'password_reset' %}" id="resetPassword"><u>Forgot Password?</u></a>
           </div>
         </div>
       </div>
@@ -79,6 +79,21 @@
         }
       });
     });
+
+    $('#signUp').on('click', function(e) {
+      e.preventDefault();
+      var href = $(this).attr("href");
+      $(this).closest('form').data("isDirty", false);
+      window.location.href = href;
+    });
+
+    $('#resetPassword').on('click', function(e) {
+      e.preventDefault();
+      var href = $(this).attr("href");
+      $(this).closest('form').data("isDirty", false);
+      window.location.href = href;
+    });
+
   });
 </script>
 
