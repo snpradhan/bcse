@@ -697,6 +697,12 @@ function bindUnsavedChangesWarning() {
 
   // Warn on in-page navigation links
   $(document).off("click.unsaved", "a").on("click.unsaved", "a", function(e) {
+
+    // Skip links inside datepicker
+    if ($(this).hasClass("ui-corner-all")) {
+      return; // do nothing if inside datepicker
+    }
+
     if (anyFormDirty()) {
       e.preventDefault();
       var href = $(this).attr("href");
