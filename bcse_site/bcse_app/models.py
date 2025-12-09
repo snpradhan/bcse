@@ -621,7 +621,7 @@ class Activity(models.Model):
 class ActivityInventory(models.Model):
   activity = models.ForeignKey(Activity, null=False, blank=False, on_delete=models.CASCADE)
   count = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(0)])
-  expiration_date = models.DateField(null=False)
+  expiration_date = models.DateField(null=True, blank=True)
   storage_location = models.CharField(null=False, max_length=2, choices=INVENTORY_STORAGE_LOCATION)
   notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   created_date = models.DateTimeField(auto_now_add=True)
@@ -651,7 +651,7 @@ class Consumable(models.Model):
 class ConsumableInventory(models.Model):
   consumable = models.ForeignKey(Consumable, null=False, blank=False, on_delete=models.CASCADE)
   count = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(0)])
-  expiration_date = models.DateField(null=False)
+  expiration_date = models.DateField(null=True, blank=True)
   storage_location = models.CharField(null=False, max_length=2, choices=INVENTORY_STORAGE_LOCATION)
   notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   created_date = models.DateTimeField(auto_now_add=True)
