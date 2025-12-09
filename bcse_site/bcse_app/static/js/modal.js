@@ -7,12 +7,16 @@ function bindModalOpen() {
 
     $(target).load(url, function() {
       $(target).show();
+
       if (parentModal.length) {
         parentModal.hide();
       }
+
       bindTooltipTrigger();
       bindDateTimePicker();
       bindSelect2();
+      bindCkeditorChange();
+
     });
   });
 }

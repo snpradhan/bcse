@@ -176,7 +176,9 @@ function bindDateTimePicker() {
     dynamic: false,
     dropdown: true,
     scrollbar: true,
-
+    change: function(time) {
+      $(this).trigger("change");
+    }
   });
 
   $('.fa-calendar').on('click', function(){
@@ -620,14 +622,38 @@ function cloneForm(prefix, parent) {
   $(newForm).show();
 }
 
-function bindUnsavedChangesWarning() {
+// Track dirty state per form
+function initializeForm($form) {
+  if ($form.data("isTracking")) return; // avoid double tracking
+  $form.data("isDirty", false);
+  $form.data("isTracking", true);
+}
 
-  // Track dirty state per form
-  function initializeForm($form) {
-    if ($form.data("isTracking")) return; // avoid double tracking
-    $form.data("isDirty", false);
-    $form.data("isTracking", true);
+function bindCkeditorChange() {
+  // Track CKEditor fields (v4 or v5)
+  if (typeof CKEDITOR !== 'undefined') {
+    // CKEditor v4
+    for (var name in CKEDITOR.instances) {
+
+      CKEDITOR.instances[name].on('change', function() {
+        var $form = $(this.element.$).closest("form");
+        initializeForm($form);
+        $form.data("isDirty", true);
+      });
+    }
+
+    // Listen for dynamically added CKEditor instances
+    CKEDITOR.on('instanceReady', function(ev) {
+      ev.editor.on('change', function() {
+        var $form = $(ev.editor.element.$).closest("form");
+        initializeForm($form);
+        $form.data("isDirty", true);
+      });
+    });
   }
+}
+
+function bindUnsavedChangesWarning() {
 
   /// Track standard fields
   $(document).on("input change", "form input, form textarea, form select", function(e) {
@@ -637,33 +663,29 @@ function bindUnsavedChangesWarning() {
       $form.data("isDirty", true);
     }
   });
+
   // Track Select2 fields
   $(document).on("select2:select select2:unselect", "select", function(e) {
       var $form = $(this).closest("form");
       initializeForm($form);
       $form.data("isDirty", true);
   });
-  // Track CKEditor fields (v4 or v5)
-  if (typeof CKEDITOR !== 'undefined') {
-      // CKEditor v4
-      for (var name in CKEDITOR.instances) {
-          CKEDITOR.instances[name].on('change', function() {
-              var $form = $(this.element.$).closest("form");
-              initializeForm($form);
-              $form.data("isDirty", true);
-          });
+
+
+  $(document).on("change", ".timepicker", function (e) {
+    if (!e.originalEvent) {
+      this.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  });
+
+  // Bridge jQuery UI Datepicker → real change event
+  $(document).on("change", ".hasDatepicker", function (e) {
+      // jQuery UI Datepicker calls .val(...) programmatically,
+      // so this ensures your listener sees it as user-triggered.
+      if (!e.originalEvent) {
+          this.dispatchEvent(new Event("change", { bubbles: true }));
       }
-
-      // Listen for dynamically added CKEditor instances
-      CKEDITOR.on('instanceReady', function(ev) {
-          ev.editor.on('change', function() {
-              var $form = $(ev.editor.element.$).closest("form");
-              initializeForm($form);
-              $form.data("isDirty", true);
-          });
-      });
-  }
-
+  });
 
   // Reset dirty on submit
   $(document).on("submit", "form", function() {
@@ -684,11 +706,12 @@ function bindUnsavedChangesWarning() {
     }).length > 0;
   }
 
+  bindCkeditorChange();
+
   // Warn on tab close / refresh
   $(window).off("beforeunload.unsaved").on("beforeunload.unsaved", function(e) {
     if (anyFormDirty()) {
       var message = "You have unsaved changes. Are you sure you want to leave?";
-      console.log(message);
       e.preventDefault();
       e.returnValue = message;
       return message;
