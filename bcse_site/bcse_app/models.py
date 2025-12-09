@@ -134,6 +134,8 @@ RESERVATION_TABLE_COLUMN_CHOICES = (
   ('AC', 'Activity'),
   ('KT', 'Kit'),
   ('CO', 'Consumables'),
+  ('NC', 'Classes'),
+  ('NS', 'Students'),
   ('GL', 'Include Gloves'),
   ('GO', 'Include Goggles'),
   ('IV', 'Inventory'),

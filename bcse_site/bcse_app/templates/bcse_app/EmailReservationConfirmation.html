@@ -30,6 +30,28 @@
                <td class="manuals" align="right" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal"><div>{{reservation.activity.manuals_resources|safe}}</div></td>
             </tr>
          {% endif %}
+         {% if reservation.num_of_classes %}
+            <tr>
+               <td class="title" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">Number of Classes</td>
+               <td align="right" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal">
+                  <div>
+                     {% if reservation.num_of_classes != '5' %}
+                      {{reservation.num_of_classes}}
+                    {% elif reservation.more_num_of_classes %}
+                       {{reservation.more_num_of_classes}}
+                    {% endif %}
+                 </div>
+              </td>
+            </tr>
+         {% endif %}
+         {% if reservation.num_of_students %}
+            <tr>
+               <td class="title" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">Total # Of Students Who Will Be Doing This Activity</td>
+               <td class="manuals" align="right" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal">
+                  <div>{{reservation.num_of_students}}</div>
+               </td>
+            </tr>
+         {% endif %}
          <tr class="address">
             <td class="title" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal; width: 40%; font-weight: bold;">
                <div>Delivery Details</div>
@@ -106,13 +128,7 @@
            {% if reservation.activity and not reservation.activity_kit_not_needed %}
              <tr class="kit">
                 <td class="details" align="left" style="border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal;" colspan="2">
-                   <div class="title" style="font-weight: 600;"> {{reservation.activity.kit_name}} x
-                     {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
-                       {{reservation.num_of_classes}}
-                     {% elif reservation.more_num_of_classes %}
-                        {{reservation.more_num_of_classes}}
-                     {% endif %}
-                  </div>
+                   <div class="title" style="font-weight: 600;"> {{reservation.activity.kit_name}}</div>
                 </td>
              </tr>
            {% endif %}

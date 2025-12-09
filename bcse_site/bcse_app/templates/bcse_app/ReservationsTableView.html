@@ -34,6 +34,12 @@
         {% if 'KT' in columns or tag == 'profile' %}
           <th> Kit </th>
         {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NC' in columns %}
+          <th> Classes </th>
+        {% endif %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NS' in columns %}
+          <th> Students </th>
+        {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
           <th> Consumables </th>
         {% endif %}
@@ -143,15 +149,22 @@
             <td class="kit">
               {% if reservation.activity and not reservation.activity_kit_not_needed %}
                 <a class="modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:activityView' reservation.activity.id %}" href="#">
-                  {{reservation.activity.kit_name}} x
-                  {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
-                    {{reservation.num_of_classes}}
-                  {% elif reservation.more_num_of_classes %}
-                     {{reservation.more_num_of_classes}}
-                  {% endif %}
+                  {{reservation.activity.kit_name}}
                 </a>
               {% endif %}
             </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NC' in columns %}
+            <td>
+              {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
+                {{reservation.num_of_classes}}
+              {% elif reservation.more_num_of_classes %}
+                 {{reservation.more_num_of_classes}}
+              {% endif %}
+            </td>
+          {% endif %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NS' in columns %}
+            <td> {{reservation.num_of_students}} </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
             <td>

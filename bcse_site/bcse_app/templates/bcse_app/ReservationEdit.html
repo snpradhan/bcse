@@ -98,9 +98,7 @@
                 {% endif %}
               </div>
             </div>
-            <div class="form-group mb-4 kit_info">
-              <label class="form-label"> You will receive <span class="kit_name"></span> x <span class="num_of_classes"></span></label>
-            </div>
+
             <div class="form-group mb-4">
               <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}
                 {% if form.num_of_students.field.required %}
@@ -581,7 +579,6 @@
                   if (data['success'] = true) {
                     if (data['html']) {
                       $('div.activity_container div.activity.general').after(data['html']);
-                      $('div.form-group.kit_info span.kit_name').html(data['kit_name']);
                       if(data['materials_equipment']) {
                         $('div.form-group.equipment_info').html(data['materials_equipment']);
                         $('div.form-group.equipment_info').show();
@@ -675,9 +672,6 @@
               $('div.activity_container div.activity.specific').remove();
               //hide kit not need fields
               $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
-              $('div.form-group.kit_info span.kit_name').html('');
-              $('div.form-group.kit_info span.num_of_classes').html('');
-              $('div.form-group.kit_info').hide();
               //unselect and hide consumable selection
               $('#id_consumables').val('');
               $('#id_consumable_options').closest('.form-group').hide();
@@ -894,39 +888,6 @@
               $('input#id_more_num_of_classes').val('');
               $('input#id_more_num_of_classes').closest('.col').hide();
             }
-            //if num of classes is selected, display kit info
-            if($(this).val() && $(this).val() != '5' && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
-              $('div.form-group.kit_info span.num_of_classes').html($(this).val());
-              $('div.form-group.kit_info').show();
-            }
-            else {
-              $('div.form-group.kit_info').hide();
-            }
-          });
-        }
-
-        function bindMoreNumOfClasses() {
-          $('input#id_more_num_of_classes').on('change', function(e){
-            if($(this).val() && $('select#id_activity').val() && !$('input#id_activity_kit_not_needed').prop('checked')) {
-              $('div.form-group.kit_info span.num_of_classes').html($(this).val());
-              $('div.form-group.kit_info').show();
-            }
-          });
-        }
-
-        function bindKitNotNeeded() {
-          //"I already have all the kits" checkbox checked/unchecked
-          $('input#id_activity_kit_not_needed').on('change', function(e){
-            //checkbox checked
-            if($(this).is(':checked')){
-              $('div.form-group.kit_info span.kit_name').html('');
-              $('div.form-group.kit_info span.num_of_classes').html('');
-              $('div.form-group.kit_info').hide();
-            }
-            //checkbox unchecked
-            else{
-              $('select#id_activity').trigger('change');
-            }
           });
         }
 
@@ -997,7 +958,6 @@
         function init() {
           //hide other activity name field
           $('input#id_other_activity_name').closest('form-group').hide();
-          $('.form-group.kit_info').hide();
           $('input#id_other_activity').trigger('change');
           $('select#id_activity').trigger('change');
           $('input#id_equipment_not_needed').trigger('change');
@@ -1008,8 +968,6 @@
         bindDateRestrictions();
         bindCheckAvailability();
         toggleCheckAvailability();
-        bindKitNotNeeded();
-        bindMoreNumOfClasses();
         bindNumOfClasses();
         bindEquipmentNotNeeded();
         bindOtherActivityChange();

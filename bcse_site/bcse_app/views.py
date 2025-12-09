@@ -5937,6 +5937,7 @@ def userProfileEdit(request, id=''):
         response_data['success'] = True
         response_data['work_place'] = savedUserProfile.work_place.name
         response_data['redirect_url'] =  redirect_url
+
       else:
         print(userForm.errors)
         print(userProfileForm.errors)
