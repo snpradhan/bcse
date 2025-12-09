@@ -2961,8 +2961,7 @@ def baxterBoxInventorySearch(request):
 
       if expiration_date:
         expiration_date = datetime.datetime.strptime(expiration_date, '%B %d, %Y')
-        expiration_date_filter = Q(expiration_date__gte=expiration_date)
-
+        expiration_date_filter = Q(Q(expiration_date__gte=expiration_date) | Q(expiration_date__isnull=True))
 
       if activities or inventory_type == 'kit':
         if activities:
