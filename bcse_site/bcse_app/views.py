@@ -2121,6 +2121,8 @@ def reservationsSearch(request, display='table'):
           if reservation.return_date:
             return_date = reservation.return_date + datetime.timedelta(days=1)
             schedule['end'] = return_date.strftime('%Y-%m-%d')
+          else:
+            schedule['dropoff_only'] = True
 
           reservation_schedule_matrix.append(schedule)
 
