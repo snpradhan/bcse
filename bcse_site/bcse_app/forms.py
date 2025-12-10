@@ -1675,7 +1675,7 @@ class SurveySubmissionsSearchForm(forms.Form):
                                                       widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete',
                                                                                        attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
 
-  status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.SURVEY_SUBMISSION_STATUS_CHOICES, label='Response Status')
+  status = forms.MultipleChoiceField(required=False, choices=models.SURVEY_SUBMISSION_STATUS_CHOICES, label='Response Status')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('email', 'Email'),
                                                       ('first_name', 'First Name'),

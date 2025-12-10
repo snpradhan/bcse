@@ -8199,7 +8199,7 @@ def surveySubmissionsSearch(request, id='', download=False):
       last_name = request.GET.get('survey_submission_search-last_name', '')
       user_role = request.GET.get('survey_submission_search-user_role', '')
       work_place = request.GET.get('survey_submission_search-work_place', '')
-      status = request.GET.get('survey_submission_search-status', '')
+      status = request.GET.getlist('survey_submission_search-status', '')
       sort_by = request.GET.get('survey_submission_search-sort_by', '')
       columns = request.GET.getlist('survey_submission_search-columns', '')
       rows_per_page = request.GET.get('survey_submission_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
@@ -8234,7 +8234,7 @@ def surveySubmissionsSearch(request, id='', download=False):
         work_place_filter = Q(survey_submission_to_work_place__work_place=work_place)
 
       if status:
-        status_filter = Q(status=status)
+        status_filter = Q(status__in=status)
 
       if email_filter:
         query_filter = query_filter & email_filter
