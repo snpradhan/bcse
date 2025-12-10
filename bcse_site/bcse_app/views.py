@@ -2951,9 +2951,10 @@ def baxterBoxInventorySearch(request):
       request.session['box_inventory_search'] = {
         'activities': activities,
         'consumables': consumables,
-        'expiration_date': expiration_date,
+        'expiration_date_after': expiration_date,
         'storage_locations': storage_locations,
         'color': color,
+        'inventory_type': inventory_type,
         'sort_by': sort_by,
         'rows_per_page': rows_per_page,
         'page': page
