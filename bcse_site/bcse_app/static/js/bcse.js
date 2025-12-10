@@ -92,6 +92,10 @@ $(function (){
     }
   });
 
+  $('.filter_fields').filter(function() {
+      return $.trim($(this).text()) === '';
+  }).hide();
+
   $('ul.messages').children().delay(30000).fadeOut('slow');
   $('ul.messages i').click(function(){
     $('ul.messages').children().hide();

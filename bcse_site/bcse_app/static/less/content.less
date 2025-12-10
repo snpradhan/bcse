@@ -641,6 +641,7 @@ body {
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;
+        gap: 2rem;
 
         div#filter_buttons {
           margin-top: auto;
@@ -649,10 +650,18 @@ body {
         .form-group {
           margin-bottom: 0.5em;
         }
+
+        div.assignee_or {
+          display: flex;
+          justify-content: center;
+          align-items: end;
+        }
       }
       div.filter_fields {
         flex-direction: column;
+        flex: 1;
       }
+
     }
 
     div.search_results:not(.list) {

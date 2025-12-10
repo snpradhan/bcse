@@ -1893,7 +1893,6 @@ def reservationsSearch(request, display='table'):
       return_before_filter = None
       status_filter = None
       assignee_filter = None
-      pickup_assignee_filter = None
       color_filter = None
       feedback_status_filter = None
 
@@ -1968,11 +1967,20 @@ def reservationsSearch(request, display='table'):
       if work_place:
         workplace_filter = Q(reservation_to_work_place__work_place=work_place)
 
-      if assignee:
-        assignee_filter = Q(assignee=assignee)
-
-      if pickup_assignee:
-        pickup_assignee_filter = Q(pickup_assignee=pickup_assignee)
+      if display == 'table':
+        if assignee and pickup_assignee:
+          assignee_filter = Q(assignee=assignee) & Q(pickup_assignee=pickup_assignee)
+        elif assignee:
+          assignee_filter = Q(assignee=assignee)
+        elif pickup_assignee:
+          assignee_filter = Q(pickup_assignee=pickup_assignee)
+      else:
+        if assignee and pickup_assignee:
+          assignee_filter = Q(assignee=assignee) | Q(pickup_assignee=pickup_assignee)
+        elif assignee:
+          assignee_filter = Q(assignee=assignee)
+        elif pickup_assignee:
+          assignee_filter = Q(pickup_assignee=pickup_assignee)
 
       if activity:
         activity_filter = Q(activity__in=activity)
@@ -2009,10 +2017,10 @@ def reservationsSearch(request, display='table'):
         query_filter = query_filter & user_filter
       if workplace_filter:
         query_filter = query_filter & workplace_filter
+
       if assignee_filter:
         query_filter = query_filter & assignee_filter
-      if pickup_assignee_filter:
-        query_filter = query_filter & pickup_assignee_filter
+
       if activity_filter:
         query_filter = query_filter & activity_filter
       if consumable_filter:

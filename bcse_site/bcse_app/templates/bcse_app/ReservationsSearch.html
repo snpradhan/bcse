@@ -74,19 +74,42 @@
             <div class="error">{{ searchForm.status.errors }}</div>
           </div>
         {% endif %}
-        {% if searchForm.assignee %}
-          <div class="form-group">
-            <label for="id_{{searchForm.assignee.name}}" class="form-label"> {{searchForm.assignee.label|title}}</label>
-            <div>{{searchForm.assignee}}</div>
-            <div class="error">{{ searchForm.assignee.errors }}</div>
+
+        {% if display %}
+          <div class="row mb-3">
+            {% if searchForm.assignee %}
+              <div class="form-group col-md-5">
+                <label for="id_{{searchForm.assignee.name}}" class="form-label"> {{searchForm.assignee.label|title}}</label>
+                <div>{{searchForm.assignee}}</div>
+                <div class="error">{{ searchForm.assignee.errors }}</div>
+              </div>
+            {% endif %}
+            <div class="form-group col-md-2 assignee_or">
+              <label class="form-label">OR</label>
+            </div>
+            {% if searchForm.pickup_assignee %}
+              <div class="form-group col-md-5">
+                <label for="id_{{searchForm.pickup_assignee.name}}" class="form-label"> {{searchForm.pickup_assignee.label|title}}</label>
+                <div>{{searchForm.pickup_assignee}}</div>
+                <div class="error">{{ searchForm.pickup_assignee.errors }}</div>
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
-        {% if searchForm.pickup_assignee %}
-          <div class="form-group">
-            <label for="id_{{searchForm.pickup_assignee.name}}" class="form-label"> {{searchForm.pickup_assignee.label|title}}</label>
-            <div>{{searchForm.pickup_assignee}}</div>
-            <div class="error">{{ searchForm.pickup_assignee.errors }}</div>
-          </div>
+        {% else %}
+          {% if searchForm.assignee %}
+            <div class="form-group">
+              <label for="id_{{searchForm.assignee.name}}" class="form-label"> {{searchForm.assignee.label|title}}</label>
+              <div>{{searchForm.assignee}}</div>
+              <div class="error">{{ searchForm.assignee.errors }}</div>
+            </div>
+          {% endif %}
+          {% if searchForm.pickup_assignee %}
+            <div class="form-group">
+              <label for="id_{{searchForm.pickup_assignee.name}}" class="form-label"> {{searchForm.pickup_assignee.label|title}}</label>
+              <div>{{searchForm.pickup_assignee}}</div>
+              <div class="error">{{ searchForm.pickup_assignee.errors }}</div>
+            </div>
+          {% endif %}
         {% endif %}
         {% if searchForm.color %}
           <div class="form-group">
