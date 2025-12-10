@@ -8192,7 +8192,8 @@ def surveySubmissionsSearch(request, id='', download=False):
       user_role_filter = None
       work_place_filter = None
       status_filter = None
-
+      response_after_filter = None
+      response_before_filter = None
 
       email = request.GET.get('survey_submission_search-email', '')
       first_name = request.GET.get('survey_submission_search-first_name', '')
@@ -8200,6 +8201,8 @@ def surveySubmissionsSearch(request, id='', download=False):
       user_role = request.GET.get('survey_submission_search-user_role', '')
       work_place = request.GET.get('survey_submission_search-work_place', '')
       status = request.GET.getlist('survey_submission_search-status', '')
+      response_after = request.GET.get('survey_submission_search-response_after', '')
+      response_before = request.GET.get('survey_submission_search-response_before', '')
       sort_by = request.GET.get('survey_submission_search-sort_by', '')
       columns = request.GET.getlist('survey_submission_search-columns', '')
       rows_per_page = request.GET.get('survey_submission_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
@@ -8213,6 +8216,8 @@ def surveySubmissionsSearch(request, id='', download=False):
         'user_role': user_role,
         'work_place': work_place,
         'status': status,
+        'response_after': response_after,
+        'response_before': response_before,
         'columns': columns,
         'sort_by': sort_by,
         'rows_per_page': rows_per_page,
@@ -8224,32 +8229,33 @@ def surveySubmissionsSearch(request, id='', download=False):
 
       if first_name:
         first_name_filter = Q(user__user__first_name__icontains=first_name)
+        query_filter = query_filter & first_name_filter
+
       if last_name:
         last_name_filter = Q(user__user__last_name__icontains=last_name)
+        query_filter = query_filter & last_name_filter
 
       if user_role:
         user_role_filter = Q(user__user_role=user_role)
+        query_filter = query_filter & user_role_filter
 
       if work_place:
         work_place_filter = Q(survey_submission_to_work_place__work_place=work_place)
+        query_filter = query_filter & work_place_filter
 
       if status:
         status_filter = Q(status__in=status)
-
-      if email_filter:
-        query_filter = query_filter & email_filter
-      if first_name_filter:
-        query_filter = query_filter & first_name_filter
-      if last_name_filter:
-        query_filter = query_filter & last_name_filter
-      if user_role_filter:
-        query_filter = query_filter & user_role_filter
-
-      if work_place_filter:
-        query_filter = query_filter & work_place_filter
-
-      if status_filter:
         query_filter = query_filter & status_filter
+
+      if response_after:
+        response_after = datetime.datetime.strptime(response_after, '%B %d, %Y')
+        response_after_filter = Q(created_date__gte=response_after)
+        query_filter = query_filter & response_after_filter
+
+      if response_before:
+        response_before = datetime.datetime.strptime(response_before, '%B %d, %Y')
+        response_before_filter = Q(created_date__lte=response_before)
+        query_filter = query_filter & response_before_filter
 
       surveySubmissions = models.SurveySubmission.objects.all().filter(query_filter)
 
@@ -8269,9 +8275,11 @@ def surveySubmissionsSearch(request, id='', download=False):
           elif sort_by == 'created_date_desc':
             order_by = 'created_date'
             direction = 'desc'
+            ignorecase = 'false'
           elif sort_by == 'created_date_asc':
             order_by = 'created_date'
             direction = 'asc'
+            ignorecase = 'false'
         else:
           order_by = 'user__user__email'
 

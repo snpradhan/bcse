@@ -1675,6 +1675,8 @@ class SurveySubmissionsSearchForm(forms.Form):
                                                       widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete',
                                                                                        attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
 
+  response_after = forms.DateField(required=False, label=u'Response Date on/after')
+  response_before = forms.DateField(required=False, label=u'Response Date on/before')
   status = forms.MultipleChoiceField(required=False, choices=models.SURVEY_SUBMISSION_STATUS_CHOICES, label='Response Status')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('email', 'Email'),
@@ -1692,7 +1694,10 @@ class SurveySubmissionsSearchForm(forms.Form):
     super(SurveySubmissionsSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
-      field.widget.attrs['class'] = 'form-control'
+      if field_name in ['response_after', 'response_before']:
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        field.widget.attrs['class'] = 'form-control'
 
       if initials:
         if field_name in initials:
