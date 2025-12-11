@@ -15,3 +15,13 @@ class Command(BaseCommand):
                 views.subscription(userDetails, 'add')
             else:
                 views.subscription(userDetails, 'delete')
+
+            if user.userProfile.secondary_email:
+                userSecondaryDetails = {'email_address': user.userProfile.secondary_email.lower(), 'first_name':  user.first_name, 'last_name':  user.last_name}
+                if user.userProfile.phone_number:
+                    userSecondaryDetails['phone_number'] = user.userProfile.phone_number
+
+                if user.userProfile.subscribe:
+                    views.subscription(userSecondaryDetails, 'add')
+                else:
+                    views.subscription(userSecondaryDetails, 'delete')

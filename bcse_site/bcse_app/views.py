@@ -652,6 +652,14 @@ def userSignup(request):
           userDetails['phone_number'] = newUser.phone_number
         subscription(userDetails, 'add')
 
+        if newUser.secondary_email:
+          userSecondaryDetails = {'email_address': newUser.secondary_email, 'first_name': newUser.user.first_name, 'last_name': newUser.user.last_name}
+          if newUser.phone_number:
+            userSecondaryDetails['phone_number'] = newUser.phone_number
+          #adding a separate contact with secondary email
+          subscription(userSecondaryDetails, 'add')
+
+
       current_site = Site.objects.get_current()
       domain = current_site.domain
 
@@ -5889,8 +5897,13 @@ def userProfileEdit(request, id=''):
       data.__setitem__('user-date_joined', userProfile.user.date_joined)
 
       subscriber_hash = hashlib.md5(userProfile.user.email.lower().encode("utf-8")).hexdigest()
+      secondary_hash = None
+      if userProfile.secondary_email:
+        secondary_hash = hashlib.md5(userProfile.secondary_email.lower().encode("utf-8")).hexdigest()
+
       subscribed = userProfile.subscribe
       old_email = userProfile.user.email
+      old_secondary_email = userProfile.secondary_email
       old_first_name = userProfile.user.first_name
       old_last_name = userProfile.user.last_name
       old_phone_number = userProfile.phone_number
@@ -5941,17 +5954,43 @@ def userProfileEdit(request, id=''):
             update_session_auth_hash(request, userProfile.user)
 
           userDetails = {'email_address': savedUserProfile.user.email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
+          if secondary_email:
+            userSecondaryDetails = {'email_address': savedUserProfile.secondary_email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
+
           if savedUserProfile.phone_number:
             userDetails['phone_number'] = savedUserProfile.phone_number
+            if secondary_email:
+              userSecondaryDetails['phone_number'] = savedUserProfile.phone_number
+
           #user unsubscribed
           if subscribed and not savedUserProfile.subscribe:
             subscription(userDetails, 'delete', subscriber_hash)
+            if secondary_hash:
+              subscription(userSecondaryDetails, 'delete', secondary_hash)
+
           #user subscribed
           elif not subscribed and savedUserProfile.subscribe:
             subscription(userDetails, 'add')
-          #user email, first name or last name changed
-          elif old_email != savedUserProfile.user.email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
-            subscription(userDetails, 'update', subscriber_hash)
+            if secondary_email:
+              subscription(userSecondaryDetails, 'add')
+
+          #user stays subscribed but bio changes
+          elif subscribed and savedUserProfile.subscribe:
+            #user email, secondary email, first name or last name changed
+            if old_email != savedUserProfile.user.email or old_secondary_email != savedUserProfile.secondary_email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
+              subscription(userDetails, 'update', subscriber_hash)
+
+              if old_secondary_email != savedUserProfile.secondary_email or old_first_name != savedUserProfile.user.first_name or old_last_name != savedUserProfile.user.last_name or old_phone_number != savedUserProfile.phone_number:
+                #user removed secondary email
+                if old_secondary_email is not None and savedUserProfile.secondary_email is None:
+                  userSecondaryDetails = {'email_address': old_secondary_email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
+                  subscription(userSecondaryDetails, 'delete', secondary_hash)
+                #user added secondary email
+                elif old_secondary_email is None and savedUserProfile.secondary_email is not None:
+                  subscription(userSecondaryDetails, 'add')
+                #user changed secondary email or other details
+                else:
+                  subscription(userSecondaryDetails, 'update', secondary_hash)
 
         messages.success(request, "User profile saved successfully")
         response_data['success'] = True
@@ -6073,7 +6112,7 @@ def subscribe(request):
         subscription(userDetails, 'add')
 
         try:
-          userProfile = models.UserProfile.objects.get(user__email=userDetails['email_address'])
+          userProfile = models.UserProfile.objects.get(Q(user__email=userDetails['email_address']) | Q(secondary_email=userDetails['email_address']))
           userProfile.subscribe = True
           userProfile.save()
         except models.UserProfile.DoesNotExist:

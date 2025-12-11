@@ -12,8 +12,14 @@ class Command(BaseCommand):
                 userDetails['phone_number'] = user.userProfile.phone_number
 
             views.subscription(userDetails, 'add')
+
+            if user.userProfile.secondary_email:
+                userSecondaryDetails = {'email_address': user.userProfile.secondary_email.lower(), 'first_name':  user.first_name, 'last_name':  user.last_name}
+                if user.userProfile.phone_number:
+                    userSecondaryDetails['phone_number'] = user.userProfile.phone_number
+
+                views.subscription(userSecondaryDetails, 'add')
+
             if not user.userProfile.subscribe:
                 user.userProfile.subscribe = True
                 user.userProfile.save()
-            
-                
