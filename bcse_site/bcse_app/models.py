@@ -737,6 +737,12 @@ class Reservation(models.Model):
     else:
       return '%s - %s' % (self.other_activity_name, self.user)
 
+  def get_activity_name(self):
+    if self.activity:
+      return self.activity
+    else:
+      return self.other_activity_name
+
 ################################################################################
 # LINK BETWEEN RESERVATION AND WORKPLACE WHEN THE RESERVATION IS MADE
 ###############################################################################

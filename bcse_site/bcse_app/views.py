@@ -9727,7 +9727,7 @@ def reservationConfirmationEmailSend(request, id):
 
     current_site = Site.objects.get_current()
     domain = current_site.domain
-    subject = 'Baxter Box Reservation Confirmed'
+    subject = 'Baxter Box Reservation Confirmed for %s' % reservation.get_activity_name()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
@@ -9817,7 +9817,7 @@ def reservationFeedbackEmailSend(request, id):
       raise CustomException('Baxter Box Feedback Survey not found')
     current_site = Site.objects.get_current()
     domain = current_site.domain
-    subject = 'How was your Baxter Box Lab?'
+    subject = 'How was your Baxter Box Lab for %s?' % reservation.get_activity_name()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
@@ -9879,7 +9879,7 @@ def reservationReceiptEmailSend(request, id):
 
     current_site = Site.objects.get_current()
     domain = current_site.domain
-    subject = 'Baxter Box Reservation Request Received'
+    subject = 'Baxter Box Request Received for %s' % reservation.get_activity_name()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
@@ -9921,7 +9921,7 @@ def reservationReceiptEmailSend(request, id):
 def send_reservation_message_email(request, reservation_message):
   current_site = Site.objects.get_current()
   domain = current_site.domain
-  subject = 'You have a new message about your Baxter Box Reservation'
+  subject = 'New message about your Baxter Box Reservation for %s' % reservation_message.reservation.get_activity_name()
   if domain != 'bcse.northwestern.edu':
     subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
