@@ -21,7 +21,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.views.i18n import JavaScriptCatalog
 from bcse_app.forms import SecondaryEmailPasswordResetForm
-from bcse_app.views import UserAutocomplete, RegistrantAutocomplete, WorkplaceAutocomplete, WorkplaceAllAutocomplete, TeacherLeaderAutocomplete
+from bcse_app.views import UserAutocomplete, RegistrantAutocomplete, WorkplaceAutocomplete, WorkplaceAllAutocomplete, FacilitatorAutocomplete
 
 urlpatterns = [
     path('', include('bcse_app.urls', namespace="bcse")),
@@ -52,7 +52,7 @@ urlpatterns = [
          ), name='password_reset_complete'),
 
     path('user-autocomplete/', UserAutocomplete.as_view(), name='user-autocomplete'),
-    path('teacher-leader-autocomplete/', TeacherLeaderAutocomplete.as_view(), name='teacher-leader-autocomplete'),
+    path('facilitator-autocomplete/', FacilitatorAutocomplete.as_view(), name='facilitator-autocomplete'),
     path('registrant-autocomplete/', RegistrantAutocomplete.as_view(), name='registrant-autocomplete'),
     path('workplace-autocomplete/', WorkplaceAutocomplete.as_view(), name='workplace-autocomplete'),
     path('workplace-all-autocomplete/', WorkplaceAllAutocomplete.as_view(), name='workplace-all-autocomplete'),

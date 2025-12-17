@@ -66,8 +66,7 @@ def home(request):
   """
   homepage_blocks = models.HomepageBlock.objects.all().filter(status='A').order_by('order')
   members = models.Team.objects.all().filter(status='A').exclude(former_member=True).order_by('order')
-  teacher_leaders = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
-  context = {'homepage_blocks': homepage_blocks, 'members': members, 'teacher_leaders': teacher_leaders}
+  context = {'homepage_blocks': homepage_blocks, 'members': members}
   return render(request, 'bcse_app/Home.html', context)
 
 ####################################
@@ -139,7 +138,7 @@ def aboutTeacherLeaders(request):
   :param request: request from the browser
   :returns: rendered template 'bcse_app/AboutTeacherLeaders.html', a page abou the BCSE teacher leaders
   """
-  teacherLeaders = models.TeacherLeader.objects.all().filter(status='A', highlight=True)
+  teacherLeaders = models.TeacherLeader.objects.all().filter(status='A', bcse_role='T', highlight=True)
   context = {'teacherLeaders': teacherLeaders}
   return render(request, 'bcse_app/AboutTeacherLeaders.html', context)
 
@@ -3723,7 +3722,6 @@ def workshopEdit(request, id=''):
 
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
-      print(workshop.teacher_leaders)
       if workshop.enable_registration:
         workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
     else:
@@ -5208,7 +5206,7 @@ def workshopRegistrants(request, id=''):
   workshopsSearch is called from the path 'workshops/list'
   :param request: request from the browser
   :param id='': id of workshop
-  :returns: rendered template 'bcse_app/WorkshopAdminRegistrants.html', rendered template 'bcse_app/WorkshopTeacherLeaderRegistrants.html'  or error page
+  :returns: rendered template 'bcse_app/WorkshopAdminRegistrants.html', rendered template 'bcse_app/WorkshopFacilitatorRegistrants.html'  or error page
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   :raises models.Workshop.DoesNotExist: redirects user to page they were on before encountering error due to workshop not existing
   """
@@ -5237,7 +5235,7 @@ def workshopRegistrants(request, id=''):
         if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
           return render(request, 'bcse_app/WorkshopAdminRegistrants.html', context)
         else:
-          return render(request, 'bcse_app/WorkshopTeacherLeaderRegistrants.html', context)
+          return render(request, 'bcse_app/WorkshopFacilitatorRegistrants.html', context)
 
       else:
         raise models.Workshop.DoesNotExist
@@ -6424,23 +6422,23 @@ def standalonePageCopy(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
-# LIST OF TEACHER LEADERS
+# LIST OF FACILITATORS
 ##########################################################
 @login_required
-def teacherLeaders(request):
+def facilitators(request):
   """
-  teacherLeaders is called from the path 'adminConfiguration/teacherLeaders/'
+  facilitators is called from the path 'adminConfiguration/facilitators/'
   :param request: request from the browser
-  :returns: rendered template 'bcse_app/TeacherLeaders.html'
+  :returns: rendered template 'bcse_app/Facilitators.html'
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to view teacher leaders')
+      raise CustomException('You do not have the permission to view facilitators')
 
-    teacher_leaders = models.TeacherLeader.objects.all()
-    context = {'teacher_leaders': teacher_leaders}
-    return render(request, 'bcse_app/TeacherLeaders.html', context)
+    facilitators = models.TeacherLeader.objects.all()
+    context = {'facilitators': facilitators}
+    return render(request, 'bcse_app/Facilitators.html', context)
 
   except CustomException as ce:
     messages.error(request, ce)
@@ -6448,14 +6446,14 @@ def teacherLeaders(request):
 
 
 ##########################################################
-# EDIT TEACHER LEADERS
+# EDIT FACILITATOR
 ##########################################################
 @login_required
-def teacherLeaderEdit(request, id=''):
+def facilitatorEdit(request, id=''):
   """
-  teacherLeaderEdit is called from the path 'adminConfiguration/teacherLeaders/'
+  facilitatorEdit is called from the path 'adminConfiguration/facilitators/'
   :param request: request from the browser
-  :param id='': id of teacher leader to edit
+  :param id='': id of facilitatorEdit to edit
   :returns: page with remaining standalone pages
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
@@ -6464,26 +6462,26 @@ def teacherLeaderEdit(request, id=''):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to edit teacher leader')
     if '' != id:
-      teacher_leader = models.TeacherLeader.objects.get(id=id)
+      facilitator = models.TeacherLeader.objects.get(id=id)
     else:
-      teacher_leader = models.TeacherLeader()
+      facilitator = models.TeacherLeader()
 
     if request.method == 'GET':
-      form = forms.TeacherLeaderForm(instance=teacher_leader)
+      form = forms.FacilitatorForm(instance=facilitator)
       context = {'form': form}
-      return render(request, 'bcse_app/TeacherLeaderEdit.html', context)
+      return render(request, 'bcse_app/FacilitatorEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.TeacherLeaderForm(data, files=request.FILES, instance=teacher_leader)
+      form = forms.FacilitatorForm(data, files=request.FILES, instance=facilitator)
       if form.is_valid():
-        savedTeacherLeader = form.save()
-        messages.success(request, "Teacher Leader saved")
-        return shortcuts.redirect('bcse:teacherLeaderEdit', id=savedTeacherLeader.id)
+        savedFacilitator = form.save()
+        messages.success(request, "Facilitator saved")
+        return shortcuts.redirect('bcse:facilitatorEdit', id=savedFacilitator.id)
       else:
         print(form.errors)
-        message.error(request, "Teacher Leader could not be saved. Check the errors below.")
+        message.error(request, "Facilitator could not be saved. Check the errors below.")
         context = {'form': form}
-        return render(request, 'bcse_app/TeacherLeaderEdit.html', context)
+        return render(request, 'bcse_app/FacilitatorEdit.html', context)
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
 
@@ -6496,27 +6494,27 @@ def teacherLeaderEdit(request, id=''):
 # DELETE TEACHER LEADER
 ##########################################################
 @login_required
-def teacherLeaderDelete(request, id=''):
+def facilitatorDelete(request, id=''):
   """
-  teacherLeaderDelete is called from the path 'adminConfiguration/teacherLeaders/'
+  facilitatorDelete is called from the path 'adminConfiguration/facilitators/'
   :param request: request from the browser
-  :param id='': id of teacher leader to delete
-  :returns: page with remaining teacher leaders
+  :param id='': id of facilitator to delete
+  :returns: page with remaining facilitator
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to delete teacher leader')
+      raise CustomException('You do not have the permission to delete facilitator')
     if '' != id:
-      teacher_leader = models.TeacherLeader.objects.get(id=id)
-      teacher_leader.delete()
-      messages.success(request, "Teacher Leader deleted")
+      facilitator = models.TeacherLeader.objects.get(id=id)
+      facilitator.delete()
+      messages.success(request, "Facilitator deleted")
 
-    return shortcuts.redirect('bcse:teacherLeaders')
+    return shortcuts.redirect('bcse:facilitators')
 
   except models.TeacherLeader.DoesNotExist:
-    messages.success(request, "Teacher Leader not found")
+    messages.success(request, "Facilitator not found")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
@@ -10106,12 +10104,12 @@ class UserAutocomplete(autocomplete.Select2QuerySetView):
 
 
 #####################################################
-# TEACHER LEADER AUTOCOMPLETE
+# FACILITATOR AUTOCOMPLETE
 #####################################################
-class TeacherLeaderAutocomplete(autocomplete.Select2QuerySetView):
+class FacilitatorAutocomplete(autocomplete.Select2QuerySetView):
   def get_queryset(self):
-    existing_teacher_leaders = models.TeacherLeader.objects.all().values_list('teacher', flat=True)
-    qs = models.UserProfile.objects.all().filter(user__is_active=True, user_role__in=['T', 'P']).exclude(id__in=existing_teacher_leaders).order_by('user__last_name', 'user__first_name')
+    existing_facilitators = models.TeacherLeader.objects.all().values_list('teacher', flat=True)
+    qs = models.UserProfile.objects.all().filter(user__is_active=True, user_role__in=['T', 'P']).exclude(id__in=existing_facilitators).order_by('user__last_name', 'user__first_name')
     if self.q:
       qs = qs.filter(Q(user__last_name__icontains=self.q) | Q(user__first_name__icontains=self.q))
 

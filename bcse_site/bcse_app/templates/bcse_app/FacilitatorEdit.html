@@ -4,9 +4,9 @@
 
 {% block configuration %}
   {% if form.instance.id %}
-    <h1 class="center"> Teacher Leader - {{form.instance.teacher.user.first_name}} {{form.instance.teacher.user.last_name}} </h1>
+    <h1 class="center"> Facilitator - {{form.instance.teacher.user.first_name}} {{form.instance.teacher.user.last_name}} </h1>
   {% else %}
-    <h1 class="center"> Create Teacher Leader </h1>
+    <h1 class="center"> Create Facilitator </h1>
   {% endif %}
   <div class="admin_form">
     <form method="post" enctype="multipart/form-data" id="formTeacherLeader">
@@ -25,6 +25,12 @@
         <div class="error">{{ form.bio.errors }}</div>
       </div>
 
+       <div class="form-group mb-3">
+        <label for="id_{{form.bcse_role.name}}" class="form-label"> {{form.bcse_role.label}}</label>
+        <div>{{form.bcse_role}}</div>
+        <div class="error">{{ form.bcse_role.errors }}</div>
+      </div>
+
       <div class="form-group mb-3">
         <label for="id_{{form.highlight.name}}" class="form-label"> {{form.highlight.label|title}}</label>
         <div>{{form.highlight}}</div>
@@ -38,7 +44,7 @@
       
       <div class="form-group mb-3 right">
         {% if form.instance.id %}
-          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:teacherLeaderDelete' form.instance.id %}" data-title="the teacher leader <strong>{{form.instance.first_name}} {{form.instance.last_name}}</strong>">
+          <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:facilitatorDelete' form.instance.id %}" data-title="the facilitator <strong>{{form.instance.first_name}} {{form.instance.last_name}}</strong>">
             Delete
           </button>
         {% endif %}

@@ -1171,7 +1171,7 @@ class WorkshopForm(ModelForm):
     self.fields['workshop_category'].queryset = models.WorkshopCategory.objects.all().filter(status='A').order_by('name')
     self.fields['credits'].label = 'ISBE PD Hours'
     self.fields['collaborators'].queryset = models.Collaborator.objects.all().filter(status='A').order_by('name')
-
+    self.fields['teacher_leaders'].label = 'Facilitators'
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['enable_registration', 'featured', 'cancelled']:
@@ -1503,21 +1503,25 @@ class WorkPlaceUpdateForm(ModelForm):
 
 
 ####################################
-# Teacher Leader Form
+# Facilitator Form
 ####################################
-class TeacherLeaderForm(ModelForm):
+class FacilitatorForm(ModelForm):
 
   class Meta:
     model = models.TeacherLeader
     exclude = ('created_date', 'modified_date')
     widgets = {
       'image': widgets.ClearableFileInput,
-      'teacher': autocomplete.ModelSelect2(url='teacher-leader-autocomplete', attrs={'data-placeholder': 'Start typing the name of the teacher ...',})
+      'teacher': autocomplete.ModelSelect2(url='facilitator-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',})
 
     }
 
   def __init__(self, *args, **kwargs):
-    super(TeacherLeaderForm, self).__init__(*args, **kwargs)
+    super(FacilitatorForm, self).__init__(*args, **kwargs)
+
+    self.fields['teacher'].label = 'User'
+    self.fields['bcse_role'].label = 'BCSE Role'
+
     for field_name, field in list(self.fields.items()):
       if field_name in ['highlight']:
         field.widget.attrs['class'] = 'form-check-input'

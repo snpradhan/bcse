@@ -150,7 +150,7 @@
 <div class="workshop_teacher_leader">
   {% if workshop.teacher_leaders.all %}
     <hr>
-    <h3>About the Teacher{% if workshop.teacher_leaders.all.count > 1 %}s{% endif %}</h3>
+    <h3>About the Facilitator{% if workshop.teacher_leaders.all.count > 1 %}s{% endif %}</h3>
     {% for teacher_leader in workshop.teacher_leaders.all %}
     <div class="teacher_leader_info">
       <div class="teacher_leader_image">
@@ -160,6 +160,7 @@
       </div>
       <div class="teacher_leader_details">
         <h4>{{teacher_leader.teacher.user.get_full_name}}</h4>
+        <h4>{{teacher_leader.get_bcse_role_display}}</h4>
         <h4>{{teacher_leader.teacher.work_place.name}}</h4>
         <div class="wysiwyg_content">{{teacher_leader.bio|safe}}</div>
       </div>

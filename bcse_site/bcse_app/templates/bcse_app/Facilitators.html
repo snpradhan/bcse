@@ -1,0 +1,70 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> Facilitators </h1>
+  <div class="button-row">
+    <a class="btn" href="{% url 'bcse:facilitatorNew' %}" role="button">Create Facilitator</a>
+  </div>
+  <div class="search_results static">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> Facilitator ID</th>
+          <th> Full Name </th>
+          <th> Image </th>
+          <th> School </th>
+          <th> Bio </th>
+          <th> BCSE Role </th>
+          <th> Highlight </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for facilitator in facilitators %}
+          <tr>
+            <td> {{facilitator.id}}</td>
+            <td> {{facilitator.teacher.user.get_full_name}} </td>
+            <td>
+              {% if facilitator.teacher.image %}
+                <img class="icon" src="{{facilitator.teacher.image.url}}"/>
+              {% endif %}
+            </td>
+            <td> {{facilitator.teacher.work_place}} </td>
+            <td class="wysiwyg_content"> {{facilitator.bio|safe}} </td>
+            <td> {{facilitator.get_bcse_role_display}} </td>
+            <td> {{facilitator.highlight|yesno:"Yes,No"}} </td>
+            <td> {{facilitator.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{facilitator.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'bcse:facilitatorEdit' facilitator.id %}">Edit Facilitator Profile</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' facilitator.teacher.id %}" href="#">Edit User Profile</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:facilitatorDelete' facilitator.id %}"
+                    data-title="the teacher leader <strong>{{facilitator.first_name}} {{facilitator.last_name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

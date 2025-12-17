@@ -29,8 +29,8 @@
                   {% leftnavactive request 'workshopCategory' %}
                   {% leftnavactive request 'registrationEmailMessages' %}
                   {% leftnavactive request 'registrationEmailMessage' %}
-                  {% leftnavactive request 'teacherLeaders' %}
-                  {% leftnavactive request 'teacherLeader' %}
+                  {% leftnavactive request 'facilitators' %}
+                  {% leftnavactive request 'facilitator' %}
                   {% leftnavactive request 'workshopsRegistrants' %}" id="workshop_config">
 
                 <li class="{% if 'workshops/' in request.path or  'workshop/' in request.path %} active {% endif %}">
@@ -42,8 +42,8 @@
                 <li class="{% if 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:registrationEmailMessages' %}">Registration Email Messages</a>
                 </li>
-                <li class="{% if 'teacherLeaders' in request.path or  'teacherLeader' in request.path %} active {% endif %}">
-                  <a href="{% url 'bcse:teacherLeaders' %}">Teacher Leaders</a>
+                <li class="{% if 'facilitators' in request.path or  'facilitator' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:facilitators' %}">Facilitators</a>
                 </li>
                 <li class="{% if 'workshopsRegistrants' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:workshopsRegistrants' %}">Workshop Registration Report</a>

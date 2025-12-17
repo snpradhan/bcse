@@ -234,6 +234,12 @@ EMAIL_STATUS_CHOICES = (
   ('S', 'Sent'),
 )
 
+BCSE_FACILITATOR_ROLE_CHOICES = (
+  ('T', 'Teacher Leader'),
+  ('F', 'Other Facilitator'),
+)
+
+
 TABLE_ROWS_PER_PAGE_CHOICES = (
   (25, '25'),
   (50, '50'),
@@ -454,6 +460,7 @@ class TeacherLeader(models.Model):
   teacher = models.ForeignKey(UserProfile, null=False, blank=False, on_delete=models.CASCADE)
   bio = RichTextField(null=True, blank=True)
   highlight = models.BooleanField(default=False)
+  bcse_role = models.CharField(default='T', max_length=1, choices=BCSE_FACILITATOR_ROLE_CHOICES)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
