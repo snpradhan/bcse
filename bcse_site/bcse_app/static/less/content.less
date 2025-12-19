@@ -1337,13 +1337,21 @@ body {
         margin-bottom: 1em;
       }
 
-      div.collaborators {
+      div.collaborators{
         margin: 3em 0;
         display: flex;
-        justify-content: flex-start;
+        justify-content: center;
         align-items: center;
         flex-wrap: wrap;
         gap: 4em;
+
+        div.collaborator {
+          flex: 0 0 20%;
+          text-align: center;
+          img {
+            max-height: 15em;
+          }
+        }
       }
 
       div.teacher_leader_info {
