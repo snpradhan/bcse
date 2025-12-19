@@ -388,6 +388,38 @@ def baxterBoxMessageEdit(request, id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
+# DELETE BLACKOUT MESSAGE
+##########################################################
+@login_required
+def baxterBoxMessageDelete(request, id=''):
+  """
+  baxterBoxMessageDelete is called from the path '/adminConfiguration/baxter_box/settings/'
+  :param request: request from the browser
+  :param id='': id of the baxter box message
+  :returns: rendered template 'bcse_app/BaxterBoxMessageEdit.html' with baxter box message with id deleted
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises models.BaxterBoxMessage.DoesNotExist: raises an exception and redirects user to page they were on before encountering error due to message not existing
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete baxter box message')
+
+    if ''!= id:
+      baxterbox_message = models.BaxterBoxMessage.objects.get(id=id)
+      baxterbox_message.delete()
+
+      messages.success(request, "Baxter Box message deleted")
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.BaxterBoxMessage.DoesNotExist:
+    messages.success(request, "Baxter Box message not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
 # LIST OF BAXTER BOX COLORS
 ##########################################################
 @login_required

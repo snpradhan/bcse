@@ -109,6 +109,7 @@ urlpatterns = [
     path('adminConfiguration/baxter_box/settings/', views.baxterBoxSettings, name='baxterBoxSettings'),
     path('adminConfiguration/baxter_box/message/<int:id>/edit', views.baxterBoxMessageEdit, name='baxterBoxMessageEdit'),
     path('adminConfiguration/baxter_box/message/new', views.baxterBoxMessageEdit, name='baxterBoxMessageNew'),
+    path('adminConfiguration/baxter_box/message/<int:id>/delete', views.baxterBoxMessageDelete, name='baxterBoxMessageDelete'),
 
     path('adminConfiguration/tags/', views.tags, name='tags'),
     path('adminConfiguration/subTags/', views.subTags, name='subTags'),

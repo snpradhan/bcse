@@ -113,6 +113,13 @@
                   <li>
                     <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxMessageEdit' baxterbox_message.id %}" href="#">Edit</a>
                   </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:baxterBoxMessageDelete' baxterbox_message.id %}"
+                    data-title="the Baxter Box message id  <strong>{{baxterbox_message.id}}</strong>">
+                      Delete
+                    </a>
+                  </li>
                 </ul>
               </div>
             </td>
