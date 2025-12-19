@@ -22,7 +22,10 @@
         </div>
 
         <div class="form-group">
-          <label for="id_{{searchForm.keywords.name}}" class="form-label">{{searchForm.keywords.label|title}} </label>
+          <label for="id_{{searchForm.keywords.name}}" class="form-label">
+            {{searchForm.keywords.label|title}}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.keywords.help_text}}"></i>
+          </label>
           <div>{{searchForm.keywords}}</div>
           <div class="error">{{ searchForm.keywords.errors }}</div>
         </div>

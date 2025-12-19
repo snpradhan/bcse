@@ -1446,6 +1446,8 @@ class WorkshopCategoriesSearchForm(forms.Form):
       else:
         field.widget.attrs['class'] = 'form-control'
 
+      if field_name == 'keywords':
+        field.help_text = 'Search by Keyword searches into name and description'
 
       if initials:
         if field_name in initials:
@@ -1914,7 +1916,8 @@ class ReservationsSearchForm(forms.Form):
         field.help_text = 'On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection'
       if field_name == 'sort_by':
         field.help_text = 'The default sort is (Delivery Date followed by Return date) in descending order for Unconfirmed/Confirmed/Completed/Cancelled reservations and (Return Date) in descending order for Checked Out reservations.'
-
+      if field_name == 'keywords':
+        field.help_text = 'Search by Keyword searches into activity name, user first/last name, user notes and admin notes'
 
       if initials:
         if field_name in initials:
@@ -1986,6 +1989,8 @@ class WorkshopsSearchForm(forms.Form):
 
       if field.help_text:
         field.widget.attrs['placeholder'] = field.help_text
+      if field_name == 'keywords':
+        field.help_text = 'Search by Keyword searches into workshop name, subtitle, workshop category, facilitator first/last name, summary, description and location'
 
       if initials:
         if field_name in initials:
@@ -2044,6 +2049,9 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
         field.widget.attrs['class'] = 'form-control'
 
       field.widget.attrs['placeholder'] = field.help_text
+
+      if field_name == 'keywords':
+        field.help_text = 'Search by Keyword searches into workshop name, subtitle, workshop category, facilitator first/last name, summary, description and location'
 
       if initials:
         if field_name in initials:
