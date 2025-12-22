@@ -1591,8 +1591,14 @@ class CollaboratorForm(ModelForm):
     super(CollaboratorForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+
       field.widget.attrs['placeholder'] = field.help_text
+
+      if field_name == 'highlight':
+        field.widget.attrs['class'] = 'form-check-input'
+        field.help_text = 'Check this box to display the collaborator on Our Partnership page'
+      else:
+        field.widget.attrs['class'] = 'form-control'
 
 
 ####################################

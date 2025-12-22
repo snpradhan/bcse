@@ -76,6 +76,17 @@
           <div class="error">{{ form.order.errors }}</div>
         </div>
         <div class="form-group mb-3">
+          <label for="id_{{form.highlight.name}}">
+            {{ form.highlight.label }}
+            {% if form.highlight.field.required %}
+            (<span class="required">*</span>)
+            {% endif %}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.highlight.help_text}}"></i>
+          </label>
+          <div>{{form.highlight}}</div>
+          <div class="error">{{ form.highlight.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
           <label for="id_{{form.status.name}}">
             {{ form.status.label }}
             {% if form.status.field.required %}

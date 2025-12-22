@@ -876,6 +876,7 @@ class Collaborator(models.Model):
   description = RichTextField(null=True, blank=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image of this collaborator')
   url = models.URLField(null=False, blank=False)
+  highlight = models.BooleanField(default=False)
   order = models.IntegerField(null=False, blank=False)
   status = models.CharField(default='A',  max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)

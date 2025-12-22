@@ -117,7 +117,7 @@ def aboutPartners(request):
   :returns: rendered template 'bcse_app/AboutPartners.html', a page about school partners
   """
   partners = models.Partner.objects.all().filter(status='A').order_by('order')
-  collaborators = models.Collaborator.objects.all().filter(status='A').order_by('order')
+  collaborators = models.Collaborator.objects.all().filter(status='A', highlight=True).order_by('order')
   context = {'partners': partners, 'collaborators': collaborators}
   return render(request, 'bcse_app/AboutPartners.html', context)
 

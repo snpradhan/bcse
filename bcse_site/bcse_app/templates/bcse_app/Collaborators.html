@@ -15,6 +15,7 @@
           <th> Name </th>
           <th> URL </th>
           <th> Order </th>
+          <th> Hightlight </th>
           <th> Status </th>
           <th> Created Date</th>
           <th> Modified Date </th>
@@ -28,6 +29,7 @@
             <td> {{collaborator.name}} </td>
             <td> {{collaborator.url}} </td>
             <td> {{collaborator.order}} </td>
+            <td> {{collaborator.highlight|yesno:"Yes,No"}} </td>
             <td> {{collaborator.get_status_display}} </td>
             <td> {{collaborator.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{collaborator.modified_date|date:"F j, Y g:i A"}} </td>
