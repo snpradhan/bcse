@@ -209,12 +209,10 @@
                   {% if user.userProfile.user_role in 'AS' and tag == 'reservations' %}
                     {% for equipment in reservation.equipment.all %}
                       <li>
-                        <a class="modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment.equipment_type.id %}" href="#">
-                          {{equipment.name}}
-                        </a>
-                        &nbsp;
+                        <a class="modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment.equipment_type.id %}" href="#">{{equipment.name}}</a>
                         {% with overbooked=equipment|is_equipment_overbooked:reservation %}
                           {% if overbooked %}
+                            &nbsp;
                             <a class="modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:equipmentOverbookedReservations' equipment.id reservation.id %}" href="#"><i class="fa-solid fa-calendar-circle-exclamation"  title="Overbooked. Click to view overbooking schedule."></i></a>
                           {% endif %}
                         {% endwith %}
