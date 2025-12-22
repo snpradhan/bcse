@@ -178,10 +178,14 @@ class AdminCalendar(HTMLCalendar):
                    <div>Kit {index} <i class="fas fa-at"></i>'
               if len(locations) > 1:
                 d += '<i class="fa-solid fa-calendar-circle-exclamation"></i>'
-              d += '<ul>'
-              for location in locations:
-                d += f'<li>{location}</li>'
-              d += '<ul></div></div>'
+                d += '<ul>'
+                for location in locations:
+                  d += f'<li>{location}</li>'
+                d += '<ul>'
+              else:
+                d += f'{locations[0]}'
+
+              d+=f'</div></div>'
 
         return f"<td> \
                   <div class='date'>\
