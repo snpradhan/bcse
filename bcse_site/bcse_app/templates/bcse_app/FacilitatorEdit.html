@@ -32,7 +32,10 @@
       </div>
 
       <div class="form-group mb-3">
-        <label for="id_{{form.highlight.name}}" class="form-label"> {{form.highlight.label|title}}</label>
+        <label for="id_{{form.highlight.name}}" class="form-label">
+          {{form.highlight.label|title}}
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.highlight.help_text}}"></i>
+        </label>
         <div>{{form.highlight}}</div>
         <div class="error">{{ form.highlight.errors }}</div>
       </div>

@@ -1527,6 +1527,7 @@ class FacilitatorForm(ModelForm):
     for field_name, field in list(self.fields.items()):
       if field_name in ['highlight']:
         field.widget.attrs['class'] = 'form-check-input'
+        field.help_text = 'Check this box to display the teacher leader on Our Teacher  Leaders page'
       else:
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
