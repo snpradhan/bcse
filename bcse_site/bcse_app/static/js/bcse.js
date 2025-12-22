@@ -189,6 +189,61 @@ function bindDateTimePicker() {
   $('.fa-calendar').on('click', function(){
     $(this).closest('.input-group').find('.datepicker').datepicker("show");
   });
+
+  //insert clear(X) icon on datepicker input to clear the date
+
+  $('.datepicker').each(function () {
+    const $input = $(this);
+
+    // Skip if already processed
+    if ($input.data('has-clear')) return;
+    $input.data('has-clear', true);
+
+    const $group = $input.closest('.input-group');
+
+    // Insert clear button before calendar icon
+    const clearBtn = `
+      <span class="input-group-text clear-date" style="cursor:pointer; display:none;">
+        <i class="fa fa-times"></i>
+      </span>
+    `;
+
+    $group.find('.fa-calendar').closest('.input-group-text').before(clearBtn);
+  });
+
+  // Clear date click
+  $(document).on('click', '.clear-date', function () {
+    const $input = $(this).closest('.input-group').find('.datepicker');
+
+    $input.val('');
+
+    // jQuery UI Datepicker support
+    if ($.datepicker) {
+      $input.datepicker('setDate', null);
+    }
+
+    $(this).hide();
+    $input.trigger('change');
+  });
+
+  // Toggle clear icon on change
+  function toggleClearIcon(input) {
+    const $input = $(input);
+    const $clearBtn = $input.closest('.input-group').find('.clear-date');
+
+    $clearBtn.toggle(!!$input.val());
+  }
+
+  // On change
+  $(document).on('change', '.datepicker', function () {
+    toggleClearIcon(this);
+  });
+
+  // Run once on page load (handles pre-filled dates)
+  $('.datepicker').each(function () {
+    toggleClearIcon(this);
+  });
+
 }
 
 function bindTooltipTrigger() {
