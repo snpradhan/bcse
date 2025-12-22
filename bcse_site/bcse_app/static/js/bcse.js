@@ -665,6 +665,9 @@ function cloneForm(prefix, parent) {
     if (input.classList.contains('hasDatepicker')) {
       $.datepicker.destroy && $.datepicker.destroy(input);  // Optional
       input.classList.remove('hasDatepicker');
+      //remove clear button
+      const group = input.closest('.input-group');
+      group?.querySelector('.clear-date')?.remove();
       //newInput.removeAttribute('id'); // remove old id to avoid duplicate IDs
     }
 
