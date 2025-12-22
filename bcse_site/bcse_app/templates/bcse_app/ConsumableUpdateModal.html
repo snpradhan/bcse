@@ -18,6 +18,13 @@
       <div class="modal-body">
         {{form.id}}
 
+        {% if consumable.image %}
+          <div class="form-group mb-3">
+            <div class="inventory_image">
+              <img src="{{consumable.image.url}}"/>
+            </div>
+          </div>
+        {% endif %}
         <div class="form-group mb-3">
           <label for="id_{{form.inventory.name}}">
             {{ form.inventory.label|title }}

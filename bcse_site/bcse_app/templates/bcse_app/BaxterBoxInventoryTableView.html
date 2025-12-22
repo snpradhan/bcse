@@ -23,7 +23,14 @@
         {% else %}
           <tr>
         {% endif %}
-          <td>{{inv.name}}</td>
+          <td>
+            {% if inv.image_url %}
+              <div class="inventory_image">
+                <img src="{{inv.image_url}}"/>
+              </div>
+            {% endif %}
+            {{inv.name}}
+          </td>
           <td>
             {% if inv.inventory_type == 'A' %}
               Activity Kit

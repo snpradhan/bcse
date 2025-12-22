@@ -30,7 +30,14 @@
             <tr>
           {% endif %}
             <td> {{consumable.id}}</td>
-            <td> {{consumable.name}} </td>
+            <td>
+              {% if consumable.image %}
+                <div class="inventory_image">
+                  <img src="{{consumable.image.url}}"/>
+                </div>
+              {% endif %}
+              {{consumable.name}}
+            </td>
             <td> {{consumable.inventory|default_if_none:""|safe}} </td>
             <td> {{consumable.notes|default_if_none:""|safe}} </td>
             <td> {{consumable.unit_cost|default_if_none:""}} </td>

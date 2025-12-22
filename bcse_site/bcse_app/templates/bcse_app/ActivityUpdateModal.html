@@ -37,6 +37,14 @@
         <div class="tab-content" id="activityTabContent">
 
           <div class="tab-pane active" id="activity_{{form.instance.id}}" role="tabpanel" aria-labelledby="activity_{{form.instance.id}}-tab">
+            {% if activity.image %}
+              <div class="form-group mt-2 mb-3">
+                <div class="inventory_image">
+                  <img src="{{activity.image.url}}"/>
+                </div>
+              </div>
+            {% endif %}
+
             <div class="form-group mb-3">
               <label for="id_{{form.inventory.name}}">
                 {{ form.inventory.label|title }}
@@ -131,6 +139,14 @@
             {% for consumableForm in formset %}
               {{consumableForm.id}}
               <div class="tab-pane" id="consumable_{{consumableForm.instance.id}}" role="tabpanel" aria-labelledby="consumable_{{consumableForm.instance.id}}-tab">
+                {% if consumableForm.instance.image %}
+                  <div class="form-group mt-2 mb-3">
+                    <div class="inventory_image">
+                      <img src="{{consumableForm.instance.image.url}}"/>
+                    </div>
+                  </div>
+                {% endif %}
+
                 <div class="form-group mb-3">
                   <label for="id_{{consumableForm.inventory.name}}">
                     {{ consumableForm.inventory.label|title }}

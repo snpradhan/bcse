@@ -34,7 +34,14 @@
             <tr>
           {% endif %}
             <td> {{activity.id}}</td>
-            <td> {{activity.name}} </td>
+            <td>
+              {% if activity.image %}
+                <div class="inventory_image">
+                  <img src="{{activity.image.url}}"/>
+                </div>
+              {% endif %}
+              {{activity.name}}
+            </td>
             <td> {{activity.kit_name}} </td>
             <td> {{activity.inventory|default_if_none:""|safe}} </td>
             <td> {{activity.notes|default_if_none:""|safe}} </td>

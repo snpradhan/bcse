@@ -6,7 +6,7 @@ from django.contrib import auth, messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.db.models import Q, F, CharField
-from django.db.models.functions import Lower
+from django.db.models.functions import Lower, Concat
 from django.db.models import Sum, Window
 from django.db.models.functions import Coalesce
 import datetime, time
@@ -2979,8 +2979,15 @@ def baxterBoxInventorySearch(request):
       raise CustomException('You do not have the permission to view baxter box inventory')
     else:
 
-      activity_inventory = models.ActivityInventory.objects.annotate(name=F('activity__name'), parent_id=F('activity_id'), color=F('activity__color__color'), color_description=F('activity__color__description'), inventory_type=Value('A', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('activity'), F('storage_location')])).values('id', 'name', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count', 'notes')
-      consumable_inventory = models.ConsumableInventory.objects.annotate(name=F('consumable__name'), parent_id=F('consumable_id'), color=F('consumable__color__color'), color_description=F('consumable__color__description'),  inventory_type=Value('C', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('consumable'), F('storage_location')])).values('id', 'name', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count', 'notes')
+      activity_inventory = models.ActivityInventory.objects.annotate(name=F('activity__name'), image_url=Case(
+        When(activity__image='', then=Value('')),
+        default=Concat(Value(settings.MEDIA_URL), F('activity__image')),
+        output_field=CharField()), parent_id=F('activity_id'), color=F('activity__color__color'), color_description=F('activity__color__description'), inventory_type=Value('A', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('activity'), F('storage_location')])).values('id', 'name', 'image_url', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count', 'notes')
+
+      consumable_inventory = models.ConsumableInventory.objects.annotate(name=F('consumable__name'), image_url=Case(
+        When(consumable__image='', then=Value('')),
+        default=Concat(Value(settings.MEDIA_URL), F('consumable__image')),
+        output_field=CharField()), parent_id=F('consumable_id'), color=F('consumable__color__color'), color_description=F('consumable__color__description'),  inventory_type=Value('C', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('consumable'), F('storage_location')])).values('id', 'name', 'image_url', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count', 'notes')
 
     if request.method == 'GET':
 
