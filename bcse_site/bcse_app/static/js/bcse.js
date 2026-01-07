@@ -784,6 +784,13 @@ function bindUnsavedChangesWarning() {
   // Warn on in-page navigation links
   $(document).off("click.unsaved", "a").on("click.unsaved", "a", function(e) {
 
+    // Skip ALL CKEditor interactions
+    if ($(this).closest(
+      '.cke, .cke_dialog, .cke_reset, .ck-editor, .ck, .ck-dialog'
+    ).length) {
+      return;
+    }
+
     // Skip links inside datepicker
     if ($(this).hasClass("ui-corner-all")) {
       return; // do nothing if inside datepicker
