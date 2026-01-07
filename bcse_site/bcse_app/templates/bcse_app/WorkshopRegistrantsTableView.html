@@ -19,6 +19,7 @@
         {% endif %}
         <th> Created Date </th>
         <th> Registration Status </th>
+        <th> Registration Sub Status </th>
         {% if user.userProfile.user_role in 'AS' %}
           <th class='ignore-column'> Action </th>
         {% elif user.userProfile.user_role in 'TP' and workshop.id and workshop|is_workshop_teacher_leader:user.userProfile %}
@@ -51,6 +52,7 @@
           {% endif %}
           <td> {{registrant.created_date|date:"F j, Y g:i a" }}</td>
           <td> {{registrant.get_status_display}} </td>
+          <td> {{registrant.get_sub_status_display}} </td>
           {% if user.userProfile.user_role in 'AS' %}
             <td class="noExl">
               <div class="btn-group">

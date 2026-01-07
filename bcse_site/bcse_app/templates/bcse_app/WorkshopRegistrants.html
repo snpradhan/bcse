@@ -21,23 +21,43 @@
 
 <table class="table table-bordered table-striped export" id="registrants_summary">
   {% get_registration_breakdown workshop.registration_setting as registration_summary %}
+  {% get_registration_attended_breakdown workshop.registration_setting as registration_attended_summary %}
+  {% with rs_len=registration_summary|length ra_len=registration_attended_summary|length %}
   <thead>
     <tr>
-      <th colspan={{registration_summary|length|add:1}} class="center"> Registration Summary </th>
+      <th colspan="{{ rs_len|add:1|add:ra_len }}" class="center"> Registration Summary </th>
     </tr>
     <tr>
-      <th>Total Registrants</th>
+      <th rowspan="2" class="center">Total Registrants</th>
       {% for status, total in registration_summary.items %}
-      <th>{{status}}</th>
+        {% if status == 'Attended' %}
+          <th colspan="{{ra_len|add:1}}" class="center">{{status}}</th>
+        {% else %}
+          <th rowspan="2">{{status}}</th>
+        {% endif %}
       {% endfor %}
     </tr>
+    {% if registration_attended_summary.items %}
+      <tr>
+        <th>Total</th>
+        {% for sub_status, total in registration_attended_summary.items %}
+          <th>{{sub_status}}</th>
+        {% endfor %}
+      </tr>
+    {% endif %}
   </thead>
   <tbody>
     <td>{{workshop.registration_setting.workshop_registrants.all|length}}</td>
     {% for status, total in registration_summary.items %}
-    <td>{{total}}</td>
+      <td>{{total}}</td>
+      {% if status == 'Attended' %}
+        {% for sub_status, total in registration_attended_summary.items %}
+          <td>{{total}}</td>
+        {% endfor %}
+      {% endif %}
     {% endfor %}
   </tbody>
+  {% endwith %}
 </table>
 <div class="workshops_registrants search_results">
 </div>

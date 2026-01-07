@@ -28,14 +28,23 @@
             <div class="error">{{ registration.form.user.errors }}</div>
           </div>
           <div class="form-group mb-3">
-            <label for="id_{{registration.form.status.name}}" class="form-label"> {{registration.form.status.label}}</label>
+            <label for="id_{{registration.form.status.name}}" class="form-label">
+              {{registration.form.status.label}}
+              <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="tooltip-wide" data-bs-html="true" data-bs-title="{% include 'bcse_app/RegistrationStatusHelpText.html' %}"></i>
+            </label>
             <div>{{registration.form.status}}</div>
             <div class="error">{{ registration.form.status.errors }}</div>
+          </div>
+          <div class="form-group mb-3">
+            <label for="id_{{registration.form.sub_status.name}}" class="form-label"> {{registration.form.sub_status.label|title}}</label>
+            <div>{{registration.form.sub_status}}</div>
+            <div class="error">{{ registration.form.sub_status.errors }}</div>
           </div>
         {% else %}
           {{registration.form.workshop_registration_setting.as_hidden}}
           {{registration.form.user.as_hidden}}
           {{registration.form.status.as_hidden}}
+          {{registration.form.sub_status.as_hidden}}
         {% endif %}
         <div class="form-group mb-3 center">
           {% if user.userProfile.user_role in 'AS' %}

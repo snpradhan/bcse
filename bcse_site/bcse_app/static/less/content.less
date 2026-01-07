@@ -187,6 +187,28 @@ body {
     color: #000000 !important;
   }
 
+  /*****************************
+   * TOOLTIP
+   ***************************/
+  .tooltip-inner {
+    text-align: left;
+    max-width: 300px; /* or any width you like */
+    white-space: normal; /* allows text to wrap */
+
+    ul {
+      margin: 0;
+      padding-left: 1em; /* adjust as needed */
+      list-style-position: inside;
+
+      li {
+        margin-bottom: 0.5em;
+      }
+    }
+  }
+  .tooltip-wide .tooltip-inner {
+    max-width: 600px;
+  }
+
 
   /*****************************
   * DATE TIME PICKER

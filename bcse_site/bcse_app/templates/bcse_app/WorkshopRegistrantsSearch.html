@@ -33,16 +33,6 @@
               <div>{{searchForm.user_role}}</div>
               <div class="error">{{ searchForm.user_role.errors }}</div>
             </div>
-          {% endif %}
-
-           <div class="form-group">
-            <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
-            <div>{{searchForm.work_place}}</div>
-            <div class="error">{{ searchForm.work_place.errors }}</div>
-          </div>
-        </div>
-        <div class="filter_fields">
-          {% if user.userProfile.user_role in 'AS' %}
             <div class="form-group">
               <label for="id_{{searchForm.subscribed.name}}" class="form-label"> {{searchForm.subscribed.label|title}}</label>
               <div>{{searchForm.subscribed}}</div>
@@ -54,23 +44,34 @@
               <div class="error">{{ searchForm.photo_release_complete.errors }}</div>
             </div>
           {% endif %}
-          <div class="form-group">
-            <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
-            <div>{{searchForm.sort_by}}</div>
-            <div class="error">{{ searchForm.sort_by.errors }}</div>
-          </div>
 
+           <div class="form-group">
+            <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
+            <div>{{searchForm.work_place}}</div>
+            <div class="error">{{ searchForm.work_place.errors }}</div>
+          </div>
         </div>
         <div class="filter_fields">
-
           <div class="form-group">
-            <label for="id_{{searchForm.registration_status.name}}" class="form-label"> {{searchForm.registration_status.label|title}}
-            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{searchForm.registration_status.help_text}}"></i>
+            <label for="id_{{searchForm.registration_status.name}}" class="form-label">
+              {{searchForm.registration_status.label|title}}
+              <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="tooltip-wide" data-bs-html="true" data-bs-title="{% include 'bcse_app/RegistrationStatusHelpText.html' %}"></i>
             </label>
             <div>{{searchForm.registration_status}}</div>
             <div class="error">{{ searchForm.registration_status.errors }}</div>
           </div>
 
+          <div class="form-group">
+            <label for="id_{{searchForm.registration_sub_status.name}}" class="form-label"> {{searchForm.registration_sub_status.label|title}}
+            </label>
+            <div>{{searchForm.registration_sub_status}}</div>
+            <div class="error">{{ searchForm.registration_sub_status.errors }}</div>
+          </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
+            <div>{{searchForm.sort_by}}</div>
+            <div class="error">{{ searchForm.sort_by.errors }}</div>
+          </div>
           <div class="form-group">
             <label for="id_{{searchForm.rows_per_page.name}}" class="form-label"> {{searchForm.rows_per_page.label|title}}</label>
             <div>{{searchForm.rows_per_page}}</div>

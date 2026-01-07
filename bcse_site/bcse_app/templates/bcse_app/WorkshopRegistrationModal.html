@@ -22,9 +22,17 @@
           <div>{{form.instance.user}}</div>
         </div>
         <div class="form-group mb-3">
-          <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}</label>
+          <label for="id_{{form.status.name}}" class="form-label">
+            {{form.status.label}}
+            <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="tooltip-wide" data-bs-html="true" data-bs-title="{% include 'bcse_app/RegistrationStatusHelpText.html' %}"></i>
+          </label>
           <div>{{form.status}}</div>
           <div class="error">{{ form.status.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.sub_status.name}}" class="form-label"> {{form.sub_status.label|title}}</label>
+          <div>{{form.sub_status}}</div>
+          <div class="error">{{ form.sub_status.errors }}</div>
         </div>
         <div class="form-group mb-3">
           <label for="id_{{form.work_place.name}}" class="form-label">

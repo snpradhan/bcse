@@ -74,6 +74,14 @@ WORKSHOP_REGISTRATION_STATUS_CHOICES = (
   ('W', 'Waitlisted'),
   ('P', 'Pending'),
   ('T', 'Attended'),
+  ('U', 'Did Not Attend'),
+)
+
+WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES = (
+  ('P', 'Participant'),
+  ('F', 'Facilitator/Presenter'),
+  ('S', 'Staff/Volunteer'),
+  ('O', 'Observer'),
 )
 
 RESERVATION_STATUS_CHOICES = (
@@ -508,6 +516,7 @@ class Registration(models.Model):
   workshop_registration_setting = models.ForeignKey(WorkshopRegistrationSetting, verbose_name='Workshop', related_name='workshop_registrants', on_delete=models.CASCADE)
   user = models.ForeignKey(UserProfile, related_name='registered_workshops', on_delete=models.CASCADE)
   status = models.CharField(default='R', max_length=1, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
+  sub_status = models.CharField(default='P', max_length=1, choices=WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -562,6 +571,7 @@ class WorkshopRegistrationEmail(models.Model):
 class WorkshopEmail(models.Model):
   workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_email")
   registration_status = models.CharField(null=True, blank=True, max_length=50, help_text='One or more registration statuses this email is sent to. Email will be bcc''d to these addresses.')
+  registration_sub_status = models.CharField(null=True, blank=True, max_length=50, help_text='One or more registration sub statuses this email is sent to. Email will be bcc''d to these addresses.')
   photo_release_incomplete = models.BooleanField(default=False, help_text='If checked, this email will be sent to users with incomplete photo release within the selected registration status.')
   registration_email_addresses = models.TextField(null=True, blank=True)
   email_to = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')
@@ -599,6 +609,18 @@ class WorkshopEmail(models.Model):
 
   def set_registration_status(self, status_list):
     self.registration_status = ','.join(status_list)
+
+  def get_registration_sub_status(self):
+    return self.registration_sub_status.split(',') if self.registration_sub_status else []
+
+  def get_registration_sub_status_display(self):
+    if self.registration_sub_status:
+      return '<br>'.join([value for key, value in WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES if key in self.registration_sub_status.split(',')])
+    else:
+      return ""
+
+  def set_registration_sub_status(self, sub_status_list):
+    self.registration_sub_status = ','.join(sub_status_list)
 
 
 

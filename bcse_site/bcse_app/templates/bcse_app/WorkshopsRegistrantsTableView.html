@@ -21,21 +21,40 @@
 <div class="tab-content">
   <div id="registration_summary_container" class="tab-pane fade" role="tabpanel" aria-labelledby="registration_summary-tab">
     <table id="registration_summary" class="table table-bordered table-striped export">
+      {% with all_len=all_registration_summary|length at_len=attended_summary|length %}
       <thead>
         <tr>
-          <th colspan={{all_registration_summary|length|add:1}} class="center"> Registrants Summary </th>
+          <th colspan="{{ all_len|add:at_len }}" class="center"> Registrants Summary </th>
         </tr>
         <tr>
           {% for title, total in all_registration_summary.items %}
+            {% if title == 'Attended' %}
+              <th colspan="{{at_len|add:1}}" class="center">{{title}}</th>
+            {% else %}
+              <th rowspan="2">{{title}}</th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        {% if attended_summary.items %}
+        <tr>
+          <th>Total</th>
+          {% for title, total in attended_summary.items %}
             <th>{{title}}</th>
           {% endfor %}
         </tr>
+        {% endif %}
       </thead>
       <tbody>
         {% for title, total in all_registration_summary.items %}
           <td>{{total}}</td>
+          {% if title == 'Attended' %}
+            {% for title, total in attended_summary.items %}
+              <td>{{total}}</td>
+            {% endfor %}
+          {% endif %}
         {% endfor %}
       </tbody>
+      {% endwith %}
     </table>
   </div>
 
@@ -45,20 +64,28 @@
       <table id="workshops_summary" class="table table-bordered table-striped export">
         <thead>
           <tr>
-            <th>Workshop ID</th>
-            <th>Workshop</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Total Registrants</th>
-            <th>Unique Workplaces</th>
-            <th>Accepted</th>
-            <th>Applied</th>
-            <th>Attended</th>
-            <th>Cancelled</th>
-            <th>Denied</th>
-            <th>Pending</th>
-            <th>Registered</th>
-            <th>Waitlisted</th>
+            <th rowspan="2">Workshop ID</th>
+            <th rowspan="2">Workshop</th>
+            <th rowspan="2">Start Date</th>
+            <th rowspan="2">End Date</th>
+            <th rowspan="2">Total Registrants</th>
+            <th rowspan="2">Unique Workplaces</th>
+            <th rowspan="2">Accepted</th>
+            <th rowspan="2">Applied</th>
+            <th colspan="5" class="center">Attended</th>
+            <th rowspan="2">Cancelled</th>
+            <th rowspan="2">Denied</th>
+            <th rowspan="2">Did Not Attend</th>
+            <th rowspan="2">Pending</th>
+            <th rowspan="2">Registered</th>
+            <th rowspan="2">Waitlisted</th>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <th>Facilitator/Presenter</th>
+            <th>Observer</th>
+            <th>Participant</th>
+            <th>Staff/Volunteer</th>
           </tr>
         </thead>
         <tbody>
@@ -73,8 +100,13 @@
               <td>{{workshop.reg_accepted}}</td>
               <td>{{workshop.reg_applied}}</td>
               <td><strong>{{workshop.reg_attended}}</strong></td>
+              <td>{{workshop.reg_attended_facilitator}}</td>
+               <td>{{workshop.reg_attended_observer}}</td>
+              <td>{{workshop.reg_attended_participant}}</td>
+              <td>{{workshop.reg_attended_staff}}</td>
               <td>{{workshop.reg_cancelled}}</td>
               <td>{{workshop.reg_denied}}</td>
+              <td>{{workshop.reg_no_show}}</td>
               <td>{{workshop.reg_pending}}</td>
               <td>{{workshop.reg_registered}}</td>
               <td>{{workshop.reg_waitlisted}}</td>
@@ -93,18 +125,26 @@
       <table id="workplaces_summary" class="table table-bordered table-striped export">
         <thead>
           <tr>
-            <th>Workplace</th>
-            <th>Workplace ID</th>
-            <th>Total Workshops</th>
-            <th>Total Registrants</th>
-            <th>Accepted</th>
-            <th>Applied</th>
-            <th>Attended</th>
-            <th>Cancelled</th>
-            <th>Denied</th>
-            <th>Pending</th>
-            <th>Registered</th>
-            <th>Waitlisted</th>
+            <th rowspan="2">Workplace</th>
+            <th rowspan="2">Workplace ID</th>
+            <th rowspan="2">Total Workshops</th>
+            <th rowspan="2">Total Registrants</th>
+            <th rowspan="2">Accepted</th>
+            <th rowspan="2">Applied</th>
+            <th colspan="5" class="center">Attended</th>
+            <th rowspan="2">Cancelled</th>
+            <th rowspan="2">Denied</th>
+            <th rowspan="2">Did Not Attend</th>
+            <th rowspan="2">Pending</th>
+            <th rowspan="2">Registered</th>
+            <th rowspan="2">Waitlisted</th>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <th>Facilitator/Presenter</th>
+            <th>Observer</th>
+            <th>Participant</th>
+            <th>Staff/Volunteer</th>
           </tr>
         </thead>
         <tbody>
@@ -117,8 +157,13 @@
               <td>{{workplace.reg_accepted}}</td>
               <td>{{workplace.reg_applied}}</td>
               <td><strong>{{workplace.reg_attended}}</strong></td>
+              <td>{{workplace.reg_attended_facilitator}}</td>
+              <td>{{workplace.reg_attended_observer}}</td>
+              <td>{{workplace.reg_attended_participant}}</td>
+              <td>{{workplace.reg_attended_staff}}</td>
               <td>{{workplace.reg_cancelled}}</td>
               <td>{{workplace.reg_denied}}</td>
+              <td>{{workplace.reg_no_show}}</td>
               <td>{{workplace.reg_pending}}</td>
               <td>{{workplace.reg_registered}}</td>
               <td>{{workplace.reg_waitlisted}}</td>
@@ -138,21 +183,29 @@
       <table id="users_summary" class="table table-bordered table-striped export">
         <thead>
           <tr>
-            <th>User ID</th>
-            <th>User</th>
-            <th>Email</th>
-            <th>User Role</th>
-            <th>Total Workshops</th>
-            <th>Total Workplaces</th>
-            <th>Associated Workplaces</th>
-            <th>Accepted</th>
-            <th>Applied</th>
-            <th>Attended</th>
-            <th>Cancelled</th>
-            <th>Denied</th>
-            <th>Pending</th>
-            <th>Registered</th>
-            <th>Waitlisted</th>
+            <th rowspan="2">User ID</th>
+            <th rowspan="2">User</th>
+            <th rowspan="2">Email</th>
+            <th rowspan="2">User Role</th>
+            <th rowspan="2">Total Workshops</th>
+            <th rowspan="2">Total Workplaces</th>
+            <th rowspan="2">Associated Workplaces</th>
+            <th rowspan="2">Accepted</th>
+            <th rowspan="2">Applied</th>
+            <th colspan="5" class="center">Attended</th>
+            <th rowspan="2">Cancelled</th>
+            <th rowspan="2">Denied</th>
+            <th rowspan="2">Did Not Attend</th>
+            <th rowspan="2">Pending</th>
+            <th rowspan="2">Registered</th>
+            <th rowspan="2">Waitlisted</th>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <th>Facilitator/Presenter</th>
+            <th>Observer</th>
+            <th>Participant</th>
+            <th>Staff/Volunteer</th>
           </tr>
         </thead>
         <tbody>
@@ -183,8 +236,13 @@
               <td>{{user.reg_accepted}}</td>
               <td>{{user.reg_applied}}</td>
               <td><strong>{{user.reg_attended}}</strong></td>
+              <td>{{user.reg_attended_facilitator}}</td>
+              <td>{{user.reg_attended_observer}}</td>
+              <td>{{user.reg_attended_participant}}</td>
+              <td>{{user.reg_attended_staff}}</td>
               <td>{{user.reg_cancelled}}</td>
               <td>{{user.reg_denied}}</td>
+              <td>{{user.reg_no_show}}</td>
               <td>{{user.reg_pending}}</td>
               <td>{{user.reg_registered}}</td>
               <td>{{user.reg_waitlisted}}</td>
@@ -216,6 +274,7 @@
             <th> Workplace </th>
             <th> Created Date </th>
             <th> Status </th>
+            <th> Sub Status </th>
             <th class='ignore-column'> Action </th>
           </tr>
         </thead>
@@ -241,6 +300,7 @@
               <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
               <td> {{registrant.created_date|date}}</td>
               <td> {{registrant.get_status_display}} </td>
+              <td> {{registrant.get_sub_status_display}} </td>
               <td>
                 <div class="btn-group">
                   <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

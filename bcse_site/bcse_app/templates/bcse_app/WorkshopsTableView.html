@@ -29,7 +29,7 @@
             <th> Capacity </th>
             <th> Waitlist Enabled?</th>
             <th> Waitlist Capacity</th>
-            <th> Number of Registrants</th>
+            <th style="white-space: nowrap;"> # of Registrants</th>
             <th> Created Date</th>
             <th> Modified Date </th>
             <th> Status </th>
@@ -82,7 +82,7 @@
                 {% if workshop.registration_setting %}
                   {% get_registration_breakdown workshop.registration_setting as registration_summary %}
                   {% for status, total in registration_summary.items %}
-                    <div>{{status|slice:"3"}}. : {{total}}</div>
+                    <div>{{status}} : {{total}}</div>
                   {% endfor %}
                 {% endif %}
               </td>

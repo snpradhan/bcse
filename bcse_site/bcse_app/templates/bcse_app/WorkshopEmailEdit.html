@@ -20,12 +20,23 @@
       {{form.media}}
       <div class="modal-body">
         {{form.workshop.as_hidden}}
+        <div class="form-group mb-3">
+          <label for="id_{{form.registration_statuses.name}}">
+            {{ form.registration_statuses.label|title }}
+            <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="tooltip-wide" data-bs-html="true" data-bs-title="{% include 'bcse_app/RegistrationStatusHelpText.html' %}"></i>
+          </label>
+          <div>{{form.registration_statuses}}</div>
+          <div class="warning">{{form.registration_statuses.help_text}}</div>
+          <div class="error">{{ form.registration_statuses.errors }}</div>
+        </div>
         <div class="row mb-3">
           <div class="form-group col-md-8">
-            <label for="id_{{form.registration_statuses.name}}">{{ form.registration_statuses.label|title }}</label>
-            <div>{{form.registration_statuses}}</div>
-            <div class="warning">{{form.registration_statuses.help_text}}</div>
-            <div class="error">{{ form.registration_statuses.errors }}</div>
+            <label for="id_{{form.registration_sub_statuses.name}}">
+              {{ form.registration_sub_statuses.label|title }}
+            </label>
+            <div>{{form.registration_sub_statuses}}</div>
+            <div class="warning">{{form.registration_sub_statuses.help_text}}</div>
+            <div class="error">{{ form.registration_sub_statuses.errors }}</div>
           </div>
           <div class="form-group col-md-4">
             <label for="id_{{form.photo_release_incomplete.name}}">{{ form.photo_release_incomplete.label|title }}</label>

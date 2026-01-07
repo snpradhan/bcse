@@ -14,7 +14,10 @@
       {{form.media}}
 
       <div class="form-group mb-3">
-        <label for="id_{{form.registration_status.name}}" class="form-label"> {{form.registration_status.label|title}}</label>
+        <label for="id_{{form.registration_status.name}}" class="form-label">
+          {{form.registration_status.label|title}}
+          <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="tooltip-wide" data-bs-html="true" data-bs-title="{% include 'bcse_app/RegistrationStatusHelpText.html' %}"></i>
+        </label>
         <div>{{form.registration_status}}</div>
         <div class="error">{{ form.registration_status.errors }}</div>
       </div>

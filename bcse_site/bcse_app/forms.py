@@ -1307,10 +1307,11 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
 class WorkshopEmailForm(ModelForm):
 
   registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, required=False, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration statuses this email is sent to. Email will be bcc\'d to these addresses.')
+  registration_sub_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES, required=False, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration sub statuses this email is sent to. Email will be bcc\'d to these addresses.')
 
   class Meta:
     model = models.WorkshopEmail
-    exclude = ('registration_status', 'registration_email_addresses', 'email_status', 'sent_date', 'created_date', 'modified_date')
+    exclude = ('registration_status', 'registration_sub_status', 'registration_email_addresses', 'email_status', 'sent_date', 'created_date', 'modified_date')
     widgets = {
       'scheduled_date': forms.DateInput(format='%B %d, %Y'),
       'scheduled_time': forms.TimeInput(format='%I:%M %p'),
@@ -1321,7 +1322,7 @@ class WorkshopEmailForm(ModelForm):
     super(WorkshopEmailForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      if field_name == 'registration_statuses':
+      if field_name in ['registration_statuses', 'registration_sub_statuses']:
         field.widget.attrs['class'] = 'form-control select2'
       elif field_name == 'scheduled_date':
         field.widget.attrs['class'] = 'form-control datepicker'
@@ -1346,15 +1347,17 @@ class WorkshopEmailForm(ModelForm):
 
     if self.instance.id:
       self.fields['registration_statuses'].initial = self.instance.get_registration_status()
+      self.fields['registration_sub_statuses'].initial = self.instance.get_registration_sub_status()
 
   def clean(self):
     cleaned_data = super(WorkshopEmailForm, self).clean()
     registration_statuses = cleaned_data.get('registration_statuses')
+    registration_sub_statuses = cleaned_data.get('registration_sub_statuses')
     email_to = cleaned_data.get('email_to')
     email_cc = cleaned_data.get('email_cc')
     email_bcc = cleaned_data.get('email_bcc')
 
-    if not registration_statuses and email_to is None and email_cc is None and email_bcc is None:
+    if not registration_statuses and not registration_sub_statuses and email_to is None and email_cc is None and email_bcc is None:
       self.fields['registration_statuses'].widget.attrs['class'] += ' error'
       self.add_error('registration_statuses', 'This field is required if To, Cc and Bcc fields are empty')
 
@@ -2022,6 +2025,8 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
   ends_before = forms.DateField(required=False, label=u'Ends on/before')
 
   status = forms.MultipleChoiceField(required=False, label=u"Registration Status", choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+  sub_status = forms.MultipleChoiceField(required=False, label=u"Registration Sub Status",  choices=models.WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+
   keywords = forms.CharField(required=False, max_length=60, label=u'Search by Keyword')
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),('attendance', 'Attendance'), ('title', 'Workshop Title'), ('start_date', 'Workshop Start Date'), ('status', 'Registration Status'), ('workplace', 'Workplace'), ('user', 'User')))
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
@@ -2050,7 +2055,7 @@ class WorkshopsRegistrantsSearchForm(forms.Form):
       if field_name in ['starts_after', 'ends_before']:
         field.widget.attrs['class'] = 'form-control datepicker'
         field.widget.attrs['readonly'] = True
-      elif field_name in ['workshop_category', 'workshop', 'status', 'user', 'work_place', 'user_role'] or 'tag' in field_name:
+      elif field_name in ['workshop_category', 'workshop', 'status', 'sub_status', 'user', 'work_place', 'user_role'] or 'tag' in field_name:
         field.widget.attrs['class'] = 'form-control select2'
       else:
         field.widget.attrs['class'] = 'form-control'
@@ -2211,7 +2216,9 @@ class WorkshopRegistrantsSearchForm(forms.Form):
   work_place = forms.ModelChoiceField(required=False, label=u'Workplace', queryset=models.WorkPlace.objects.all().order_by('name'),
                                                       widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete',
                                                                                        attrs={'data-placeholder': 'Start typing the name if your workplace ...'}))
-  registration_status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}), help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  registration_status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+  registration_sub_status = forms.MultipleChoiceField(required=False, choices=models.WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES, widget=forms.SelectMultiple(attrs={'size':6}))
+
   subscribed = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
   photo_release_complete = forms.ChoiceField(required=False, choices=(('', '---------'),('Y', 'Yes'),('N', 'No'),))
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
@@ -2229,7 +2236,10 @@ class WorkshopRegistrantsSearchForm(forms.Form):
     super(WorkshopRegistrantsSearchForm, self).__init__(*args, **kwargs)
 
     for field_name, field in self.fields.items():
-      field.widget.attrs['class'] = 'form-control'
+      if field_name in ['registration_status', 'registration_sub_status']:
+        field.widget.attrs['class'] = 'form-control select2'
+      else:
+        field.widget.attrs['class'] = 'form-control'
 
       if initials:
         if field_name in initials:

@@ -4487,8 +4487,10 @@ def workshopEmailEdit(request, workshop_id='', id=''):
       form = forms.WorkshopEmailForm(data, instance=workshop_email)
       if form.is_valid():
         selected_status = form.cleaned_data['registration_statuses']
+        selected_sub_status = form.cleaned_data['registration_sub_statuses']
         savedWorkshopEmail = form.save(commit=False)
         savedWorkshopEmail.set_registration_status(selected_status)
+        savedWorkshopEmail.set_registration_sub_status(selected_sub_status)
         if savedWorkshopEmail.scheduled_date and not savedWorkshopEmail.scheduled_time:
           savedWorkshopEmail.scheduled_time = '00:00:00'
         elif not savedWorkshopEmail.scheduled_date and savedWorkshopEmail.scheduled_time:
@@ -4613,7 +4615,7 @@ def workshopEmailPreview(request, workshop_id='', id=''):
 
 
 ################################################
-# SEND WORKSHOP EMAIL TODO
+# SEND WORKSHOP EMAIL
 ################################################
 def workshopEmailSend(request, workshop_id='', id=''):
   """
@@ -5310,6 +5312,7 @@ def workshopRegistrantsSearch(request, id=''):
       user_role_filter = None
       work_place_filter = None
       registration_status_filter = None
+      registration_sub_status_filter = None
       subscribed_filter = None
       photo_release_filter = None
 
@@ -5319,6 +5322,7 @@ def workshopRegistrantsSearch(request, id=''):
       user_role = request.GET.get('registrant_search-user_role', '')
       work_place = request.GET.get('registrant_search-work_place', '')
       registration_status = request.GET.getlist('registrant_search-registration_status', '')
+      registration_sub_status = request.GET.getlist('registrant_search-registration_sub_status', '')
       subscribed = request.GET.get('registrant_search-subscribed', '')
       photo_release_complete = request.GET.get('registrant_search-photo_release_complete', '')
       sort_by = request.GET.get('registrant_search-sort_by', '')
@@ -5332,6 +5336,7 @@ def workshopRegistrantsSearch(request, id=''):
         'user_role': user_role,
         'work_place': work_place,
         'registration_status': registration_status,
+        'registration_sub_status': registration_sub_status,
         'subscribed': subscribed,
         'photo_release_complete': photo_release_complete,
         'sort_by': sort_by,
@@ -5377,6 +5382,10 @@ def workshopRegistrantsSearch(request, id=''):
       if registration_status:
         registration_status_filter = Q(status__in=registration_status)
         query_filter = query_filter & registration_status_filter
+
+      if registration_sub_status:
+        registration_sub_status_filter = Q(sub_status__in=registration_sub_status)
+        query_filter = query_filter & registration_sub_status_filter
 
       registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=id)
       registrations = registrations.filter(query_filter)
@@ -5476,6 +5485,7 @@ def workshopsRegistrantsSearch(request):
       starts_after = request.GET.get('registrants_search-starts_after', '')
       ends_before = request.GET.get('registrants_search-ends_before', '')
       status = request.GET.getlist('registrants_search-status', '')
+      sub_status = request.GET.getlist('registrants_search-sub_status', '')
       keywords = request.GET.get('registrants_search-keywords', '')
       sort_by = request.GET.get('registrants_search-sort_by', '')
       rows_per_page = request.GET.get('registrants_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
@@ -5492,6 +5502,7 @@ def workshopsRegistrantsSearch(request):
         'ends_before': ends_before,
         'year': year,
         'status': status,
+        'sub_status': sub_status,
         'keywords': keywords,
         'sort_by': sort_by,
         'rows_per_page': rows_per_page,
@@ -5532,6 +5543,10 @@ def workshopsRegistrantsSearch(request):
       if status:
         status_filter  = Q(status__in=status)
         query_filter = query_filter & status_filter
+
+      if sub_status:
+        sub_status_filter  = Q(sub_status__in=sub_status)
+        query_filter = query_filter & sub_status_filter
 
       if starts_after:
         starts_after = datetime.datetime.strptime(starts_after, '%B %d, %Y')
@@ -5581,6 +5596,7 @@ def workshopsRegistrantsSearch(request):
       }
 
       status_breakdown = {}
+      attended_breakdown = {}
       for registrant in registrations:
         status = registrant.get_status_display()
         if status in status_breakdown:
@@ -5588,10 +5604,21 @@ def workshopsRegistrantsSearch(request):
         else:
           status_breakdown[status] = 1
 
+        if status == 'Attended':
+          sub_status = registrant.get_sub_status_display()
+          if sub_status in attended_breakdown:
+            attended_breakdown[sub_status] += 1
+          else:
+            attended_breakdown[sub_status] = 1
+
       keys = list(status_breakdown.keys())
       keys.sort()
       status_breakdown = {i: status_breakdown[i] for i in keys}
       all_registration_summary.update(status_breakdown)
+
+      keys = list(attended_breakdown.keys())
+      keys.sort()
+      attended_summary = {i: attended_breakdown[i] for i in keys}
 
       workshops = models.Workshop.objects.all().annotate(
         total_registrants=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations), distinct=True),
@@ -5599,6 +5626,13 @@ def workshopsRegistrantsSearch(request):
         reg_accepted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='C'), distinct=True),
         reg_applied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='A'), distinct=True),
         reg_attended=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T'), distinct=True),
+
+        reg_attended_participant=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T', registration_setting__workshop_registrants__sub_status='P'), distinct=True),
+        reg_attended_facilitator=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T', registration_setting__workshop_registrants__sub_status='F'), distinct=True),
+        reg_attended_staff=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T', registration_setting__workshop_registrants__sub_status='S'), distinct=True),
+        reg_attended_observer=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='T', registration_setting__workshop_registrants__sub_status='O'), distinct=True),
+
+        reg_no_show=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='U'), distinct=True),
         reg_cancelled=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='N'), distinct=True),
         reg_denied=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='D'), distinct=True),
         reg_pending=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='P'), distinct=True),
@@ -5613,6 +5647,13 @@ def workshopsRegistrantsSearch(request):
         reg_accepted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='C'), distinct=True),
         reg_applied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='A'), distinct=True),
         reg_attended=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T'), distinct=True),
+
+        reg_attended_participant=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='P'), distinct=True),
+        reg_attended_facilitator=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='F'), distinct=True),
+        reg_attended_staff=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='S'), distinct=True),
+        reg_attended_observer=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='O'), distinct=True),
+
+        reg_no_show=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='U'), distinct=True),
         reg_cancelled=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='N'), distinct=True),
         reg_denied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='D'), distinct=True),
         reg_pending=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='P'), distinct=True),
@@ -5628,6 +5669,13 @@ def workshopsRegistrantsSearch(request):
         reg_accepted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='C'), distinct=True),
         reg_applied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='A'), distinct=True),
         reg_attended=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T'), distinct=True),
+
+        reg_attended_participant=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T', registered_workshops__sub_status='P'), distinct=True),
+        reg_attended_facilitator=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T', registered_workshops__sub_status='F'), distinct=True),
+        reg_attended_staff=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T', registered_workshops__sub_status='S'), distinct=True),
+        reg_attended_observer=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='T', registered_workshops__sub_status='O'), distinct=True),
+
+        reg_no_show=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='U'), distinct=True),
         reg_cancelled=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='N'), distinct=True),
         reg_denied=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='D'), distinct=True),
         reg_pending=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='P'), distinct=True),
@@ -5696,7 +5744,7 @@ def workshopsRegistrantsSearch(request):
       all_workplaces = paginate(request, workplaces, workplaces_sort_order, rows_per_page, page)
       all_users = paginate(request, users, users_sort_order, rows_per_page, page)
 
-      context = {'registrations': all_registrations, 'all_registration_summary': all_registration_summary, 'workshops': all_workshops, 'workplaces': all_workplaces, 'users': all_users}
+      context = {'registrations': all_registrations, 'all_registration_summary': all_registration_summary, 'attended_summary': attended_summary, 'workshops': all_workshops, 'workplaces': all_workplaces, 'users': all_users}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkshopsRegistrantsTableView.html', context, request)
@@ -10242,12 +10290,21 @@ def send_workshop_email(id=id, cron=False):
 
       #get the receipients
       registration_email_addresses = None
-      if workshop_email.registration_status:
-        registration_status = workshop_email.registration_status.split(',')
+      if workshop_email.registration_status or workshop_email.registration_sub_status:
+        query_filter = Q(workshop_registration_setting__workshop__id=workshop_id)
+
+        if workshop_email.registration_status:
+          registration_status = workshop_email.registration_status.split(',')
+          query_filter = query_filter & Q(status__in=registration_status)
+
+        if workshop_email.registration_sub_status:
+          registration_sub_status = workshop_email.registration_sub_status.split(',')
+          query_filter = query_filter & Q(sub_status__in=registration_sub_status)
+
         if workshop_email.photo_release_incomplete:
-          registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status, user__photo_release_complete=False)
-        else:
-          registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_id, status__in=registration_status)
+          query_filter = query_filter & Q(user__photo_release_complete=False)
+
+        registrations = models.Registration.objects.all().filter(query_filter)
 
         qs = registrations.values_list('user__user__email', 'user__secondary_email')
         registration_email_addresses = [email for email in chain.from_iterable(qs) if email]

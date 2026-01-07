@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 from collections import OrderedDict
 import re
+from itertools import chain
 
 register = template.Library()
 
@@ -209,6 +210,23 @@ def get_registration_breakdown(context, workshop_registration_setting):
   return sorted_breakdown
 
 @register.simple_tag(takes_context=True)
+def get_registration_attended_breakdown(context, workshop_registration_setting):
+  registrants = models.Registration.objects.filter(workshop_registration_setting=workshop_registration_setting, status='T')
+  breakdown = {}
+  for registrant in registrants:
+    sub_status = registrant.get_sub_status_display()
+    if sub_status in breakdown:
+      breakdown[sub_status] += 1
+    else:
+      breakdown[sub_status] = 1
+
+  keys = list(breakdown.keys())
+  keys.sort()
+  sorted_breakdown = {i: breakdown[i] for i in keys}
+  return sorted_breakdown
+
+
+@register.simple_tag(takes_context=True)
 def get_survey_submission_breakdown(context, survey):
   surveySubmissions = models.SurveySubmission.objects.filter(survey=survey)
   breakdown = {}
@@ -324,19 +342,31 @@ def get_low_stock_message(context, id):
 
 @register.filter
 def get_registrants_email(workshop_email):
+  #get the receipients
   registration_email_addresses = None
-  if workshop_email.registration_status:
-    #get the receipients
-    registration_status = workshop_email.registration_status.split(',')
+  if workshop_email.registration_status or workshop_email.registration_sub_status:
+    query_filter = Q(workshop_registration_setting__workshop__id=workshop_email.workshop.id)
+
+    if workshop_email.registration_status:
+      registration_status = workshop_email.registration_status.split(',')
+      query_filter = query_filter & Q(status__in=registration_status)
+
+    if workshop_email.registration_sub_status:
+      registration_sub_status = workshop_email.registration_sub_status.split(',')
+      query_filter = query_filter & Q(sub_status__in=registration_sub_status)
 
     if workshop_email.photo_release_incomplete:
-      registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_email.workshop.id, status__in=registration_status, user__photo_release_complete=False)
-    else:
-      registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=workshop_email.workshop.id, status__in=registration_status)
+      query_filter = query_filter & Q(user__photo_release_complete=False)
 
-    registration_email_addresses = list(registrations.values_list('user__user__email', flat=True))
+
+    registrations = models.Registration.objects.all().filter(query_filter)
+
+    qs = registrations.values_list('user__user__email', 'user__secondary_email')
+    registration_email_addresses = [email for email in chain.from_iterable(qs) if email]
 
   return registration_email_addresses
+
+
 
 @register.filter
 def get_reservation_equipment_types(reservation):
