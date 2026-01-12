@@ -254,11 +254,14 @@ def get_registrant_application(context, registration_id):
 @register.simple_tag(takes_context=True)
 def get_reservation_feedback(context, reservation_id):
   request = context.get('request')
-  feedback = models.SurveySubmission.objects.all().filter(feedback_to_reservation__reservation__id=reservation_id).order_by('-created_date')
-  if feedback.count():
-    return feedback[0]
-  else:
-    return None
+  submissions = models.SurveySubmission.objects.all().filter(feedback_to_reservation__reservation__id=reservation_id).order_by('-created_date')
+  #find the most recent submission that is not empty
+  for submission in submissions:
+    responses = models.SurveyResponse.objects.all().filter(Q(submission=submission), Q(Q(response__isnull=False) | Q(responseFile__isnull=False))).exclude(Q(Q(response='') & Q(responseFile='')))
+    if responses:
+      return submission
+
+  return None
 
 @register.simple_tag(takes_context=True)
 def activate_reservation_feedback(context, reservation_id):
