@@ -892,9 +892,16 @@ class ReservationForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
-    self.fields['equipment_types'].queryset = models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')
+
     if self.instance.id:
+      equipment_type_qs = models.EquipmentType.objects.all().filter(status='A', equipment__status='A') | models.EquipmentType.objects.all().filter(equipment__in=self.instance.equipment.all())
+      self.fields['equipment_types'].queryset = equipment_type_qs.distinct().order_by('order')
       self.fields['equipment_types'].initial = models.EquipmentType.objects.all().filter(equipment__in=self.instance.equipment.all())
+
+      equipment_qs = models.Equipment.objects.all().filter(status='A') | models.Equipment.objects.all().filter(id__in=self.instance.equipment.all())
+      self.fields['equipment'].queryset = equipment_qs.distinct().order_by('name')
+      self.fields['equipment'].initial = models.Equipment.objects.all().filter(id__in=self.instance.equipment.all())
+
       self.fields['user'].widget.attrs['disabled'] = True
       if self.instance.activity:
         self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A') | models.Activity.objects.all().filter(id=self.instance.activity.id)
@@ -904,6 +911,7 @@ class ReservationForm(ModelForm):
       self.fields.pop('confirm_workplace')
 
     else:
+      self.fields['equipment_types'].queryset = models.EquipmentType.objects.all().filter(status='A', equipment__status='A').distinct().order_by('order')
       self.fields['activity'].queryset = models.Activity.objects.all().filter(status='A')
       if user.user_role in ['T', 'P']:
         if user.work_place:
