@@ -40,7 +40,7 @@
                   <a href="{% url 'bcse:workshopCategories' %}">Workshop Categories</a>
                 </li>
                 <li class="{% if 'registrationEmailMessages' in request.path or 'registrationEmailMessage' in request.path %} active {% endif %}">
-                  <a href="{% url 'bcse:registrationEmailMessages' %}">Registration Email Messages</a>
+                  <a href="{% url 'bcse:registrationEmailMessages' %}">Generic Registration Emails</a>
                 </li>
                 <li class="{% if 'facilitators' in request.path or  'facilitator' in request.path %} active {% endif %}">
                   <a href="{% url 'bcse:facilitators' %}">Facilitators</a>

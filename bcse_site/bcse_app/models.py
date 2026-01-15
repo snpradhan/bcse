@@ -1188,10 +1188,12 @@ def replace_workshop_tokens(text, workshop, registration=''):
   replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')
   replaced_text = replaced_text.replace('[isbe_url]', workshop.registration_setting.isbe_link or '')
 
-  photo_release_text = ''
+  photo_release_text = 'We do not have a photo release on file for you. Please click <a href="%s">here</a> to complete it before attending this event.' % settings.PHOTO_RELEASE_URL
   if registration and not registration.user.photo_release_complete:
-    photo_release_text = 'We do not have a photo release on file for you. Please click <a href="%s">here</a> to complete it before attending this event.' % settings.PHOTO_RELEASE_URL
-  replaced_text = replaced_text.replace('[photo_release_url]', photo_release_text or '')
+    replaced_text = replaced_text.replace('[photo_release_url]', photo_release_text or '')
+  # if registration parameter is not passed, this is either email preview or ad-hoc email sent to mass users
+  elif not registration:
+    replaced_text = replaced_text.replace('[photo_release_url]', photo_release_text or '')
 
   return replaced_text
 

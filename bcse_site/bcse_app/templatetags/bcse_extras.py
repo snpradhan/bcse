@@ -389,4 +389,8 @@ def is_equipment_overbooked(equipment, reservation):
 def get_storage_label(key, default='Unknown'):
     return dict(models.INVENTORY_STORAGE_LOCATION).get(key, 'Unknown')
 
+@register.filter
+def replace_workshop_tokens(text, workshop):
+  return models.replace_workshop_tokens(text, workshop)
+
 

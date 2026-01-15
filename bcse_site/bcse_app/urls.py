@@ -142,6 +142,7 @@ urlpatterns = [
     path('adminConfiguration/workshopsRegistrants/search', views.workshopsRegistrantsSearch, name='workshopsRegistrantsSearch'),
     path('adminConfiguration/registrationEmailMessage/<int:id>/edit', views.registrationEmailMessageEdit, name='registrationEmailMessageEdit'),
     path('adminConfiguration/registrationEmailMessage/<int:id>/delete', views.registrationEmailMessageDelete, name='registrationEmailMessageDelete'),
+    path('adminConfiguration/registrationEmailMessage/<int:id>/preview/<int:workshop_id>', views.registrationEmailMessagePreview, name='registrationEmailMessagePreview'),
     path('adminConfiguration/registrationEmailMessage/new', views.registrationEmailMessageEdit, name='registrationEmailMessageNew'),
     path('adminConfiguration/registrationEmailMessages', views.registrationEmailMessages, name='registrationEmailMessages'),
     path('adminConfiguration/facilitator/<int:id>/edit', views.facilitatorEdit, name='facilitatorEdit'),

@@ -1,0 +1,82 @@
+<div class="form-group mb-3">
+  <a role="button" data-bs-toggle="collapse" aria-expanded="false" href="#replacement_patterns" aria-controls="replacement_patterns" class="toggle">
+   <label class="form-label">Replacement Patterns</label>
+  </a>
+  <div class="collapse" id="replacement_patterns">
+    <table class="table table-bordered table-striped caption-top" >
+      <caption class="warning">You may use one or more replacement patterns in the Subject or Message fields</caption>
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_category]</td>
+          <td>Workshop Category</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_title]</td>
+          <td>Workshop Title</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_sub_title]</td>
+          <td>Workshop Sub Title</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_start_date]</td>
+          <td>Workshop Start Date</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_start_time]</td>
+          <td>Workshop Start Time</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_end_date]</td>
+          <td>Workshop End Date</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_end_time]</td>
+          <td>Workshop End Time</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_summary]</td>
+          <td>Workshop Summary</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_location]</td>
+          <td>Workshop Location</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[workshop_meetup_url]</td>
+          <td>Workshop Meetup URL</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[isbe_url]</td>
+          <td>ISBE URL set in Workshop Registration Settings</td>
+        </tr>
+        <tr>
+          <td class="pattern" title="Click to copy">[photo_release_url]</td>
+          <td>Photo Release URL</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+<script type='text/javascript'>
+  $(function(){
+    $('td.pattern').on('click', function(){
+      const text = $(this).text();
+      navigator.clipboard.writeText(text)
+        .then(function(){
+          displayInfoDialogAndClose('Pattern <b>'+text+'</b> copied to clipboard')
+        })
+        .catch(function(err){
+          displayErrorDialog();
+        });
+    });
+  });
+</script>

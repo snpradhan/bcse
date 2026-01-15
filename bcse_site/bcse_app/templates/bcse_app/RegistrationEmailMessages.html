@@ -15,6 +15,7 @@
           <th> Registration Status </th>
           <th> Subject </th>
           <th> Message </th>
+          <th> Email Trigger </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -27,6 +28,7 @@
             <td> {{email_message.get_registration_status_display}} </td>
             <td> {{email_message.email_subject}} </td>
             <td> {{email_message.email_message|safe}} </td>
+            <td> {{email_message.trigger|safe}}</td>
             <td> {{email_message.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{email_message.modified_date|date:"F j, Y g:i A"}} </td>
             <td>

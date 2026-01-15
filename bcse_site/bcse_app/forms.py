@@ -1301,9 +1301,9 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
         field.help_text = 'Your IEIN will be saved in your profile'
 
 
-####################################
-# Workshop Email Form
-####################################
+###########################################
+# Workshop Email Form for Ad-hoc emails
+###########################################
 class WorkshopEmailForm(ModelForm):
 
   registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, required=False, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration statuses this email is sent to. Email will be bcc\'d to these addresses.')
@@ -1381,9 +1381,9 @@ class RegistrationEmailMessageForm(ModelForm):
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
-####################################
-# Worksho Registration Email Form
-####################################
+########################################################################
+# Worksho Registration Email Form for automated registration emails
+########################################################################
 class WorkshopRegistrationEmailForm(ModelForm):
 
   class Meta:
@@ -1399,6 +1399,20 @@ class WorkshopRegistrationEmailForm(ModelForm):
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+  def clean(self):
+    cleaned_data = super(WorkshopRegistrationEmailForm, self).clean()
+    registration_status = cleaned_data.get('registration_status')
+    workshop = cleaned_data.get('workshop')
+    qs = models.WorkshopRegistrationEmail.objects.all().filter(registration_status=registration_status, workshop=workshop)
+    if self.instance.pk:
+      qs = qs.exclude(pk=self.instance.pk)
+
+    if qs.exists():
+      self.fields['registration_status'].widget.attrs['class'] += ' error'
+      self.add_error('registration_status', 'Automated registration email with this Registration status already exists.')
+
+
 
 
 ####################################

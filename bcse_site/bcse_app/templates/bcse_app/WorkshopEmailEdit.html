@@ -95,6 +95,9 @@
             <div class="error">{{ form.scheduled_time.errors }}</div>
           </div>
         </div>
+
+        {% include 'bcse_app/WorkshopEmailReplacementPatterns.html' %}
+
         <input type="hidden" id="send" name="send" value="0"/>
 
         <div class="form-group" id="spinner">

@@ -43,72 +43,7 @@
           <div>{{form.include_calendar_invite}}</div>
           <div class="error">{{ form.include_calendar_invite.errors }}</div>
         </div>
-        <div class="form-group mb-3">
-          <a role="button" data-bs-toggle="collapse" aria-expanded="false" href="#replacement_patterns" aria-controls="replacement_patterns">
-           <label class="form-label">Replacement Patterns</label>
-          </a>
-          <div class="collapse" id="replacement_patterns">
-            <table class="table table-bordered table-striped">
-              <thead>
-                <tr>
-                  <th>Token</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>[workshop_category]</td>
-                  <td>Workshop Category</td>
-                </tr>
-                <tr>
-                  <td>[workshop_title]</td>
-                  <td>Workshop Title</td>
-                </tr>
-                <tr>
-                  <td>[workshop_sub_title]</td>
-                  <td>Workshop Sub Title</td>
-                </tr>
-                <tr>
-                  <td>[workshop_start_date]</td>
-                  <td>Workshop Start Date</td>
-                </tr>
-                <tr>
-                  <td>[workshop_start_time]</td>
-                  <td>Workshop Start Time</td>
-                </tr>
-                <tr>
-                  <td>[workshop_end_date]</td>
-                  <td>Workshop End Date</td>
-                </tr>
-                <tr>
-                  <td>[workshop_end_time]</td>
-                  <td>Workshop End Time</td>
-                </tr>
-                <tr>
-                  <td>[workshop_summary]</td>
-                  <td>Workshop Summary</td>
-                </tr>
-                <tr>
-                  <td>[workshop_location]</td>
-                  <td>Workshop Location</td>
-                </tr>
-                <tr>
-                  <td>[workshop_meetup_url]</td>
-                  <td>Workshop Meetup URL</td>
-                </tr>
-                <tr>
-                  <td>[isbe_url]</td>
-                  <td>ISBE URL</td>
-                </tr>
-                <tr>
-                  <td>[photo_release_url]</td>
-                  <td>Photo Release URL</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="warning">You may use one or more replacement patterns in the Subject or Message fields</div>
-          </div>
-        </div>
+        {% include 'bcse_app/WorkshopEmailReplacementPatterns.html' %}
       </div>
 
       <div class="modal-footer">

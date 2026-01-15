@@ -432,6 +432,20 @@ function displayInfoDialog(title, message, reload) {
                 }
               });
 }
+function displayInfoDialogAndClose(message) {
+   const dialog = bootbox.dialog({
+                  message: message,
+                  className: "warning",
+                  centerVertical: true,
+                  backdrop: true,
+                  closeButton: false,
+
+                });
+   setTimeout(function() {
+      dialog.modal('hide');
+    }, 1000);
+
+}
 
 function bindWarningAction() {
   $('.warn.action').on('click', function(e) {
@@ -795,6 +809,12 @@ function bindUnsavedChangesWarning() {
     if ($(this).hasClass("ui-corner-all")) {
       return; // do nothing if inside datepicker
     }
+
+    // Skip links that toggle content
+    if ($(this).hasClass("toggle")) {
+      return;
+    }
+
 
     if (anyFormDirty()) {
       e.preventDefault();

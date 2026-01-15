@@ -3245,7 +3245,8 @@ def registrationEmailMessages(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view registration messages')
 
-    registration_messages = models.RegistrationEmailMessage.objects.all()
+    registration_messages = get_registration_emails(request)
+
     context = {'registration_messages': registration_messages}
     return render(request, 'bcse_app/RegistrationEmailMessages.html', context)
 
@@ -3253,6 +3254,36 @@ def registrationEmailMessages(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+@login_required
+def get_registration_emails(request):
+  """
+  get_registration_emails is called from the path 'registrationEmailMessages'
+  :param request: request from the browser
+  :returns: a queryset of generic registration emails
+  :raises CustomException: redirects user to page they were on before encountering error
+  """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view registration messages')
+
+    registration_messages = models.RegistrationEmailMessage.objects.all().annotate(
+      trigger=Case(
+          When(registration_status='R', then=Value('When a user registers for a workshop scheduled for a future date and the workshop has capacity.')),
+          When(registration_status='A', then=Value('When a user applies to a workshop scheduled for a future date.')),
+          When(registration_status='C', then=Value('When a user\'s application is accepted by an admin and the workshop is scheduled for a future date.')),
+          When(registration_status='D', then=Value('When a user\'s application is denied by an admin and the workshop is scheduled for a future date.')),
+          When(registration_status='N', then=Value('When a user\'s application or registration is denied by an admin and the workshop is scheduled for a future date.')),
+          When(registration_status='W', then=Value('When a user attempts to register for a workshop that is full or when an admin moves an existing registration to waitlist.  In both cases the workshop is scheduled for a future date ')),
+          When(registration_status='P', then=Value('When an admin moves an existing registration or application to pending status and the workshop is scheduled for a future date. ')),
+          default=Value('Registration email should not be created for this status'),
+          output_field=CharField(),
+        ))
+
+    return registration_messages
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 ####################################################
 # EDIT WORKSHOP REGISTRATION CONFIRMATION MESSAGE
 ####################################################
@@ -3313,6 +3344,58 @@ def registrationEmailMessageDelete(request, id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# PREVIEW WORKSHOP REGISTRATION EMAIL
+################################################
+def registrationEmailMessagePreview(request, id='', workshop_id=''):
+  """
+  registrationEmailMessagePreview is called from the path 'workshop/<workshop_id>/registration_emails/'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :param id='': id of registration email
+  :returns: rendered template 'bcse_app/WorkshopRegistrationEmailPreview.html
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to preview workshop registration email')
+
+    if '' != id:
+      workshop_registration_email = models.RegistrationEmailMessage.objects.get(id=id)
+      workshop = models.Workshop.objects.get(id=workshop_id)
+
+      current_site = Site.objects.get_current()
+      domain = current_site.domain
+
+      subject = workshop_registration_email.email_subject
+      subject = models.replace_workshop_tokens(subject, workshop)
+
+      if domain != 'bcse.northwestern.edu':
+        subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+      email_body = workshop_registration_email.email_message
+      email_body = models.replace_workshop_tokens(email_body, workshop)
+
+      context = {'email_body': email_body, 'subject': subject}
+
+      return render(request, 'bcse_app/WorkshopEmailView.html', context)
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.WorkshopRegistrationEmail.DoesNotExist:
+    messages.success(request, "Workshop Registration Email not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 
 ####################################
@@ -4593,11 +4676,13 @@ def workshopEmailPreview(request, workshop_id='', id=''):
       domain = current_site.domain
 
       subject = workshop_email.email_subject
+      subject = models.replace_workshop_tokens(subject, workshop)
 
       if domain != 'bcse.northwestern.edu':
         subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
       email_body = workshop_email.email_message
+      email_body = models.replace_workshop_tokens(email_body, workshop)
 
       context = {'email_body': email_body, 'subject': subject}
 
@@ -4751,8 +4836,21 @@ def workshopRegistrationEmails(request, workshop_id=''):
 
     if request.method == 'GET':
       workshop = models.Workshop.objects.get(id=workshop_id)
-      registration_emails = models.WorkshopRegistrationEmail.objects.all().filter(workshop__id=workshop_id)
-      context = {'workshop': workshop, 'registration_emails': registration_emails}
+      registration_emails = models.WorkshopRegistrationEmail.objects.all().filter(workshop__id=workshop_id).annotate(
+        trigger=Case(
+            When(registration_status='R', then=Value('When a user registers for a workshop scheduled for a future date and the workshop has capacity.')),
+            When(registration_status='A', then=Value('When a user applies to a workshop scheduled for a future date.')),
+            When(registration_status='C', then=Value('When a user\'s application is accepted by an admin and the workshop is scheduled for a future date.')),
+            When(registration_status='D', then=Value('When a user\'s application is denied by an admin and the workshop is scheduled for a future date.')),
+            When(registration_status='N', then=Value('When a user\'s application or registration is denied by an admin and the workshop is scheduled for a future date.')),
+            When(registration_status='W', then=Value('When a user attempts to register for a workshop that is full or when an admin moves an existing registration to waitlist.  In both cases the workshop is scheduled for a future date ')),
+            When(registration_status='P', then=Value('When an admin moves an existing registration or application to pending status and the workshop is scheduled for a future date. ')),
+            default=Value('Registration email should not be created for this status'),
+            output_field=CharField(),
+          ))
+
+      generic_registration_emails = get_registration_emails(request)
+      context = {'workshop': workshop, 'registration_emails': registration_emails, 'generic_registration_emails': generic_registration_emails}
       messages.success(request, 'These automated registration emails are sent when users apply/register to/for this workshop. <br> You can only create one email message per registration status.')
       return render(request, 'bcse_app/WorkshopRegistrationEmails.html', context)
 
@@ -4897,6 +4995,8 @@ def workshopRegistrationEmailPreview(request, id='', workshop_id=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 def userRegistration(request, workshop_id, user_id):
   """
   userRegistration is called from the path 'workshops/edit'
@@ -10285,6 +10385,7 @@ def send_workshop_email(id=id, cron=False):
   if '' != id:
     workshop_email = models.WorkshopEmail.objects.get(id=id)
     workshop_id = workshop_email.workshop.id
+    workshop = models.Workshop.objects.get(id=workshop_id)
 
     if workshop_email.email_subject and workshop_email.email_message:
 
@@ -10330,11 +10431,13 @@ def send_workshop_email(id=id, cron=False):
         domain = current_site.domain
 
         subject = workshop_email.email_subject
+        subject = models.replace_workshop_tokens(subject, workshop)
 
         if domain != 'bcse.northwestern.edu':
           subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
         email_body = workshop_email.email_message
+        email_body = models.replace_workshop_tokens(email_body, workshop)
         context = {'email_body': email_body, 'domain': domain}
         body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 

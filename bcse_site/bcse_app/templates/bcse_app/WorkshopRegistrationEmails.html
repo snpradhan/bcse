@@ -7,12 +7,14 @@
     <h1 class="center"> {{workshop}}</h1>
     {% include "bcse_app/WorkshopTabs.html" with tab='registration_emails' %}
     {% if registration_emails %}
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped caption-top">
+      <caption>These automated registration emails are sent when users apply/register to/for this workshop and when their registration status changes. You can only create one email message per registration status. The automated registration emails override the generic registration emails in the other table below.</caption>
       <thead>
         <tr>
           <th> Message ID</th>
           <th> Registration Status </th>
           <th> Subject </th>
+          <th> Email Trigger </th>
           <th> Created Date</th>
           <th> Modified Date </th>
           <th> Action </th>
@@ -23,7 +25,8 @@
           <tr>
             <td> {{email.id}}</td>
             <td> {{email.get_registration_status_display}} </td>
-            <td> {{email.email_subject}} </td>
+            <td> {{email.email_subject|replace_workshop_tokens:workshop}} </td>
+            <td> {{email.trigger}}</td>
             <td> {{email.created_date|date:"F j, Y g:i A"}}</td>
             <td> {{email.modified_date|date:"F j, Y g:i A"}} </td>
             <td>
@@ -54,7 +57,54 @@
       </tbody>
     </table>
     {% else %}
-      <div class="warning center">Workshop Registration Emails not found</div>
+      <div class="warning center">
+        Automated registration emails have not been created for this workshop.
+        {% if generic_registration_emails %}
+          The generic registration emails in the table below will be used instead.
+        {% endif %}
+      </div>
     {% endif %}
+    <hr>
+    {% if generic_registration_emails %}
+      <table class="table table-bordered table-striped caption-top">
+        <caption>The generic registration emails in the table below are used when automated registration emails are not available for a workshop.  To update the generic registration emails below, please use the Generic Registration Emails menu in the left navigation under Workshop Configuration.</caption>
+        <thead>
+          <tr>
+            <th> Message ID</th>
+            <th> Registration Status </th>
+            <th> Subject </th>
+            <th> Email Trigger </th>
+            <th> Created Date</th>
+            <th> Modified Date </th>
+            <th> Action </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for email_message in generic_registration_emails %}
+            <tr>
+              <td> {{email_message.id}}</td>
+              <td> {{email_message.get_registration_status_display}} </td>
+              <td> {{email_message.email_subject|replace_workshop_tokens:workshop}} </td>
+              <td> {{email_message.trigger}}</td>
+              <td> {{email_message.created_date|date:"F j, Y g:i A"}}</td>
+              <td> {{email_message.modified_date|date:"F j, Y g:i A"}} </td>
+              <td>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:registrationEmailMessagePreview' email_message.id workshop.id %}">Preview</a>
+                  </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
   </div>
 {% endblock %}
