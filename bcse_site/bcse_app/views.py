@@ -10002,7 +10002,7 @@ def reservationFeedbackEmailSend(request, id):
       raise CustomException('Baxter Box Feedback Survey not found')
     current_site = Site.objects.get_current()
     domain = current_site.domain
-    subject = 'How was your Baxter Box Lab for %s?' % reservation.get_activity_name()
+    subject = 'How was %s?' % reservation.get_activity_name()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
 
