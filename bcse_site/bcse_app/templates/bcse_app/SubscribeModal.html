@@ -31,6 +31,7 @@
             <div class="error">{{ field.errors }}</div>
           </div>
         {% endfor %}
+        <input type="hidden" id="recaptchaToken" name="recaptchaToken">
 
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
@@ -51,36 +52,42 @@
   $(function(){
     $("#formSubscription").submit(function(e){
       e.preventDefault();
-      var formData = new FormData(this);
-      $.ajax({
-        type: $(this).attr('method'),
-        url: this.action,
-        data: formData,
-        dataType: 'json',
-        context: this,
-        cache:false,
-        contentType: false,
-        processData: false,
-        beforeSend: function(){
-          $('#formSubscription #spinner').show();
-        },
-        complete: function(){
-          $('#formSubscription #spinner').hide();
-        },
-        success: function(data, status) {
-          if(data['success'] == true){
-            //location.reload();
-            $('#general').modal('toggle');
-            var redirect_url = window.parent.location.href.split('?')[0];
-            window.parent.location.href = redirect_url;
+
+      grecaptcha.enterprise.ready(async () => {
+        const token = await grecaptcha.enterprise.execute('{{RECAPTCHA_PUBLIC_KEY}}', {action: 'SUBSCRIBE'});
+        document.getElementById('recaptchaToken').value = token;
+
+        var formData = new FormData(this);
+        $.ajax({
+          type: $(this).attr('method'),
+          url: this.action,
+          data: formData,
+          dataType: 'json',
+          context: this,
+          cache:false,
+          contentType: false,
+          processData: false,
+          beforeSend: function(){
+            $('#formSubscription #spinner').show();
+          },
+          complete: function(){
+            $('#formSubscription #spinner').hide();
+          },
+          success: function(data, status) {
+            if(data['success'] == true){
+              //location.reload();
+              $('#general').modal('toggle');
+              var redirect_url = window.parent.location.href.split('?')[0];
+              window.parent.location.href = redirect_url;
+            }
+            else{
+              $('#general').html(data['html']);
+            }
+          },
+          error: function(){
+            displayErrorDialog();
           }
-          else{
-            $('#general').html(data['html']);
-          }
-        },
-        error: function(){
-          displayErrorDialog();
-        }
+        });
       });
     });
 

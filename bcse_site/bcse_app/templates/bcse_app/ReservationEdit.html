@@ -18,6 +18,8 @@
             {% csrf_token %}
             {{form.media}}
 
+            <input type="hidden" id="recaptchaToken" name="recaptchaToken">
+
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">
                 <label for="id_{{form.user.name}}" class="form-label">
@@ -459,7 +461,12 @@
             var dates_valid = validateDates();
             if (dates_valid) {
               //$('select#id_equipment_types_to option').prop('selected', true);
-              $('form#reservationForm').submit();
+
+              grecaptcha.enterprise.ready(async () => {
+                const token = await grecaptcha.enterprise.execute('{{RECAPTCHA_PUBLIC_KEY}}', {action: 'RESERVATION'});
+                document.getElementById('recaptchaToken').value = token;
+                $('form#reservationForm').submit();
+              });
             }
             else{
               bindReservationSubmit();

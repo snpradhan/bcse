@@ -257,45 +257,50 @@ function bindRegistrationSubmit(){
   $('.registration_submit').unbind('click');
   $('.registration_submit').on('click', function(e){
     e.preventDefault();
-    var workshop_registration_container = $(this).closest('.workshop_registration');
-    var form = $(this).closest('form');
-    $.ajax({
-      type: $(form).attr('method'),
-      url: $(form).attr('action'),
-      data: $(form).serialize(),
-      success: function(data){
-        if (data['success'] = true) {
-          if (data['html']) {
-            $(workshop_registration_container).html(data['html']);
+    grecaptcha.enterprise.ready(async () => {
+      const token = await grecaptcha.enterprise.execute(window.RECAPTCHA_PUBLIC_KEY, {action: 'WORKSHOP_REGISTRATION'});
+      var workshop_registration_container = $(this).closest('.workshop_registration');
+      var form = $(this).closest('form');
+      $(form).find(".recaptchaToken").val(token);
 
-            if (data['admin_message']) {
-              bootbox.alert({
-                title: 'Registration Confirmation',
-                message: data['admin_message'],
-                closeButton: false
-              });
+      $.ajax({
+        type: $(form).attr('method'),
+        url: $(form).attr('action'),
+        data: $(form).serialize(),
+        success: function(data){
+          if (data['success'] = true) {
+            if (data['html']) {
+              $(workshop_registration_container).html(data['html']);
+
+              if (data['admin_message']) {
+                bootbox.alert({
+                  title: 'Registration Confirmation',
+                  message: data['admin_message'],
+                  closeButton: false
+                });
+              }
+              bindRegistrationSubmit();
+              bindDeleteAction();
+              bindCancelAction();
+              bindWarningAction();
+              bindModalOpen();
+              bindUseAjax();
+
+
             }
-            bindRegistrationSubmit();
-            bindDeleteAction();
-            bindCancelAction();
-            bindWarningAction();
-            bindModalOpen();
-            bindUseAjax();
-
-
+            else {
+              displayErrorDialog();
+            }
           }
           else {
             displayErrorDialog();
           }
-        }
-        else {
+          return false;
+        },
+        error: function(xhr, ajaxOptions, thrownError){
           displayErrorDialog();
-        }
-        return false;
-      },
-      error: function(xhr, ajaxOptions, thrownError){
-        displayErrorDialog();
-      },
+        },
+      });
     });
   });
 }

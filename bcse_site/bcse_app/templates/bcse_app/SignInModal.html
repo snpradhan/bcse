@@ -16,18 +16,28 @@
       {% csrf_token %}
       {{form.management_form}}
       <div class="modal-body">
-        {% for field in form %}
-          <div class="form-group mb-3">
-            <label for="id_{{field.name}}">
-              {{ field.label }}
-              {% if field.help_text %}
-                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{field.help_text}}"></i>
-              {% endif %}
-            </label>
-            <div>{{field}}</div>
-            <div class="error">{{ field.errors }}</div>
-          </div>
-        {% endfor %}
+        <div class="form-group mb-3">
+          <label for="id_{{form.email.name}}">
+            {{ form.email.label }}
+            {% if form.email.help_text %}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.email.help_text}}"></i>
+            {% endif %}
+          </label>
+          <div>{{form.email}}</div>
+          <div class="error">{{ form.email.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.password.name}}">
+            {{ form.password.label }}
+            {% if form.password.help_text %}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.password.help_text}}"></i>
+            {% endif %}
+          </label>
+          <div>{{form.password}}</div>
+          <div class="error">{{ form.password.errors }}</div>
+        </div>
+        <input type="hidden" id="recaptchaToken" name="recaptchaToken">
+
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
         </div>
@@ -55,33 +65,38 @@
     $("#formSignIn").submit(function(e) {
       e.preventDefault();
 
-      $.ajax({
-        type: $(this).attr('method'),
-        url: this.action,
-        data: $(this).serialize(),
-        context: this,
-        beforeSend: function(){
-          $('#formSignUp #spinner').show();
-        },
-        complete: function(){
-          $('#formSignUp #spinner').hide();
-        },
-        success: function(data, status) {
-          if(data['success'] == true){
-            if(data['redirect_url']) {
-              window.parent.location.href = data['redirect_url'];
+      grecaptcha.enterprise.ready(async () => {
+        const token = await grecaptcha.enterprise.execute('{{RECAPTCHA_PUBLIC_KEY}}', {action: 'LOGIN'});
+        document.getElementById('recaptchaToken').value = token;
+
+        $.ajax({
+          type: $(this).attr('method'),
+          url: this.action,
+          data: $(this).serialize(),
+          context: this,
+          beforeSend: function(){
+            $('#formSignUp #spinner').show();
+          },
+          complete: function(){
+            $('#formSignUp #spinner').hide();
+          },
+          success: function(data, status) {
+            if(data['success'] == true){
+              if(data['redirect_url']) {
+                window.parent.location.href = data['redirect_url'];
+              }
+              else {
+                window.parent.location.href = window.location.href.split('?')[0]
+              }
             }
-            else {
-              window.parent.location.href = window.location.href.split('?')[0]
+            else{
+              $('#signin').html(data['html']);
             }
+          },
+          error: function(){
+            displayErrorDialog();
           }
-          else{
-            $('#signin').html(data['html']);
-          }
-        },
-        error: function(){
-          displayErrorDialog();
-        }
+        });
       });
     });
 

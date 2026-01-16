@@ -3,6 +3,8 @@ import os
 from datetime import datetime, timedelta, date
 from calendar import HTMLCalendar
 import re
+from django.conf import settings
+import requests
 
 def get_filename(filename):
   now = datetime.now()
@@ -270,3 +272,28 @@ def get_tag_dictionary(tags):
 def strip_html(html_string):
   clean = re.compile('<.*?>')
   return re.sub(clean, '', html_string)
+
+
+####################################
+# VALIDATE RECAPTCHA TOKEN
+####################################
+def validateReCaptcha(token, action):
+  if not token:
+    return False
+
+  url = 'https://recaptchaenterprise.googleapis.com/v1/projects/%s/assessments?key=%s' % (settings.RECAPTCHA_PROJECT_ID, settings.RECAPTCHA_PRIVATE_KEY)
+  payload = { "event": {
+                "token": token,
+                "siteKey": settings.RECAPTCHA_PUBLIC_KEY,
+                "expectedAction": action
+              }
+            }
+  response = requests.post(url, json=payload)
+  data = response.json()
+  # Validate token
+  token_props = data.get("tokenProperties", {})
+  risk_score = data.get("riskAnalysis", {}).get("score", 0)
+  if token_props.get("valid") and risk_score >= settings.RECAPTCHA_REQUIRED_SCORE:
+    return True
+  else:
+    return False

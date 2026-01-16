@@ -10,8 +10,6 @@ from localflavor.us.models import USStateField
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from dal import autocomplete
 import datetime
-from django_recaptcha.fields import ReCaptchaField
-from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from django.template.loader import render_to_string, get_template
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -184,6 +182,23 @@ class SignUpForm (forms.Form):
 # Override the password reset form to allow secondary email
 #######################################################
 class SecondaryEmailPasswordResetForm(PasswordResetForm):
+
+  recaptchaToken = forms.CharField(widget=forms.HiddenInput)
+
+  def clean(self):
+    cleaned_data = super().clean()
+    recaptcha_token = cleaned_data.get('recaptchaToken')
+
+    if not recaptcha_token:
+      raise forms.ValidationError("reCAPTCHA token is required")
+
+    recaptcha_passed = utils.validateReCaptcha(recaptcha_token, 'password_reset')
+
+    if recaptcha_passed:
+      return cleaned_data
+
+    raise forms.ValidationError('reCAPTCHA validation failed')
+
 
   def get_users(self, email):
     """Return users matching primary or secondary email."""
@@ -411,7 +426,6 @@ class SubscriptionForm (forms.Form):
   first_name = forms.CharField(required=True, max_length=30, label='First Name')
   last_name = forms.CharField(required=True, max_length=30, label='Last Name')
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
-  captcha = ReCaptchaField()
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')

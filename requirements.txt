@@ -15,7 +15,6 @@ django-crontab==0.7.1
 django-dbbackup==5.0.1
 django-js-asset==2.0.0
 django-localflavor==3.1
-django-recaptcha==4.0.0
 django-storages==1.14.6
 et-xmlfile==1.1.0
 globre==0.1.5

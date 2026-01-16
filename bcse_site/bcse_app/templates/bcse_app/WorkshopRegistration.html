@@ -40,11 +40,13 @@
             <div>{{registration.form.sub_status}}</div>
             <div class="error">{{ registration.form.sub_status.errors }}</div>
           </div>
+          <input type="hidden" id="recaptchaToken" name="recaptchaToken" class="recaptchaToken">
         {% else %}
           {{registration.form.workshop_registration_setting.as_hidden}}
           {{registration.form.user.as_hidden}}
           {{registration.form.status.as_hidden}}
           {{registration.form.sub_status.as_hidden}}
+          <input type="hidden" id="recaptchaToken" name="recaptchaToken" class="recaptchaToken">
         {% endif %}
         <div class="form-group mb-3 center">
           {% if user.userProfile.user_role in 'AS' %}
@@ -78,11 +80,11 @@
                     Register
                   {% endif %}
                 </a>
-                <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit" style="display: none;">
+                <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit" data-recaptcha-public-key="{{RECAPTCHA_PUBLIC_KEY}}" style="display: none;">
                   Register
                 </button>
               {% else %}
-                <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">
+                <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit" data-recaptcha-public-key="{{RECAPTCHA_PUBLIC_KEY}}">
                   Apply
                 </button>
               {% endif %}

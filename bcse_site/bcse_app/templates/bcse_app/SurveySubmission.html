@@ -187,6 +187,7 @@
             <div class="form-group">
               <input type="hidden" id="back" name="back" value="0"/>
               <input type="hidden" id="save" name="save" value="0"/>
+              <input type="hidden" id="recaptchaToken" name="recaptchaToken">
               {% if page_num > 1 %}
                 <button class="btn back" type="button" id="back_bottom">
                     Back
@@ -257,55 +258,68 @@
         //wait for the download to initiate before submitting the form
         window.focus();
         window.setTimeout(function(){
-          $('#formSurvey').submit();
+          grecaptcha.enterprise.ready(async () => {
+            const token = await grecaptcha.enterprise.execute('{{RECAPTCHA_PUBLIC_KEY}}', {action: 'SURVEY'});
+            $('#formSurvey').find("#recaptchaToken").val(token);
+            $('#formSurvey').submit();
+          });
         }, 7000);
 
       });
+
       $('button.back').on('click', function(e){
         $('input#back').val(1);
         $("#formSurvey").submit();
       });
+
       $("#formSurvey").submit(function(e) {
         e.preventDefault();
-        $('input#save').val(0);
-        var formData = new FormData(this);
 
-        $.ajax({
-          type: $(this).attr('method'),
-          url: this.action,
-          data: formData,
-          dataType: 'json',
-          context: this,
-          cache:false,
-          contentType: false,
-          processData: false,
-          beforeSend: function(){
-            $('#formSurvey #spinner').show();
-          },
-          complete: function(){
-            $('#formSurvey #spinner').hide();
-          },
-          success: function(data, status) {
-            if(data['success'] == true){
-              if(data['html']) {
+        grecaptcha.enterprise.ready(async () => {
+          const token = await grecaptcha.enterprise.execute('{{RECAPTCHA_PUBLIC_KEY}}', {action: 'SURVEY'});
+          //document.getElementById('recaptchaToken').value = token;
+          $(this).find("#recaptchaToken").val(token);
+
+          $('input#save').val(0);
+          var formData = new FormData(this);
+
+          $.ajax({
+            type: $(this).attr('method'),
+            url: this.action,
+            data: formData,
+            dataType: 'json',
+            context: this,
+            cache:false,
+            contentType: false,
+            processData: false,
+            beforeSend: function(){
+              $('#formSurvey #spinner').show();
+            },
+            complete: function(){
+              $('#formSurvey #spinner').hide();
+            },
+            success: function(data, status) {
+              if(data['success'] == true){
+                if(data['html']) {
+                  $('#general').html(data['html']);
+                }
+                else if(data['redirect_url']) {
+                  window.parent.location.href = data['redirect_url'];
+                }
+                else {
+                  var redirect_url = window.parent.location.href.split('?')[0];
+                  window.parent.location.href = redirect_url;
+                  //window.parent.location.href = '/';
+                }
+              }
+              else{
                 $('#general').html(data['html']);
               }
-              else if(data['redirect_url']) {
-                window.parent.location.href = data['redirect_url'];
-              }
-              else {
-                var redirect_url = window.parent.location.href.split('?')[0];
-                window.parent.location.href = redirect_url;
-                //window.parent.location.href = '/';
-              }
+            },
+            error: function(){
+              displayErrorDialog();
             }
-            else{
-              $('#general').html(data['html']);
-            }
-          },
-          error: function(){
-            displayErrorDialog();
-          }
+          });
         });
       });
 
@@ -372,23 +386,28 @@
         for ( instance in CKEDITOR.instances ) {
           CKEDITOR.instances[instance].updateElement();
         }*/
-        $('input#save').val(1);
-        $('#formSurvey').ajaxSubmit({
-          dataType : 'json',
-          success: function(data){
-            if(data['success'] == true){
-              //message at the top of the page stating responses auto saved
-              display_messages('The responses were auto saved at '+ new Date().toLocaleTimeString(), "success");
-            }
-            else {
+        grecaptcha.enterprise.ready(async () => {
+          const token = await grecaptcha.enterprise.execute('{{RECAPTCHA_PUBLIC_KEY}}', {action: 'SURVEY'});
+          $('#formSurvey').find("#recaptchaToken").val(token);
+
+          $('input#save').val(1);
+          $('#formSurvey').ajaxSubmit({
+            dataType : 'json',
+            success: function(data){
+              if(data['success'] == true){
+                //message at the top of the page stating responses auto saved
+                display_messages('The responses were auto saved at '+ new Date().toLocaleTimeString(), "success");
+              }
+              else {
+                display_messages('The responses could not auto saved. Please click the Next or Submit button at the bottom of the page.', 'error');
+              }
+            },
+            error: function(data) {
               display_messages('The responses could not auto saved. Please click the Next or Submit button at the bottom of the page.', 'error');
             }
-          },
-          error: function(data) {
-            display_messages('The responses could not auto saved. Please click the Next or Submit button at the bottom of the page.', 'error');
-          }
+          });
+          return false;
         });
-        return false;
       }
 
       function display_messages(message, className){

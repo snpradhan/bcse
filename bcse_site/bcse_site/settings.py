@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'compressor',
     'django_crontab',
     'dbbackup', #django-dbbackup
-    'django_recaptcha',
 ]
 
 MIDDLEWARE = [
@@ -125,7 +124,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'bcse_app.context_processors.partners_processor'
+                'bcse_app.context_processors.partners_processor',
+                'bcse_app.context_processors.recaptcha_public_key'
             ],
         },
     },

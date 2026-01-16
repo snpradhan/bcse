@@ -10,7 +10,7 @@ from django.db.models.functions import Lower, Concat
 from django.db.models import Sum, Window
 from django.db.models.functions import Coalesce
 import datetime, time
-from .utils import Calendar, AdminCalendar, CalendarEquipmentSet
+from .utils import Calendar, AdminCalendar, CalendarEquipmentSet, validateReCaptcha
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
@@ -519,6 +519,7 @@ def reservationColorDelete(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
 ####################################
 # USER LOGIN
 ####################################
@@ -534,9 +535,11 @@ def userSignin(request, user_email=''):
   redirect_url = request.GET.get('next', '')
   if request.method == 'POST':
     data = request.POST.copy()
+    recaptcha_token = data.get("recaptchaToken")
+    recaptcha_passed = validateReCaptcha(recaptcha_token, 'login')
     form = forms.SignInForm(data)
     response_data = {}
-    if form.is_valid():
+    if recaptcha_passed and form.is_valid():
       #email = form.cleaned_data['email'].lower()
       #password = form.cleaned_data['password']
       #user = authenticate(username=email, password=password)
@@ -553,6 +556,10 @@ def userSignin(request, user_email=''):
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/SignInModal.html', context, request)
     else:
+      if not recaptcha_passed:
+        messages.error(request, 'reCAPTCHA validation failed')
+      else:
+        messages.error(request, 'Your credentials are invalid')
       context = {'form': form, 'redirect_url': redirect_url}
       response_data['success'] = False
       response_data['html'] = render_to_string('bcse_app/SignInModal.html', context, request)
@@ -609,24 +616,17 @@ def userSignup(request):
 
 
   elif request.method == 'POST':
+
+    recaptcha_token = request.POST.get("recaptchaToken")
+    recaptcha_passed = validateReCaptcha(recaptcha_token, 'signup')
+
     new_work_place = None
     response_data = {}
 
     form = forms.SignUpForm(user=request.user, files=request.FILES, data=request.POST)
     work_place_form = forms.WorkPlaceForm(data=request.POST, instance=work_place, user=request.user, prefix='work_place')
 
-    if form.is_valid():
-      # checking for bot signup
-      # anonymous users signing up as teachers need to go through recaptcha validation
-      if request.user.is_anonymous:
-        recaptcha_response = request.POST.get('g-recaptcha-response')
-        is_human = True #validate_recaptcha(request, recaptcha_response)
-        if not is_human:
-          context = {'form': form, 'work_place_form': work_place_form, 'recaptcha_error':  'Invalid reCAPTCHA'}
-          response_data['success'] = False
-          response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
-          return http.HttpResponse(json.dumps(response_data), content_type="application/json")
-
+    if recaptcha_passed and form.is_valid():
       user = User.objects.create_user(form.cleaned_data['email'].lower(),
                                       form.cleaned_data['email'].lower(),
                                       form.cleaned_data['password1'])
@@ -713,6 +713,8 @@ def userSignup(request):
 
     else:
       print(form.errors)
+      if not recaptcha_passed:
+        messages.error(request, 'reCAPTCHA validation failed')
       work_place_form.is_valid()
       context = {'form': form, 'work_place_form': work_place_form}
       response_data['success'] = False
@@ -1532,7 +1534,10 @@ def reservationEdit(request, id=''):
       data = request.POST.copy()
       form = forms.ReservationForm(data, instance=reservation, user=request.user.userProfile)
 
-      if form.is_valid():
+      recaptcha_token = data.get("recaptchaToken")
+      recaptcha_passed = validateReCaptcha(recaptcha_token, 'reservation')
+
+      if recaptcha_passed and form.is_valid():
 
         savedReservation = None
 
@@ -1593,8 +1598,11 @@ def reservationEdit(request, id=''):
         return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
 
       else:
-        print(form.errors)
-        messages.error(request, "Please correct the errors below and click Save again")
+        if not recaptcha_passed:
+          messages.error(request, "reCAPTCHA validation failed")
+        else:
+          print(form.errors)
+          messages.error(request, "Please correct the errors below and click Save again")
         context = {'form': form, 'reservation_settings': reservation_settings}
         return render(request, 'bcse_app/ReservationEdit.html', context)
     return http.HttpResponseNotAllowed(['GET', 'POST'])
@@ -4098,9 +4106,12 @@ def workshopRegistration(request, workshop_id):
 
     elif request.method == 'POST':
       data = request.POST.copy()
+      recaptcha_token = data.get("recaptchaToken")
+      recaptcha_passed = validateReCaptcha(recaptcha_token, 'workshop_registration')
+
       registration_id = None
       form = forms.WorkshopRegistrationForm(data, instance=workshop_registration, prefix='workshop-%s'%workshop.id)
-      if form.is_valid():
+      if recaptcha_passed and form.is_valid():
         saved_registration = form.save()
         registration_id = saved_registration.id
         if request.user.userProfile.user_role in ['A', 'S']:
@@ -4133,19 +4144,27 @@ def workshopRegistration(request, workshop_id):
       else:
         print(form.errors)
         if not request.is_ajax():
-          messages.success(request, "There were some errors")
+          if not recaptcha_passed:
+            messages.error(request, "reCAPTCHA validation failed")
+          else:
+            messages.error(request, "There were some errors")
         if request.user.userProfile.user_role in ['A', 'S']:
-          try:
-            registration_user = data.get("workshop-%s-user"%workshop.id, "")
-            if registration_user:
-              reg = userRegistration(request, workshop.id, registration_user)
-              admin_message = "Workshop registration for user <b>%s</b> already exists. If you need to update the registration status for this user, please use the Registrants tab" % reg.user
+          if not recaptcha_passed:
+            admin_message = "reCAPTCHA validation failed"
+          else:
+            try:
+              registration_user = data.get("workshop-%s-user"%workshop.id, "")
+              if registration_user:
+                reg = userRegistration(request, workshop.id, registration_user)
+                admin_message = "Workshop registration for user <b>%s</b> already exists. If you need to update the registration status for this user, please use the Registrants tab" % reg.user
 
-          except CustomException as ce:
-            admin_message = "Something went wrong with the workshop registration"
+            except CustomException as ce:
+              admin_message = "Something went wrong with the workshop registration"
 
           registration['admin_message'] = admin_message
         else:
+          if not recaptcha_passed:
+            user_message = "reCAPTCHA validation failed"
           registration['user_message'] = user_message
 
         registration['form'] = form
@@ -6291,9 +6310,13 @@ def subscribe(request):
         return render(request, 'bcse_app/SubscribeModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
+
+      recaptcha_token = data.get("recaptchaToken")
+      recaptcha_passed = validateReCaptcha(recaptcha_token, 'subscribe')
+
       form = forms.SubscriptionForm(data, user=request.user)
       response_data = {}
-      if form.is_valid():
+      if recaptcha_passed and form.is_valid():
         userDetails = {'email_address': data.__getitem__('email').lower(), 'first_name':  data.__getitem__('first_name'), 'last_name':  data.__getitem__('last_name')}
         if data.__getitem__('phone_number'):
           userDetails['phone_number'] = data.__getitem__('phone_number')
@@ -6310,6 +6333,8 @@ def subscribe(request):
         response_data['success'] = True
 
       else:
+        if not recaptcha_passed:
+          messages.error(request, 'reCAPTCHA validation failed')
         print(form.errors)
         context = {'form': form}
         response_data['success'] = False
@@ -9097,18 +9122,21 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
         else:
           #clicking Next or Submit
+          recaptcha_token = data.get("recaptchaToken")
+          recaptcha_passed = validateReCaptcha(recaptcha_token, 'survey')
+
           is_valid = False
           formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
           if user and user.user_role == 'A' and page_num == 1:
             form = forms.SurveySubmissionForm(data, instance=submission)
-            if form.is_valid() and formset.is_valid():
+            if recaptcha_passed and form.is_valid() and formset.is_valid():
               is_valid = True
           elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type == 'W' and workshop_id and workshop.registration_setting.registration_type == 'R':
             userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(data, instance=user, prefix='user-profile')
-            if userProfileForm.is_valid() and formset.is_valid():
+            if recaptcha_passed and userProfileForm.is_valid() and formset.is_valid():
               is_valid = True
           else:
-            if formset.is_valid():
+            if recaptcha_passed and formset.is_valid():
               is_valid = True
 
           if is_valid:
@@ -9207,6 +9235,10 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               else:
                 return shortcuts.redirect('bcse:home')
           else:
+
+            if not recaptcha_passed:
+              messages.error(request, 'reCAPTCHA validation failed')
+
             if user and user.user_role == 'A' and page_num == 1:
               print(form.errors)
 
