@@ -342,7 +342,7 @@ class WorkPlace(models.Model):
 # Placeholder workplace to assign to users when the users' workplace is deleted
 #
 def get_placeholder_workplace():
-  return WorkPlace.objects.all().filter(name='Placeholder workplace')[0].id
+  return 555
 
 
 

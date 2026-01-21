@@ -7309,7 +7309,7 @@ def workPlaceEdit(request, id=''):
         response_data['success'] = True
       else:
         print(form.errors)
-        context = {'form': form, 'userForm': userForm}
+        context = {'form': form}
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/WorkPlaceEdit.html', context, request)
 
@@ -7380,7 +7380,9 @@ def workPlaceDelete(request, id=''):
       raise CustomException('You do not have the permission to delete workplace')
     if '' != id:
       work_place = models.WorkPlace.objects.get(id=id)
-      if work_place.users.count() > 0 or work_place.work_place_to_registration.count() > 0 or work_place.work_place_to_reservation.count() > 0:
+      if id == models.get_placeholder_workplace():
+        messages.success(request, "This is the default workplace and cannot be deleted")
+      elif work_place.users.count() > 0 or work_place.work_place_to_registration.count() > 0 or work_place.work_place_to_reservation.count() > 0:
         messages.success(request, "%s is associated with %s user(s), %s workshop registration(s) and %s Baxter Box reservation(s) and cannot be deleted" % (work_place.name, work_place.users.count(), work_place.work_place_to_registration.count(), work_place.work_place_to_reservation.count()))
       else:
         work_place.delete()

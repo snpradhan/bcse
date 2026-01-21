@@ -143,7 +143,11 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                  {% if work_place.users.count or work_place.work_place_to_registration.count or work_place.work_place_to_registration.count %}
+                  {% if work_place|is_default_workplace %}
+                    <a class="dropdown-item action" onclick="displayWarningDialog('<strong>{{work_place.name}}</strong> is the default workplace and cannot be deleted');">
+                      Delete
+                    </a>
+                  {% elif work_place.users.count or work_place.work_place_to_registration.count or work_place.work_place_to_registration.count %}
                     <a class="dropdown-item action" onclick="displayWarningDialog('<strong>{{work_place.name}}</strong> is associated with  {% if work_place.users.count %} {{work_place.users.count}} user(s), {% endif %} {% if work_place.work_place_to_registration.count %} {{work_place.work_place_to_registration.count}} workshop registration(s) {% endif %} {% if work_place.work_place_to_reservation.count %} and {{work_place.work_place_to_reservation.count}} Baxter Box reservation(s) {% endif %} and cannot be deleted');">
                       Delete
                     </a>

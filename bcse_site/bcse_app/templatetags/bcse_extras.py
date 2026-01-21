@@ -393,4 +393,11 @@ def get_storage_label(key, default='Unknown'):
 def replace_workshop_tokens(text, workshop):
   return models.replace_workshop_tokens(text, workshop)
 
+@register.filter
+def is_default_workplace(work_place):
+  if work_place.id == models.get_placeholder_workplace():
+    return True
+  else:
+    return False
+
 
