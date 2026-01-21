@@ -6224,10 +6224,13 @@ def userProfileDelete(request, id=''):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to delete this user')
     if '' != id:
-      userProfile = models.UserProfile.objects.get(id=id)
-      user = userProfile.user
-      user.delete()
-      messages.success(request, "User deleted")
+      if id == models.get_placeholder_reservation_assignee():
+        messages.error(request, "This user is the default assignee for reservations and cannot be deleted.")
+      else:
+        userProfile = models.UserProfile.objects.get(id=id)
+        user = userProfile.user
+        user.delete()
+        messages.success(request, "User deleted")
 
     return shortcuts.redirect('bcse:users')
 

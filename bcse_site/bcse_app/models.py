@@ -721,7 +721,7 @@ class SubTag(models.Model):
 # Placeholder assignee for a reservation
 #
 def get_placeholder_reservation_assignee():
-  return UserProfile.objects.get(user__email='bcse@northwestern.edu').id
+  return 3
 
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)

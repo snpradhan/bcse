@@ -400,4 +400,11 @@ def is_default_workplace(work_place):
   else:
     return False
 
+@register.filter
+def is_default_reservation_assignee(userProfile):
+  if userProfile.id == models.get_placeholder_reservation_assignee():
+    return True
+  else:
+    return False
+
 

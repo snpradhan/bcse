@@ -155,10 +155,16 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:userProfileDelete' user_profile.id %}"
-                  data-title="the user <strong>{{user_profile.user.get_full_name}}</strong>">
-                    Delete
-                  </a>
+                  {% if user_profile|is_default_reservation_assignee %}
+                    <a class="dropdown-item action" onclick="displayWarningDialog('<strong>{{user_profile.user.email}}</strong> is the default reservation assignee and cannot be deleted');">
+                      Delete
+                    </a>
+                  {% else %}
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:userProfileDelete' user_profile.id %}"
+                    data-title="the user <strong>{{user_profile.user.get_full_name}}</strong>">
+                      Delete
+                    </a>
+                  {% endif %}
                 </li>
               </ul>
             </div>
