@@ -324,7 +324,6 @@ class WorkPlace(models.Model):
   longitude = models.CharField(null=True, blank=True, max_length=256)
   time_from_base = models.CharField(null=True, blank=True, max_length=256)
   distance_from_base = models.CharField(null=True, blank=True, max_length=256)
-  term_id = models.IntegerField(null=True, blank=True)#delete this field after import
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)

@@ -7441,14 +7441,11 @@ def workPlacesUpload(request):
             city = row[5]
             state = row[6]
             zip_code = row[7]
-            term_id = row[8]
             if name and work_place_type: # and street_address_1 and city and state and zip_code:
               if models.WorkPlace.objects.all().filter(name=name, work_place_type=work_place_types[work_place_type]).count() > 0:
                 upload_status.append("Workplace already exists")
               else:
                 work_place = models.WorkPlace(name=name, work_place_type=work_place_types[work_place_type], district_number=district_number, street_address_1=street_address_1, street_address_2=street_address_2, city=city, state=state, zip_code=zip_code, status='A')
-                if term_id:
-                  work_place.term_id = term_id
                 work_place.save()
                 new_schools += 1
                 upload_status.append("Workplace created")

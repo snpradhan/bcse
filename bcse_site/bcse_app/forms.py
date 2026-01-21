@@ -1485,7 +1485,7 @@ class WorkPlaceForm(ModelForm):
 
   class Meta:
     model = models.WorkPlace
-    exclude = ('id', 'term_id', 'created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base')
+    exclude = ('id', 'created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base')
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
