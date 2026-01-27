@@ -43,20 +43,11 @@
                   <img src="{{activity.image.url}}"/>
                 </div>
               </div>
+            {% else %}
+              <br>
             {% endif %}
 
             <div class="form-group mb-3">
-              <label for="id_{{form.inventory.name}}">
-                {{ form.inventory.label|title }}
-                {% if form.inventory.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div>{{form.inventory}}</div>
-              <div class="error">{{ form.inventory.errors }}</div>
-            </div>
-
-             <div class="form-group mb-3">
               <label class="form-label">Inventory <button type="button" class="btn" onclick="cloneForm('activityinventory_set', 'inventory_formset')">Add </button> </label>
               <table class="table table-condensed table-bordered">
                 <thead>
@@ -145,18 +136,10 @@
                       <img src="{{consumableForm.instance.image.url}}"/>
                     </div>
                   </div>
+                {% else %}
+                  <br>
                 {% endif %}
 
-                <div class="form-group mb-3">
-                  <label for="id_{{consumableForm.inventory.name}}">
-                    {{ consumableForm.inventory.label|title }}
-                    {% if consumableForm.inventory.field.required %}
-                      (<span class="required">*</span>)
-                    {% endif %}
-                  </label>
-                  <div>{{consumableForm.inventory}}</div>
-                  <div class="error">{{ consumableForm.inventory.errors }}</div>
-                </div>
                 {% with ci_formet=consumable_inventory_formsets|get_list_item:forloop.counter0 %}
                 <div class="form-group mb-3">
                   <label class="form-label">Inventory <button type="button" class="btn" onclick="cloneForm('ci-{{forloop.counter0}}', 'ci_formset_{{forloop.counter0}}')">Add </button> </label>

@@ -49,9 +49,6 @@
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GO' in columns %}
           <th> Include Goggles </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
-          <th> Kit Inventory </th>
-        {% endif %}
         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
           <th> Inventory Notes</th>
         {% endif %}
@@ -196,9 +193,6 @@
             </td>
           {% endif %}
 
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IV' in columns %}
-            <td>{{reservation.activity.inventory|default_if_none:""|safe}}</td>
-          {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
             <td>{{reservation.activity.notes|default_if_none:""|safe}}</td>
           {% endif %}

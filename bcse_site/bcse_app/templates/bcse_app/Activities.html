@@ -14,8 +14,7 @@
           <th> Activity ID</th>
           <th> Name </th>
           <th> Kit Name </th>
-          <th> Kit Inventory </th>
-          <th> Inventory Notes </th>
+          <th> Notes </th>
           <th> Kit Unit Cost ($) </th>
           <th> Consumables</th>
           <th> Status </th>
@@ -43,7 +42,6 @@
               {{activity.name}}
             </td>
             <td> {{activity.kit_name}} </td>
-            <td> {{activity.inventory|default_if_none:""|safe}} </td>
             <td> {{activity.notes|default_if_none:""|safe}} </td>
             <td> {{activity.kit_unit_cost|default_if_none:""}} </td>
             <td>

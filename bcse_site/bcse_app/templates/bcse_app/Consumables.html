@@ -13,7 +13,6 @@
         <tr>
           <th> Consumable ID</th>
           <th> Name </th>
-          <th> Inventory </th>
           <th> Notes </th>
           <th> Unit Cost ($) </th>
           <th> Status </th>
@@ -38,7 +37,6 @@
               {% endif %}
               {{consumable.name}}
             </td>
-            <td> {{consumable.inventory|default_if_none:""|safe}} </td>
             <td> {{consumable.notes|default_if_none:""|safe}} </td>
             <td> {{consumable.unit_cost|default_if_none:""}} </td>
             <td> {{consumable.get_status_display}} </td>         

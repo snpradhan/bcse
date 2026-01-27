@@ -498,7 +498,6 @@ class ActivityForm(ModelForm):
     exclude = ('created_date', 'modified_date')
     widgets = {
       'image': widgets.ClearableFileInput,
-      'inventory': forms.Textarea(attrs={'rows':2}),
       'notes': forms.Textarea(attrs={'rows':2}),
     }
 
@@ -506,8 +505,7 @@ class ActivityForm(ModelForm):
     super(ActivityForm, self).__init__(*args, **kwargs)
     self.fields['materials_equipment'].label = 'Materials/Equipment'
     self.fields['manuals_resources'].label = 'Instruction Manuals/Resources'
-    self.fields['inventory'].label = 'Kit Inventory'
-    self.fields['notes'].label = 'Inventory Notes'
+    self.fields['notes'].label = 'Notes'
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
     self.fields['color'].label = 'Inventory Status'
 
@@ -573,16 +571,14 @@ class ActivityUpdateForm(ModelForm):
 
   class Meta:
     model = models.Activity
-    fields = ['inventory', 'kit_unit_cost', 'notes', 'color']
+    fields = ['kit_unit_cost', 'notes', 'color']
     widgets = {
-      'inventory': forms.Textarea(attrs={'rows':1}),
       'notes': forms.Textarea(attrs={'rows':1}),
     }
 
   def __init__(self, *args, **kwargs):
     super(ActivityUpdateForm, self).__init__(*args, **kwargs)
-    self.fields['inventory'].label = 'Kit Inventory'
-    self.fields['notes'].label = 'Inventory Notes'
+    self.fields['notes'].label = 'Notes'
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
     self.fields['color'].label = 'Inventory Status'
 
@@ -601,13 +597,11 @@ class ConsumableForm(ModelForm):
     exclude = ('created_date', 'modified_date')
     widgets = {
       'image': widgets.ClearableFileInput,
-      'inventory': forms.Textarea(attrs={'rows':2}),
       'notes': forms.Textarea(attrs={'rows':2}),
     }
 
   def __init__(self, *args, **kwargs):
     super(ConsumableForm, self).__init__(*args, **kwargs)
-    self.fields['inventory'].label = 'Inventory'
     self.fields['notes'].label = 'Notes'
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
     self.fields['color'].label = 'Inventory Status'
@@ -652,15 +646,13 @@ class ConsumableUpdateForm(ModelForm):
 
   class Meta:
     model = models.Consumable
-    fields = ['inventory', 'unit_cost', 'notes', 'color']
+    fields = ['unit_cost', 'notes', 'color']
     widgets = {
-      'inventory': forms.Textarea(attrs={'rows':1}),
       'notes': forms.Textarea(attrs={'rows':1}),
     }
 
   def __init__(self, *args, **kwargs):
     super(ConsumableUpdateForm, self).__init__(*args, **kwargs)
-    self.fields['inventory'].label = 'Inventory'
     self.fields['notes'].label = 'Notes'
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
     self.fields['color'].label = 'Inventory Status'
