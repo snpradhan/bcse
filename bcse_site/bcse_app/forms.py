@@ -1165,6 +1165,36 @@ class ReservationColorForm(ModelForm):
       field.widget.attrs['placeholder'] = field.help_text
 
 
+class ReservationDeliveryPickupEmailTemplateForm(ModelForm):
+  class Meta:
+    model = models.ReservationDeliveryPickupEmailTemplate
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+
+    super(ReservationDeliveryPickupEmailTemplateForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+class ReservationDeliveryPickupEmailForm(ModelForm):
+  class Meta:
+    model = models.ReservationDeliveryPickupEmail
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+
+    super(ReservationDeliveryPickupEmailForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'delivery_or_pickup':
+        field.widget.attrs['disabled'] = True
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+
+
 class WorkshopForm(ModelForm):
 
   class Meta:

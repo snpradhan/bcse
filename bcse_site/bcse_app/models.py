@@ -854,6 +854,26 @@ class ReservationColor(models.Model):
     else:
       return '%s - %s' % (self.name, self.description)
 
+class ReservationDeliveryPickupEmailTemplate(models.Model):
+  delivery_or_pickup = models.CharField(null=False, blank=False, max_length=1, unique=True, choices=(('D', 'Delivery'), ('P', 'Pickup')))
+  email_subject = models.CharField(null=False, max_length=256)
+  email_message = RichTextField(null=False, blank=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+
+class ReservationDeliveryPickupEmail(models.Model):
+  reservation = models.ForeignKey(Reservation, related_name='reservation_emails', on_delete=models.CASCADE)
+  delivery_or_pickup = models.CharField(null=False, blank=False, max_length=1, choices=(('D', 'Delivery'), ('P', 'Pickup')))
+  email_subject = models.CharField(null=True, blank=True, max_length=256, help_text='Email subject added here will override the email subject from the template for this reservation.')
+  email_message = RichTextField(null=True, blank=True, help_text='Email message added here will be appended to the email message from the template for this reservation.')
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    unique_together = ('reservation', 'delivery_or_pickup')
+
+
 class Team(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of the Team Member')
   description = RichTextField(null=True, blank=True, config_name='resource_url_ckeditor')

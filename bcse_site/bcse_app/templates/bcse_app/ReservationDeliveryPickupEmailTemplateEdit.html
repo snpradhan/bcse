@@ -1,0 +1,92 @@
+{% load base_extras %}
+{% load bcse_extras %}
+
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Reservation Delivery/Pickup Email Template</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="uploadMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:reservationDeliveryPickupEmailTemplateEdit'  form.instance.id  %} {% else %} {% url 'bcse:reservationDeliveryPickupEmailTemplateNew'%}{% endif %}"  id="formReservationEmailTemplate">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.delivery_or_pickup.name}}" class="form-label">
+            {{form.delivery_or_pickup.label|title}}
+          </label>
+          <div>{{form.delivery_or_pickup}}</div>
+          <div class="error">{{ form.delivery_or_pickup.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.email_subject.name}}" class="form-label"> {{form.email_subject.label|title}}</label>
+          <div>{{form.email_subject}}</div>
+          <div class="error">{{ form.email_subject.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.email_message.name}}" class="form-label"> {{form.email_message.label|title}}</label>
+          <div>{{form.email_message}}</div>
+          <div class="error">{{ form.email_message.errors }}</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+          <button type="submit" id="save_button" class="btn btn-success">
+            Save
+          </button>
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function (){
+
+    $("#formReservationEmailTemplate").submit(function(e) {
+      e.preventDefault();
+      for (var instance in CKEDITOR.instances) {
+        CKEDITOR.instances[instance].updateElement();
+      }
+      var formData = new FormData(this);
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+
+        success: function(data, status) {
+          if(data['success'] == true){
+            $('#general').modal('toggle');
+            window.location.hash = 'baxterbox_emails';
+            location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(e){
+          displayErrorDialog();
+        }
+      });
+    });
+
+
+  });
+</script>
+

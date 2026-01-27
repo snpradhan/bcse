@@ -24,6 +24,12 @@ urlpatterns = [
     path('reservation/<int:reservation_id>/deliveryAddress/edit', views.reservationDeliveryAddressEdit, name='reservationDeliveryAddressEdit'),
     path('reservation/<int:reservation_id>/deliveryAddress/delete', views.reservationDeliveryAddressDelete, name='reservationDeliveryAddressDelete'),
     path('reservation/<int:reservation_id>/update', views.reservationUpdate, name='reservationUpdate'),
+
+    path('reservation/<int:reservation_id>/delivery_pickup_email/edit', views.reservationDeliveryPickupEmailEdit, name='reservationDeliveryPickupEmailEdit'),
+    path('reservation/<int:reservation_id>/delivery_pickup_email/<str:email_type>/view', views.reservationDeliveryPickupEmailView, name='reservationDeliveryPickupEmailView'),
+    path('reservation/<int:reservation_id>/delivery_pickup_email/<str:email_type>/send', views.reservationDeliveryPickupEmailSend, name='reservationDeliveryPickupEmailSend'),
+
+
     path('availability/<int:id>', views.getAvailabilityData, name='getAvailabilityData'),
     path('availability/new', views.getAvailabilityData, name='getAvailabilityData'),
     path('workshop/<int:id>/edit', views.workshopEdit, name='workshopEdit'),
@@ -132,6 +138,10 @@ urlpatterns = [
     path('adminConfiguration/baxter_box/inventory/<int:id>/<str:inventory_type>/edit', views.inventoryEdit, name='inventoryEdit'),
     path('adminConfiguration/baxter_box/inventory/<str:inventory_type>/new', views.inventoryEdit, name='inventoryNew'),
     path('adminConfiguration/baxter_box/inventory/<int:id>/<str:inventory_type>/delete', views.inventoryDelete, name='inventoryDelete'),
+
+    path('adminConfiguration/baxter_box/reservation_email_template/new', views.reservationDeliveryPickupEmailTemplateEdit, name='reservationDeliveryPickupEmailTemplateNew'),
+    path('adminConfiguration/baxter_box/reservation_email_template/<int:id>/edit', views.reservationDeliveryPickupEmailTemplateEdit, name='reservationDeliveryPickupEmailTemplateEdit'),
+
 
     path('adminConfiguration/workshopCategory/<int:id>/edit', views.workshopCategoryEdit, name='workshopCategoryEdit'),
     path('adminConfiguration/workshopCategory/<int:id>/delete', views.workshopCategoryDelete, name='workshopCategoryDelete'),

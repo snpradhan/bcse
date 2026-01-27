@@ -234,6 +234,7 @@ def baxterBoxSettings(request):
 
     blackout_dates = models.BaxterBoxBlackoutDate.objects.all()
     baxterbox_messages = models.BaxterBoxMessage.objects.all()
+    baxterbox_emails = models.ReservationDeliveryPickupEmailTemplate.objects.all()
     reservation_settings = {}
     reservation_settings['reservation_delivery_days'] = settings.BAXTER_BOX_DELIVERY_DAYS
     reservation_settings['reservation_return_days'] = settings.BAXTER_BOX_RETURN_DAYS
@@ -244,7 +245,7 @@ def baxterBoxSettings(request):
     reservation_settings['reservation_reminder_days'] = settings.BAXTER_BOX_RESERVATION_REMINDER_DAYS
 
 
-    context = {'blackout_dates': blackout_dates, 'baxterbox_messages': baxterbox_messages, 'reservation_settings': reservation_settings}
+    context = {'blackout_dates': blackout_dates, 'baxterbox_messages': baxterbox_messages, 'reservation_settings': reservation_settings, 'baxterbox_emails': baxterbox_emails}
     return render(request, 'bcse_app/BaxterBoxSettings.html', context)
 
   except CustomException as ce:
@@ -3418,6 +3419,112 @@ def inventoryDelete(request, id='', inventory_type='A'):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except models.ConsumableInventory.DoesNotExist:
     messages.success(request, "Consumable Inventory not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################################
+# RESERVATION DELIVERY/PICKUP EMAIL TEMPLATE
+####################################################
+@login_required
+def reservationDeliveryPickupEmailTemplateEdit(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit reservation delivery/pickup email template')
+
+    if id != '':
+      email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(id=id)
+    else:
+      email_template = models.ReservationDeliveryPickupEmailTemplate()
+
+    if request.method == 'GET':
+      form = forms.ReservationDeliveryPickupEmailTemplateForm(instance=email_template)
+      context = {'form': form}
+      return render(request, 'bcse_app/ReservationDeliveryPickupEmailTemplateEdit.html', context)
+
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      response_data = {}
+      form = forms.ReservationDeliveryPickupEmailTemplateForm(data, instance=email_template)
+      if form.is_valid():
+        saved_email_template = form.save()
+        messages.success(request, "Reservation delivery/pickup email template saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Reservation delivery/pickup email template could not be saved. Check the errors below.")
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/ReservationDeliveryPickupEmailTemplateEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+
+  except models.ReservationDeliveryPickupEmailTemplate.DoesNotExist:
+    messages.success(request, "Reservation delivery/pickup email template not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+#################################################################
+# RESERVATION DELIVERY/PICKUP EMAIL FOR INDIVIDUAL RESERVATIONS
+#################################################################
+@login_required
+def reservationDeliveryPickupEmailEdit(request, reservation_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit reservation delivery/pickup email')
+
+    reservation = models.Reservation.objects.get(id=reservation_id)
+    delivery_email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(delivery_or_pickup='D')
+    pickup_email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(delivery_or_pickup='P')
+
+    try:
+      delivery_email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup='D')
+    except models.ReservationDeliveryPickupEmail.DoesNotExist:
+      delivery_email = models.ReservationDeliveryPickupEmail(reservation=reservation, delivery_or_pickup='D')
+    try:
+      pickup_email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup='P')
+    except models.ReservationDeliveryPickupEmail.DoesNotExist:
+      pickup_email = models.ReservationDeliveryPickupEmail(reservation=reservation, delivery_or_pickup='P')
+
+
+    if request.method == 'GET':
+      delivery_form = forms.ReservationDeliveryPickupEmailForm(instance=delivery_email, prefix="delivery")
+      pickup_form = forms.ReservationDeliveryPickupEmailForm(instance=pickup_email, prefix="pickup")
+      context = {'reservation': reservation, 'delivery_form': delivery_form, 'pickup_form': pickup_form, 'delivery_email_template': delivery_email_template, 'pickup_email_template': pickup_email_template}
+      return render(request, 'bcse_app/ReservationDeliveryPickupEmailEdit.html', context)
+
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      response_data = {}
+      delivery_form = forms.ReservationDeliveryPickupEmailForm(data, instance=delivery_email, prefix="delivery")
+      pickup_form = forms.ReservationDeliveryPickupEmailForm(data, instance=pickup_email, prefix="pickup")
+      if delivery_form.is_valid() and pickup_form.is_valid():
+        delivery_form.save()
+        pickup_form.save()
+        response_data['message'] =  "Reservation delivery/pickup email saved"
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, "Reservation delivery/pickup email could not be saved. Check the errors below.")
+        context = {'reservation': reservation, 'delivery_form': delivery_form, 'pickup_form': pickup_form, 'delivery_email_template': delivery_email_template, 'pickup_email_template': pickup_email_template}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/ReservationDeliveryPickupEmailEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Reservation.DoesNotExist:
+    messages.error(request, "Reservation not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.ReservationDeliveryPickupEmailTemplate.DoesNotExist:
+    messages.error(request, "Reservation Delivery/Pickup EmailTemplate does not exist")
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
   except CustomException as ce:
     messages.error(request, ce)
@@ -10205,6 +10312,114 @@ def reservationConfirmationEmailView(request, id):
     else:
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
+#####################################################
+# PREVIEW RESERVATION DELIVERY/PICKUP EMAIL
+#####################################################
+def reservationDeliveryPickupEmailView(request, reservation_id, email_type=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role in ['T', 'P']:
+      raise CustomException('You do not have the permission to view reservation email')
+
+    reservation = models.Reservation.objects.get(id=reservation_id)
+    email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(delivery_or_pickup=email_type)
+    try:
+      email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup=email_type)
+      subject = email.email_subject or email_template.email_subject
+      email_message = "%s <br> %s" % (email_template.email_message, email.email_message)
+    except models.ReservationDeliveryPickupEmail.DoesNotExist as e:
+      subject = email_template.email_subject
+      email_message = email_template.email_message
+
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+    context = {'subject': subject, 'email_message': email_message}
+
+    return render(request, 'bcse_app/EmailReservationDeliveryPickupView.html', context)
+
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
+  except models.ReservationDeliveryPickupEmailTemplate.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation Email Template not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation email not found')
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
+#####################################################
+# SEND RESERVATION DELIVERY OR PICK UP EMAIL
+#####################################################
+def reservationDeliveryPickupEmailSend(request, reservation_id, email_type=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to send feedback email')
+
+    reservation = models.Reservation.objects.get(id=reservation_id)
+    if reservation.status not in ['R', 'I']:
+      raise CustomException('The reservation status is not Checked Out or Completed, so the delivery/pickup email cannot be sent')
+    email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(delivery_or_pickup=email_type)
+    try:
+      email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup=email_type)
+      subject = email.email_subject or email_template.email_subject
+      email_message = "%s <br> %s" % (email_template.email_message, email.email_message)
+    except models.ReservationDeliveryPickupEmail.DoesNotExist as e:
+      subject = email_template.email_subject
+      email_message = email_template.email_message
+
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+    context = {'subject': subject, 'email_message': email_message}
+
+    body = get_template('bcse_app/EmailReservationDeliveryPickup.html').render(context)
+    qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
+
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+    email.content_subtype = "html"
+    success = email.send(fail_silently=True)
+    if request.is_ajax():
+      response_data = {}
+      if success:
+        response_data['success'] = True
+        response_data['message'] = 'Reservation %s email sent' % ('Delivery' if email_type == 'D' else 'Pickup')
+      else:
+        response_data['success'] = False
+        response_data['message'] = 'Reservation %s email could not be sent' % ('Delivery' if email_type == 'D' else 'Pickup')
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
+  except models.ReservationDeliveryPickupEmailTemplate.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation Email Template not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation email not found')
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
 #####################################################
 # SEND FEEDBACK REQUEST EMAIL TO THE USER

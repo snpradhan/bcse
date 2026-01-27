@@ -67,6 +67,7 @@
           if(data['success'] == true){
             console.log('success');
             $('#blackout_date').modal('toggle');
+            window.location.hash = 'blackout_dates';
             location.reload();
           }
           else{

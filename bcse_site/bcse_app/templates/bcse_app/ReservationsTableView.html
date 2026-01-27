@@ -383,6 +383,30 @@
                     </li>
                   {% endif %}
                   <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailEdit' reservation.id %}">Update Delivery/Pickup Emails</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'D' %}">Preview Delivery Email</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'P' %}">Preview Pickup Email</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% if reservation.status in 'RI' %}
+                    <li>
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}" data-title="delivery">Send Delivery Email</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}" data-title="pickup">Send Pickup Email</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                  {% endif %}
+
+
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
                   {% get_reservation_feedback reservation.id as reservation_feedback %}
                   {% if reservation_feedback %}

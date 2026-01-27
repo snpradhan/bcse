@@ -1,0 +1,138 @@
+{% load base_extras %}
+{% load bcse_extras %}
+
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">Reservation Delivery/Pickup Email</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="uploadMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <form class="form" method="post" action="{% url 'bcse:reservationDeliveryPickupEmailEdit'  reservation.id  %}"  id="formReservationEmail">
+      {% csrf_token %}
+
+      <div class="modal-body">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item active" role="presentation">
+            <button class="nav-link active" id="delivery_email-tab" data-bs-toggle="tab"  type="button" data-bs-target="#delivery_email" role="tab" aria-controls="delivery_email" aria-selected="true">Delivery Email</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pickup_email-tab" data-bs-toggle="tab"  type="button" data-bs-target="#pickup_email" role="tab" aria-controls="pickup_email" aria-selected="true">Pickup Email</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="reservation_email_content">
+          <div class="tab-pane active" id="delivery_email" role="tabpanel" aria-labelledby="delivery_email-tab">
+            {{delivery_form.media}}
+            <div class="form-group mb-3">
+              {{delivery_form.reservation.as_hidden}}
+              {{delivery_form.delivery_or_pickup.as_hidden}}
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{delivery_form.email_subject.name}}" class="form-label">
+                {{delivery_form.email_subject.label|title}}
+              </label>
+              <div>
+                <i><strong>Email Subject from template </strong> : {{delivery_email_template.email_subject}}</i>
+              </div>
+              <div>{{delivery_form.email_subject}}</div>
+              <div class="warning">{{delivery_form.email_subject.help_text}}</div>
+              <div class="error">{{ delivery_form.email_subject.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{delivery_form.email_message.name}}" class="form-label">
+                {{delivery_form.email_message.label|title}}
+              </label>
+              <div>
+                <i><strong>Email Message from template </strong> :{{delivery_email_template.email_message|safe}} </i>
+              </div>
+              <div>{{delivery_form.email_message}}</div>
+              <div class="warning">{{delivery_form.email_message.help_text}}</div>
+              <div class="error">{{ delivery_form.email_message.errors }}</div>
+            </div>
+          </div>
+          <div class="tab-pane" id="pickup_email" role="tabpanel" aria-labelledby="pickup_email-tab">
+            {{pickup_form.media}}
+            <div class="form-group mb-3">
+              {{pickup_form.reservation.as_hidden}}
+              {{pickup_form.delivery_or_pickup.as_hidden}}
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{pickup_form.email_subject.name}}" class="form-label">
+                {{pickup_form.email_subject.label|title}}
+              </label>
+              <div>
+                <i><strong>Email Subject from template </strong> : {{pickup_email_template.email_subject}} </i>
+              </div>
+              <div>{{pickup_form.email_subject}}</div>
+              <div class="warning">{{pickup_form.email_subject.help_text}}</div>
+              <div class="error">{{ pickup_form.email_subject.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="id_{{pickup_form.email_message.name}}" class="form-label"> {{pickup_form.email_message.label|title}}</label>
+              <div>
+                <i><strong>Email Message from template </strong> : {{pickup_email_template.email_message|safe}} </i>
+              </div>
+              <div>{{pickup_form.email_message}}</div>
+              <div class="warning">{{pickup_form.email_message.help_text}}</div>
+              <div class="error">{{ pickup_form.email_message.errors }}</div>
+            </div>
+          </div>
+        </div>
+
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+          <button type="submit" id="save_button" class="btn btn-success">
+            Save
+          </button>
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function (){
+
+    $("#formReservationEmail").submit(function(e) {
+      e.preventDefault();
+      for (var instance in CKEDITOR.instances) {
+        CKEDITOR.instances[instance].updateElement();
+      }
+      var formData = new FormData(this);
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        success: function(data, status) {
+          if(data['success'] == true){
+            $('#general').modal('toggle');
+            displayInfoDialog('Email Saved', data['message'], false);
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(e){
+          displayErrorDialog();
+        }
+      });
+    });
+
+
+  });
+</script>
+

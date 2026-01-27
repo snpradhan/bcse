@@ -311,6 +311,7 @@ function bindDeleteAction() {
     e.preventDefault();
     var link = $(this).data('href');
     var title = $(this).data('title');
+    var hash = $(this).data('hash');
 
     bootbox.confirm({ title: 'Confirm',
                       message: "<p>Do you want to delete "+title+"?</p>",
@@ -327,7 +328,14 @@ function bindDeleteAction() {
                       closeButton: false,
                       callback: function(result){
                         if (result == true) {
-                          window.location = link;
+                          if(hash) {
+                            const url = new URL(link, window.location.origin);
+                            url.hash = hash;
+                            window.location.href = url;
+                          }
+                          else {
+                            window.location = link;
+                          }
                         }
                       },
                     });

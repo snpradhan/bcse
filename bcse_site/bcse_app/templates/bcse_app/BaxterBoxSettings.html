@@ -9,125 +9,215 @@
     {% if not blackout_message %}
       <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxMessageNew' %}" href="#">Create Baxter Box Message</a>
     {% endif %}
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationDeliveryPickupEmailTemplateNew' %}" href="#">Create Reservation Email Template</a>
   </div>
-  <div class="search_results static">
-    <table class="table table-bordered table-striped caption-top">
-      <caption>Reservation Date Rules  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="These date rules are configured in code and cannot be modified here.  Please ask the developer to update these rules. You can, however, configure the messages around these dates below under Baxter Box Messages."></i></caption>
-      <thead>
-        <tr>
-          <th> Baxter Box Delivery Days</th>
-          <th> Baxter Box Pickup Days</th>
-          <th> Reservation Min Advance Days</th>
-          <th> Reservation Max Advance Days</th>
-          <th> Reservation Min Days </th>
-          <th> Reservation Max Days </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{reservation_settings.reservation_delivery_days|get_days_of_week}}</td>
-          <td>{{reservation_settings.reservation_return_days|get_days_of_week}}</td>
-          <td>{{reservation_settings.reservation_min_advance_days}}</td>
-          <td>{{reservation_settings.reservation_max_advance_days}}</td>
-          <td>{{reservation_settings.reservation_min_days}} </td>
-          <td>{{reservation_settings.reservation_max_days}} </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="search_results static">
-    <table class="table table-bordered table-striped caption-top">
-      <caption>Blackout Dates</caption>
-      <thead>
-        <tr>
-          <th> ID</th>
-          <th> Blackout Start Date </th>
-          <th> Blackout End Date </th>
-          <th> Created Date</th>
-          <th> Modified Date </th>
-          <th> Action </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for blackout_date in blackout_dates %}
-          <tr>
-            <td> {{blackout_date.id}}</td>
-            <td> {{blackout_date.start_date|date:"F j, Y"}}</td>
-            <td> {{blackout_date.end_date|date:"F j, Y"}} </td>
-            <td> {{blackout_date.created_date|date:"F j, Y g:i A"}}</td>
-            <td> {{blackout_date.modified_date|date:"F j, Y g:i A"}} </td>
-            <td>
-              <div class="btn-group">
-                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                  Action
-                </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#blackout_date" data-href="{% url 'bcse:blackoutDateEdit' blackout_date.id %}" href="#">Edit</a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item delete action" data-href="{% url 'bcse:blackoutDateDelete' blackout_date.id %}"
-                    data-title="the blackout date  <strong>{{blackout_date.start_date|date:'F j, Y'}}</strong> to <strong>{{blackout_date.end_date|date:'F j, Y'}}</strong>">
-                      Delete
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% if baxterbox_messages %}
-    <div class="search_results static">
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item active" role="presentation">
+      <button class="nav-link active" id="date_rules-tab" data-bs-toggle="tab"  type="button" data-bs-target="#date_rules" role="tab" aria-controls="date_rules" aria-selected="true">Date Rules</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="blackout_dates-tab" data-bs-toggle="tab"  type="button" data-bs-target="#blackout_dates" role="tab" aria-controls="blackout_dates" aria-selected="true">Blackout Dates</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="baxterbox_messages-tab" data-bs-toggle="tab"  type="button" data-bs-target="#baxterbox_messages" role="tab" aria-controls="baxterbox_messages" aria-selected="true">Baxter Box Messages</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="baxterbox_emails-tab" data-bs-toggle="tab"  type="button" data-bs-target="#baxterbox_emails" role="tab" aria-controls="baxterbox_emails" aria-selected="true">Delivery/Pickup Email Templates</button>
+    </li>
+  </ul>
+  <div class="tab-content" id="baxterbox_settings_content">
+    <div class="tab-pane active" id="date_rules" role="tabpanel" aria-labelledby="date_rules-tab">
       <table class="table table-bordered table-striped caption-top">
-        <caption>Baxter Box Messages <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="You may craft blackout messages and date rule message here"></i></caption>
+        <caption>Reservation Date Rules  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="These date rules are configured in code and cannot be modified here.  Please ask the developer to update these rules. You can, however, configure the messages around these dates in Baxter Box Messages tab."></i></caption>
         <thead>
           <tr>
-            <th> ID</th>
-            <th> Message</th>
-            <th> Message Type</th>
-            <th> Status </th>
-            <th> Created Date</th>
-            <th> Modified Date </th>
-            <th> Action </th>
+            <th> Baxter Box Delivery Days</th>
+            <th> Baxter Box Pickup Days</th>
+            <th> Reservation Min Advance Days</th>
+            <th> Reservation Max Advance Days</th>
+            <th> Reservation Min Days </th>
+            <th> Reservation Max Days </th>
           </tr>
         </thead>
         <tbody>
-          {% for baxterbox_message in baxterbox_messages %}
           <tr>
-            <td> {{baxterbox_message.id}}</td>
-            <td> {{baxterbox_message.message|default_if_none:""}}</td>
-            <td> {{baxterbox_message.get_message_type_display}} </td>
-            <td> {{baxterbox_message.get_status_display}} </td>
-            <td> {{baxterbox_message.created_date|date:"F j, Y g:i A"}}</td>
-            <td> {{baxterbox_message.modified_date|date:"F j, Y g:i A"}} </td>
-            <td>
-              <div class="btn-group dropup">
-                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                  Action
-                </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxMessageEdit' baxterbox_message.id %}" href="#">Edit</a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item delete action" data-href="{% url 'bcse:baxterBoxMessageDelete' baxterbox_message.id %}"
-                    data-title="the Baxter Box message id  <strong>{{baxterbox_message.id}}</strong>">
-                      Delete
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </td>
+            <td>{{reservation_settings.reservation_delivery_days|get_days_of_week}}</td>
+            <td>{{reservation_settings.reservation_return_days|get_days_of_week}}</td>
+            <td>{{reservation_settings.reservation_min_advance_days}}</td>
+            <td>{{reservation_settings.reservation_max_advance_days}}</td>
+            <td>{{reservation_settings.reservation_min_days}} </td>
+            <td>{{reservation_settings.reservation_max_days}} </td>
           </tr>
-          {% endfor %}
-
         </tbody>
       </table>
     </div>
-  {% endif %}
+    <div class="tab-pane" id="blackout_dates" role="tabpanel" aria-labelledby="blackout_dates-tab">
+      {% if blackout_dates %}
+        <table class="table table-bordered table-striped caption-top">
+          <caption>Blackout Dates</caption>
+          <thead>
+            <tr>
+              <th> ID</th>
+              <th> Blackout Start Date </th>
+              <th> Blackout End Date </th>
+              <th> Created Date</th>
+              <th> Modified Date </th>
+              <th> Action </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for blackout_date in blackout_dates %}
+              <tr>
+                <td> {{blackout_date.id}}</td>
+                <td> {{blackout_date.start_date|date:"F j, Y"}}</td>
+                <td> {{blackout_date.end_date|date:"F j, Y"}} </td>
+                <td> {{blackout_date.created_date|date:"F j, Y g:i A"}}</td>
+                <td> {{blackout_date.modified_date|date:"F j, Y g:i A"}} </td>
+                <td>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      Action
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#blackout_date" data-href="{% url 'bcse:blackoutDateEdit' blackout_date.id %}" href="#">Edit</a>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item delete action" data-href="{% url 'bcse:blackoutDateDelete' blackout_date.id %}"
+                        data-title="the blackout date  <strong>{{blackout_date.start_date|date:'F j, Y'}}</strong> to <strong>{{blackout_date.end_date|date:'F j, Y'}}</strong>" data-hash="blackout_dates">
+                          Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="warning">There are no Blackout Dates</div>
+      {% endif %}
+    </div>
+    <div class="tab-pane" id="baxterbox_messages" role="tabpanel" aria-labelledby="baxterbox_messages-tab">
+      {% if baxterbox_messages %}
+        <table class="table table-bordered table-striped caption-top">
+          <caption>Baxter Box Messages <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="You may craft blackout messages and date rule message here"></i></caption>
+          <thead>
+            <tr>
+              <th> ID</th>
+              <th> Message</th>
+              <th> Message Type</th>
+              <th> Status </th>
+              <th> Created Date</th>
+              <th> Modified Date </th>
+              <th> Action </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for baxterbox_message in baxterbox_messages %}
+            <tr>
+              <td> {{baxterbox_message.id}}</td>
+              <td> {{baxterbox_message.message|default_if_none:""}}</td>
+              <td> {{baxterbox_message.get_message_type_display}} </td>
+              <td> {{baxterbox_message.get_status_display}} </td>
+              <td> {{baxterbox_message.created_date|date:"F j, Y g:i A"}}</td>
+              <td> {{baxterbox_message.modified_date|date:"F j, Y g:i A"}} </td>
+              <td>
+                <div class="btn-group dropup">
+                  <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:baxterBoxMessageEdit' baxterbox_message.id %}" href="#">Edit</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item delete action" data-href="{% url 'bcse:baxterBoxMessageDelete' baxterbox_message.id %}"
+                      data-title="the Baxter Box message id  <strong>{{baxterbox_message.id}}</strong>" data-hash="baxterbox_messages">
+                        Delete
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+
+      {% else %}
+        <div class="warning">There are no Baxter Box Messages</div>
+      {% endif %}
+    </div>
+
+    <div class="tab-pane" id="baxterbox_emails" role="tabpanel" aria-labelledby="baxterbox_emails-tab">
+      {% if baxterbox_emails %}
+        <table class="table table-bordered table-striped caption-top">
+          <caption>Baxter Box Email Templates <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="You may create reservation delivery/pickup email templates which will be used across all reservations"></i></caption>
+          <thead>
+            <tr>
+              <th> ID</th>
+              <th> Delivery or Pickup</th>
+              <th> Email Subject</th>
+              <th> Email Message </th>
+              <th> Created Date</th>
+              <th> Modified Date </th>
+              <th> Action </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for baxterbox_email in baxterbox_emails %}
+            <tr>
+              <td> {{baxterbox_email.id}}</td>
+              <td> {{baxterbox_email.get_delivery_or_pickup_display}}</td>
+              <td> {{baxterbox_email.email_subject}} </td>
+              <td> {{baxterbox_email.email_message|safe}} </td>
+              <td> {{baxterbox_email.created_date|date:"F j, Y g:i A"}}</td>
+              <td> {{baxterbox_email.modified_date|date:"F j, Y g:i A"}} </td>
+              <td>
+                <div class="btn-group dropup">
+                  <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Action
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item action modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationDeliveryPickupEmailTemplateEdit' baxterbox_email.id %}" href="#">Edit</a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+
+      {% else %}
+        <div class="warning">There are no Baxter Box Email Templates</div>
+      {% endif %}
+    </div>
+  </div>
+  <script type="text/javascript">
+    $(function(){
+      const hash = window.location.hash.substring(1) || 'date_rules';
+      window.location.hash = '';
+
+      $('.tab-content > div').removeClass('active');
+      $('li.nav-item').removeClass('active');
+      $('button.nav-link').removeClass('active');
+
+      $('.tab-content > div#'+hash).addClass('active');
+      $('button.nav-link#'+hash+'-tab').addClass('active');
+      $('button.nav-link#'+hash+'-tab').closest('li').addClass('active');
+
+
+
+
+    });
+  </script>
+
 {% endblock %}
