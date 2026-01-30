@@ -171,7 +171,7 @@ class SignUpForm (forms.Form):
       self.fields['work_place'].widget.attrs['class'] += ' error'
       self.add_error('work_place', 'Workplace is required.')
 
-    if secondary_email is not None:
+    if secondary_email is not None and isinstance(secondary_email, str) and secondary_email.strip() != "":
       if email == secondary_email:
         self.add_error('secondary_email', 'Please choose a secondary email different from the primary email.')
         self.fields['secondary_email'].widget.attrs['class'] += ' error'
@@ -391,7 +391,7 @@ class UserProfileForm (ModelForm):
           self.add_error('work_place', 'Workplace is required.')
 
 
-    if secondary_email is not None:
+    if secondary_email is not None and isinstance(secondary_email, str) and secondary_email.strip() != "":
       #print(secondary_email)
       if self.instance.id:
         if User.objects.filter(email=secondary_email.lower()).exclude(userProfile__id=self.instance.id).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).exclude(id=self.instance.id).count() > 0:
