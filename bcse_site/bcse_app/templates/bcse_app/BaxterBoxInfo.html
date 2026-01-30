@@ -26,7 +26,9 @@
       </h3>
       <div class="mb-3 center">
         {% if user.is_authenticated %}
-          <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
+          {% if user.userProfile.user_role != 'D' %}
+            <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
+          {% endif %}
         {% else %}
           <label><a class="btn signin" href="?next={% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a></label>
         {% endif %}
@@ -111,7 +113,9 @@
 
       <div class="mt-3 center">
         {% if user.is_authenticated %}
-          <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
+          {% if user.userProfile.user_role != 'D' %}
+            <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Reserve</a></label>
+          {% endif %}
         {% else %}
           <label><a class="btn signin" href="?next={% url 'bcse:signin' %}?next=/reservation/new" role="button">Sign In to Reserve</a>
         </label>

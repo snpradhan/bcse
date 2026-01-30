@@ -1,0 +1,32 @@
+<!-- This calendar is for non admins, specifically the box driver but can be extended to teachers -->
+{% extends "bcse_app/base.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block media %}
+  {{block.super}}
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.18/index.global.min.js'></script>
+{% endblock %}
+
+{% block content %}
+  {{block.super}}
+  <div class="content">
+    <div class="container">
+
+      <h1> Reservation Calendar </h1>
+      {% include "bcse_app/ReservationTabs.html" with tab='calendar' %}
+      {% include "bcse_app/ReservationsSearch.html" with display='calendar' %}
+      <div class="form-group" id="spinner">
+        <img src="/static/img/page-loader.gif" class="icon"/>
+      </div>
+      <div class="reservations search_results">
+      </div>
+      <script type="text/javascript">
+        $(function (){
+          $('form#reservation_filter_form').submit();
+        });
+      </script>
+    </div>
+  </div>
+
+{% endblock %}

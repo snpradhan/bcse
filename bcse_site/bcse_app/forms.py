@@ -374,7 +374,10 @@ class UserProfileForm (ModelForm):
 
     if user.is_authenticated:
       if user.userProfile.user_role not in ['A', 'S']:
-        self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
+        if user.userProfile.user_role == 'D':
+          self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[4:5]
+        else:
+          self.fields['user_role'].choices = (('', '---------'),)+models.USER_ROLE_CHOICES[1:3]
         self.fields.pop('photo_release_complete')
         self.fields.pop('admin_notes')
 
@@ -407,7 +410,6 @@ class UserProfileForm (ModelForm):
 
 
     if secondary_email is not None and isinstance(secondary_email, str) and secondary_email.strip() != "":
-      #print(secondary_email)
       if self.instance.id:
         if User.objects.filter(email=secondary_email.lower()).exclude(userProfile__id=self.instance.id).count() > 0 or models.UserProfile.objects.filter(secondary_email=secondary_email.lower()).exclude(id=self.instance.id).count() > 0:
           self.add_error('secondary_email', 'This email is already taken. Please choose another.')
@@ -1048,8 +1050,8 @@ class ReservationUpdateForm(ModelForm):
     self.fields['status'].label = 'Reservation Status'
     self.fields['assignee'].label = 'Delivery Assigned To'
     self.fields['pickup_assignee'].label = 'Pickup Assigned To'
-    self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S'], user__is_active=True).order_by('user__last_name', 'user__first_name')
-    self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S'], user__is_active=True).order_by('user__last_name', 'user__first_name')
+    self.fields['assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S', 'D'], user__is_active=True).order_by('user__last_name', 'user__first_name')
+    self.fields['pickup_assignee'].queryset = models.UserProfile.objects.all().filter(user_role__in=['A', 'S', 'D'], user__is_active=True).order_by('user__last_name', 'user__first_name')
 
     for field_name, field in list(self.fields.items()):
       field.widget.attrs['class'] = 'form-control'
@@ -1925,8 +1927,8 @@ class ReservationsSearchForm(forms.Form):
   user = forms.ModelChoiceField(required=False, label=u'Requesting User', queryset=models.UserProfile.objects.all().order_by('user__first_name', 'user__last_name'), widget=autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}))
   work_place = forms.ModelChoiceField(required=False, label=u"Requesting user's Workplace", queryset=models.WorkPlace.objects.all(), widget=autocomplete.ModelSelect2(url='workplace-all-autocomplete', attrs={'data-placeholder': 'Start typing the name of the workplace ...'}),
                                   )
-  assignee = forms.ModelChoiceField(required=False, label=u'Delivery Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
-  pickup_assignee = forms.ModelChoiceField(required=False, label=u'Pickup Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S']).order_by('user__last_name', 'user__first_name'))
+  assignee = forms.ModelChoiceField(required=False, label=u'Delivery Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S', 'D']).order_by('user__last_name', 'user__first_name'))
+  pickup_assignee = forms.ModelChoiceField(required=False, label=u'Pickup Assigned To', queryset=models.UserProfile.objects.all().filter(user_role__in=['A', 'S', 'D']).order_by('user__last_name', 'user__first_name'))
 
   activity = forms.ModelMultipleChoiceField(required=False, queryset=models.Activity.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
   consumable = forms.ModelMultipleChoiceField(required=False, queryset=models.Consumable.objects.all().order_by('name'), widget=forms.SelectMultiple(attrs={'size':6}))
@@ -1957,7 +1959,7 @@ class ReservationsSearchForm(forms.Form):
     initials = kwargs.pop('initials')
     super(ReservationsSearchForm, self).__init__(*args, **kwargs)
 
-    if user.is_anonymous or user.userProfile.user_role not in 'AS':
+    if user.is_anonymous or user.userProfile.user_role not in 'ASD':
       self.fields.pop('user')
       self.fields.pop('work_place')
       self.fields.pop('assignee')

@@ -46,6 +46,7 @@ USER_ROLE_CHOICES = (
     ('T', 'K-12 Teacher or Administrator'),
     ('P', 'Other Professional'),
     ('S', 'BCSE Staff'),
+    ('D', 'Box Driver'),
 )
 
 WORKPLACE_CHOICES = (

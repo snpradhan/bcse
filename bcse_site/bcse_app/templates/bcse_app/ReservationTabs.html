@@ -1,19 +1,31 @@
 {% load bcse_extras %}
-{% if reservation.id %}
+{% if user.is_authenticated %}
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-      <label><a class="nav-link" aria-current="page" href="{% url 'bcse:reservations' %}">Back to Reservations</a></label>
+      <label><a class="nav-link {% if tab == 'table' %}active{% endif %}" aria-current="page" href="{% url 'bcse:reservations' %}">Reservations Table</a></label>
     </li>
-    <li class="nav-item">
-      <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:reservationView' reservation.id %}">View</a></label>
-    </li>
-    <!-- only allow Admin and Staff to edit Confirmed, Cancelled, Checked In and Completed reservations -->
-    {% if user.userProfile.user_role in 'AS' or reservation.status in 'U' and reservation.delivery_date|is_future %}
-    <li class="nav-item">
-      <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></label>
-    </li>
+    {% if user.userProfile.user_role in 'ASD' %}
+      <li class="nav-item">
+        <label><a class="nav-link {% if tab == 'calendar' %}active{% endif %}" aria-current="page" href="{% url 'bcse:adminReservationCalendar' %}">Reservation Calendar</a></label>
+      </li>
+    {% endif %}
+
+    {% if reservation.id %}
+        <li class="nav-item">
+          <label><a class="nav-link {% if tab == 'view' %}active{% endif %}" aria-current="page" href="{% url 'bcse:reservationView' reservation.id %}">View</a></label>
+        </li>
+        <!-- only allow Admin and Staff to edit Confirmed, Cancelled, Checked In and Completed reservations -->
+        {% if user.userProfile.user_role in 'AS' %}
+          <li class="nav-item">
+            <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></label>
+          </li>
+        {% elif user.userProfile.user_role in 'TP' and user.userProfile.id == reservation.user.id and  reservation.status in 'U' and reservation.delivery_date|is_future %}
+          <li class="nav-item">
+          <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></label>
+        </li>
+        {% endif %}
+
     {% endif %}
   </ul>
+
 {% endif %}
-
-

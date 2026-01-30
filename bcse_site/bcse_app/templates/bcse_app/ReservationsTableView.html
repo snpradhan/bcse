@@ -4,6 +4,7 @@
 {% if tag == 'profile' %}
   <h2 class="center">My Baxter Box Reservations</h2>
 {% endif %}
+
 {% if reservations %}
   {% if tag == 'reservations' %}
     {% include "bcse_app/Pagination.html" with model=reservations location='top' %}
@@ -16,46 +17,46 @@
   <table class="table table-bordered {% if tag != 'reservations' %} table-striped {% endif %} export" id="baxter_box_reservations">
     <thead>
       <tr>
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'ID' in columns %}
           <th> ID</th>
         {% endif %}
         {% if 'CR' in columns or tag == 'profile' %}
           <th> Reservation Made On</th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'UR' in columns %}
           <th> User </th>
         {% endif %}
-         {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
+         {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'EM' in columns %}
           <th> Email </td>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'AC' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'AC' in columns %}
           <th> Activity </th>
         {% endif %}
         {% if 'KT' in columns or tag == 'profile' %}
           <th> Kit </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NC' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'NC' in columns %}
           <th> Classes </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NS' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'NS' in columns %}
           <th> Students </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'CO' in columns %}
           <th> Consumables </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GL' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'GL' in columns %}
           <th> Include Gloves </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GO' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'GO' in columns %}
           <th> Include Goggles </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'IN' in columns %}
           <th> Inventory Notes</th>
         {% endif %}
         {% if 'EQ' in columns or tag == 'profile' %}
           <th> Equipment </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UN' in columns %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'UN' in columns %}
           <th> Pickup/Return<br>Notes</th>
         {% endif %}
         {% if 'CC' in columns %}
@@ -70,7 +71,7 @@
         {% if 'DA' in columns %}
           <th> Delivery Address </th>
         {% endif %}
-        {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' %}
           {% if 'WN' in columns %}
             <th> Workplace Notes </th>
           {% endif %}
@@ -114,23 +115,23 @@
         {% with total_messages=reservation|get_reservation_all_message_count:user.userProfile  new_messages=reservation|get_reservation_new_message_count:user.userProfile %}
         {% if new_messages and tag == 'reservations' %}
           <tr class="needs_attention" title="New message">
-        {% elif user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.additional_help_needed and not reservation.color and tag == 'reservations' %}
+        {% elif user.is_authenticated and user.userProfile.user_role in 'ASD' and reservation.additional_help_needed and not reservation.color and tag == 'reservations' %}
           <tr class="needs_attention" title="Help requested">
-        {% elif user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.color and tag == 'reservations' %}
+        {% elif user.is_authenticated and user.userProfile.user_role in 'ASD' and reservation.color and tag == 'reservations' %}
           <tr style="background-color: {{reservation.color.color}};" title="{{reservation.color.description}}">
         {% else %}
            <tr>
         {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'ID' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'ID' in columns %}
             <td> {{reservation.id}}</td>
           {% endif %}
           {% if 'CR' in columns or tag == 'profile' %}
             <td>{{reservation.created_date|date:"F j, Y"}}</td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UR' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'UR' in columns %}
             <td> {{reservation.user.user.last_name}}, {{reservation.user.user.first_name}} </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'EM' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'EM' in columns %}
             <td>
               {{reservation.user.user.email}}
               {% if reservation.user.secondary_email %}
@@ -140,7 +141,7 @@
               {% endif %}
             </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'AC' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'AC' in columns %}
             <td>
               {% if reservation.activity %}
                 {{reservation.activity}}
@@ -158,7 +159,7 @@
               {% endif %}
             </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NC' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'NC' in columns %}
             <td>
               {% if reservation.num_of_classes and reservation.num_of_classes != '5' %}
                 {{reservation.num_of_classes}}
@@ -167,10 +168,10 @@
               {% endif %}
             </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'NS' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'NS' in columns %}
             <td> {{reservation.num_of_students}} </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'CO' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'CO' in columns %}
             <td>
               <ul>
                 {% for consumable in reservation.consumables.all %}
@@ -180,27 +181,27 @@
             </td>
           {% endif %}
 
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GL' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'GL' in columns %}
             <td>
               <i class="fa-solid fa-mitten"></i>
               {{reservation.include_gloves|yesno:"Yes,No"}}
             </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'GO' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'GO' in columns %}
             <td>
               <i class="fa-solid fa-glasses"></i>
               {{reservation.include_goggles|yesno:"Yes,No"}}
             </td>
           {% endif %}
 
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'IN' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'IN' in columns %}
             <td>{{reservation.activity.notes|default_if_none:""|safe}}</td>
           {% endif %}
           {% if 'EQ' in columns or tag == 'profile' %}
             <td class="equipment">
               <ul>
                 {% if user.is_authenticated %}
-                  {% if user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+                  {% if user.userProfile.user_role in 'ASD' and tag == 'reservations' %}
                     {% for equipment in reservation.equipment.all %}
                       <li>
                         <a class="modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment.equipment_type.id %}" href="#">{{equipment.name}}</a>
@@ -225,7 +226,7 @@
               </ul>
             </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' and 'UN' in columns %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' and 'UN' in columns %}
             <td>{{reservation.notes|default_if_none:""}}</td>
           {% endif %}
           {% if 'CC' in columns %}
@@ -281,7 +282,7 @@
               {% endif %}
             </td>
           {% endif %}
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and tag == 'reservations' %}
             {% if 'WN' in columns %}
               <td>
                 {% if reservation.reservation_to_work_place %}
@@ -353,9 +354,10 @@
                 <li>
                   <a class="dropdown-item" href="{% url 'bcse:reservationView' reservation.id %}">View</a>
                 </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  {% if user.userProfile.user_role in 'TP' %}
+                <!-- Teacher action dropdown options -->
+                {% if user.userProfile.user_role in 'TP' %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
                     {% if reservation.status in 'RNOI' %}
                       <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong>.  Please message us if you need to make any modifications.">Edit</a>
                     {% elif reservation.delivery_date|is_past %}
@@ -363,51 +365,36 @@
                     {% else %}
                       <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
                     {% endif %}
-                  {% else %}
-                    <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
+                  </li>
+                  {% if reservation.status != 'N' %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      {% if reservation.status in 'IO' %}
+                        <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel Reservation</a>
+                      {% elif reservation.delivery_date|is_past %}
+                        <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel Reservation</a>
+                      {% else %}
+                        <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
+                      {% endif %}
+                    </li>
                   {% endif %}
-                </li>
+                {% endif %}
+
+                <!-- Admin action dropdown options -->
                 {% if user.userProfile.user_role in 'AS' %}
                   <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></li>
+
+                  <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Quick Update</a></li>
+
                   {% if reservation.activity %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:reservationActivityUpdate' reservation.activity.id reservation.id %}">Update Inventory</a>
                     </li>
                   {% endif %}
-                  <li><hr class="dropdown-divider"></li>
-                  {% if reservation.reservation_to_work_place %}
-                     <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' reservation.reservation_to_work_place.work_place.id %}">Update Workplace Notes</a>
-                    </li>
-                  {% endif %}
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailEdit' reservation.id %}">Update Delivery/Pickup Emails</a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'D' %}">Preview Delivery Email</a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'P' %}">Preview Pickup Email</a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  {% if reservation.status in 'RI' %}
-                    <li>
-                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}" data-title="delivery">Send Delivery Email</a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}" data-title="pickup">Send Pickup Email</a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                  {% endif %}
 
-
-                  <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
                   {% get_reservation_feedback reservation.id as reservation_feedback %}
                   {% if reservation_feedback %}
                     <li><hr class="dropdown-divider"></li>
@@ -454,28 +441,61 @@
                       <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
                     </li>
                   {% endif %}
+
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
                   </li>
 
+                {% endif %}
+
+
+                <!-- Admin and Driver action options -->
+                {% if user.userProfile.user_role in 'ASD' %}
+
+                  {% if reservation.reservation_to_work_place %}
+                     <li><hr class="dropdown-divider"></li>
+                     <li>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' reservation.reservation_to_work_place.work_place.id %}">Update Workplace Notes</a>
+                    </li>
+                  {% endif %}
+
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailEdit' reservation.id %}">Update Delivery/Pickup Emails</a>
+                  </li>
+
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'D' %}">Preview Delivery Email</a>
+                  </li>
+
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'P' %}">Preview Pickup Email</a>
+                  </li>
+
+                  {% if reservation.status in 'RI' %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}" data-title="delivery">Send Delivery Email</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}" data-title="pickup">Send Pickup Email</a>
+                    </li>
+                  {% endif %}
+
+                  {% if new_messages %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
+                  {% endif %}
+
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
                   </li>
-                {% else %}
-                  {% if reservation.status != 'N' %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      {% if reservation.status in 'IO' %}
-                        <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel Reservation</a>
-                      {% elif reservation.delivery_date|is_past %}
-                        <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel Reservation</a>
-                      {% else %}
-                        <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
-                      {% endif %}
-                    </li>
-                  {% endif %}
+
                 {% endif %}
               </ul>
             </div>

@@ -9,6 +9,7 @@
 
 {% block configuration %}
   <h1> Reservation Calendar </h1>
+  {% include "bcse_app/ReservationTabs.html" with tab='calendar' %}
   {% include "bcse_app/ReservationsSearch.html" with display='calendar' %}
   <div class="form-group" id="spinner">
     <img src="/static/img/page-loader.gif" class="icon"/>

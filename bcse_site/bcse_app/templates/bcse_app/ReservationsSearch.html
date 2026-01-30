@@ -140,7 +140,7 @@
             <div>{{searchForm.sort_by}}</div>
             <div class="error">{{ searchForm.sort_by.errors }}</div>
           </div>
-          {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+          {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
             <div class="form-group">
               <label for="id_{{searchForm.feedback_status.name}}" class="form-label"> {{searchForm.feedback_status.label|title}}</label>
               <div>{{searchForm.feedback_status}}</div>

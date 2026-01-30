@@ -6,11 +6,25 @@
   {{block.super}}
   <div class="content">
     <div id="reservations" class="container">
-      <h1 class="center"> My Reservations </h1>
+      <h1 class="center">
+        {% if user.userProfile.user_role == 'D' %}
+          User Reservations
+        {% else %}
+          My Reservations
+        {% endif %}
+        </h1>
       <div class="button-row">
-        <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
+        {% if user.userProfile.user_role != 'D' %}
+          <label><a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a></label>
+        {% endif %}
         <button class="btn download" type="button">Export Reservations</button>
+        {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
+          <a class="btn" href="{% url 'bcse:reservationMessageDismiss' %}">Dismiss Messages</a>
+        {% endif %}
       </div>
+      {% if user.userProfile.user_role in 'ASD' %}
+        {% include "bcse_app/ReservationTabs.html" with tab='table' %}
+      {% endif %}
       {% include "bcse_app/ReservationsSearch.html" %}
       <div class="form-group" id="spinner">
         <img src="/static/img/page-loader.gif" class="icon"/>

@@ -651,29 +651,32 @@ def userSignup(request):
       if form.cleaned_data['subscribe']:
         newUser.subscribe = True
 
-      if form.cleaned_data['user_role'] in ['A', 'S', 'T','P']:
+      if form.cleaned_data['user_role'] in ['A', 'S', 'T','P', 'D']:
+
         if form.cleaned_data['user_role'] in ['T','P']:
           newUser.validation_code = get_random_string(length=5)
-          #get the workplace id
-          selected_work_place = form.cleaned_data['work_place']
-          new_work_place_flag = form.cleaned_data['new_work_place_flag']
-          if new_work_place_flag:
-            if work_place_form.is_valid():
-              #create a new school entry
-              new_work_place = work_place_form.save(commit=False)
-              if user.is_active:
-                new_work_place.is_active = True
-              new_work_place.save()
-              newUser.work_place = new_work_place
-            else:
-              print(work_place_form.errors)
-              user.delete()
-              context = {'form': form, 'work_place_form': work_place_form, 'redirect_url': redirect_url}
-              response_data['success'] = False
-              response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
-              return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+        #get the workplace id
+        selected_work_place = form.cleaned_data['work_place']
+        new_work_place_flag = form.cleaned_data['new_work_place_flag']
+        if new_work_place_flag:
+          if work_place_form.is_valid():
+            #create a new school entry
+            new_work_place = work_place_form.save(commit=False)
+            if user.is_active:
+              new_work_place.is_active = True
+            new_work_place.save()
+            newUser.work_place = new_work_place
           else:
-            newUser.work_place = form.cleaned_data['work_place']
+            print(work_place_form.errors)
+            user.delete()
+            context = {'form': form, 'work_place_form': work_place_form, 'redirect_url': redirect_url}
+            response_data['success'] = False
+            response_data['html'] = render_to_string('bcse_app/SignUpModal.html', context, request)
+            return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+        #user selects existing workplace
+        else:
+          newUser.work_place = form.cleaned_data['work_place']
 
         newUser.user = user
         newUser.save()
@@ -1478,7 +1481,7 @@ def reservationEdit(request, id=''):
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions or reservation already having happened
   """
   try:
-    if request.user.is_anonymous:
+    if request.user.is_anonymous or request.user.userProfile.user_role == 'D':
       raise CustomException('You do not have the permission to create/edit a reservation')
 
     original_status = None
@@ -1928,7 +1931,7 @@ def reservationsSearch(request, display='table'):
   try:
     if request.user.is_anonymous:
       raise CustomException('You do not have the permission to view reservations')
-    elif request.user.is_authenticated and request.user.userProfile.user_role not in ['A', 'S']:
+    elif request.user.is_authenticated and request.user.userProfile.user_role not in ['A', 'S', 'D']:
       reservations = models.Reservation.objects.all().filter(user__user=request.user)
     else:
       reservations = models.Reservation.objects.all()
@@ -2439,15 +2442,25 @@ def checkAvailabilityForAdmin(request, equipment_types, selected_month):
 ####################################
 
 def adminReservationCalendar(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S', 'D']:
+      raise CustomException('You do not have the permission to view reservation calendar')
 
-  if request.session.get('reservations_search_calendar', False):
-    searchForm = forms.ReservationsSearchForm(user=request.user, initials=request.session['reservations_search_calendar'], prefix="reservation_search")
-  else:
-    searchForm = forms.ReservationsSearchForm(user=request.user, initials=None, prefix="reservation_search")
+    if request.session.get('reservations_search_calendar', False):
+      searchForm = forms.ReservationsSearchForm(user=request.user, initials=request.session['reservations_search_calendar'], prefix="reservation_search")
+    else:
+      searchForm = forms.ReservationsSearchForm(user=request.user, initials=None, prefix="reservation_search")
 
-  context = {'searchForm': searchForm}
-  return render(request, 'bcse_app/AdminReservationCalendar.html', context)
+    context = {'searchForm': searchForm}
 
+    if request.user.userProfile.user_role in ['A', 'S']:
+      return render(request, 'bcse_app/AdminReservationCalendar.html', context)
+    else:
+      return render(request, 'bcse_app/ReservationCalendar.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 #############################################################################
@@ -3476,7 +3489,7 @@ def reservationDeliveryPickupEmailTemplateEdit(request, id=''):
 @login_required
 def reservationDeliveryPickupEmailEdit(request, reservation_id=''):
   try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S', 'D']:
       raise CustomException('You do not have the permission to edit reservation delivery/pickup email')
 
     reservation = models.Reservation.objects.get(id=reservation_id)
@@ -7648,7 +7661,7 @@ def workPlaceEdit(request, id=''):
 @login_required
 def workPlaceUpdate(request, id=''):
   try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S', 'D']:
       raise CustomException('You do not have the permission to update workplace notes')
 
     workplace = models.WorkPlace.objects.get(id=id)

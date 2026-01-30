@@ -175,7 +175,7 @@
                     {% if user.is_authenticated %}
                       <li class="{% navactive request 'bcse:reservations' %}">
                         <a class="dropdown-item" href="{% url 'bcse:reservations' %}">
-                          {% if user.userProfile.user_role not in 'AS' %}
+                          {% if user.userProfile.user_role not in 'ASD' %}
                             My Reservations
                           {% else %}
                             User Reservations
@@ -185,21 +185,22 @@
                           {% endif %}
                         </a>
                       </li>
-                      {% if user.userProfile.user_role in 'AS' %}
+                      {% if user.userProfile.user_role in 'ASD' %}
                          <li class="{% navactive request 'bcse:adminReservationCalendar' %}">
                           <a class="dropdown-item" href="{% url 'bcse:adminReservationCalendar' %}">Reservation Calendar</a>
                         </li>
-
-                        <li class="{% navactive request 'bcse:adminAvailabilityCalendar' %}">
-                          <a class="dropdown-item" href="{% url 'bcse:adminAvailabilityCalendar' %}">
-                            Availability Calendar
-                          </a>
-                        </li>
-                        <li class="{% navactive request 'bcse:baxterBoxUsageReport' %}">
-                          <a class="dropdown-item" href="{% url 'bcse:baxterBoxUsageReport' %}">
-                            Baxter Box Usage Report
-                          </a>
-                        </li>
+                        {% if user.userProfile.user_role in 'AS' %}
+                          <li class="{% navactive request 'bcse:adminAvailabilityCalendar' %}">
+                            <a class="dropdown-item" href="{% url 'bcse:adminAvailabilityCalendar' %}">
+                              Availability Calendar
+                            </a>
+                          </li>
+                          <li class="{% navactive request 'bcse:baxterBoxUsageReport' %}">
+                            <a class="dropdown-item" href="{% url 'bcse:baxterBoxUsageReport' %}">
+                              Baxter Box Usage Report
+                            </a>
+                          </li>
+                        {% endif %}
                       {% endif %}
                     {% endif %}
                   </ul>

@@ -19,7 +19,7 @@
             <h3 class="underline">Reservation Details</h3>
             <table class="table table-striped">
               <tbody>
-                {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
                   <tr>
                     <th>User:</th>
                     <td>{{reservation.user.user.get_full_name}}</td>
@@ -326,11 +326,12 @@
         </div>
       </div>
       <div>
-        <a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a>
         {% if user.is_authenticated %}
-          {% if user.userProfile.user_role in 'AS'%}
+          {% if user.userProfile.user_role in 'AS' %}
+            <a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a>
             <button class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' reservation.id %}" data-title="this reservation">Delete</button>
-          {% else %}
+          {% elif user.userProfile.user_role != 'D' %}
+            <a class="btn" href="{% url 'bcse:reservationNew' %}" role="button">Make New Reservation</a>
             {% if reservation.status != 'N' %}
               {% if reservation.status in 'IO' %}
                 <a class="btn btn-danger warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel</a>
