@@ -820,6 +820,11 @@ function bindUnsavedChangesWarning() {
       return;
     }
 
+    //Skip checking reservation message form
+    if ($('form#messageForm').length > 0) {
+      $('form#messageForm').data("isDirty", false);
+      return;
+    }
 
     if (anyFormDirty()) {
       e.preventDefault();
