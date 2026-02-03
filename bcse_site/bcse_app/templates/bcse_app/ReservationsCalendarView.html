@@ -4,14 +4,59 @@
 <div id="calendar"></div>
 <script type="text/javascript">
   $(function (){
-    const reservations = {{ events|safe }}
+    let isInitialLoad = true;
+    const reservations = {{ events|safe }};
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
+      {% if current_view %}
+        initialView: '{{current_view}}',
+      {% else %}
+        initialView: 'dayGridMonth',
+      {% endif %}
+      {% if start_date %}
+        initialDate: '{{ start_date }}',
+      {% endif %}
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek', //,timeGridWeek,timeGridDay,listWeek'
+      },
+      datesSet: function(info) {
+        if (isInitialLoad) {
+          isInitialLoad = false;
+          return; // skip first call
+        }
+        // This fires whenever the calendar changes view or date
+        const currentStartObj = info.view.currentStart;
+
+        // 2. Convert to YYYY-MM-DD format manually to avoid timezone shifts
+        const year = currentStartObj.getFullYear();
+        const month = String(currentStartObj.getMonth() + 1).padStart(2, '0');
+        const day = String(currentStartObj.getDate()).padStart(2, '0');
+
+        const currentStartStr = `${year}-${month}-${day}`;
+
+        var data = {'current_view': info.view.type, 'start_date': currentStartStr};
+        var csrftoken = $('#reservation_filter_form input[name="csrfmiddlewaretoken"]').val();
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'bcse:adminReservationCalendarUpdate' %}",
+            data: data,
+            headers: {
+              'X-CSRFToken': csrftoken
+            },
+            success: function(data){
+              if (data['success'] === true) {
+                console.log('calendar view and date updated');
+              }
+              else {
+                displayErrorDialog();
+              }
+            },
+            error: function(xhr, ajaxOptions, thrownError){
+              displayErrorDialog();
+            },
+        });
       },
       events: reservations,
       eventContent: function(arg) {

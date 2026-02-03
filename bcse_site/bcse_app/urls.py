@@ -93,6 +93,7 @@ urlpatterns = [
     path('adminConfiguration/equipmentTypes/', views.equipmentTypes, name='equipmentTypes'),
     path('adminConfiguration/availabilityCalendar/', views.adminAvailabilityCalendar, name='adminAvailabilityCalendar'),
     path('adminConfiguration/reservationCalendar/', views.adminReservationCalendar, name='adminReservationCalendar'),
+    path('adminConfiguration/reservationCalendar/update', views.adminReservationCalendarUpdate, name='adminReservationCalendarUpdate'),
 
     path('equipmentType/<int:id>/view', views.equipmentTypeView, name='equipmentTypeView'),
     path('adminConfiguration/equipment/<int:id>/edit', views.equipmentEdit, name='equipmentEdit'),

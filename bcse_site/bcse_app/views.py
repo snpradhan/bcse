@@ -1986,6 +1986,14 @@ def reservationsSearch(request, display='table'):
           'page': page
         }
       else:
+        current_view = start_date = ''
+        if 'reservations_search_calendar' in request.session:
+          if 'current_view' in request.session['reservations_search_calendar']:
+            current_view = request.session['reservations_search_calendar']['current_view']
+
+          if 'start_date' in request.session['reservations_search_calendar']:
+            start_date = request.session['reservations_search_calendar']['start_date']
+
         #set session variable
         request.session['reservations_search_calendar'] = {
           'keywords': keywords,
@@ -2000,6 +2008,8 @@ def reservationsSearch(request, display='table'):
           'return_before': return_before,
           'status': status,
           'color': color,
+          'current_view': current_view,
+          'start_date': start_date
         }
 
       if keywords:
@@ -2176,6 +2186,11 @@ def reservationsSearch(request, display='table'):
           reservation_schedule_matrix.append(schedule)
 
         context = {'events': json.dumps(reservation_schedule_matrix)}
+
+        if request.session.get('reservations_search_calendar', False):
+          context['start_date'] = request.session['reservations_search_calendar']['start_date']
+          context['current_view'] = request.session['reservations_search_calendar']['current_view']
+
         response_data = {}
         response_data['success'] = True
         response_data['html'] = render_to_string('bcse_app/ReservationsCalendarView.html', context, request)
@@ -2430,6 +2445,33 @@ def adminReservationCalendar(request):
   return render(request, 'bcse_app/AdminReservationCalendar.html', context)
 
 
+
+#############################################################################
+# UPDATE THE SESSION VARIABLE WITH THE DATE AND VIEW OF THE RESERVATION CALENDAR
+#############################################################################
+def adminReservationCalendarUpdate(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S', 'D']:
+      raise CustomException('You do not have the permission to update reservation calendar')
+
+    if request.method == 'POST':
+      if request.session.get('reservations_search_calendar', False):
+        reservations_search_calendar_vars = request.session['reservations_search_calendar']
+        reservations_search_calendar_vars['start_date'] = request.POST.get('start_date')
+        reservations_search_calendar_vars['current_view'] = request.POST.get('current_view')
+        request.session['reservations_search_calendar'] = reservations_search_calendar_vars
+        response_data = {'success': True}
+      else:
+        print('session var does not exist')
+        response_data = {'success': False}
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ###################################################
 # UPDATE ASSIGNED RESERVATION COLOR AND STATUS
