@@ -447,6 +447,14 @@
                     <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
                   </li>
 
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' reservation.id %}">Update Workplace Association</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}">Update Delivery Address</a>
+                  </li>
                 {% endif %}
 
 
