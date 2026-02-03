@@ -146,7 +146,13 @@
                     <th>Workplace Association</th>
                     <td>
                       <div class="delivery_address">
-                        <div>{{reservation.reservation_to_work_place.work_place.name}}</div>
+                        <div>
+                          {% if reservation.reservation_to_work_place %}
+                            {{reservation.reservation_to_work_place.work_place.name}}
+                          {% else %}
+                            <i class="warning">Workplace association is missing.</i>
+                          {% endif %}
+                        </div>
                         {% if user.is_authenticated and user.userProfile.user_role in 'AS'%}
                           <div>
                             <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' reservation.id %}" href="#">Update Workplace Association</a>

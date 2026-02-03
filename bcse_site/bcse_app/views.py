@@ -1658,18 +1658,21 @@ def reservationWorkplaceUpdate(request, reservation_id, work_place_id):
 def reservationWorkPlaceEdit(request, id):
   try:
     reservation = models.Reservation.objects.get(id=id)
+    if hasattr(reservation, 'reservation_to_work_place'):
+      reservation_to_work_place = reservation.reservation_to_work_place
+    else:
+      reservation_to_work_place = models.ReservationWorkPlace(reservation=reservation)
+
     if request.method == 'GET':
-      form = forms.ReservationWorkPlaceForm(instance=reservation.reservation_to_work_place)
+      form = forms.ReservationWorkPlaceForm(instance=reservation_to_work_place)
       context = {'form': form, 'reservation_id': id}
       return render(request, 'bcse_app/ReservationWorkPlaceModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.ReservationWorkPlaceForm(data, instance=reservation.reservation_to_work_place)
+      form = forms.ReservationWorkPlaceForm(data, instance=reservation_to_work_place)
       response_data = {}
       if form.is_valid():
-        reservation = form.cleaned_data['reservation']
-        work_place = form.cleaned_data['work_place']
-        reservationWorkplaceUpdate(request, reservation.id, work_place.id)
+        form.save()
         messages.success(request, "Workplace association has been updated")
         response_data['success'] = True
       else:

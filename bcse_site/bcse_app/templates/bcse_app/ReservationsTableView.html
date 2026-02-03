@@ -251,37 +251,43 @@
           {% endif %}
           {% if 'DA' in columns %}
             <td>
-              {% with work_place=reservation.reservation_to_work_place.work_place %}
-              {{work_place.name}}<br>
-              {% if reservation.delivery_address %}
-                {{reservation.delivery_address.street_address_1}}<br>
-                {% if reservation.delivery_address.street_address_2 %}
-                  {{reservation.delivery_address.street_address_2}}<br>
+              {% if reservation.reservation_to_work_place %}
+                {% with work_place=reservation.reservation_to_work_place.work_place %}
+                {{work_place.name}}<br>
+                {% if reservation.delivery_address %}
+                  {{reservation.delivery_address.street_address_1}}<br>
+                  {% if reservation.delivery_address.street_address_2 %}
+                    {{reservation.delivery_address.street_address_2}}<br>
+                  {% endif %}
+                  {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+                {% else %}
+                  {{work_place.street_address_1}}<br>
+                  {% if work_place.street_address_2 %}
+                    {{work_place.street_address_2}}<br>
+                  {% endif %}
+                  {% if work_place.city %}
+                    {{work_place.city}},
+                  {% endif %}
+                  {{work_place.state}} {{work_place.zip_code}}
                 {% endif %}
-                {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
-              {% else %}
-                {{work_place.street_address_1}}<br>
-                {% if work_place.street_address_2 %}
-                  {{work_place.street_address_2}}<br>
+                {% if work_place.admin_notes %}
+                  <i class="fas fa-info-circle" type="button" data-bs-toggle="collapse" data-bs-target="#reservation_{{reservation.id}}_workplace_notes" aria-expanded="false" aria-controls="reservation_{{reservation.id}}_workplace_notes"></i>
+                  <div class="collapse" id="reservation_{{reservation.id}}_workplace_notes">
+                    <hr>
+                    Note: {{work_place.admin_notes}}
+                  </div>
                 {% endif %}
-                {% if work_place.city %}
-                  {{work_place.city}},
-                {% endif %}
-                {{work_place.state}} {{work_place.zip_code}}
+                {% endwith %}
               {% endif %}
-              {% if work_place.admin_notes %}
-                <i class="fas fa-info-circle" type="button" data-bs-toggle="collapse" data-bs-target="#reservation_{{reservation.id}}_workplace_notes" aria-expanded="false" aria-controls="reservation_{{reservation.id}}_workplace_notes"></i>
-                <div class="collapse" id="reservation_{{reservation.id}}_workplace_notes">
-                  <hr>
-                  Note: {{work_place.admin_notes}}
-                </div>
-              {% endif %}
-              {% endwith %}
             </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'reservations' %}
             {% if 'WN' in columns %}
-              <td> {{reservation.reservation_to_work_place.work_place.admin_notes|default_if_none:""}} </td>
+              <td>
+                {% if reservation.reservation_to_work_place %}
+                {{reservation.reservation_to_work_place.work_place.admin_notes|default_if_none:""}}
+                {% endif %}
+              </td>
             {% endif %}
             {% if reservation.delivery_address %}
               {% if 'DI' in columns %}
@@ -332,7 +338,11 @@
             <td> {{reservation.get_status_display}} </td>
           {% endif %}
           {% if user.is_authenticated and user.userProfile.user_role in 'AS' and tag == 'profile' %}
-            <td> {{reservation.reservation_to_work_place.work_place}} </td>
+            <td>
+              {% if reservation.reservation_to_work_place %}
+                {{reservation.reservation_to_work_place.work_place}}
+              {% endif %}
+            </td>
           {% endif %}
           <td class='noExl'>
             <div class="btn-group">
@@ -367,11 +377,11 @@
                     </li>
                   {% endif %}
                   <li><hr class="dropdown-divider"></li>
-                  {% with work_place=reservation.reservation_to_work_place.work_place %}
+                  {% if reservation.reservation_to_work_place %}
                      <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' work_place.id %}">Update Workplace Notes</a>
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' reservation.reservation_to_work_place.work_place.id %}">Update Workplace Notes</a>
                     </li>
-                  {% endwith %}
+                  {% endif %}
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
                   {% get_reservation_feedback reservation.id as reservation_feedback %}
@@ -424,6 +434,7 @@
                   <li>
                     <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
                   </li>
+
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
