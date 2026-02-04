@@ -18,8 +18,8 @@
     </thead>
     <tbody>
       {% for inv in inventory %}
-        {% if inv.color %}
-          <tr style="background-color: {{inv.color}};" title="{{inv.color_description}}">
+        {% if inv.color_hex %}
+          <tr style="background-color: {{inv.color_hex}};" title="{{inv.color_description}}">
         {% else %}
           <tr>
         {% endif %}
@@ -42,7 +42,7 @@
           <td>{{inv.total_count}}</td>
           <td>{{inv.count}}</td>
           <td>{{inv.expiration_date|date:"F j, Y"}}</td>
-          <td>{{inv.notes|default_if_none:""}}</td>
+          <td>{{inv.inventory_notes|default_if_none:""}}</td>
           <td class='noExl'>
             <div class="btn-group">
               <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -56,13 +56,15 @@
                     <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:consumableUpdate' inv.parent_id %}">Update Inventory</a>
                   {% endif %}
                 </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <a class="dropdown-item delete action" data-href="{% url 'bcse:inventoryDelete' inv.id inv.inventory_type %}"
-                  data-title="this inventory">
-                    Delete
-                  </a>
-                </li>
+                {% if inv.storage_location %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:inventoryDelete' inv.id inv.inventory_type %}"
+                    data-title="this inventory">
+                      Delete
+                    </a>
+                  </li>
+                {% endif %}
               </ul>
             </div>
           </td>

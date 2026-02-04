@@ -3032,16 +3032,148 @@ def baxterBoxInventorySearch(request):
       raise CustomException('You do not have the permission to view baxter box inventory')
     else:
 
-      activity_inventory = models.ActivityInventory.objects.annotate(name=F('activity__name'), image_url=Case(
-        When(activity__image='', then=Value('')),
-        default=Concat(Value(settings.MEDIA_URL), F('activity__image')),
-        output_field=CharField()), parent_id=F('activity_id'), color=F('activity__color__color'), color_description=F('activity__color__description'), inventory_type=Value('A', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('activity'), F('storage_location')])).values('id', 'name', 'image_url', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count', 'notes')
-
-      consumable_inventory = models.ConsumableInventory.objects.annotate(name=F('consumable__name'), image_url=Case(
-        When(consumable__image='', then=Value('')),
-        default=Concat(Value(settings.MEDIA_URL), F('consumable__image')),
-        output_field=CharField()), parent_id=F('consumable_id'), color=F('consumable__color__color'), color_description=F('consumable__color__description'),  inventory_type=Value('C', output_field=CharField()), total_count=Window(expression=Sum('count'),partition_by=[F('consumable'), F('storage_location')])).values('id', 'name', 'image_url', 'parent_id', 'color', 'color_description', 'count', 'expiration_date', 'storage_location', 'inventory_type', 'total_count', 'notes')
-
+      activity_no_inventory = (models.Activity.objects.filter(activityinventory__isnull=True)
+                                                      .annotate(
+                                                          parent_id=F("id"),
+                                                          color_hex=F("color__color"),
+                                                          color_description=F("color__description"),
+                                                          inventory_type=Value("A", output_field=CharField()),
+                                                          count=Value("0", output_field=CharField()),
+                                                          total_count=Value("0", output_field=CharField()),
+                                                          expiration_date=Value(None, output_field=CharField()),
+                                                          storage_location=Value("", output_field=CharField()),
+                                                          inventory_notes=Value("", output_field=CharField()),
+                                                          image_url=Case(
+                                                              When(image="", then=Value("")),
+                                                              default=Concat(
+                                                                  Value(settings.MEDIA_URL),
+                                                                  F("image"),
+                                                              ),
+                                                              output_field=CharField(),
+                                                          ),
+                                                      )
+                                                      .values(
+                                                          "id",
+                                                          "name",
+                                                          "image_url",
+                                                          "parent_id",
+                                                          "color_hex",
+                                                          "color_description",
+                                                          "count",
+                                                          "expiration_date",
+                                                          "storage_location",
+                                                          "inventory_type",
+                                                          "total_count",
+                                                          "inventory_notes",
+                                                      ))
+      consumable_no_inventory = (models.Consumable.objects.filter(consumableinventory__isnull=True)
+                                                         .annotate(
+                                                            parent_id=F("id"),
+                                                            color_hex=F("color__color"),
+                                                            color_description=F("color__description"),
+                                                            inventory_type=Value("C", output_field=CharField()),
+                                                            count=Value("0", output_field=CharField()),
+                                                            total_count=Value("0", output_field=CharField()),
+                                                            expiration_date=Value(None, output_field=CharField()),
+                                                            storage_location=Value("", output_field=CharField()),
+                                                            inventory_notes=Value("", output_field=CharField()),
+                                                            image_url=Case(
+                                                                When(image="", then=Value("")),
+                                                                default=Concat(
+                                                                    Value(settings.MEDIA_URL),
+                                                                    F("image"),
+                                                                ),
+                                                                output_field=CharField(),
+                                                            ),
+                                                        )
+                                                        .values(
+                                                            "id",
+                                                            "name",
+                                                            "image_url",
+                                                            "parent_id",
+                                                            "color_hex",
+                                                            "color_description",
+                                                            "count",
+                                                            "expiration_date",
+                                                            "storage_location",
+                                                            "inventory_type",
+                                                            "total_count",
+                                                            "inventory_notes",
+                                                        ))
+      activity_inventory = (models.ActivityInventory.objects.annotate(
+                                                            name=F("activity__name"),
+                                                            parent_id=F("activity_id"),
+                                                            color_hex=F("activity__color__color"),
+                                                            color_description=F("activity__color__description"),
+                                                            inventory_type=Value("A", output_field=CharField()),
+                                                            inventory_notes=F("notes"),
+                                                            total_count=Window(
+                                                                expression=Sum("count"),
+                                                                partition_by=[
+                                                                    F("activity"),
+                                                                    F("storage_location"),
+                                                                ],
+                                                            ),
+                                                            image_url=Case(
+                                                                When(activity__image="", then=Value("")),
+                                                                default=Concat(
+                                                                    Value(settings.MEDIA_URL),
+                                                                    F("activity__image"),
+                                                                ),
+                                                                output_field=CharField(),
+                                                            ),
+                                                        )
+                                                        .values(
+                                                            "id",
+                                                            "name",
+                                                            "image_url",
+                                                            "parent_id",
+                                                            "color_hex",
+                                                            "color_description",
+                                                            "count",
+                                                            "expiration_date",
+                                                            "storage_location",
+                                                            "inventory_type",
+                                                            "total_count",
+                                                            "inventory_notes",
+                                                        ))
+      consumable_inventory = (models.ConsumableInventory.objects.annotate(
+                                                                  name=F("consumable__name"),
+                                                                  parent_id=F("consumable_id"),
+                                                                  color_hex=F("consumable__color__color"),
+                                                                  color_description=F("consumable__color__description"),
+                                                                  inventory_type=Value("C", output_field=CharField()),
+                                                                  inventory_notes=F("notes"),
+                                                                  total_count=Window(
+                                                                      expression=Sum("count"),
+                                                                      partition_by=[
+                                                                          F("consumable"),
+                                                                          F("storage_location"),
+                                                                      ],
+                                                                  ),
+                                                                  image_url=Case(
+                                                                      When(consumable__image="", then=Value("")),
+                                                                      default=Concat(
+                                                                          Value(settings.MEDIA_URL),
+                                                                          F("consumable__image"),
+                                                                      ),
+                                                                      output_field=CharField(),
+                                                                  ),
+                                                              )
+                                                              .values(
+                                                                  "id",
+                                                                  "name",
+                                                                  "image_url",
+                                                                  "parent_id",
+                                                                  "color_hex",
+                                                                  "color_description",
+                                                                  "count",
+                                                                  "expiration_date",
+                                                                  "storage_location",
+                                                                  "inventory_type",
+                                                                  "total_count",
+                                                                  "inventory_notes",
+                                                              ))
     if request.method == 'GET':
 
       activity_query_filter = Q()
@@ -3078,27 +3210,33 @@ def baxterBoxInventorySearch(request):
       if activities or inventory_type == 'kit':
         if activities:
           activity_query_filter = Q(activity__in=activities)
+          activity_no_inventory = activity_no_inventory.filter(id__in=activities)
         if expiration_date:
           activity_query_filter = activity_query_filter & expiration_date_filter
         if color:
           activity_query_filter = activity_query_filter & Q(activity__color__id__in=color)
+          activity_no_inventory = activity_no_inventory.filter(color__id__in=color)
 
         if storage_locations:
           activity_query_filter = activity_query_filter & Q(storage_location__in=storage_locations)
 
-        inventory = activity_inventory.filter(activity_query_filter)
+        inventory = activity_inventory.filter(activity_query_filter).union(activity_no_inventory)
+
+
 
       elif consumables or inventory_type == 'consumable':
         if consumables:
           consumable_query_filter = Q(consumable__in=consumables)
+          consumable_no_inventory = consumable_no_inventory.filter(id__in=consumables)
         if expiration_date:
           consumable_query_filter = consumable_query_filter & expiration_date_filter
         if color:
           consumable_query_filter = consumable_query_filter & Q(consumable__color__id__in=color)
+          consumable_no_inventory = consumable_no_inventory.filter(color__id__in=color)
         if storage_locations:
           consumable_query_filter = consumable_query_filter & Q(storage_location__in=storage_locations)
 
-        inventory = consumable_inventory.filter(consumable_query_filter)
+        inventory = consumable_inventory.filter(consumable_query_filter).union(consumable_no_inventory)
 
       else:
 
@@ -3109,6 +3247,8 @@ def baxterBoxInventorySearch(request):
         if color:
           activity_color_filter = Q(activity__color__id__in=color)
           consumable_color_filter =  Q(consumable__color__id__in=color)
+          activity_no_inventory = activity_no_inventory.filter(color__id__in=color)
+          consumable_no_inventory = consumable_no_inventory.filter(color__id__in=color)
 
           activity_query_filter = activity_query_filter & activity_color_filter
           consumable_query_filter = consumable_query_filter & consumable_color_filter
@@ -3120,7 +3260,7 @@ def baxterBoxInventorySearch(request):
         activity_inventory = activity_inventory.filter(activity_query_filter)
         consumable_inventory = consumable_inventory.filter(consumable_query_filter)
 
-        inventory = activity_inventory.union(consumable_inventory)
+        inventory = activity_inventory.union(consumable_inventory).union(activity_no_inventory).union(consumable_no_inventory)
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
