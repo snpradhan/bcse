@@ -68,7 +68,16 @@
         },
         success: function(data, status) {
           if(data['success'] == true){
-            window.parent.location.reload();
+            if(window.parent && window.parent.location.href.indexOf('reservation') !== -1 && window.parent.location.href.indexOf('edit') !== -1 && data['workplace']) {
+              //modal was loaded on Reservation Edit page
+              //do not reload parent, update the content of div#workplace_association
+              $('div#workplace_association').html(data['workplace']);
+              $('#general').modal('toggle');
+              displayInfoDialogAndClose('Workplace association updated');
+            }
+            else {
+              window.parent.location.reload();
+            }
           }
           else{
             $('#general').html(data['html']);

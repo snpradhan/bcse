@@ -257,6 +257,32 @@
             </div>
 
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+              {% if form.instance.id %}
+                <div class="form-group mb-4">
+                  <label for="id_workplace_association" class="form-label"> Workplace Association</label>
+                  <div id="workplace_association">
+                    {% if form.instance.reservation_to_work_place %}
+                      {% include "bcse_app/DeliveryAddress.html" with name=form.instance.reservation_to_work_place.work_place.name delivery_address=form.instance.reservation_to_work_place.work_place %}
+                    {% endif %}
+                  </div>
+                  <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' form.instance.id %}" href="#">Update Workplace Association</a>
+                </div>
+                <div class="form-group mb-4">
+                  <label for="id_delivery_address" class="form-label"> Delivery Address</label>
+                  <div id="delivery_address">
+                    {% with reservation=form.instance %}
+                      {% if reservation.delivery_address %}
+                        {% include "bcse_app/DeliveryAddress.html" with delivery_address=reservation.delivery_address warning='True' %}
+                      {% elif reservation.reservation_to_work_place %}
+                        <div class="warning">This delivery address is the workplace address above</div>
+                      {% endif %}
+                    {% endwith %}
+                  </div>
+                  <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' form.instance.id %}" href="#">Update Delivery Address</a>
+                </div>
+
+              {% endif %}
+
               <div class="form-group mb-4">
                 <label for="id_{{form.admin_notes.name}}" class="form-label"> {{form.admin_notes.label}}
                   {% if form.admin_notes.field.required %}

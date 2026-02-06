@@ -1659,8 +1659,14 @@ def reservationWorkplaceUpdate(request, reservation_id, work_place_id):
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
 
+####################################
+# UPDATE RESERVATION WORKPLACE ASSOCIATION
+####################################
 def reservationWorkPlaceEdit(request, id):
   try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to update a reservation')
+
     reservation = models.Reservation.objects.get(id=id)
     if hasattr(reservation, 'reservation_to_work_place'):
       reservation_to_work_place = reservation.reservation_to_work_place
@@ -1676,9 +1682,11 @@ def reservationWorkPlaceEdit(request, id):
       form = forms.ReservationWorkPlaceForm(data, instance=reservation_to_work_place)
       response_data = {}
       if form.is_valid():
-        form.save()
+        savedWorkplaceAssociation = form.save()
         messages.success(request, "Workplace association has been updated")
         response_data['success'] = True
+        context = {'name': savedWorkplaceAssociation.work_place.name, 'delivery_address': savedWorkplaceAssociation.work_place}
+        response_data['workplace'] = render_to_string('bcse_app/DeliveryAddress.html', context, request)
       else:
         print(form.errors)
         response_data['success'] = False
@@ -2559,8 +2567,10 @@ def reservationDeliveryAddressEdit(request, reservation_id):
       form = forms.ReservationDeliveryAddressForm(data, instance=delivery_address)
       response_data = {}
       if form.is_valid():
-        form.save()
+        savedDeliveryAddress = form.save()
         response_data['success'] = True
+        context = {'delivery_address': savedDeliveryAddress, 'warning': True}
+        response_data['address'] = render_to_string('bcse_app/DeliveryAddress.html', context, request)
       else:
         print(form.errors)
         response_data['success'] = False

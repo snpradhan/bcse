@@ -81,7 +81,7 @@
       <div class="modal-footer">
         <div class="form-group">
           {% if form.instance.id %}
-            <a class="btn btn-danger" href="{% url 'bcse:reservationDeliveryAddressDelete' reservation_id %}">Delete</a>
+            <a class="btn btn-danger" id="deleteDeliveryAddress" data-href="{% url 'bcse:reservationDeliveryAddressDelete' reservation_id %}">Delete</a>
           {% endif %}
           <button type="submit" class="btn btn-success" id="submit">Save</button>
         </div>
@@ -114,7 +114,15 @@
         },
         success: function(data, status) {
           if(data['success'] == true){
-            window.parent.location.reload();
+            if(window.parent && window.parent.location.href.indexOf('reservation') !== -1 && window.parent.location.href.indexOf('edit') !== -1 && data['address']) {
+              //modal was loaded on Reservation Edit page
+              //do not reload parent, update the content of div#delivery_address
+              $('div#delivery_address').html(data['address']);
+              $('#profile').modal('toggle');
+            }
+            else {
+              window.parent.location.reload();
+            }
           }
           else{
             $('#profile').html(data['html']);
@@ -124,6 +132,28 @@
           displayErrorDialog();
         }
       });
+    });
+
+    $('a#deleteDeliveryAddress').on('click', function(e){
+      e.preventDefault();
+
+      var url = $(this).data('href');
+
+      $.get(url, function(response){
+
+        if(window.parent && window.parent.location.href.indexOf('reservation') !== -1 && window.parent.location.href.indexOf('edit') !== -1) {
+          //modal was loaded on Reservation Edit page
+          //do not reload parent, update the content of div#delivery_address
+          $('div#delivery_address').html('<div class="warning">This delivery address is the workplace address above</div>');
+          $('#profile').modal('toggle');
+        }
+        else {
+          window.parent.location.reload();
+        }
+      }).fail(function(xhr){
+        displayErrorDialog();
+      });
+
     });
 
   });

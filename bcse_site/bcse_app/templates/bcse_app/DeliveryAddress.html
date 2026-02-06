@@ -1,0 +1,11 @@
+{% if warning %}
+  <div class="warning">This delivery address is different from the workplace address above</div>
+{% endif %}
+{% if name %}
+  {{name}}<br>
+{% endif %}
+{{delivery_address.street_address_1}}<br>
+{% if delivery_address.street_address_2 %}
+  {{delivery_address.street_address_2}}<br>
+{% endif %}
+{{delivery_address.city}}, {{delivery_address.state}} {{delivery_address.zip_code}}
