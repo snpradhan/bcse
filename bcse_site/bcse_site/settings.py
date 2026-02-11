@@ -31,6 +31,7 @@ SITE_ID = 1
 LOGIN_URL = '/signin'
 
 CSRF_TRUSTED_ORIGINS = [
+    "https://bcse-stage2.northwestern.edu",
     "https://bcse-stage.northwestern.edu",
     "https://bcse.northwestern.edu",
 ]
