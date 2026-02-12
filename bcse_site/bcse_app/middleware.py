@@ -100,8 +100,7 @@ class NextParameterMiddleware(MiddlewareMixin):
 
 class DomainMiddleware(MiddlewareMixin):
   def process_request(self, request):
-    current_site = Site.objects.get_current()
-    domain = current_site.domain
+    domain = request.get_host()
 
     if 'localhost' in domain:
       request.domain = 'localhost'

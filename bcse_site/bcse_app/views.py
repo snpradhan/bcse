@@ -695,8 +695,7 @@ def userSignup(request):
           subscription(userSecondaryDetails, 'add')
 
 
-      current_site = Site.objects.get_current()
-      domain = current_site.domain
+      domain = request.get_host()
 
       #anonymous user creates an account
       if request.user.is_anonymous:
@@ -3691,8 +3690,7 @@ def registrationEmailMessagePreview(request, id='', workshop_id=''):
       workshop_registration_email = models.RegistrationEmailMessage.objects.get(id=id)
       workshop = models.Workshop.objects.get(id=workshop_id)
 
-      current_site = Site.objects.get_current()
-      domain = current_site.domain
+      domain = request.get_host()
 
       subject = workshop_registration_email.email_subject
       subject = models.replace_workshop_tokens(subject, workshop)
@@ -5006,8 +5004,7 @@ def workshopEmailPreview(request, workshop_id='', id=''):
       if workshop_email.workshop.id != workshop.id:
         raise CustomException('The workshop email does not belong to the workshop')
 
-      current_site = Site.objects.get_current()
-      domain = current_site.domain
+      domain = request.get_host()
 
       subject = workshop_email.email_subject
       subject = models.replace_workshop_tokens(subject, workshop)
@@ -5302,8 +5299,7 @@ def workshopRegistrationEmailPreview(request, id='', workshop_id=''):
       if workshop_registration_email.workshop.id != workshop.id:
         raise CustomException('The workshop registration email does not belong to the workshop')
 
-      current_site = Site.objects.get_current()
-      domain = current_site.domain
+      domain = request.get_host()
 
       subject = workshop_registration_email.email_subject
       subject = models.replace_workshop_tokens(subject, workshop)
@@ -8561,8 +8557,8 @@ def surveysSearch(request):
 
       surveys = paginate(request, surveys, sort_order, rows_per_page, page)
 
-      current_site = Site.objects.get_current()
-      domain = current_site.domain
+      domain = request.get_host()
+
       if 'localhost' not in domain:
         domain = 'https://%s' % domain
 
@@ -9603,8 +9599,7 @@ def surveySubmissionEmailSend(request, survey, user, submission):
   :param submission: the submission object
   :returns
   """
-  current_site = Site.objects.get_current()
-  domain = current_site.domain
+  domain = request.get_host()
 
   #check if email confirmation needs to be sent to the respondant
   if survey.email_confirmation and survey.email_confirmation_message:
@@ -10259,8 +10254,7 @@ def reservationConfirmationEmailSend(request, id):
     if request.user.userProfile.user_role in ['T', 'P'] and reservation.user != request.user.userProfile:
       raise CustomException('You do not have the permission to send reservation email')
 
-    current_site = Site.objects.get_current()
-    domain = current_site.domain
+    domain = request.get_host()
     subject = 'Baxter Box Reservation Confirmed for %s' % reservation.get_activity_name()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
@@ -10313,8 +10307,7 @@ def reservationConfirmationEmailView(request, id):
 
     reservation = models.Reservation.objects.get(id=id)
 
-    current_site = Site.objects.get_current()
-    domain = current_site.domain
+    domain = request.get_host()
     subject = 'Baxter Box Reservation Confirmed'
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
@@ -10354,8 +10347,7 @@ def reservationDeliveryPickupEmailView(request, reservation_id, email_type=''):
       email_message = email_template.email_message
 
 
-    current_site = Site.objects.get_current()
-    domain = current_site.domain
+    domain = request.get_host()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
     context = {'subject': subject, 'email_message': email_message}
@@ -10402,8 +10394,7 @@ def reservationDeliveryPickupEmailSend(request, reservation_id, email_type=''):
       email_message = email_template.email_message
 
 
-    current_site = Site.objects.get_current()
-    domain = current_site.domain
+    domain = request.get_host()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
     context = {'subject': subject, 'email_message': email_message}
@@ -10457,8 +10448,8 @@ def reservationFeedbackEmailSend(request, id):
     survey = models.Survey.objects.all().filter(status='A', survey_type='B').first()
     if not survey:
       raise CustomException('Baxter Box Feedback Survey not found')
-    current_site = Site.objects.get_current()
-    domain = current_site.domain
+
+    domain = request.get_host()
     subject = 'How was %s?' % reservation.get_activity_name()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
@@ -10519,8 +10510,7 @@ def reservationReceiptEmailSend(request, id):
     if request.user.userProfile.user_role in ['T', 'P'] and reservation.user != request.user.userProfile:
       raise CustomException('You do not have the permission to send reservation email')
 
-    current_site = Site.objects.get_current()
-    domain = current_site.domain
+    domain = request.get_host()
     subject = 'Baxter Box Request Received for %s' % reservation.get_activity_name()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
@@ -10561,8 +10551,7 @@ def reservationReceiptEmailSend(request, id):
 # WHEN A NEW MESSAGE IS POSTED FOR A RESERVATION
 #####################################################
 def send_reservation_message_email(request, reservation_message):
-  current_site = Site.objects.get_current()
-  domain = current_site.domain
+  domain = request.get_host()
   subject = 'New message about your Baxter Box Reservation for %s' % reservation_message.reservation.get_activity_name()
   if domain != 'bcse.northwestern.edu':
     subject = '***** TEST **** '+ subject + ' ***** TEST **** '
@@ -10884,8 +10873,7 @@ def send_workshop_email(id=id, cron=False):
         if registration_email_addresses:
           email_bcc += registration_email_addresses
 
-        current_site = Site.objects.get_current()
-        domain = current_site.domain
+        domain = request.get_host()
 
         subject = workshop_email.email_subject
         subject = models.replace_workshop_tokens(subject, workshop)
