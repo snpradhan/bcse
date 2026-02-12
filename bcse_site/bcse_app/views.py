@@ -3508,17 +3508,17 @@ def reservationDeliveryPickupEmailEdit(request, reservation_id=''):
     try:
       delivery_email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup='D')
     except models.ReservationDeliveryPickupEmail.DoesNotExist:
-      delivery_email = models.ReservationDeliveryPickupEmail(reservation=reservation, delivery_or_pickup='D')
+      delivery_email = models.ReservationDeliveryPickupEmail(reservation=reservation, delivery_or_pickup='D', email_subject=delivery_email_template.email_subject, email_message=delivery_email_template.email_message)
     try:
       pickup_email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup='P')
     except models.ReservationDeliveryPickupEmail.DoesNotExist:
-      pickup_email = models.ReservationDeliveryPickupEmail(reservation=reservation, delivery_or_pickup='P')
+      pickup_email = models.ReservationDeliveryPickupEmail(reservation=reservation, delivery_or_pickup='P', email_subject=pickup_email_template.email_subject, email_message=pickup_email_template.email_message)
 
 
     if request.method == 'GET':
       delivery_form = forms.ReservationDeliveryPickupEmailForm(instance=delivery_email, prefix="delivery")
       pickup_form = forms.ReservationDeliveryPickupEmailForm(instance=pickup_email, prefix="pickup")
-      context = {'reservation': reservation, 'delivery_form': delivery_form, 'pickup_form': pickup_form, 'delivery_email_template': delivery_email_template, 'pickup_email_template': pickup_email_template}
+      context = {'reservation': reservation, 'delivery_form': delivery_form, 'pickup_form': pickup_form}
       return render(request, 'bcse_app/ReservationDeliveryPickupEmailEdit.html', context)
 
     elif request.method == 'POST':
@@ -3534,7 +3534,7 @@ def reservationDeliveryPickupEmailEdit(request, reservation_id=''):
       else:
         print(form.errors)
         messages.error(request, "Reservation delivery/pickup email could not be saved. Check the errors below.")
-        context = {'reservation': reservation, 'delivery_form': delivery_form, 'pickup_form': pickup_form, 'delivery_email_template': delivery_email_template, 'pickup_email_template': pickup_email_template}
+        context = {'reservation': reservation, 'delivery_form': delivery_form, 'pickup_form': pickup_form}
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/ReservationDeliveryPickupEmailEdit.html', context, request)
 
@@ -10340,8 +10340,8 @@ def reservationDeliveryPickupEmailView(request, reservation_id, email_type=''):
     email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(delivery_or_pickup=email_type)
     try:
       email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup=email_type)
-      subject = email.email_subject or email_template.email_subject
-      email_message = "%s <br> %s" % (email_template.email_message, email.email_message)
+      subject = email.email_subject
+      email_message = email.email_message
     except models.ReservationDeliveryPickupEmail.DoesNotExist as e:
       subject = email_template.email_subject
       email_message = email_template.email_message
@@ -10387,8 +10387,8 @@ def reservationDeliveryPickupEmailSend(request, reservation_id, email_type=''):
     email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(delivery_or_pickup=email_type)
     try:
       email = models.ReservationDeliveryPickupEmail.objects.get(reservation=reservation, delivery_or_pickup=email_type)
-      subject = email.email_subject or email_template.email_subject
-      email_message = "%s <br> %s" % (email_template.email_message, email.email_message)
+      subject = email.email_subject
+      email_message = email.email_message
     except models.ReservationDeliveryPickupEmail.DoesNotExist as e:
       subject = email_template.email_subject
       email_message = email_template.email_message
