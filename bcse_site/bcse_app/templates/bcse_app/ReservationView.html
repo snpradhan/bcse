@@ -46,7 +46,7 @@
                       {% endif %}
                   </td>
                 </tr>
-                {% if user.is_authenticated and user.userProfile.user_role in 'AS' and reservation.consumables %}
+                {% if user.is_authenticated and user.userProfile.user_role in 'ASD' and reservation.consumables %}
                 <tr>
                   <th>Consumables:</th>
                   <td>
@@ -141,7 +141,7 @@
                     {% endif %}
                   </td>
                 </tr>
-                {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+                {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
                   <tr>
                     <th>Workplace Association</th>
                     <td>
@@ -161,10 +161,6 @@
                       </div>
 
                       </td>
-                  </tr>
-                  <tr>
-                    <th>Workplace Notes</th>
-                    <td>{{reservation.reservation_to_work_place.work_place.admin_notes|default_if_none:""}}</td>
                   </tr>
                 {% endif %}
                 <tr>
@@ -199,6 +195,21 @@
                     </div>
                   </td>
                 </tr>
+                {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
+                  <tr>
+                    <th>Workplace Notes</th>
+                    <td>
+                      <div class="delivery_address">
+                        <div>{{reservation.reservation_to_work_place.work_place.admin_notes|default_if_none:""}}</div>
+                        <div>
+                          {% if reservation.reservation_to_work_place %}
+                            <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' reservation.reservation_to_work_place.work_place.id %}">Update Workplace Notes</a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% endif %}
                 <tr>
                   <th>Pickup/Return Notes:</th>
                   <td>{{reservation.notes|default_if_none:""}}</td>
