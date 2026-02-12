@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from . import api_views
 
 app_name = 'bcse'
 
@@ -244,7 +245,10 @@ urlpatterns = [
     path('subscribe', views.subscribe, name='subscribe'),
     path('subscribe/email', views.subscribeFromEmail, name='subscribeFromEmail'),
     path('load_equipment_options/<int:activity_id>/', views.load_equipment_options, name='load_activity_equipment_options'),
-    path('load_equipment_options/', views.load_equipment_options, name='load_all_equipment_options')
+    path('load_equipment_options/', views.load_equipment_options, name='load_all_equipment_options'),
+
+
+    path("api/reservations/<int:pk>/", api_views.reservation_detail_api, name="reservation_detail_api"),
 
 
 ]

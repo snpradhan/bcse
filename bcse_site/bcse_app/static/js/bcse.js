@@ -377,47 +377,68 @@ function bindUseAjax() {
     e.preventDefault()
     var url = $(this).data('href');
     var title = $(this).data('title');
+    var id = $(this).data('id');
 
-    bootbox.confirm({
-      title: 'Confirm',
-      message: "<p>Do you want to send reservation "+title+" email?</p>",
-      buttons: {
-        confirm: {
-            label: 'Confirm',
-            className: 'btn btn-small'
-        },
-        cancel: {
-            label: 'Cancel',
-            className: 'btn btn-small btn-danger'
-        }
+    $.ajax({
+      url: `/api/reservations/${id}/`,
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        const html = `<div>\
+                          <p>Do you want to send reservation ${title} email to the following user?</p> \
+                          ${data.user} (${data.email})<br> \
+                          ${data.workplace} <br> \
+                          ${data.address} <br> \
+                      </div>`
+        bootbox.confirm({
+          title: 'Confirm',
+          message: html,
+          buttons: {
+            confirm: {
+                label: 'Confirm',
+                className: 'btn btn-small'
+            },
+            cancel: {
+                label: 'Cancel',
+                className: 'btn btn-small btn-danger'
+            }
+          },
+          closeButton: false,
+          callback: function(result){
+            if (result == true) {
+              $.ajax({
+                type: 'GET',
+                url: url,
+                success: function(data){
+                  if (data['success'] = true) {
+                    if (data['message']) {
+                      displayInfoDialog('Reservation Email', data['message'], true);
+                    }
+                    else {
+                      location.reload();
+                    }
+                  }
+                  else {
+                    displayErrorDialog();
+                  }
+                  return false;
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                  displayErrorDialog();
+                },
+              });
+            }
+          },
+        });
+
+
       },
-      closeButton: false,
-      callback: function(result){
-        if (result == true) {
-          $.ajax({
-            type: 'GET',
-            url: url,
-            success: function(data){
-              if (data['success'] = true) {
-                if (data['message']) {
-                  displayInfoDialog('Reservation Email', data['message'], true);
-                }
-                else {
-                  location.reload();
-                }
-              }
-              else {
-                displayErrorDialog();
-              }
-              return false;
-            },
-            error: function(xhr, ajaxOptions, thrownError){
-              displayErrorDialog();
-            },
-          });
-        }
+      error: function(xhr, ajaxOptions, thrownError){
+        displayErrorDialog();
       },
     });
+
+
   });
 }
 

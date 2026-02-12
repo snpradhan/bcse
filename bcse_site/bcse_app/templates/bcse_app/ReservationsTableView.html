@@ -424,7 +424,7 @@
                   {% if reservation.status not in 'UN' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" data-title="confirmation" href="#">
+                      <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" data-title="confirmation" data-id="{{reservation.id}}" href="#">
                         {% if reservation.email_sent %}
                           Resend
                         {% else %}
@@ -486,11 +486,11 @@
                   {% if reservation.status in 'RI' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}" data-title="delivery">Send Delivery Email</a>
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}" data-title="delivery" data-id="{{reservation.id}}">Send Delivery Email</a>
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}" data-title="pickup">Send Pickup Email</a>
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}" data-title="pickup" data-id="{{reservation.id}}">Send Pickup Email</a>
                     </li>
                   {% endif %}
 

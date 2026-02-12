@@ -238,7 +238,7 @@
                           <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
 
                           {% if reservation.status == 'R' %}
-                            <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" data-title="confirmation" href="#">
+                            <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" data-title="confirmation" data-id="{{reservation.id}}" href="#">
                               {% if reservation.email_sent %}
                                 Resend
                               {% else %}
