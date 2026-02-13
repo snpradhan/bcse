@@ -386,9 +386,9 @@ function bindUseAjax() {
       success: function(data) {
         const html = `<div>\
                           <p>Do you want to send reservation ${title} email to the following user?</p> \
-                          ${data.user} (${data.email})<br> \
-                          ${data.workplace} <br> \
-                          ${data.address} <br> \
+                          <strong>${data.user} (${data.email}) </strong><br> \
+                          <strong>${data.workplace} </strong><br> \
+                          <strong>${data.address} </strong><br> \
                       </div>`
         bootbox.confirm({
           title: 'Confirm',

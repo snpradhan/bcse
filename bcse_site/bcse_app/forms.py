@@ -1988,6 +1988,8 @@ class ReservationsSearchForm(forms.Form):
         field.help_text = 'The default sort is (Delivery Date followed by Return date) in descending order for Unconfirmed/Confirmed/Completed/Cancelled reservations and (Return Date) in descending order for Checked Out reservations.'
       if field_name == 'keywords':
         field.help_text = 'Search by Keyword searches into activity name, user first/last name, user notes and admin notes'
+      if field_name == 'columns' and user.is_authenticated and user.userProfile.user_role == 'D':
+        field.initial = ['UR', 'DA', 'DD', 'RD', 'ST']
 
       if initials:
         if field_name in initials:

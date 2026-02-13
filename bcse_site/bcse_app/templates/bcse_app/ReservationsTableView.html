@@ -455,6 +455,10 @@
                   <li>
                     <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}">Update Delivery Address</a>
                   </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
+                  </li>
                 {% endif %}
 
 
@@ -498,11 +502,6 @@
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
                   {% endif %}
-
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
-                  </li>
 
                 {% endif %}
               </ul>
