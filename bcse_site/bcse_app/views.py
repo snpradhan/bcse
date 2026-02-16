@@ -793,7 +793,6 @@ def activityEdit(request, id=''):
       return render(request, 'bcse_app/ActivityEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
-      print(data)
       form = forms.ActivityForm(data, files=request.FILES, instance=activity)
       formset = InventoryInlineFormset(data, instance=activity)
       if form.is_valid() and formset.is_valid():

@@ -501,6 +501,9 @@ class ActivityForm(ModelForm):
     widgets = {
       'image': widgets.ClearableFileInput,
       'notes': forms.Textarea(attrs={'rows':2}),
+      'equipment_mapping': forms.CheckboxSelectMultiple(),
+      'consumables': forms.CheckboxSelectMultiple(),
+      'tags': forms.CheckboxSelectMultiple(),
     }
 
   def __init__(self, *args, **kwargs):
@@ -512,10 +515,7 @@ class ActivityForm(ModelForm):
     self.fields['color'].label = 'Inventory Status'
 
     for field_name, field in list(self.fields.items()):
-      if field_name == 'tags':
-        field.widget.attrs['class'] = 'form-control select2'
-      else:
-        field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -792,21 +792,11 @@ class EquipmentTypeForm(ModelForm):
     exclude = ('created_date', 'modified_date')
     widgets = {
       'image': widgets.ClearableFileInput,
+      'tags': forms.CheckboxSelectMultiple(),
     }
 
   def __init__(self, *args, **kwargs):
     super(EquipmentTypeForm, self).__init__(*args, **kwargs)
-    sub_tags = models.EquipmentType.objects.all().values_list('tags', flat=True)
-    tags = models.Tag.objects.all().filter(status='A', sub_tags__id__in=sub_tags)
-    for tag in tags:
-      self.fields['tag_'+str(tag.id)] = forms.MultipleChoiceField(
-                                                          required=False,
-                                                          widget=forms.SelectMultiple,
-                                                          choices=[(sub.id, sub.name) for sub in models.SubTag.objects.all().filter(tag=tag, status='A')],
-                                                      )
-      self.fields['tag_'+str(tag.id)].label = tag.name
-
-    self.fields['tags'].label = 'Tags'
     for field_name, field in list(self.fields.items()):
       if field_name == 'featured':
         field.widget.attrs['class'] = 'form-check-input'

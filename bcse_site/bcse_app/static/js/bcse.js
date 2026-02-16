@@ -123,6 +123,11 @@ $(function (){
 
   });
 
+  $('div.multiselect-checkbox .form-control input[type="checkbox"]').each(function(){
+    $(this).removeClass();
+    $(this).addClass('form-check-input');
+  });
+
 
 
   /*$(window).on('resize', function(){

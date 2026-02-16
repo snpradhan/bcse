@@ -34,7 +34,7 @@
         <div>{{form.manuals_resources}}</div>
         <div class="error">{{ form.manuals_resources.errors }}</div>
       </div>
-      <div class="form-group mb-3">
+      <div class="form-group mb-3 multiselect-checkbox">
         <label for="id_{{form.equipment_mapping.name}}" class="form-label"> {{form.equipment_mapping.label|title}}
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.equipment_mapping.help_text}}"></i>
         </label>
@@ -107,15 +107,16 @@
         <div>{{form.color}}</div>
         <div class="error">{{ form.color.errors }}</div>
       </div>
-      <div class="form-group mb-3">
+      <div class="form-group mb-3 multiselect-checkbox">
         <label for="id_{{form.consumables.name}}" class="form-label"> {{form.consumables.label|title}}
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.consumables.help_text}}"></i>
         </label>
         <div>{{form.consumables}}</div>
         <div class="error">{{ form.consumables.errors }}</div>
       </div>
-      <div class="form-group mb-3">
+      <div class="form-group mb-3 multiselect-checkbox">
         <label for="id_{{form.tags.name}}" class="form-label"> {{form.tags.label|title}}
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.tags.help_text}}"></i>
         </label>
         <div>{{form.tags}}</div>
         <div class="error">{{ form.tags.errors }}</div>
