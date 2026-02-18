@@ -1,0 +1,15 @@
+{% extends "bcse_app/EmailBase.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block emailbody %}
+   <div id="text" style="font-size: 19.2px; line-height: 29px; padding: 32px; margin-left: auto; margin-right: auto;">
+      <h3>Hi!</h3>
+      <p>
+         Your reservation for {{activity}} scheduled for {{reservation.delivery_date|date:"D, M d, Y"}} has been cancelled.
+      </p>
+      {% if user_role == 'A' %}
+         <p>View <strong><a href="https://{{domain}}/reservation/{{reservation.id}}/view">reservation details</a></strong>.
+      {% endif %}
+   </div>
+{% endblock %}

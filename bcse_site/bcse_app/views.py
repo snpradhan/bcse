@@ -1584,6 +1584,8 @@ def reservationEdit(request, id=''):
           if current_date <= savedReservation.delivery_date:
             if original_status == 'U' and savedReservation.status == 'R':
               reservationConfirmationEmailSend(request, savedReservation.id)
+            if original_status in ['U', 'R'] and savedReservation.status == 'N':
+              reservationCancellationEmailSend(request, savedReservation.id)
 
         #new reservations
         else:
@@ -1596,6 +1598,9 @@ def reservationEdit(request, id=''):
               reservationReceiptEmailSend(request, savedReservation.id)
             elif savedReservation.status == 'R':
               reservationConfirmationEmailSend(request, savedReservation.id)
+            elif savedReservation.status == 'N':
+              reservationCancellationEmailSend(request, savedReservation.id)
+
 
         return shortcuts.redirect('bcse:reservationView', id=savedReservation.id)
 
@@ -2524,6 +2529,8 @@ def reservationUpdate(request, reservation_id):
         if current_date <= savedReservation.delivery_date:
           if original_status == 'U' and savedReservation.status == 'R':
             reservationConfirmationEmailSend(request, reservation_id)
+          if original_status in ['U', 'R'] and savedReservation == 'N':
+            reservationCancellationEmailSend(request, savedReservation.id)
       else:
         print(form.errors)
         response_data['success'] = False
@@ -10297,6 +10304,68 @@ def reservationConfirmationEmailSend(request, id):
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
 
 #####################################################
+# SEND A CANCELLATION EMAIL TO ADMINS AND THE USER
+# WHEN A RESERVATION IS cancelled
+#####################################################
+def reservationCancellationEmailSend(request, id):
+  try:
+    if request.user.is_anonymous:
+      raise CustomException('You do not have the permission to send reservation email')
+
+    reservation = models.Reservation.objects.get(id=id)
+    if reservation.status != 'N':
+      raise CustomException("This reservation isn't cancelled")
+
+    if request.user.userProfile.user_role in ['T', 'P'] and reservation.user != request.user.userProfile:
+      raise CustomException('You do not have the permission to send reservation email')
+
+    domain = request.get_host()
+    subject = 'Baxter Box Reservation Cancelled for %s' % reservation.get_activity_name()
+    if domain != 'bcse.northwestern.edu':
+      subject = '***** TEST **** '+ subject + ' ***** TEST **** '
+
+    context = {'reservation': reservation, 'domain': domain, 'user_role': 'A', 'activity': reservation.get_activity_name()}
+
+    body = get_template('bcse_app/EmailReservationCancellation.html').render(context)
+    qs = models.UserProfile.objects.all().filter(user__email='bcse@northwestern.edu').values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+    email.content_subtype = "html"
+    success = email.send(fail_silently=True)
+
+    context['user_role'] = 'T'
+    body = get_template('bcse_app/EmailReservationCancellation.html').render(context)
+    qs = models.UserProfile.objects.all().filter(id=reservation.user.id).values_list('user__email', 'secondary_email')
+    receipients = [email for email in chain.from_iterable(qs) if email]
+    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, receipients)
+    email.content_subtype = "html"
+    success = email.send(fail_silently=True)
+
+
+    if request.is_ajax():
+      response_data = {}
+      if success:
+        response_data['success'] = True
+        response_data['message'] = 'Reservation cancellation email sent'
+      else:
+        response_data['success'] = False
+        response_data['message'] = 'Reservation cancellation email could not be sent'
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+  except models.Reservation.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'Reservation not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'Reservation not found')
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
+#####################################################
 # VIEW RESERVATION CONFIRMATION EMAIL TEMPLATE
 #####################################################
 def reservationConfirmationEmailView(request, id):
@@ -10942,5 +11011,3 @@ def send_workshop_email(id=id, cron=False):
     message = (False, 'The email message id not provided')
 
   return message
-
-
