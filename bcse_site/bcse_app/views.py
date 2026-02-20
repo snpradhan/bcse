@@ -4992,7 +4992,7 @@ def workshopEmailDelete(request, workshop_id='', id=''):
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ################################################
-# PREVIEW WORKSHOP EMAIL TODO
+# PREVIEW WORKSHOP ADHOC EMAIL
 ################################################
 def workshopEmailPreview(request, workshop_id='', id=''):
   """
@@ -5057,7 +5057,7 @@ def workshopEmailSend(request, workshop_id='', id=''):
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to preview workshop email')
+      raise CustomException('You do not have the permission to send workshop email')
 
     if '' != id:
       workshop_email = models.WorkshopEmail.objects.get(id=id)
@@ -5097,7 +5097,7 @@ def workshopEmailCopy(request, workshop_id='', id=''):
 
   try:
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to preview workshop email')
+      raise CustomException('You do not have the permission to copy workshop email')
 
     if '' != id:
       workshop_email = models.WorkshopEmail.objects.get(id=id)
@@ -5287,7 +5287,7 @@ def workshopRegistrationEmailDelete(request, id='', workshop_id=''):
 
 
 ################################################
-# PREVIEW WORKSHOP REGISTRATION EMAIL
+# PREVIEW AUTOMATED WORKSHOP REGISTRATION EMAIL
 ################################################
 def workshopRegistrationEmailPreview(request, id='', workshop_id=''):
   """

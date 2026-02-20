@@ -34,63 +34,82 @@
 
 
       </style>
-   </head>
-   <body>
-      <table id="email_container" width="600" border="0" cellpadding="0" cellspacing="0" style="background-color: #f1f0f0; font-family: din-2014, sans-serif; margin: 0 auto; max-width: 100%;">
-        <tbody>
-          <tr id="header" style="background-color: white;">
-            <td>
-              <center>
-                <img src="https://s3.us-east-1.amazonaws.com/bcse-4.0-prod/banner_logos/website_email_banner.png" width="640" style="display:block;">
-              </center>
-            </td>
-          </tr>
-          <tr id="message" style="background-color: white; margin:0 auto; text-align: center;">
-            <td style="padding: 16px; border-left: 1px solid #d8d6d6; border-right: 1px solid #d8d6d6; font-size: 1rem;">
-              {% block emailbody %}
-              {% endblock %}
-            </td>
-          </tr>
-          <tr id="footer" style="background-color: #4e2a84; color: white;">
-            <td>
-              <table style="width: 100%; padding: 16px; text-align: center;">
-                <tbody>
-                  <tr>
-                    <td colspan="5"><h3 style="color: white; font-weight: 600; font-size: 20px;">The Baxter Center for Science Education</h3></td>
-                  </tr>
-                  <tr rowspan="3"><td colspan="5"></td></tr>
-                  <tr>
-                    <td>
-                      <a href="https://{{domain}}">
-                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-web-50.png" title="Visit bcse.northwestern.edu" style="width:32px;" />
-                      </a>
-                    </td>
-                    <td>
-                      <a href="mailto:bcse@northwestern.edu" target="_top">
-                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-mail-50.png" title="Email us" style="width:32px;"/>
-                      </a>
-                    </td>
-                    <td>
-                      <a href="https://{{domain}}/subscribe/email">
-                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-inbox-50.png" title="Subscribe to our newsletter" style="width:32px;" />
-                      </a>
-                    </td>
-                    <td>
-                      <a href="https://maps.app.goo.gl/WEHyQyfEQTHK6x3XA" target="_blank">
-                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-location-50.png" title="Our location" style="width:32px;" />
-                      </a>
-                    </td>
-                    <td>
-                      <a href="https://www.instagram.com/bcse_nu" target="_blank">
-                        <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-instagram-50.png" title="Follow us on Instagram" style="width:32px;"/>
-                      </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </tbody>
+    </head>
+    <body>
+      <table role="presentation"
+         width="100%"
+         cellpadding="0"
+         cellspacing="0"
+         border="0"
+         style="background-color:#f1f0f0;">
+         <tr>
+          <td align="center">
+
+            <table id="email_container"
+               role="presentation"
+               width="600"
+               cellpadding="0"
+               cellspacing="0"
+               border="0"
+               style="width:100%; max-width:600px; margin:0 auto; background-color:#f1f0f0; font-family:din-2014, sans-serif;">
+              <tbody>
+                <tr id="header" style="background-color: white;">
+                  <td>
+                    <center>
+                      <img src="https://s3.us-east-1.amazonaws.com/bcse-4.0-prod/banner_logos/website_email_banner.png" width="600"
+                            style="display:block; width:100%; max-width:600px; height:auto;">
+                    </center>
+                  </td>
+                </tr>
+                <tr id="message" style="background-color: white; margin:0 auto; text-align: center;">
+                  <td style="padding: 16px; border-left: 1px solid #d8d6d6; border-right: 1px solid #d8d6d6; font-size: 1rem;">
+                    {% block emailbody %}
+                    {% endblock %}
+                  </td>
+                </tr>
+                <tr id="footer" style="background-color: #4e2a84; color: white;">
+                  <td>
+                    <table style="width: 100%; padding: 16px; text-align: center;">
+                      <tbody>
+                        <tr>
+                          <td colspan="5"><h3 style="color: white; font-weight: 600; font-size: 20px;">The Baxter Center for Science Education</h3></td>
+                        </tr>
+                        <tr rowspan="3"><td colspan="5"></td></tr>
+                        <tr>
+                          <td>
+                            <a href="https://{{domain}}">
+                              <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-web-50.png" title="Visit bcse.northwestern.edu" style="width:32px;" />
+                            </a>
+                          </td>
+                          <td>
+                            <a href="mailto:bcse@northwestern.edu" target="_top">
+                              <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-mail-50.png" title="Email us" style="width:32px;"/>
+                            </a>
+                          </td>
+                          <td>
+                            <a href="https://{{domain}}/subscribe/email">
+                              <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-inbox-50.png" title="Subscribe to our newsletter" style="width:32px;" />
+                            </a>
+                          </td>
+                          <td>
+                            <a href="https://maps.app.goo.gl/WEHyQyfEQTHK6x3XA" target="_blank">
+                              <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-location-50.png" title="Our location" style="width:32px;" />
+                            </a>
+                          </td>
+                          <td>
+                            <a href="https://www.instagram.com/bcse_nu" target="_blank">
+                              <img src="https://s3.amazonaws.com/bcse-4.0-prod/socialmedia/icons8-instagram-50.png" title="Follow us on Instagram" style="width:32px;"/>
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
       </table>
     </body>
 </html>
