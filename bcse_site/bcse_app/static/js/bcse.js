@@ -45,6 +45,7 @@ $(function (){
           bindModalOpen();
           bindWarningAction();
           bindUseAjax();
+          bindCancelReservation();
           bindTooltipTrigger();
         }
         else{
@@ -143,6 +144,7 @@ $(function (){
   bindCancelAction();
   bindWarningAction();
   bindUseAjax();
+  bindCancelReservation();
   bindSelect2();
   bindTooltipTrigger();
   bindDateTimePicker();
@@ -446,6 +448,62 @@ function bindUseAjax() {
 
   });
 }
+
+function bindCancelReservation() {
+  $('.cancelReservation').unbind('click');
+  $('.cancelReservation').on('click', function(e){
+    e.preventDefault()
+    var url = $(this).data('href');
+    var id = $(this).data('id');
+    var title = $(this).data('title');
+
+    $.ajax({
+      url: `/api/reservations/${id}/`,
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        var html = `<div>\
+                          <p>Do you want to ${title} the following reservation?</p> \
+                          <strong>Reservation ID:</strong> ${id} <br>\
+                          <strong>Activity:</strong> ${data.activity} <br>`;
+        if(['A', 'S', 'D'].includes(data.user_role)) {
+          html += `<strong>User:</strong> ${data.user} (${data.email})<br> \
+                  <strong>Workplace:</strong> ${data.workplace}<br> \
+                  <strong>Address:</strong> ${data.address}<br>`;
+        }
+        html += `</div>`;
+        bootbox.confirm({
+          title: 'Confirm',
+          message: html,
+          buttons: {
+            confirm: {
+                label: 'Confirm',
+                className: 'btn btn-small'
+            },
+            cancel: {
+                label: 'Cancel',
+                className: 'btn btn-small btn-danger'
+            }
+          },
+          closeButton: false,
+          callback: function(result){
+            if (result == true) {
+              window.location = url;
+            }
+          },
+        });
+
+
+      },
+      error: function(xhr, ajaxOptions, thrownError){
+        displayErrorDialog();
+      },
+    });
+
+
+  });
+}
+
 
 function displayErrorDialog() {
   bootbox.alert({title: "Error",

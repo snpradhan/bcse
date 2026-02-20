@@ -374,7 +374,7 @@
                       {% elif reservation.delivery_date|is_past %}
                         <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel Reservation</a>
                       {% else %}
-                        <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
+                        <a class="dropdown-item cancelReservation" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="cancel" data-id="{{reservation.id}}">Cancel Reservation</a>
                       {% endif %}
                     </li>
                   {% endif %}
@@ -408,7 +408,7 @@
                     {% if activate_feedback %}
                       <li><hr class="dropdown-divider"></li>
                       <li>
-                        <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
+                        <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" data-id="{{reservation.id}}" href="#">
                           Send Feedback Email
                         </a>
                       </li>
@@ -438,7 +438,7 @@
                   {% if reservation.status != 'N' %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                      <a class="dropdown-item cancel action" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="the reservation id <strong>{{reservation.id}}</strong>">Cancel Reservation</a>
+                      <a class="dropdown-item cancelReservation" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="cancel" data-id="{{reservation.id}}">Cancel Reservation</a>
                     </li>
                   {% endif %}
 

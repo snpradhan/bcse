@@ -14,8 +14,10 @@ def reservation_detail_api(request, pk):
     data = {
         "id": reservation.id,
         "user": reservation.user.user.get_full_name(),
+        "user_role": request.user.userProfile.user_role,
         "email": reservation.user.user.email,
         "workplace": reservation.reservation_to_work_place.work_place.name,
+        "activity": reservation.get_activity_name(),
     }
     address = None
     if hasattr(reservation, "delivery_address"):

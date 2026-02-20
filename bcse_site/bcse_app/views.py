@@ -1916,8 +1916,13 @@ def reservationCancel(request, id=''):
       if request.user.userProfile.user_role not in ['A', 'S'] and reservation.status in ['O', 'I']:
         raise CustomException('This reservation is %s and cannot be cancelled' % reservation.get_status_display())
 
+      original_status = reservation.status
       reservation.status = 'N'
       reservation.save()
+
+      current_date = datetime.datetime.now().date()
+      if current_date <= reservation.delivery_date and original_status in ['U', 'R']:
+        reservationCancellationEmailSend(request, reservation.id)
       messages.success(request, "Reservation cancelled")
 
     return shortcuts.redirect('bcse:reservations')

@@ -765,7 +765,7 @@ class Reservation(models.Model):
 
   def get_activity_name(self):
     if self.activity:
-      return self.activity
+      return self.activity.name
     else:
       return self.other_activity_name
 
