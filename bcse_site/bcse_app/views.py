@@ -2512,8 +2512,8 @@ def adminReservationCalendarUpdate(request):
 @login_required
 def reservationUpdate(request, reservation_id):
   try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
-      raise CustomException('You do not have the permission to update reservation color')
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S', 'D']:
+      raise CustomException('You do not have the permission to update reservation')
 
     reservation = models.Reservation.objects.get(id=reservation_id)
     current_date = datetime.datetime.now().date()
@@ -2534,7 +2534,7 @@ def reservationUpdate(request, reservation_id):
         if current_date <= savedReservation.delivery_date:
           if original_status == 'U' and savedReservation.status == 'R':
             reservationConfirmationEmailSend(request, reservation_id)
-          if original_status in ['U', 'R'] and savedReservation == 'N':
+          if original_status in ['U', 'R'] and savedReservation.status == 'N':
             reservationCancellationEmailSend(request, savedReservation.id)
       else:
         print(form.errors)

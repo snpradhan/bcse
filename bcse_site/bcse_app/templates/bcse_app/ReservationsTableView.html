@@ -385,9 +385,6 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></li>
 
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Quick Update</a></li>
-
                   {% if reservation.activity %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
@@ -464,6 +461,9 @@
 
                 <!-- Admin and Driver action options -->
                 {% if user.userProfile.user_role in 'ASD' %}
+
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Quick Update</a></li>
 
                   {% if reservation.reservation_to_work_place %}
                      <li><hr class="dropdown-divider"></li>
