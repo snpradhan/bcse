@@ -125,8 +125,9 @@
       <table id="workplaces_summary" class="table table-bordered table-striped export">
         <thead>
           <tr>
-            <th rowspan="2">Workplace</th>
             <th rowspan="2">Workplace ID</th>
+            <th rowspan="2">Workplace</th>
+            <th colspan="{{school_years|length}}" class="center">% Low Income Students</th>
             <th rowspan="2">Total Workshops</th>
             <th rowspan="2">Total Registrants</th>
             <th rowspan="2">Accepted</th>
@@ -140,6 +141,9 @@
             <th rowspan="2">Waitlisted</th>
           </tr>
           <tr>
+            {% for school_year in school_years %}
+              <th>SY {{school_year}}-{{school_year|add:1}}</th>
+            {% endfor %}
             <th>Total</th>
             <th>Facilitator/Presenter</th>
             <th>Observer</th>
@@ -152,6 +156,9 @@
             <tr>
               <td>{{workplace.id}}</td>
               <td>{{workplace.name}}</td>
+              {% for school_year in school_years %}
+                <td>{{workplace.percentage_by_year|get_item:school_year|default_if_none:""}}</td>
+              {% endfor %}
               <td>{{workplace.total_workshops}}</td>
               <td>{{workplace.total_registrants}}</td>
               <td>{{workplace.reg_accepted}}</td>

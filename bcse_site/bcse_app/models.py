@@ -193,6 +193,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('ID', 'ID'),
   ('NM', 'Name'),
   ('WT', 'Workplace Type'),
+  ('LI', '% Low Income Students'),
   ('DN', 'District #'),
   ('S1', 'Street Address 1'),
   ('S2', 'Street Address 2'),
@@ -344,7 +345,24 @@ class WorkPlace(models.Model):
 def get_placeholder_workplace():
   return 555
 
+def generate_start_year_choices(start=2009, years_ahead=5):
+    current = datetime.date.today().year
+    return [(y, f"{y}-{y+1}") for y in range(start, current + years_ahead)]
 
+class WorkplaceLowIncomeStudentPercentage(models.Model):
+  workplace = models.ForeignKey(WorkPlace, related_name="low_income_student_percentage", on_delete=models.CASCADE)
+  start_year = models.PositiveIntegerField(choices=generate_start_year_choices())
+  percentage = models.DecimalField(max_digits=5, decimal_places=2)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    unique_together = ("workplace", "start_year")
+    ordering = ['workplace', 'start_year']
+
+  @property
+  def school_year(self):
+    return f"{self.start_year}-{self.start_year + 1}"
 
 class UserProfile(models.Model):
   user = models.OneToOneField(User, unique=True, null=False, related_name="userProfile", on_delete=models.CASCADE)

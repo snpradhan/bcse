@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from bcse_app import models, forms
+from bcse_app import models, forms, utils
 from bcse_app.exceptions import CustomException
 from django import http, shortcuts, template
 from django.contrib import auth, messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
-from django.db.models import Q, F, CharField
+from django.db.models import Q, F, CharField, OuterRef, Subquery, Prefetch
 from django.db.models.functions import Lower, Concat
 from django.db.models import Sum, Window
 from django.db.models.functions import Coalesce
@@ -2668,6 +2668,9 @@ def baxterBoxUsageReportSearch(request):
       raise CustomException('You do not have the permission to view Baxter Box Report')
 
     if request.method == 'GET':
+      today = datetime.date.today()
+      current_school_year = utils.get_school_year(today)
+
       reservations = models.Reservation.objects.all().exclude(status='N')
       equipment_types = models.EquipmentType.objects.all().order_by('order')
       activities = models.Activity.objects.all().order_by('name')
@@ -2935,8 +2938,30 @@ def baxterBoxUsageReportSearch(request):
         for user_id in remove_users:
           del user_usage[user_id]
 
+
+      school_years = []
+      school_start = school_end = None
+      if from_date and utils.get_school_year(from_date) <= current_school_year:
+        if to_date and utils.get_school_year(to_date) <= current_school_year:
+          if from_date <= to_date:
+            school_start = utils.get_school_year(from_date)
+            school_end = utils.get_school_year(to_date)
+        else:
+          school_start = utils.get_school_year(from_date)
+          school_end = current_school_year
+      else:
+        school_start = current_school_year
+        school_end = current_school_year
+
+      if school_start and school_end:
+        for year in range(school_start, school_end+1):
+          school_years.append(year)
+
+      percentages_qs = models.WorkplaceLowIncomeStudentPercentage.objects.all().filter(start_year__in=school_years)
+
       for workplace_id, usage in workplace_usage.items():
         workplace_usage[workplace_id]['total_cost'] = workplace_usage[workplace_id]['total_equipment_cost']  + workplace_usage[workplace_id]['total_kit_cost'] + workplace_usage[workplace_id]['total_consumables_cost']
+        workplace_usage[workplace_id]['percentage_by_year'] = {p.start_year: p.percentage for p in percentages_qs.filter(workplace__id=workplace_id)}
 
       for user_id, usage in user_usage.items():
         user_usage[user_id]['total_cost'] = user_usage[user_id]['total_equipment_cost']  + user_usage[user_id]['total_kit_cost'] + user_usage[user_id]['total_consumables_cost']
@@ -3011,7 +3036,7 @@ def baxterBoxUsageReportSearch(request):
 
       response_data = {}
       response_data['success'] = True
-      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'consumable_usage': consumable_usage, 'user_usage': user_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date, 'workplace_usage': workplace_usage, 'sort_by': sort_by}
+      context = {'equipment_usage': equipment_usage, 'kit_usage': kit_usage, 'consumable_usage': consumable_usage, 'user_usage': user_usage, 'total_usage': total_usage, 'from_date': from_date, 'to_date': to_date, 'workplace_usage': workplace_usage, 'sort_by': sort_by, 'school_years': school_years}
       response_data['html'] = render_to_string('bcse_app/BaxterBoxUsageTableView.html', context, request)
       return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
@@ -5745,6 +5770,7 @@ def workshopRegistrantsSearch(request, id=''):
     if request.method == 'GET':
 
       workshop = models.Workshop.objects.get(id=id)
+      school_year = utils.get_school_year(workshop.start_date)
 
       query_filter = Q()
       email_filter = None
@@ -5831,6 +5857,13 @@ def workshopRegistrantsSearch(request, id=''):
       registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=id)
       registrations = registrations.filter(query_filter)
 
+      percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.filter(
+          workplace=OuterRef("registration_to_work_place__work_place"),
+          start_year=school_year
+      ).values("percentage")[:1]
+
+      registrations = registrations.annotate(percentage_low_income=Subquery(percentage_subquery))
+
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
 
@@ -5854,7 +5887,7 @@ def workshopRegistrantsSearch(request, id=''):
 
       registrations = paginate(request, registrations, sort_order, rows_per_page, page)
 
-      context = {'workshop': workshop, 'registrations': registrations}
+      context = {'workshop': workshop, 'registrations': registrations, 'school_year': '%s - %s' % (school_year, school_year+1)}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkshopRegistrantsTableView.html', context, request)
@@ -5915,6 +5948,9 @@ def workshopsRegistrantsSearch(request):
 
     if request.method == 'GET':
 
+      today = datetime.date.today()
+      current_school_year = utils.get_school_year(today)
+
       query_filter = Q(workshop_registration_setting__workshop__cancelled=False)
 
       workshop_category = [int(i) for i in request.GET.getlist('registrants_search-workshop_category', '')]
@@ -5922,7 +5958,6 @@ def workshopsRegistrantsSearch(request):
       work_place = [int(i) for i in request.GET.getlist('registrants_search-work_place', '')]
       user = [int(i) for i in request.GET.getlist('registrants_search-user', '')]
       user_role = request.GET.getlist('registrants_search-user_role', '')
-      year = request.GET.get('registrants_search-year', '')
       starts_after = request.GET.get('registrants_search-starts_after', '')
       ends_before = request.GET.get('registrants_search-ends_before', '')
       status = request.GET.getlist('registrants_search-status', '')
@@ -5941,7 +5976,6 @@ def workshopsRegistrantsSearch(request):
         'user_role': user_role,
         'starts_after': starts_after,
         'ends_before': ends_before,
-        'year': year,
         'status': status,
         'sub_status': sub_status,
         'keywords': keywords,
@@ -5977,10 +6011,6 @@ def workshopsRegistrantsSearch(request):
         user_role_filter = Q(user__user_role__in=user_role)
         query_filter = query_filter & user_role_filter
 
-
-      if year:
-        year_filter = Q(workshop_registration_setting__workshop__start_date__year=int(year))
-        query_filter = query_filter & year_filter
       if status:
         status_filter  = Q(status__in=status)
         query_filter = query_filter & status_filter
@@ -6061,7 +6091,8 @@ def workshopsRegistrantsSearch(request):
       keys.sort()
       attended_summary = {i: attended_breakdown[i] for i in keys}
 
-      workshops = models.Workshop.objects.all().annotate(
+      workshops = models.Workshop.objects.all().filter(id__in=registrations.values_list('workshop_registration_setting__workshop__id', flat=True))
+      workshops = workshops.annotate(
         total_registrants=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations), distinct=True),
         total_workplaces=Count('registration_setting__workshop_registrants__registration_to_work_place__work_place__id', filter=Q(registration_setting__workshop_registrants__in=registrations), distinct=True),
         reg_accepted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='C'), distinct=True),
@@ -6079,10 +6110,23 @@ def workshopsRegistrantsSearch(request):
         reg_pending=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='P'), distinct=True),
         reg_registered=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='R'), distinct=True),
         reg_waitlisted=Count('registration_setting__workshop_registrants__id', filter=Q(registration_setting__workshop_registrants__in=registrations, registration_setting__workshop_registrants__status='W'), distinct=True)
+      )
 
-        ).filter(id__in=registrations.values_list('workshop_registration_setting__workshop__id', flat=True))
+      school_years = []
+      #one of workshop/start date/end date filter selected
+      if workshop or starts_after or ends_before:
+        workshop_dates = workshops.values_list('start_date', flat=True)
+        unique_school_years = set()
+        for workshop_date in workshop_dates:
+          unique_school_years.add(utils.get_school_year(workshop_date))
+        school_years = list(unique_school_years)
+      else:
+        school_years.append(current_school_year)
 
-      workplaces = models.WorkPlace.objects.all().annotate(
+      percentages_qs = models.WorkplaceLowIncomeStudentPercentage.objects.all().filter(start_year__in=school_years)
+
+      workplaces = models.WorkPlace.objects.all().filter(id__in=registrations.values_list('registration_to_work_place__work_place__id', flat=True))
+      workplaces = workplaces.annotate(
         total_workshops = Count('work_place_to_registration__registration__workshop_registration_setting__workshop__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
         total_registrants=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
         reg_accepted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='C'), distinct=True),
@@ -6099,11 +6143,19 @@ def workshopsRegistrantsSearch(request):
         reg_denied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='D'), distinct=True),
         reg_pending=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='P'), distinct=True),
         reg_registered=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='R'), distinct=True),
-        reg_waitlisted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='W'), distinct=True)
+        reg_waitlisted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='W'), distinct=True),
 
-        ).filter(id__in=registrations.values_list('registration_to_work_place__work_place__id', flat=True))
+      ).prefetch_related(
+          Prefetch(
+              'low_income_student_percentage',  # related_name in the model
+              queryset=percentages_qs,
+              to_attr='all_percentages'  # store in a custom attribute
+          )
+      )
 
-      users = models.UserProfile.objects.all().annotate(
+
+      users = models.UserProfile.objects.all().filter(id__in=registrations.values_list('user__id', flat=True))
+      users = users.annotate(
         total_workshops = Count('registered_workshops__workshop_registration_setting__workshop__id', filter=Q(registered_workshops__in=registrations), distinct=True),
         total_workplaces=Count('registered_workshops__registration_to_work_place__work_place__id', filter=Q(registered_workshops__in=registrations), distinct=True),
         workplaces=ArrayAgg('registered_workshops__registration_to_work_place__work_place__name', filter=Q(Q(registered_workshops__in=registrations), ~Q(registered_workshops__registration_to_work_place__work_place=None)), distinct=True, ordering=F('registered_workshops__registration_to_work_place__work_place__name').asc()),
@@ -6122,8 +6174,7 @@ def workshopsRegistrantsSearch(request):
         reg_pending=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='P'), distinct=True),
         reg_registered=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='R'), distinct=True),
         reg_waitlisted=Count('registered_workshops__id', filter=Q(registered_workshops__in=registrations, registered_workshops__status='W'), distinct=True)
-
-        ).filter(id__in=registrations.values_list('user__id', flat=True))
+      )
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
@@ -6183,9 +6234,11 @@ def workshopsRegistrantsSearch(request):
       all_registrations = paginate(request, registrations, registrations_sort_order, rows_per_page, page)
       all_workshops = paginate(request, workshops, workshops_sort_order, rows_per_page, page)
       all_workplaces = paginate(request, workplaces, workplaces_sort_order, rows_per_page, page)
+      for wp in all_workplaces:
+        wp.percentage_by_year = {p.start_year: p.percentage for p in wp.all_percentages}
       all_users = paginate(request, users, users_sort_order, rows_per_page, page)
 
-      context = {'registrations': all_registrations, 'all_registration_summary': all_registration_summary, 'attended_summary': attended_summary, 'workshops': all_workshops, 'workplaces': all_workplaces, 'users': all_users}
+      context = {'registrations': all_registrations, 'all_registration_summary': all_registration_summary, 'attended_summary': attended_summary, 'workshops': all_workshops, 'workplaces': all_workplaces, 'users': all_users, 'school_years': school_years}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkshopsRegistrantsTableView.html', context, request)
@@ -7501,6 +7554,9 @@ def workPlacesSearch(request):
 
     if request.method == 'GET':
 
+      today = datetime.date.today()
+      school_year = utils.get_school_year(today)
+
       query_filter = Q()
       name_filter = None
       work_place_type_filter = None
@@ -7583,8 +7639,15 @@ def workPlacesSearch(request):
         query_filter = query_filter & status_filter
 
       work_places = models.WorkPlace.objects.all().filter(query_filter)
-      work_places = work_places.annotate(users_count=Count('users'))
 
+      percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.filter(
+          workplace=OuterRef("pk"),
+          start_year=school_year
+      ).values("percentage")[:1]
+
+      work_places = work_places.annotate(users_count=Count('users'),
+                                          percentage_low_income=Subquery(percentage_subquery)
+                                        )
       ignorecase = 'false'
       direction = request.GET.get('direction') or 'asc'
       if sort_by:
@@ -7611,7 +7674,7 @@ def workPlacesSearch(request):
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
       work_places = paginate(request, work_places, sort_order, rows_per_page, page)
 
-      context = {'work_places': work_places, 'columns': columns}
+      context = {'work_places': work_places, 'columns': columns, 'school_year': '%s - %s' % (school_year, school_year+1)}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkPlacesTableView.html', context, request)
@@ -7645,21 +7708,30 @@ def workPlaceEdit(request, id=''):
     else:
       work_place = models.WorkPlace()
 
+    LowIncomePercentageInlineFormset = inlineformset_factory(models.WorkPlace, models.WorkplaceLowIncomeStudentPercentage, form=forms.WorkplaceLowIncomeStudentPercentageForm, formset=forms.WorkplaceLowIncomeStudentPercentageBaseFormSet, extra=1, can_delete=True)
+
     if request.method == 'GET':
       form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
-      context = {'form': form}
+      formset = LowIncomePercentageInlineFormset(instance=work_place)
+
+      context = {'form': form, 'formset': formset}
       return render(request, 'bcse_app/WorkPlaceEdit.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
       form = forms.WorkPlaceForm(data, instance=work_place, user=request.user, prefix='work_place')
+      formset = LowIncomePercentageInlineFormset(data, instance=work_place)
       response_data = {}
-      if form.is_valid():
+      if form.is_valid() and formset.is_valid():
         savedWorkPlace = form.save()
+        formset.save()
         messages.success(request, "Workplace saved successfully")
         response_data['success'] = True
       else:
         print(form.errors)
-        context = {'form': form}
+        print(formset.errors)
+        messages.error(request, 'Please check the forms below for missing required fields or duplicate entry')
+
+        context = {'form': form, 'formset': formset}
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/WorkPlaceEdit.html', context, request)
 

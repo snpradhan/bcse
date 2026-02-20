@@ -1534,6 +1534,47 @@ class WorkPlaceForm(ModelForm):
         if not self.instance.id:
           field.initial = 'A'
 
+####################################
+# Workplace Form
+####################################
+class WorkplaceLowIncomeStudentPercentageForm(ModelForm):
+
+  class Meta:
+    model = models.WorkplaceLowIncomeStudentPercentage
+    exclude = ('id', 'created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(WorkplaceLowIncomeStudentPercentageForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+
+class WorkplaceLowIncomeStudentPercentageBaseFormSet(forms.BaseInlineFormSet):
+  def clean(self):
+    super().clean()
+
+    years = set()
+
+    for form in self.forms:
+      # Skip empty forms
+      if not hasattr(form, "cleaned_data"):
+        continue
+
+      # Skip deleted forms
+      if form.cleaned_data.get("DELETE", False):
+        continue
+
+      start_year = form.cleaned_data.get("start_year")
+
+      if start_year is None:
+        continue
+
+      if start_year in years:
+        form.add_error("start_year", "Duplicate school year")
+
+      years.add(start_year)
 
 ##########################################################
 # Workplace Update Form
@@ -2181,7 +2222,7 @@ class WorkPlacesSearchForm(ModelForm):
                                                       ('created_date_desc', 'Created Date (Desc)'),
                                                       ('created_date_asc', 'Created Date (Asc)')), initial='name')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
-  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'DN', 'S1', 'S2', 'CT', 'SA', 'NU', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'LI', 'DN', 'S1', 'S2', 'CT', 'SA', 'NU', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   class Meta:

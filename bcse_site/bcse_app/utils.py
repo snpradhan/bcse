@@ -301,3 +301,12 @@ def validateReCaptcha(token, action):
   else:
     return True
 
+####################################
+# GET SCHOOL YEAR FROM DATE
+####################################
+def get_school_year(dt):
+  if dt.month >= 8:
+    return dt.year
+  else:
+    return dt.year -1
+

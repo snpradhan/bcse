@@ -14,6 +14,9 @@
         {% if 'WT' in columns %}
           <th> Workplace Type </th>
         {% endif %}
+        {% if 'LI' in columns %}
+          <th>% Low Income Students <br> SY {{school_year}}</th>
+        {% endif %}
         {% if 'DN' in columns %}
           <th> District # </th>
         {% endif %}
@@ -79,6 +82,9 @@
           {% endif %}
           {% if 'WT' in columns %}
             <td> {{work_place.get_work_place_type_display}} </td>
+          {% endif %}
+          {% if 'LI' in columns %}
+            <td>{{work_place.percentage_low_income|default_if_none:""}}</td>
           {% endif %}
           {% if 'DN' in columns %}
             <td> {{work_place.district_number|default_if_none:""}} </td>

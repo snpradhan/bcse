@@ -19,7 +19,61 @@
       {% csrf_token %}
       {{form.management_form}}
       <div class="modal-body">
-        {% include "bcse_app/WorkPlace.html" with work_place_form=form source='workPlaceEdit'%}
+
+        <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="workplace-tab" data-bs-toggle="tab"  type="button" data-bs-target="#workplace_details" role="tab" aria-controls="workplace_details" aria-selected="true">Workplace Details</button>
+          </li>
+
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="low_perentage-tab" data-bs-toggle="tab" type="button" data-bs-target="#low_perentage" role="tab" aria-controls="low_perentage"  aria-selected="false">% Low-Income Students Data
+            </button>
+          </li>
+
+        </ul>
+
+        <div class="tab-content" id="workplaceTabContent">
+          <div class="tab-pane active" id="workplace_details" role="tabpanel" aria-labelledby="workplace-tab">
+            {% include "bcse_app/WorkPlace.html" with work_place_form=form source='workPlaceEdit'%}
+          </div>
+          <div class="tab-pane" id="low_perentage" role="tabpanel" aria-labelledby="low_perentage-tab">
+            <div class="form-group right">
+              <button type="button" class="btn" onclick="cloneForm('low_income_student_percentage', 'lowincomepercentage_formset')">Add Row</button>
+            </div>
+
+            <table class="table table-condensed table-bordered">
+              <thead>
+                <tr>
+                  <th>School Year</th>
+                  <th>% Low-Income Students</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="lowincomepercentage_formset">
+                {{formset.management_form}}
+                {% for form in formset %}
+                  {{form.id}}
+                  <tr class="form-row">
+                    <td>
+                      {{form.start_year}}
+                      <div class="error">{{ form.start_year.errors }}</div>
+                    </td>
+                    <td>
+                      {{form.percentage}}
+                      <div class="error">{{ form.percentage.errors }}</div>
+                    </td>
+                    <td>
+                      {{form.DELETE.as_hidden}}
+                      <button type="button" class="btn btn-xsmall btn-danger delete_percentage"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
         <div class="form-group" id="spinner">
           <img src="/static/img/page-loader.gif" class="icon"/>
         </div>
@@ -70,6 +124,16 @@
           displayErrorDialog();
         }
       });
+    });
+
+    $('.delete_percentage').on('click', function(e){
+      formRow = $(this).closest('.form-row');
+      deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
+
+      if (deleteInput) {
+        $(deleteInput).val('on'); // Mark for deletion
+        $(formRow).hide();
+      }
     });
 
   });
