@@ -47,6 +47,7 @@ $(function (){
           bindUseAjax();
           bindCancelReservation();
           bindTooltipTrigger();
+          bindReservationStatusChange();
         }
         else{
           displayErrorDialog();
@@ -149,6 +150,7 @@ $(function (){
   bindTooltipTrigger();
   bindDateTimePicker();
   bindUnsavedChangesWarning();
+  bindReservationStatusChange();
 
 });
 
@@ -501,6 +503,14 @@ function bindCancelReservation() {
     });
 
 
+  });
+}
+
+function bindReservationStatusChange() {
+  $('form#reservationForm select#id_status, form#formReservationUpdate select#id_status').on('change', function(){
+    if($(this).val() == 'N') {
+      displayWarningDialog("You have selected 'Cancelled' status for this reservation.")
+    }
   });
 }
 

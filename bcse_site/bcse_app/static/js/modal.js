@@ -16,6 +16,7 @@ function bindModalOpen() {
       bindDateTimePicker();
       bindSelect2();
       bindCkeditorChange();
+      bindReservationStatusChange();
 
     });
   });
