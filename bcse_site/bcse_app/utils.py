@@ -278,22 +278,26 @@ def strip_html(html_string):
 # VALIDATE RECAPTCHA TOKEN
 ####################################
 def validateReCaptcha(token, action):
-  if not token:
-    return False
+  if settings.RECAPTCHA_VALIDATE:
+    if not token:
+      return False
 
-  url = 'https://recaptchaenterprise.googleapis.com/v1/projects/%s/assessments?key=%s' % (settings.RECAPTCHA_PROJECT_ID, settings.RECAPTCHA_PRIVATE_KEY)
-  payload = { "event": {
-                "token": token,
-                "siteKey": settings.RECAPTCHA_PUBLIC_KEY,
-                "expectedAction": action
+    url = 'https://recaptchaenterprise.googleapis.com/v1/projects/%s/assessments?key=%s' % (settings.RECAPTCHA_PROJECT_ID, settings.RECAPTCHA_PRIVATE_KEY)
+    payload = { "event": {
+                  "token": token,
+                  "siteKey": settings.RECAPTCHA_PUBLIC_KEY,
+                  "expectedAction": action
+                }
               }
-            }
-  response = requests.post(url, json=payload)
-  data = response.json()
-  # Validate token
-  token_props = data.get("tokenProperties", {})
-  risk_score = data.get("riskAnalysis", {}).get("score", 0)
-  if token_props.get("valid") and risk_score >= settings.RECAPTCHA_REQUIRED_SCORE:
-    return True
+    response = requests.post(url, json=payload)
+    data = response.json()
+    # Validate token
+    token_props = data.get("tokenProperties", {})
+    risk_score = data.get("riskAnalysis", {}).get("score", 0)
+    if token_props.get("valid") and risk_score >= settings.RECAPTCHA_REQUIRED_SCORE:
+      return True
+    else:
+      return False
   else:
-    return False
+    return True
+
