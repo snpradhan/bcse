@@ -10423,7 +10423,7 @@ def reservationDeliveryPickupEmailView(request, reservation_id, email_type=''):
     domain = request.get_host()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
-    context = {'subject': subject, 'email_message': email_message}
+    context = {'subject': subject, 'email_message': email_message, 'domain': domain}
 
     return render(request, 'bcse_app/EmailReservationDeliveryPickupView.html', context)
 
@@ -10451,7 +10451,7 @@ def reservationDeliveryPickupEmailView(request, reservation_id, email_type=''):
 #####################################################
 def reservationDeliveryPickupEmailSend(request, reservation_id, email_type=''):
   try:
-    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S', 'D']:
       raise CustomException('You do not have the permission to send feedback email')
 
     reservation = models.Reservation.objects.get(id=reservation_id)
@@ -10470,7 +10470,7 @@ def reservationDeliveryPickupEmailSend(request, reservation_id, email_type=''):
     domain = request.get_host()
     if domain != 'bcse.northwestern.edu':
       subject = '***** TEST **** '+ subject + ' ***** TEST **** '
-    context = {'subject': subject, 'email_message': email_message}
+    context = {'subject': subject, 'email_message': email_message, 'domain': domain}
 
     body = get_template('bcse_app/EmailReservationDeliveryPickup.html').render(context)
     qs = models.UserProfile.objects.all().filter(Q(user__email='bcse@northwestern.edu') | Q(id=reservation.user.id)).values_list('user__email', 'secondary_email')
