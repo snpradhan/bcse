@@ -10946,7 +10946,7 @@ def send_workshop_email(id=id, cron=False):
         if registration_email_addresses:
           email_bcc += registration_email_addresses
 
-        domain = request.get_host()
+        domain = Site.objects.get_current().domain
 
         subject = workshop_email.email_subject
         subject = models.replace_workshop_tokens(subject, workshop)
