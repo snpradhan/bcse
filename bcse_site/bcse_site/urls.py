@@ -24,7 +24,6 @@ from bcse_app.forms import SecondaryEmailPasswordResetForm
 from bcse_app.views import UserAutocomplete, RegistrantAutocomplete, WorkplaceAutocomplete, WorkplaceAllAutocomplete, FacilitatorAutocomplete
 
 urlpatterns = [
-    path('', include('bcse_app.urls', namespace="bcse")),
     path('admin/', admin.site.urls),
 
     path('password_reset/',
@@ -59,5 +58,5 @@ urlpatterns = [
     re_path(r"^ckeditor/upload/", login_required(ckeditor_views.upload), name="ckeditor_upload"),
     re_path(r"^ckeditor/browse/", never_cache(login_required(ckeditor_views.browse)), name="ckeditor_browse"),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-    
+    path('', include('bcse_app.urls', namespace="bcse")),
 ]

@@ -1,0 +1,131 @@
+{% load bcse_extras %}
+{% load base_extras %}
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3 class="left"> {{form.instance}}</h3>
+      {% else %}
+        <h3 class="left"> Create URL Mapping </h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="vignetteMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:urlMappingEdit' form.instance.id %} {% else %} {% url 'bcse:urlMappingNew' %}{% endif %}" id="formURLMapping">
+      {% csrf_token %}
+      {{form.media}}
+      {{form.management_form}}
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <label for="id_{{form.short_name.name}}" class="form-label">
+            {{ form.short_name.label|title }}
+            {% if form.short_name.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div class="input-group">
+            <div class="input-group-text">{{domain}}/</div>
+            {{form.short_name}}
+          </div>
+          <div class="error">{{ form.short_name.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.target_url.name}}" class="form-label">
+            {{ form.target_url.label }}
+            {% if form.target_url.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+            <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" data-bs-custom-class="tooltip-wide" data-bs-title="<ul><li>Internal URL: Use the path after {{domain}} starting with /</li><li>External URL: Use the full URL starting with http or https</li></ul>"></i>
+          </label>
+          <div>{{form.target_url}}</div>
+          <div class="error">{{ form.target_url.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.is_active.name}}" class="form-label">
+            {{ form.is_active.label|title }}
+            {% if form.is_active.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.is_active}}</div>
+          <div class="error">{{ form.is_active.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.expiration_date.name}}" class="form-label">
+            {{ form.expiration_date.label|title }}
+            {% if form.expiration_date.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+            <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Optional. If set, this short link will expire after the selected date and no longer redirect."></i>
+          </label>
+          <div class="input-group">
+            {{form.expiration_date}}
+            <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="error">{{ form.expiration_date.errors }}</div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.is_protected.name}}" class="form-label">
+            {{ form.is_protected.label|title}}
+            {% if form.is_protected.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+            <i class="fa fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="The URL mapping marked as protected cannot be deleted"></i>
+          </label>
+          <div>{{form.is_protected}}</div>
+          <div class="error">{{ form.is_protected.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons">
+          <button type="submit" class="btn btn-success url_mapping_save">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function (){
+
+    $('#formURLMapping').submit(function(e){
+      e.preventDefault();
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        dataType: 'json',
+        context: this,
+        cache:false,
+        contentType: false,
+        processData: false,
+        success: function(data, status) {
+          console.log(status);
+          if(data['success'] == true){
+            console.log('success');
+            $('#general').modal('toggle');
+            window.parent.location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+            bindTooltipTrigger();
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+  });
+</script>
+

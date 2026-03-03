@@ -47,7 +47,7 @@ import html
 from django.utils.encoding import smart_str
 import pytz
 import sys
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.contrib.postgres.aggregates import ArrayAgg
 from itertools import chain
 
@@ -10702,6 +10702,131 @@ def reservationReceiptEmailSend(request, id):
       return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
       return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
+#####################################################
+# URLMapping Edit
+# Edit one instance of URLMapping
+#####################################################
+@login_required
+def urlMappingEdit(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit URL mapping')
+
+    if id != '':
+      url_mapping = models.URLMapping.objects.get(id=id)
+    else:
+      url_mapping = models.URLMapping()
+
+    if request.method == 'GET':
+      form = forms.URLMappingForm(instance=url_mapping)
+      context = {'form': form, 'domain': request.get_host()}
+      return render(request, 'bcse_app/URLMappingEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.URLMappingForm(data=data, instance=url_mapping)
+      response_data = {}
+      if form.is_valid():
+        form.save()
+        response_data['success'] = True
+      else:
+        context = {'form': form, 'domain': request.get_host()}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/URLMappingEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.URLMapping.DoesNotExist as e:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, 'URLMapping not found')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % 'URLMapping not found')
+
+#####################################################
+# List of URLMappings
+# List all URLMapping
+#####################################################
+@login_required
+def urlMappings(request):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view URL mappings')
+
+    url_mappings = models.URLMapping.objects.all().order_by("-created_date")
+
+    if request.method == 'GET':
+      context = {'url_mappings': url_mappings}
+      return render(request, 'bcse_app/URLMappings.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
+#####################################################
+# URLMapping Delete
+# Delete one instance of URLMapping
+# URLMapping marked as protected cannot be deleted
+#####################################################
+@login_required
+def urlMappingDelete(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete URL mappings')
+
+    url_mapping = models.URLMapping.objects.get(id=id)
+    if url_mapping.is_protected:
+      messages.error(request, 'This URL mapping is protected and cannot be deleted.')
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    url_name = url_mapping.short_name
+    url_mapping.delete()
+    messages.success(request, 'URL Mapping %s deleted' % url_name)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except CustomException as ce:
+    if request.META.get('HTTP_REFERER'):
+      messages.error(request, ce)
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return http.HttpResponseNotFound('<h1>%s</h1>' % ce)
+
+#####################################################
+# Redirect a URL
+# Inactive or Expired URLMapping will not be redirected
+#####################################################
+def urlRedirect(request, short_name):
+  try:
+    url_mapping = models.URLMapping.objects.get(short_name=short_name)
+    if not url_mapping.is_active or url_mapping.is_expired():
+      if request.user.is_anonymous or not request.user.userProfile.user_role in ['A', 'S']:
+        raise CustomException('This URL is invalid')
+      else:
+        raise CustomException('URL Mapping is inactive or has expired')
+    if url_mapping.target_url.startswith('/') and not url_mapping.target_url.startswith('/?next'):
+      resolver = resolve(url_mapping.target_url)
+      return resolver.func(request, *resolver.args, **resolver.kwargs)
+    return shortcuts.redirect(url_mapping.target_url)
+  except models.URLMapping.DoesNotExist as e:
+    messages.error(request, 'URL Mapping does not exist')
+    if request.META.get('HTTP_REFERER'):
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return shortcuts.redirect('bcse:home')
+  except CustomException as ce:
+    messages.error(request, ce)
+    if request.META.get('HTTP_REFERER'):
+      return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+      return shortcuts.redirect('bcse:home')
+
 #####################################################
 # SEND A NOTIFICATION EMAIL TO ADMINS AND THE USER
 # WHEN A NEW MESSAGE IS POSTED FOR A RESERVATION

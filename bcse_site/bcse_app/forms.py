@@ -2364,3 +2364,39 @@ class VignettesSearchForm(forms.Form):
         if field_name in initials:
           field.initial = initials[field_name]
 
+class URLMappingForm(ModelForm):
+
+  class Meta:
+    model = models.URLMapping
+    exclude = ('created_date', 'modified_date')
+    widgets = {
+      'expiration_date': forms.DateInput(format='%B %d, %Y'),
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(URLMappingForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      if field_name in ['is_active', 'is_protected']:
+        field.widget.attrs['class'] = 'form-check-input'
+        field.label += '?'
+      elif field_name == 'expiration_date':
+        field.widget.attrs['class'] = 'form-control datepicker'
+      else:
+        if field_name == 'target_url':
+          field.label = 'Target URL'
+        field.widget.attrs['class'] = 'form-control'
+
+
+  def clean(self):
+    cleaned_data = super(URLMappingForm, self).clean()
+    short_name = cleaned_data.get('short_name')
+    target_url = cleaned_data.get('target_url')
+
+    if any(char.isspace() for char in short_name):
+      self.add_error('short_name', 'Short name should not contain spaces')
+      self.fields['short_name'].widget.attrs['class'] += ' error'
+
+    if not target_url.startswith('/') and not target_url.startswith('http'):
+      self.add_error('target_url', 'Target URL should start with "/" for internal pages or "http"/"https" for external websites')
+      self.fields['target_url'].widget.attrs['class'] += ' error'

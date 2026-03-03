@@ -4,6 +4,7 @@ from django.contrib import messages
 import datetime
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from collections import OrderedDict
 import re
 from itertools import chain
@@ -406,5 +407,14 @@ def is_default_reservation_assignee(userProfile):
     return True
   else:
     return False
+
+@register.simple_tag(takes_context=True)
+def get_url_mapping(context, mapping):
+  request = context.get('request')
+  domain = request.get_host()
+  if utils.is_absolute_url(mapping.target_url):
+    return mark_safe("%s/<strong>%s</strong> → <strong>%s</strong>" % (domain, mapping.short_name, mapping.target_url))
+  else:
+    return mark_safe("%s/<strong>%s</strong> → %s<strong>%s</strong>" % (domain, mapping.short_name, domain, mapping.target_url))
 
 

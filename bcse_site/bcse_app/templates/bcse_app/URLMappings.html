@@ -1,0 +1,63 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> URL Mappings </h1>
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:urlMappingNew' %}" role="button">Create URL Mapping</a>
+  </div>
+  <div class="search_results static">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> ID</th>
+          <th> URL Mapping </th>
+          <th> Is Active?</th>
+          <th> Expiration Date </th>
+          <th> Is Protected? </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mapping in url_mappings %}
+          <tr>
+            <td> {{mapping.id}}</td>
+            <td> {% get_url_mapping mapping %} </td>
+            <td> {{mapping.is_active|yesno:"Yes,No"}} </td>
+            <td> {{mapping.expiration_date|date:"F j, Y"}}</td>
+            <td> {{mapping.is_protected|yesno:"Yes,No"}} </td>
+            <td> {{mapping.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{mapping.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:urlMappingEdit' mapping.id %}">Edit URL Mapping</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    {% if mapping.is_protected %}
+                      <a class="dropdown-item warn action" data-title="This URL Mapping <strong>{{mapping}}</strong> is protected and cannot be deleted">Delete</a>
+                    {% else %}
+                      <a class="dropdown-item delete action" data-href="{% url 'bcse:urlMappingDelete' mapping.id %}"
+                      data-title="the url mapping <strong>{{mapping}}</strong>">
+                        Delete
+                      </a>
+                    {% endif %}
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+

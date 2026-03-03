@@ -230,6 +230,12 @@ urlpatterns = [
     path('vignettes/<str:flag>', views.vignettes, name='vignettes'),
     path('vignettes/', views.vignettes, name='vignettes'),
 
+
+    path('adminConfiguration/urlMapping/<int:id>/edit', views.urlMappingEdit, name='urlMappingEdit'),
+    path('adminConfiguration/urlMapping/<int:id>/delete', views.urlMappingDelete, name='urlMappingDelete'),
+    path('adminConfiguration/urlMapping/new', views.urlMappingEdit, name='urlMappingNew'),
+    path('adminConfiguration/urlMappings', views.urlMappings, name='urlMappings'),
+
     path('survey/<int:survey_id>/submission/<uuid:submission_uuid>/page/<int:page_num>', views.surveySubmission, name='surveySubmission'),
     path('survey/<int:survey_id>/submission/new', views.surveySubmission, name='surveySubmissionNew'),
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),
@@ -249,6 +255,8 @@ urlpatterns = [
 
 
     path("api/reservations/<int:pk>/", api_views.reservation_detail_api, name="reservation_detail_api"),
+
+    path('<str:short_name>/', views.urlRedirect, name='urlRedirect'),
 
 
 ]

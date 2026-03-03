@@ -150,6 +150,10 @@
               <a class="nav-link" href="{% url 'bcse:surveys' %}">Surveys</a>
             </li>
             <li><hr class="dropdown-divider"></li>
+            <li class="nav-item {% if 'urlMapping' in request.path %} active {% endif %}">
+              <a class="nav-link" href="{% url 'bcse:urlMappings'%}">URL Mappings</a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'vignette' in request.path or  'vignettes' in request.path %} active {% endif %}">
               <a class="nav-link" href="{% url 'bcse:vignettes' 'table' %}">Vignettes</a>
             </li>

@@ -1062,6 +1062,28 @@ class Vignette(models.Model):
   def __str__(self):
       return '%s' % (self.title)
 
+class URLMapping(models.Model):
+  short_name = models.CharField(null=False, blank=False, max_length=50, unique=True)
+  target_url = models.CharField(null=False, blank=False, max_length=500)
+  is_active = models.BooleanField(default=True)
+  expiration_date = models.DateField(null=True, blank=True)
+  is_protected = models.BooleanField(default=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+    return f"{self.short_name} → {self.target_url}"
+
+  def is_expired(self):
+    if self.expiration_date:
+      return datetime.datetime.now().date() > self.expiration_date
+    return False
+
+  def delete(self, *args, **kwargs):
+    if self.is_protected:
+      raise ValidationError("This URL mapping is protected and cannot be deleted.")
+    super().delete(*args, **kwargs)
+
 # signal to check if registration status has changed
 # and then send an email to the registrant
 @receiver(post_save, sender=Registration)

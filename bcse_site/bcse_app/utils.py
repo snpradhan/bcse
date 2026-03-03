@@ -5,6 +5,7 @@ from calendar import HTMLCalendar
 import re
 from django.conf import settings
 import requests
+from urllib.parse import urlparse
 
 def get_filename(filename):
   now = datetime.now()
@@ -309,4 +310,11 @@ def get_school_year(dt):
     return dt.year
   else:
     return dt.year -1
+
+def is_absolute_url(url):
+    """
+    Returns True if the URL is absolute (has a scheme like http/https), False if relative.
+    """
+    parsed = urlparse(url)
+    return bool(parsed.scheme and parsed.netloc)
 
