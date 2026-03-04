@@ -1,0 +1,58 @@
+
+<div class="form-group mb-3">
+  <label for="id_{{form.display_image_gallery.name}}" class="form-label"> {{form.display_image_gallery.label|title}}
+    {% if form.display_image_gallery.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.display_image_gallery}}</div>
+  <div class="error">{{ form.display_image_gallery.errors }}</div>
+</div>
+
+<div class="form-group right">
+  <button type="button" class="btn" onclick="cloneForm('workshop-image', 'image_formset')">Add Row</button>
+</div>
+
+<table class="table table-condensed table-bordered">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="image_formset">
+    {{formset.management_form}}
+    {% for form in formset %}
+      {{form.id}}
+      <tr class="form-row">
+        <td>
+          {% if form.instance.id and form.instance.image.url %}
+            <div class="image_preview">
+              <img src="{{form.instance.image.url}}" class="icon" alt="">
+            </div>
+          {% endif %}
+          {{form.image}}
+          <div class="error">{{ form.image.errors }}</div>
+        </td>
+        <td>
+          {{form.DELETE.as_hidden}}
+          <button type="button" class="btn btn-xsmall btn-danger delete_image"><i class="fa-solid fa-trash-can"></i></button>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script type="text/javascript">
+  $(function(){
+    $('.delete_image').on('click', function(e){
+      formRow = $(this).closest('.form-row');
+      deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
+
+      if (deleteInput) {
+        $(deleteInput).val('on'); // Mark for deletion
+        $(formRow).hide();
+      }
+    });
+  })
+</script>

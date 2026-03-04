@@ -4209,33 +4209,76 @@ def workshopEdit(request, id=''):
       raise CustomException('You do not have the permission to edit this workshop')
 
     workshop_registration_setting = None
+    workshopExtra = None
 
     if '' != id:
       workshop = models.Workshop.objects.get(id=id)
       if workshop.enable_registration:
         workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=workshop)
+      if workshop.workshop_category.is_super:
+        workshopExtra, created = models.WorkshopDetails.objects.get_or_create(workshop=workshop)
     else:
       workshop = models.Workshop()
 
     workshop_categories = models.WorkshopCategory.objects.all().filter(status='A')
+    WorkshopImageInlineFormset = inlineformset_factory(models.Workshop, models.WorkshopImage, form=forms.WorkshopImageForm, extra=1, can_delete=True)
+
+
     if request.method == 'GET':
       form = forms.WorkshopForm(instance=workshop)
       context = {'form': form, 'workshop_registration_setting': workshop_registration_setting, 'workshop_categories': workshop_categories}
+      if workshopExtra:
+        formExtra = forms.WorkshopDetailsForm(instance=workshopExtra, prefix='workshop-extra')
+        imageFormset = WorkshopImageInlineFormset(instance=workshop, prefix='workshop-image')
+        context['formExtra'] = formExtra
+        context['imageFormset'] = imageFormset
+
       return render(request, 'bcse_app/WorkshopEdit.html', context)
 
     elif request.method == 'POST':
       data = request.POST.copy()
       form = forms.WorkshopForm(data, files=request.FILES, instance=workshop)
-      if form.is_valid():
-        savedWorkshop = form.save()
+      if workshopExtra:
+        formExtra = forms.WorkshopDetailsForm(data, instance=workshopExtra, prefix='workshop-extra')
+        imageFormset = WorkshopImageInlineFormset(data, instance=workshop, files=request.FILES , prefix='workshop-image')
+
+      saved = False
+      if workshopExtra:
+        if form.is_valid() and formExtra.is_valid() and imageFormset.is_valid():
+          savedWorkshop = form.save()
+          if savedWorkshop.workshop_category.is_super:
+            formExtra.save()
+            imageFormset.save()
+          #if workshop category was changed from super to non-super on save
+          #delete extra fields
+          else:
+            formExtra.instance.delete()
+            for imageForm in imageFormset:
+              if imageForm.instance.pk:
+                imageForm.instance.delete()
+
+          saved = True
+      else:
+        if form.is_valid():
+          savedWorkshop = form.save()
+          saved = True
+
+
+      if saved:
         if savedWorkshop.enable_registration:
           workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=savedWorkshop)
 
         messages.success(request, "Workshop saved")
         return shortcuts.redirect('bcse:workshopEdit', id=savedWorkshop.id)
       else:
+        print(form.errors)
         messages.error(request, "Workshop could not be saved. Check the errors below.")
         context = {'form': form, 'workshop_registration_setting': workshop_registration_setting, 'workshop_categories': workshop_categories}
+        if workshopExtra:
+          print(formExtra.errors)
+          print(imageFormset.errors)
+          context['formExtra'] = formExtra
+          context['imageFormset'] = imageFormset
         return render(request, 'bcse_app/WorkshopEdit.html', context)
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
@@ -4333,7 +4376,7 @@ def workshopDelete(request, id=''):
         workshop.delete()
         messages.success(request, "Workshop deleted")
 
-    return shortcuts.redirect('bcse:workshops', flag='table')
+    return shortcuts.redirect('bcse:workshops')
 
   except models.Workshop.DoesNotExist:
     messages.success(request, "Workshop not found")
@@ -4366,6 +4409,12 @@ def workshopView(request, id=''):
       registration = workshopRegistration(request, workshop.id)
 
       context = {'workshop': workshop, 'registration': registration}
+
+      if workshop.workshop_category.is_super:
+        if hasattr(workshop, 'workshop_details'):
+          context['workshopDetails'] = workshop.workshop_details
+        if workshop.event_images:
+          context['imageGallery'] = workshop.event_images.all()
 
       if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
         return render(request, 'bcse_app/WorkshopAdminView.html', context)

@@ -115,10 +115,59 @@
 </div>
 
 <div class="workshop_content wysiwyg_content">
-  {% if workshop.description %}
+  {% if workshop.description and workshop.display_general_information %}
     {{workshop.description|safe}}
   {% endif %}
+
+  {% if workshopDetails %}
+    {% if workshopDetails.display_evergreen_language %}
+      <div>{{workshopDetails.evergreen_language|safe}}</div>
+      <br>
+    {% endif %}
+
+    {% if workshopDetails.display_save_the_date %}
+      <h3>Save the Date</h3>
+      <div>{{workshopDetails.save_the_date|safe}}</div>
+      <br>
+    {% endif %}
+
+    {% if workshopDetails.display_call_for_presenters %}
+      <h3>Call for Presenters</h3>
+      <div>{{workshopDetails.call_for_presenters_description|safe}}</div>
+      <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' workshopDetails.call_for_presenters_application.id %}?workshop_id={{workshop.id}}" href="#">Apply to Present</a>
+      <br>
+    {% endif %}
+
+    {% if workshopDetails.display_faq %}
+      <h3>FAQ</h3>
+      <div>{{workshopDetails.faq|safe}}</div>
+      <br>
+    {% endif %}
+
+    {% if workshopDetails.display_logistics %}
+      <h3>Logistics Information</h3>
+      <div>{{workshopDetails.logistics_information|safe}}</div>
+      <br>
+    {% endif %}
+
+    {% if workshopDetails.display_thank_you_and_recap %}
+      <h3>Thank You and Recap</h3>
+      <div>{{workshopDetails.thank_you_and_recap|safe}}</div>
+      <br>
+    {% endif %}
+    <hr>
+    {% if workshopDetails.display_image_gallery and imageGallery %}
+      <h3>Image Gallery</h3>
+      <div class="gallery">
+          {% for image in imageGallery.all %}
+            <img src="{{image.image.url}}" class="icon"/>
+          {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
 </div>
+
+
 
 {% if workshop.collaborators.all %}
   <hr>

@@ -1,0 +1,154 @@
+{% load bcse_extras %}
+
+{{form.media}}
+{{form.workshop.as_hidden}}
+
+<div class="form-group mb-3">
+  <label for="id_{{form.evergreen_language.name}}" class="form-label"> {{form.evergreen_language.label|title}}
+    {% if form.evergreen_language.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.evergreen_language}}</div>
+  <div class="error">{{ form.evergreen_language.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.display_evergreen_language.name}}" class="form-label">
+    {{form.display_evergreen_language.label|title}}
+    {% if form.display_evergreen_language.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.display_evergreen_language}}</div>
+  <div class="error">{{ form.display_evergreen_language.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.save_the_date.name}}" class="form-label">
+    {{form.save_the_date.label|title}}
+    {% if form.save_the_date.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.save_the_date}}</div>
+  <div class="error">{{ form.save_the_date.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.display_save_the_date.name}}" class="form-label">
+    {{form.display_save_the_date.label|title}}
+    {% if form.display_save_the_date.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.display_save_the_date}}</div>
+  <div class="error">{{ form.display_save_the_date.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.call_for_presenters_description.name}}" class="form-label">
+    {{form.call_for_presenters_description.label|title}}
+    {% if form.call_for_presenters_description.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.call_for_presenters_description}}</div>
+  <div class="error">{{ form.call_for_presenters_description.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.call_for_presenters_application.name}}" class="form-label">
+    {{form.call_for_presenters_application.label|title}}
+    (<span class="required">*</span>)
+  </label>
+  <div>
+    {{form.call_for_presenters_application}}
+    {% if form.instance.id and form.instance.call_for_presenters_application.survey_submission.all|length %}
+      {{form.call_for_presenters_application.as_hidden}}
+    {% endif %}
+  </div>
+  <div class="error">{{ form.call_for_presenters_application.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.display_call_for_presenters.name}}" class="form-label">
+    {{form.display_call_for_presenters.label|title}}
+    {% if form.display_call_for_presenters.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.display_call_for_presenters}}</div>
+  <div class="error">{{ form.display_call_for_presenters.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.faq.name}}" class="form-label">
+    {{form.faq.label|title}}
+    {% if form.faq.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.faq}}</div>
+  <div class="error">{{ form.faq.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.display_faq.name}}" class="form-label">
+    {{form.display_faq.label|title}}
+    {% if form.display_faq.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.display_faq}}</div>
+  <div class="error">{{ form.display_faq.errors }}</div>
+</div>
+
+<div class="form-group mb-3">
+  <label for="id_{{form.logistics_information.name}}" class="form-label">
+    {{form.logistics_information.label|title}}
+    {% if form.logistics_information.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.logistics_information}}</div>
+  <div class="error">{{ form.logistics_information.errors }}</div>
+</div>
+<div class="form-group mb-3">
+  <label for="id_{{form.display_logistics.name}}" class="form-label">
+    {{form.display_logistics.label|title}}
+    {% if form.display_logistics.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.display_logistics}}</div>
+  <div class="error">{{ form.display_logistics.errors }}</div>
+</div>
+
+
+<div class="form-group mb-3">
+  <label for="id_{{form.thank_you_and_recap.name}}" class="form-label">
+    {{form.thank_you_and_recap.label|title}}
+    {% if form.thank_you_and_recap.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.thank_you_and_recap}}</div>
+  <div class="error">{{ form.thank_you_and_recap.errors }}</div>
+</div>
+
+
+<div class="form-group mb-3">
+  <label for="id_{{form.display_thank_you_and_recap.name}}" class="form-label">
+    {{form.display_thank_you_and_recap.label|title}}
+    {% if form.display_thank_you_and_recap.field.required %}
+      (<span class="required">*</span>)
+    {% endif %}
+  </label>
+  <div>{{form.display_thank_you_and_recap}}</div>
+  <div class="error">{{ form.display_thank_you_and_recap.errors }}</div>
+</div>
+
+<script type="text/javascript">
+  $(function(){
+    $('#id_workshop-extra-call_for_presenters_application').on('click', function(e){
+      if($('option', this).length == 1){
+        displayInfoDialog("Note", "Please create a survey of the type <strong>'Call for Presenters Application'</strong> and select it here before continuing.", false);
+      }
+    });
+  });
+</script>
+
+
