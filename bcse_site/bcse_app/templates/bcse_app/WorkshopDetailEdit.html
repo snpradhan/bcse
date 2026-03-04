@@ -1,0 +1,214 @@
+
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3 class="left">Edit Workshop Section</h3>
+      {% else %}
+        <h3 class="left">Add Workshop Section</h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="loginMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" id="formWorkshopDetail" method="post" enctype="multipart/form-data" action="{% if form.instance.id %} {% url 'bcse:workshopDetailEdit' workshop.id form.instance.id %}{% else %}{% url 'bcse:workshopDetailNew' workshop.id %}{% endif %}">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="modal-body">
+        {{form.workshop.as_hidden}}
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.title.name}}" class="form-label"> {{form.title.label|title}}
+              {% if form.title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.title}}</div>
+            <div class="error">{{ form.title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.display_setting.name}}" class="form-label">
+              {{form.display_setting.label|title}}
+              {% if form.display_setting.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.display_setting}}</div>
+            <div class="error">{{ form.display_setting.errors }}</div>
+          </div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.content.name}}" class="form-label"> {{form.content.label|title}}
+            {% if form.content.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.content}}</div>
+          <div class="error">{{ form.content.errors }}</div>
+        </div>
+
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.survey.name}}" class="form-label">
+              {{form.survey.label|title}}
+              {% if form.survey.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>
+              {{form.survey}}
+              {% if form.instance.id and form.instance.survey and form.instance.survey.survey_submission.all|length %}
+                {{form.survey.as_hidden}}
+              {% endif %}
+            </div>
+            <div class="error">{{ form.survey.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.survey_button_label.name}}" class="form-label">
+              {{form.survey_button_label.label|title}}
+              {% if form.survey_button_label.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.survey_button_label}}</div>
+            <div class="error">{{ form.survey_button_label.errors }}</div>
+          </div>
+        </div>
+
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}
+              {% if form.image.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>
+              {% if form.instance.id and form.instance.image.url %}
+                <div class="image_preview">
+                  <img src="{{form.instance.image.url}}" class="icon" alt="">
+                </div>
+              {% endif %}
+              {{form.image}}
+            </div>
+            <div class="error">{{ form.image.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.image_position.name}}" class="form-label">
+              {{form.image_position.label|title}}
+              {% if form.image_position.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.image_position}}</div>
+            <div class="error">{{ form.image_position.errors }}</div>
+          </div>
+        </div>
+
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.button_url.name}}" class="form-label">
+              {{form.button_url.label|title}}
+              {% if form.button_url.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.button_url}}</div>
+            <div class="error">{{ form.button_url.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.button_label.name}}" class="form-label">
+              {{form.button_label.label|title}}
+              {% if form.button_label.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.button_label}}</div>
+            <div class="error">{{ form.button_label.errors }}</div>
+          </div>
+        </div>
+
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.order.name}}" class="form-label">
+              {{form.order.label|title}}
+              {% if form.order.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.order}}</div>
+            <div class="error">{{ form.order.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.display_line_break.name}}" class="form-label">
+              {{form.display_line_break.label|title}}
+              {% if form.display_line_break.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.display_line_break}}</div>
+            <div class="error">{{ form.display_line_break.errors }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+          <button type="submit" id="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+  $(function (){
+    $("#formWorkshopDetail").submit(function(e) {
+      e.preventDefault();
+
+      for (var instance in CKEDITOR.instances) {
+        CKEDITOR.instances[instance].updateElement();
+      }
+      var formData = new FormData(this);
+
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        processData: false,
+        contentType: false,
+        context: this,
+        success: function(data, status) {
+          if(data['success'] == true){
+            $('#general').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+
+    $('#id_survey').on('click', function(e){
+      if($('option', this).length == 1){
+        displayInfoDialog("Note", "Please create a survey of the type <strong>'Workshop Survey'</strong> and select it here before continuing.", false);
+      }
+    });
+  });
+
+</script>
+
+
+

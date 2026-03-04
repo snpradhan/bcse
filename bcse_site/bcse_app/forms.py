@@ -1191,7 +1191,7 @@ class WorkshopForm(ModelForm):
 
   class Meta:
     model = models.Workshop
-    exclude = ('nid', 'created_date', 'modified_date')
+    exclude = ('created_date', 'modified_date')
     widgets = {
       'image': widgets.ClearableFileInput,
       'display_date': forms.Textarea(attrs={'rows':3}),
@@ -1208,9 +1208,14 @@ class WorkshopForm(ModelForm):
     self.fields['credits'].label = 'ISBE PD Hours'
     self.fields['collaborators'].queryset = models.Collaborator.objects.all().filter(status='A').order_by('name')
     self.fields['teacher_leaders'].label = 'Facilitators'
+    self.fields['description'].label = 'General Information'
+
+    if self.instance.id and not self.instance.workshop_category.is_super:
+      self.fields.pop('gallery_title')
+      self.fields.pop('gallery_display_setting')
 
     for field_name, field in list(self.fields.items()):
-      if field_name not in ['enable_registration', 'featured', 'cancelled']:
+      if field_name not in ['enable_registration', 'featured', 'cancelled', 'display_general_information']:
         if field_name in ['start_date', 'end_date']:
           field.widget.attrs['class'] = 'form-control datepicker'
           field.widget.attrs['readonly'] = True
@@ -1228,6 +1233,73 @@ class WorkshopForm(ModelForm):
         field.label = 'Title'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+
+class WorkshopDetailForm(ModelForm):
+
+  class Meta:
+    model = models.WorkshopDetail
+    exclude = ('created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(WorkshopDetailForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'display_line_break':
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+      if field_name == 'survey':
+        if self.instance.id and self.instance.survey:
+          if self.instance.survey.survey_submission.all().count() > 0:
+            field.queryset = models.Survey.objects.all().filter(id=self.instance.survey.id)
+            field.widget.attrs['disabled'] = True
+          else:
+            field.queryset = models.Survey.objects.all().filter(id=self.instance.survey.id) | models.Survey.objects.all().filter(survey_type='P', status='A', workshop_detail__isnull=True)
+        else:
+          field.queryset = models.Survey.objects.all().filter(survey_type='P', status='A', workshop_detail__isnull=True)
+
+class WorkshopImageForm(ModelForm):
+
+  class Meta:
+    model = models.WorkshopImage
+    exclude = ('created_date', 'modified_date')
+    widgets = {
+      'image': widgets.ClearableFileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(WorkshopImageForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+class WorkshopInviteeForm(ModelForm):
+
+  class Meta:
+    model = models.WorkshopInvitee
+    exclude = ('created_date', 'modified_date')
+    widgets = {
+      'user': autocomplete.ModelSelect2(url='user-autocomplete', attrs={'data-placeholder': 'Start typing the name of the user ...',}),
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(WorkshopInviteeForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'vip':
+        field.widget.attrs['class'] = 'form-check-input'
+        field.label = 'Is VIP?'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
 
 class WorkshopRegistrationSettingForm(ModelForm):
 
@@ -1466,7 +1538,10 @@ class WorkshopCategoryForm(ModelForm):
   def __init__(self, *args, **kwargs):
     super(WorkshopCategoryForm, self).__init__(*args, **kwargs)
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'is_super':
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
@@ -2337,6 +2412,22 @@ class WorkshopRegistrantsSearchForm(forms.Form):
       if initials:
         if field_name in initials:
           field.initial = initials[field_name]
+
+
+class WorkshopInviteesSearchForm(WorkshopRegistrantsSearchForm):
+  role = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.WORKSHOP_INVITEE_ROLE_CHOICES)
+  vip = forms.BooleanField(required=False, label='Is VIP')
+
+
+  def __init__(self, *args, **kwargs):
+    super(WorkshopInviteesSearchForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in self.fields.items():
+      if field_name in ['vip']:
+        field.widget.attrs['class'] = 'form-check-input'
+        field.label += '?'
+
+
 
 ##################################################
 # Vignettes Search Form

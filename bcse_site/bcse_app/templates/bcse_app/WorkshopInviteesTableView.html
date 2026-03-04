@@ -1,0 +1,73 @@
+{% load bcse_extras %}
+{% if workshop_invitees %}
+  {% include "bcse_app/Pagination.html" with model=workshop_invitees %}
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Workplace</th>
+        <th>Role</th>
+        <th>Is VIP?</th>
+        <th>Registration Status</th>            
+        <th>Created Date</th>
+        <th>Modified Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for invitee in workshop_invitees %}
+        <tr>
+          <td>{{invitee.id}}</td>
+          <td>{{invitee.user.user.get_full_name}}</td>
+          <td>
+            {{invitee.user.user.email}}
+            {% if invitee.user.secondary_email %}
+              <br>
+              {{invitee.user.secondary_email}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="Secondary email"></i>
+            {% endif %}
+          </td>
+          <td>{{invitee.user.work_place}}</td>
+          <td>{{invitee.get_role_display}}</td>
+          <td>{{invitee.vip|yesno:"Yes,No"}}</td>
+          <td>
+            {% get_user_registration workshop.id invitee.user.id as registration %}
+            {% if registration %}
+              {{registration.get_status_display}}
+            {% else %}
+              Not Registered
+            {% endif %}
+          </td>
+          <td>{{invitee.created_date|date:"F j, Y g:i A"}}</td>
+          <td>{{invitee.modified_date|date:"F j, Y g:i A"}}</td>
+
+          <td>
+            <div class="btn-group">
+              <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Action
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopInviteeEdit' workshop.id invitee.id %}" href="#">Edit</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>                  
+                <li>
+                  <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopInviteeDelete' workshop.id invitee.id %}"
+                  data-title="the invitee {{invitee.user.user.get_full_name}}">
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "bcse_app/Pagination.html" with model=workshop_invitees %}
+{% else %}
+  <div class="warning center">Invitees have not been added to this workshop</div>
+{% endif %}
+

@@ -4218,6 +4218,8 @@ def workshopEdit(request, id=''):
       workshop = models.Workshop()
 
     workshop_categories = models.WorkshopCategory.objects.all().filter(status='A')
+
+
     if request.method == 'GET':
       form = forms.WorkshopForm(instance=workshop)
       context = {'form': form, 'workshop_registration_setting': workshop_registration_setting, 'workshop_categories': workshop_categories}
@@ -4226,14 +4228,22 @@ def workshopEdit(request, id=''):
     elif request.method == 'POST':
       data = request.POST.copy()
       form = forms.WorkshopForm(data, files=request.FILES, instance=workshop)
+
       if form.is_valid():
         savedWorkshop = form.save()
+        #if workshop category was changed from super to non-super on save
+        #delete extra fields
+        if not savedWorkshop.workshop_category.is_super:
+          savedWorkshop.workshop_detail.all().delete()
+          savedWorkshop.workshop_image.all().delete()
+
         if savedWorkshop.enable_registration:
           workshop_registration_setting, created = models.WorkshopRegistrationSetting.objects.get_or_create(workshop=savedWorkshop)
 
         messages.success(request, "Workshop saved")
         return shortcuts.redirect('bcse:workshopEdit', id=savedWorkshop.id)
       else:
+        print(form.errors)
         messages.error(request, "Workshop could not be saved. Check the errors below.")
         context = {'form': form, 'workshop_registration_setting': workshop_registration_setting, 'workshop_categories': workshop_categories}
         return render(request, 'bcse_app/WorkshopEdit.html', context)
@@ -4333,7 +4343,7 @@ def workshopDelete(request, id=''):
         workshop.delete()
         messages.success(request, "Workshop deleted")
 
-    return shortcuts.redirect('bcse:workshops', flag='table')
+    return shortcuts.redirect('bcse:workshops')
 
   except models.Workshop.DoesNotExist:
     messages.success(request, "Workshop not found")
@@ -4401,7 +4411,7 @@ def workshopRegistration(request, workshop_id):
     registration['message_class'] = 'warning'
     return registration
   else:
-    registration_setting_status = workshopRegistrationSettingStatus(workshop)
+    registration_setting_status = workshopRegistrationSettingStatus(request, workshop)
 
     if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
 
@@ -4446,7 +4456,19 @@ def workshopRegistration(request, workshop_id):
               if current_status == 'N':
                 workshop_registration.status = registration_setting_status['default_registration_status']
             except models.Registration.DoesNotExist:
-              workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
+
+              if workshop.workshop_category.is_super:
+                try:
+                  #check if the user is an invitee
+                  invitee = models.WorkshopInvitee.objects.all().get(workshop=workshop, user=request.user.userProfile)
+                  sub_status = invitee.role
+                except models.WorkshopInvitee.DoesNotExist:
+                  sub_status = 'P'
+              else:
+                sub_status = 'P'
+
+              workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'], sub_status=sub_status)
+
               if registration_setting_status['message']:
                 user_message = registration_setting_status['message']
                 message_class = 'info'
@@ -4547,7 +4569,7 @@ def workshopRegistration(request, workshop_id):
 # if not provide a message when registration
 # will open or was closed
 ################################################
-def workshopRegistrationSettingStatus(workshop):
+def workshopRegistrationSettingStatus(request, workshop):
   """
   workshopRegistrationSettingStatus is called from the path 'workshops/edit'
   :param workshop: workshop to edit
@@ -4638,23 +4660,26 @@ def workshopRegistrationSettingStatus(workshop):
     elif registration_open:
       #check if workshop capacity has reached
       if workshop.registration_setting.registration_type == 'R' and workshop.registration_setting.capacity is not None and workshop.registration_setting.capacity >= 0:
-        total_registrations = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R').count()
-        #capacity has reached
-        if total_registrations >= workshop.registration_setting.capacity:
-          #check if there is room in the waitlist
-          if workshop.registration_setting.enable_waitlist:
-            if workshop.registration_setting.waitlist_capacity is not None and workshop.registration_setting.waitlist_capacity >= 0:
-              total_waitlisted = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').count()
-              if total_waitlisted >= workshop.registration_setting.waitlist_capacity:
-                registration_open = False
-                message = 'We have reached capacity for this workshop'
+        #allow invitees to register regardless of capacity
+        is_invitee = is_workshop_invitee(workshop, request.user.userProfile)
+        if not is_invitee:
+          total_registrations = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R', sub_status='P').count()
+          #capacity has reached
+          if total_registrations >= workshop.registration_setting.capacity:
+            #check if there is room in the waitlist
+            if workshop.registration_setting.enable_waitlist:
+              if workshop.registration_setting.waitlist_capacity is not None and workshop.registration_setting.waitlist_capacity >= 0:
+                total_waitlisted = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').count()
+                if total_waitlisted >= workshop.registration_setting.waitlist_capacity:
+                  registration_open = False
+                  message = 'We have reached capacity for this workshop'
+                else:
+                  default_registration_status = 'W'
               else:
                 default_registration_status = 'W'
             else:
-              default_registration_status = 'W'
-          else:
-            registration_open = False
-            message = 'We have reached capacity for this workshop'
+              registration_open = False
+              message = 'We have reached capacity for this workshop'
 
 
   return {'registration_open': registration_open, 'message': message, 'default_registration_status': default_registration_status}
@@ -4908,6 +4933,695 @@ def workshopRegistrationMessage(workshop_registration):
     message_class = 'warning'
 
   return {'message': message, 'message_class': message_class}
+
+
+def workshopDetails(request, workshop_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop details')
+
+    workshop = models.Workshop.objects.get(id=workshop_id)
+    workshop_details = models.WorkshopDetail.objects.all().filter(workshop=workshop)
+
+    if request.method == 'GET':
+      context = {'workshop': workshop, 'workshop_details': workshop_details}
+      return render(request, 'bcse_app/WorkshopDetails.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopDetail.DoesNotExist:
+    messages.success(request, "Workshop Detail not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def workshopDetailEdit(request, workshop_id='', id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit workshop detail')
+
+    workshop = models.Workshop.objects.get(id=workshop_id)
+    if id != '':
+      workshop_detail = models.WorkshopDetail.objects.get(id=id)
+      if workshop_detail.workshop.id != workshop.id:
+        raise CustomException('Workshop Detail not found. Workshop ID mismatch')
+    else:
+      workshop_detail = models.WorkshopDetail(workshop=workshop)
+
+    if request.method == 'GET':
+      if workshop_detail.id is None:
+        max_order = models.WorkshopDetail.objects.all().filter(workshop=workshop).aggregate(Max('order'))['order__max'] or 0
+        next_order = max_order + 1
+        form = forms.WorkshopDetailForm(instance=workshop_detail, initial={'order': next_order})
+      else:
+        form = forms.WorkshopDetailForm(instance=workshop_detail)
+      context = {'workshop': workshop, 'form': form}
+      return render(request, 'bcse_app/WorkshopDetailEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.WorkshopDetailForm(data, files=request.FILES, instance=workshop_detail)
+      response_data = {}
+      if form.is_valid():
+        form.save()
+        messages.success(request, "Workshop Detail saved")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, 'Workshop Detail could not be saved')
+        context = {'workshop': workshop, 'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/WorkshopDetailEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopDetail.DoesNotExist:
+    messages.success(request, "Workshop Detail not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# DELETE WORKSHOP DETAIL
+################################################
+def workshopDetailDelete(request, workshop_id='', id=''):
+  """
+  workshopDetailDelete is called from the path 'workshop/<id>/edit'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :param id='': id of workshop detail
+  :returns: rendered template 'bcse_app/WorkshopEdit.html
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete workshop detail')
+
+    if '' != id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      workshop_detail= models.WorkshopDetail.objects.get(id=id)
+      if workshop != workshop_detail.workshop:
+        raise CustomException('Workshop detail does not belong to the workshop')
+      workshop_detail.delete()
+      messages.success(request, 'Workshop Detail deleted')
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopDetail.DoesNotExist:
+    messages.success(request, "Workshop Invitee not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################
+# LIST WORKSHOP IMAGES
+################################################
+def workshopImages(request, workshop_id=''):
+    """
+    Display all images associated with a specific workshop.
+
+    This view retrieves and renders a list of WorkshopImage objects
+    linked to a given Workshop. It is accessible only to authorized users.
+
+    Supported Methods:
+        GET: Render a page displaying all images for the specified workshop.
+
+    Permissions:
+        Only authenticated users with roles 'A' (Admin) or 'S' (Staff/Superuser)
+        are allowed to access this view.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request object.
+        workshop_id (str, optional): ID of the Workshop whose images are to be retrieved.
+
+    Returns:
+        HttpResponse:
+            - GET: Rendered HTML page displaying workshop images.
+            - HttpResponseNotAllowed: If request method is not GET.
+            - Redirect: If an error occurs (e.g., unauthorized access, workshop not found).
+
+    Raises:
+        CustomException:
+            If the user does not have permission to view workshop details.
+
+        models.Workshop.DoesNotExist:
+            If the specified workshop does not exist.
+
+        models.WorkshopImage.DoesNotExist:
+            (Rare in this context) If image-related issues occur.
+
+    Context:
+        workshop (Workshop): The workshop instance.
+        workshop_images (QuerySet): List of associated WorkshopImage objects.
+
+    Template:
+        'bcse_app/WorkshopImages.html'
+
+    Notes:
+        - Uses Django messages framework to provide user feedback.
+        - Redirects back to the referring page in case of errors.
+    """
+    try:
+        # Authorization check
+        if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+            raise CustomException('You do not have the permission to view workshop details')
+
+        # Fetch workshop
+        workshop = models.Workshop.objects.get(id=workshop_id)
+
+        # Fetch all images related to the workshop
+        workshop_images = models.WorkshopImage.objects.all().filter(workshop=workshop)
+
+        # Handle GET request
+        if request.method == 'GET':
+            context = {'workshop': workshop, 'workshop_images': workshop_images}
+            return render(request, 'bcse_app/WorkshopImages.html', context)
+
+        # Method not allowed
+        return http.HttpResponseNotAllowed(['GET'])
+
+    except models.Workshop.DoesNotExist:
+        messages.success(request, "Workshop not found")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except models.WorkshopImage.DoesNotExist:
+        messages.success(request, "Workshop Image not found")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except CustomException as ce:
+        messages.error(request, ce)
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# ADD/EDIT WORKSHOP IMAGE
+################################################
+def workshopImageEdit(request, workshop_id='', id=''):
+    """
+    Handle creation and editing of WorkshopImage objects.
+
+    This view allows authorized users to upload or update images associated
+    with a specific workshop. It supports both GET and POST methods:
+
+    - GET: a form pre-filled with the existing WorkshopImage (if `id` is provided),
+           or an empty form for creating a new image.
+    - POST: validates and saves the submitted form data (including uploaded files),
+            and returns a JSON response indicating success or failure.
+
+    Permissions:
+        Only authenticated users with roles 'A' (Admin) or 'S' (Staff/Superuser)
+        are allowed to access this view.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request object.
+        workshop_id (str, optional): ID of the Workshop to associate the image with.
+        id (str, optional): ID of the WorkshopImage to edit. If not provided,
+                            a new WorkshopImage instance will be created.
+
+    Returns:
+        HttpResponse:
+            - GET: Rendered HTML page with the form.
+            - POST: JSON response with:
+                {
+                    "success": bool,
+                    "html": str (optional, returned if form is invalid)
+                }
+            - Redirect: If errors occur (e.g., permission issues, object not found),
+                        redirects back to the referring page with a message.
+
+    Raises:
+        CustomException:
+            - If the user is not authorized.
+            - If the WorkshopImage does not belong to the given Workshop.
+
+        models.Workshop.DoesNotExist:
+            If the specified workshop does not exist.
+
+        models.WorkshopImage.DoesNotExist:
+            If the specified workshop image does not exist.
+
+    Notes:
+        - Uses Django messages framework to provide user feedback.
+        - Returns partial HTML via `render_to_string` when form validation fails
+          (useful for AJAX form re-rendering).
+        - Expects templates:
+            - 'bcse_app/WorkshopImageEdit.html'
+    """
+    try:
+        # Authorization check
+        if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+            raise CustomException('You do not have the permission to edit workshop detail')
+
+        # Fetch workshop
+        workshop = models.Workshop.objects.get(id=workshop_id)
+
+        # Fetch or initialize WorkshopImage
+        if id != '':
+            workshop_image = models.WorkshopImage.objects.get(id=id)
+            if workshop_image.workshop.id != workshop.id:
+                raise CustomException('Workshop Image not found. Workshop ID mismatch')
+        else:
+            workshop_image = models.WorkshopImage(workshop=workshop)
+
+        # Handle GET request
+        if request.method == 'GET':
+            if workshop_image.id is None:
+              max_order = models.WorkshopImage.objects.all().filter(workshop=workshop).aggregate(Max('order'))['order__max'] or 0
+              next_order = max_order + 1
+              form = forms.WorkshopImageForm(instance=workshop_image, initial={'order': next_order})
+            else:
+              form = forms.WorkshopImageForm(instance=workshop_image)
+            context = {'workshop': workshop, 'form': form}
+            return render(request, 'bcse_app/WorkshopImageEdit.html', context)
+
+        # Handle POST request
+        elif request.method == 'POST':
+            data = request.POST.copy()
+            form = forms.WorkshopImageForm(data, files=request.FILES, instance=workshop_image)
+            response_data = {}
+
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Workshop Image uploaded")
+                response_data['success'] = True
+            else:
+                print(form.errors)
+                messages.error(request, 'Workshop Image could not be saved')
+                context = {'workshop': workshop, 'form': form}
+                response_data['success'] = False
+                response_data['html'] = render_to_string(
+                    'bcse_app/WorkshopImageEdit.html',
+                    context,
+                    request
+                )
+
+            return http.HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+            )
+
+        # Method not allowed
+        return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+    except models.Workshop.DoesNotExist:
+        messages.success(request, "Workshop not found")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except models.WorkshopImage.DoesNotExist:
+        messages.success(request, "Workshop Image not found")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except CustomException as ce:
+        messages.error(request, ce)
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# DELETE WORKSHOP IMAGE
+################################################
+def workshopImageDelete(request, workshop_id='', id=''):
+    """
+    Delete a WorkshopImage associated with a Workshop.
+
+    This view is called from the workshop edit page and is responsible for
+    deleting an image only if it belongs to the specified workshop and the
+    requesting user has sufficient permissions.
+
+    Route:
+        Typically called from: 'workshop/<id>/edit'
+
+    Args:
+        request (HttpRequest): The HTTP request object from the browser.
+        workshop_id (str): ID of the workshop.
+        id (str): ID of the workshop image to be deleted.
+
+    Returns:
+        HttpResponseRedirect:
+            Redirects the user back to the referring page (HTTP_REFERER)
+            after successful deletion or if any error occurs.
+
+    Raises:
+        CustomException:
+            - If the user does not have permission to delete workshop images.
+            - If the image does not belong to the specified workshop.
+
+        models.Workshop.DoesNotExist:
+            If the workshop does not exist.
+
+        models.WorkshopImage.DoesNotExist:
+            If the workshop image does not exist.
+
+    Notes:
+        - Only users with roles 'A' (Admin) or 'S' (Staff/Superuser) can delete images.
+        - Ensures strict validation that the image belongs to the given workshop.
+        - Uses Django messages framework to communicate success/error feedback.
+        - Always redirects back to the previous page regardless of outcome.
+    """
+
+    try:
+        # Permission check
+        if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+            raise CustomException('You do not have the permission to delete workshop image')
+
+        # Ensure valid image id provided
+        if id != '':
+
+            # Fetch workshop and image
+            workshop = models.Workshop.objects.get(id=workshop_id)
+            workshop_image = models.WorkshopImage.objects.get(id=id)
+
+            # Validate ownership
+            if workshop != workshop_image.workshop:
+                raise CustomException('Workshop Image does not belong to the workshop')
+
+            # Delete image
+            workshop_image.delete()
+            messages.success(request, 'Workshop Image deleted')
+
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except models.Workshop.DoesNotExist:
+        messages.success(request, "Workshop not found")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except models.WorkshopImage.DoesNotExist:
+        messages.success(request, "Workshop Image not found")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except CustomException as ce:
+        messages.error(request, ce)
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################
+# WORKSHOP INVITEES
+################################################
+def workshopInvitees(request, workshop_id=''):
+  """
+  workshopInvitees is called from the path 'workshop/edit'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :returns: rendered template 'bcse_app/WorkshopInvitees.html, HTML view of workshop invitees or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop invitees')
+
+    if request.method == 'GET':
+
+      workshop = models.Workshop.objects.get(id=workshop_id)
+
+      if request.session.get('workshop_%s_invitees_search'%workshop_id, False):
+        searchForm = forms.WorkshopInviteesSearchForm(user=request.user, initials=request.session['workshop_%s_invitees_search'%workshop_id], prefix="invitees_search")
+        page = request.session['workshop_%s_invitees_search'%workshop_id]['page']
+      else:
+        searchForm = forms.WorkshopInviteesSearchForm(user=request.user, initials=None, prefix="invitees_search")
+        page = 1
+
+      context = {'workshop': workshop, 'searchForm': searchForm}
+      return render(request, 'bcse_app/WorkshopInvitees.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopInvitee.DoesNotExist:
+    messages.success(request, "Workshop Invitee not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# SEARCH WORKSHOP INVITEES
+##########################################################
+def workshopInviteesSearch(request, workshop_id=''):
+  """
+  workshopInviteesSearch is called from the path 'workshop/<id>/invitees'
+  :param request: request from the browser
+  :param id='': id of workshop
+  :returns: JSON view of a workshop invitees or error page
+  """
+  try:
+    if request.method == 'GET':
+
+      workshop = models.Workshop.objects.get(id=workshop_id)
+
+      query_filter = Q()
+      email_filter = None
+      first_name_filter = None
+      last_name_filter = None
+      role_filter = None
+      work_place_filter = None
+      registration_status_filter = None
+      registration_sub_status_filter = None
+      subscribed_filter = None
+      photo_release_filter = None
+      vip_filter = None
+
+      email = request.GET.get('invitees_search-email', '')
+      first_name = request.GET.get('invitees_search-first_name', '')
+      last_name = request.GET.get('invitees_search-last_name', '')
+      role = request.GET.get('invitees_search-role', '')
+      vip = request.GET.get('invitees_search-vip', '')
+      work_place = request.GET.get('invitees_search-work_place', '')
+      registration_status = request.GET.getlist('invitees_search-registration_status', '')
+      registration_sub_status = request.GET.getlist('invitees_search-registration_sub_status', '')
+      #subscribed = request.GET.get('invitees_search-subscribed', '')
+      #photo_release_complete = request.GET.get('invitees_search-photo_release_complete', '')
+      sort_by = request.GET.get('invitees_search-sort_by', '')
+      rows_per_page = request.GET.get('invitees_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
+      page = request.GET.get('page' '')
+
+      request.session['workshop_%s_invitees_search'%workshop_id] = {
+        'email': email,
+        'first_name': first_name,
+        'last_name': last_name,
+        'role': role,
+        'vip': vip,
+        'work_place': work_place,
+        'registration_status': registration_status,
+        'registration_sub_status': registration_sub_status,
+        #'subscribed': subscribed,
+        #'photo_release_complete': photo_release_complete,
+        'sort_by': sort_by,
+        'rows_per_page': rows_per_page,
+        'page': page
+      }
+
+      if email:
+        email_filter = Q(Q(user__user__email__icontains=email) | Q(user__secondary_email__icontains=email))
+        query_filter = query_filter & email_filter
+
+      if first_name:
+        first_name_filter = Q(user__user__first_name__icontains=first_name)
+        query_filter = query_filter & first_name_filter
+      if last_name:
+        last_name_filter = Q(user__user__last_name__icontains=last_name)
+        query_filter = query_filter & last_name_filter
+
+      if role:
+        role_filter = Q(role=role)
+        query_filter = query_filter & role_filter
+
+      if vip:
+        vip_filter = Q(vip=True)
+        query_filter = query_filter & vip_filter
+
+
+      if work_place:
+        work_place_filter = Q(user__work_place=work_place)
+        query_filter = query_filter & work_place_filter
+
+      '''if subscribed:
+        if subscribed == 'Y':
+          subscribed_filter = Q(user__subscribe=True)
+        else:
+          subscribed_filter = Q(user__subscribe=False)
+
+        query_filter = query_filter & subscribed_filter
+
+      if photo_release_complete:
+        if photo_release_complete == 'Y':
+          photo_release_filter = Q(user__photo_release_complete=True)
+        else:
+          photo_release_filter = Q(user__photo_release_complete=False)
+
+        query_filter = query_filter & photo_release_filter'''
+
+      if registration_status:
+        registration_status_filter = Q(user__registered_workshops__status__in=registration_status, user__registered_workshops__workshop_registration_setting__workshop__id=workshop_id)
+        query_filter = query_filter & registration_status_filter
+
+      if registration_sub_status:
+        registration_sub_status_filter = Q(user__registered_workshops__sub_status__in=registration_sub_status, user__registered_workshops__workshop_registration_setting__workshop__id=workshop_id)
+        query_filter = query_filter & registration_sub_status_filter
+
+      workshop_invitees = models.WorkshopInvitee.objects.all().filter(workshop__id=workshop_id)
+      workshop_invitees = workshop_invitees.filter(query_filter)
+
+      direction = request.GET.get('direction') or 'asc'
+      ignorecase = request.GET.get('ignorecase') or 'false'
+
+      if sort_by:
+        if sort_by == 'email':
+          order_by = 'user__user__email'
+        elif sort_by == 'first_name':
+          order_by = 'user__user__first_name'
+        elif sort_by == 'last_name':
+          order_by = 'user__user__last_name'
+        elif sort_by == 'created_date_desc':
+          order_by = 'created_date'
+          direction = 'desc'
+        elif sort_by == 'created_date_asc':
+          order_by = 'created_date'
+          direction = 'asc'
+      else:
+        order_by = 'created_date'
+
+      sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
+
+      workshop_invitees = paginate(request, workshop_invitees, sort_order, rows_per_page, page)
+
+      context = {'workshop': workshop, 'workshop_invitees': workshop_invitees}
+      response_data = {}
+      response_data['success'] = True
+      response_data['html'] = render_to_string('bcse_app/WorkshopInviteesTableView.html', context, request)
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Workshop.DoesNotExist:
+    messages.error(request, 'Workshop not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################
+# EDIT WORKSHOP INVITEE
+################################################
+def workshopInviteeEdit(request, workshop_id='', id=''):
+  """
+  workshopInviteeEdit is called from the path 'workshop/<id>/edit'
+  :param request: request from the browser
+  :param id='': id of workshop email
+  :returns: rendered template 'bcse_app/WorkshopInviteeModal.html, JSON view of workshops or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit workshop invitee')
+
+    if '' != id:
+      workshop_invitee = models.WorkshopInvitee.objects.get(id=id)
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      if workshop_invitee.workshop.id != workshop.id:
+        raise CustomException('The workshop invitee does not belong to the workshop')
+    else:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      workshop_invitee = models.WorkshopInvitee(workshop=workshop)
+
+    if request.method == 'GET':
+      form = forms.WorkshopInviteeForm(instance=workshop_invitee)
+      context = {'form': form, 'workshop': workshop}
+      return render(request, 'bcse_app/WorkshopInviteeEdit.html', context)
+
+    elif request.method == 'POST':
+      response_data = {}
+      data = request.POST.copy()
+      form = forms.WorkshopInviteeForm(data, instance=workshop_invitee)
+      if form.is_valid():
+        savedWorkshopInvitee = form.save()
+
+        messages.success(request, "Workshop Invitee saved")
+
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, 'Workshop Invitee could not be saved')
+        context = {'form': form, 'workshop': workshop}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/WorkshopInviteeEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopInvitee.DoesNotExist:
+    messages.success(request, "Workshop Invitee not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# DELETE WORKSHOP INVITEE
+################################################
+def workshopInviteeDelete(request, workshop_id='', id=''):
+  """
+  workshopInviteeDelete is called from the path 'workshop/<id>/invitees'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :param id='': id of workshop invitee
+  :returns: rendered template 'bcse_app/WorkshopInvitees.html with remaining workshop invitees
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete workshop invitee')
+
+    if '' != id:
+      workshop_invitee = models.WorkshopInvitee.objects.get(id=id)
+      workshop_invitee.delete()
+      messages.success(request, 'Workshop Invitee deleted')
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.WorkshopInvitee.DoesNotExist:
+    messages.success(request, "Workshop Invitee not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def is_workshop_invitee(workshop, userProfile):
+  try:
+    if workshop.workshop_category.is_super:
+      invitee = models.WorkshopInvitee.objects.get(workshop=workshop, user=userProfile)
+      return True
+    else:
+      return False
+  except models.WorkshopInvitee.DoesNotExist:
+    return False
 
 ################################################
 # EDIT WORKSHOP EMAILS
@@ -5608,7 +6322,7 @@ def workshopsSearch(request, display='list', period='current', extra=''):
     if registration_open != '':
       workshops_with_open_registration = []
       for workshop in workshops:
-        registration_setting_status = workshopRegistrationSettingStatus(workshop)
+        registration_setting_status = workshopRegistrationSettingStatus(request, workshop)
         if str(registration_setting_status['registration_open']) == registration_open:
           workshops_with_open_registration.append(workshop.id)
 
@@ -7335,9 +8049,11 @@ def clearSearch(request, session_var=''):
   :returns: page admin was on before
   :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
   """
+  print(session_var)
 
   try:
     if session_var in request.session:
+      print('in session var')
       del request.session[session_var]
 
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -9595,7 +10311,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
               #workshop application
               if survey.survey_type == 'W' and workshop_id:
-                registration_setting_status = workshopRegistrationSettingStatus(workshop)
+                registration_setting_status = workshopRegistrationSettingStatus(request, workshop)
                 #get or create registration and set status to default registration status
                 try:
                   registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)

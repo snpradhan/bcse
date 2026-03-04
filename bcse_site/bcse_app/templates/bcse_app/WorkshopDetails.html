@@ -1,0 +1,54 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+
+{% block configuration %}
+
+  <h1 class="center"> {{workshop}} </h1>
+
+  {% include "bcse_app/WorkshopTabs.html" with workshop=workshop tab='edit' subtab='sections' %}
+
+  {% include "bcse_app/WorkshopSubTabs.html" with workshop=workshop subtab='sections' %}
+
+  {% if workshop_details %}
+    <table class="table table-condensed table-bordered table-striped">
+      <thead>
+          <tr>
+              <th>Order</th>
+              <th>Title</th>
+              <th>Display Setting</th>
+              <th>Action</th>
+          </tr>
+      </thead>
+
+      <tbody>
+        {% for detail in workshop_details %}
+          <tr>
+            <td>{{detail.order}}</td>
+            <td>{{detail.title}}</td>
+            <td>{{detail.get_display_setting_display}}</td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:workshopDetailEdit' workshop.id detail.id %}" href="#">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:workshopDetailDelete' workshop.id detail.id %}"
+                      data-title="the workshop section <strong>{{detail.title}}</strong>">
+                        Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+   </table>
+  {% endif %}
+{% endblock %}
+

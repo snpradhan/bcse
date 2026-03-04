@@ -1,0 +1,96 @@
+
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3 class="left">Edit Workshop Image</h3>
+      {% else %}
+        <h3 class="left">Upload Workshop Image</h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="loginMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" id="formWorkshopImage" method="post" enctype="multipart/form-data" action="{% if form.instance.id %} {% url 'bcse:workshopImageEdit' workshop.id form.instance.id %}{% else %}{% url 'bcse:workshopImageNew' workshop.id %}{% endif %}">
+      {% csrf_token %}
+      {{form.media}}
+      <div class="modal-body">
+        {{form.workshop.as_hidden}}
+        <div class="form-group mb-3 row">
+          <label for="id_{{form.image.name}}" class="form-label"> {{form.image.label|title}}
+              {% if form.image.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>
+              {% if form.instance.id %}
+                <img src="{{form.instance.image.url}}" class="icon">
+              {% else %}
+                {{form.image}}
+              {% endif %}
+            </div>
+            <div class="error">{{ form.image.errors }}</div>          
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.order.name}}" class="form-label">
+              {{form.order.label|title}}
+              {% if form.order.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.order}}</div>
+            <div class="error">{{ form.order.errors }}</div>
+        </div>        
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+          <button type="submit" id="submit" class="btn btn-success">
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+  $(function (){
+    $("#formWorkshopImage").submit(function(e) {
+      e.preventDefault();
+      var formData = new FormData(this);
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: formData,
+        processData: false,
+        contentType: false,
+        context: this,
+        success: function(data, status) {
+          if(data['success'] == true){
+            $('#general').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+    
+  });
+
+</script>
+
+
+

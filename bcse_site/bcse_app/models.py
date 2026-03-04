@@ -27,6 +27,7 @@ import requests
 from requests.structures import CaseInsensitiveDict
 import urllib.parse
 from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
+from django.core.exceptions import ValidationError
 from django.apps import apps
 
 # Create your models here.
@@ -83,8 +84,22 @@ WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES = (
   ('P', 'Participant'),
   ('F', 'Facilitator/Presenter'),
   ('S', 'Staff/Volunteer'),
-  ('O', 'Observer'),
+  ('O', 'Collaborator/Partner/Observer'),
 )
+
+WORKSHOP_DETAIL_DISPLAY_CHOICES = (
+  ('H', 'Hide'),
+  ('P', 'Public'),
+  ('L', 'Logged in User'),
+  ('R', 'Registered User'),
+)
+
+WORKSHOP_INVITEE_ROLE_CHOICES = (
+  ('F', 'Facilitator/Presenter'),
+  ('S', 'Staff/Volunteer'),
+  ('O', 'Collaborator/Partner/Observer'),
+)
+
 
 RESERVATION_STATUS_CHOICES = (
   ('U', 'Unconfirmed'),
@@ -119,6 +134,7 @@ SURVEY_TYPE_CHOICES = (
   ('A', 'Async Learning'),
   ('C', 'Case Study'),
   ('W', 'Workshop Application/Questionnaire'),
+  ('P', 'Workshop Survey'),
   ('B', 'Baxter Box Feedback'),
   ('O', 'Other'),
 )
@@ -309,6 +325,10 @@ def upload_file_to(instance, filename):
       file_path = 'vignette/attachment'
     else:
       file_path = 'vignette/image'
+  elif isinstance(instance, WorkshopDetail):
+    file_path = 'workshopDetail'
+  elif isinstance(instance, WorkshopImage):
+    file_path = 'workshopGallery'
 
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
@@ -435,6 +455,7 @@ class WorkshopCategory(models.Model):
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Workshop Category')
   description = RichTextField(null=True, blank=True)
   workshop_type = models.CharField(null=False, max_length=1, choices=WORKSHOP_TYPE_CHOICES)
+  is_super = models.BooleanField(default=False, help_text='Super workshops get extra fields to store evergreen language, save the date, call for presenters, faq content')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
@@ -447,17 +468,18 @@ class WorkshopCategory(models.Model):
 
 class Workshop (models.Model):
   workshop_category = models.ForeignKey(WorkshopCategory, null=False, related_name="workshop", on_delete=models.CASCADE)
-  collaborators = models.ManyToManyField('Collaborator', null=True, blank=True, related_name="workshops")
-  teacher_leaders = models.ManyToManyField('TeacherLeader', null=True, blank=True, related_name="workshops")
+  collaborators = models.ManyToManyField('Collaborator', blank=True, related_name="workshops")
+  teacher_leaders = models.ManyToManyField('TeacherLeader', blank=True, related_name="workshops")
   name = models.CharField(null=False, max_length=256, help_text='Name of Workshop')
   sub_title = models.CharField(null=True, blank=True, max_length=256)
   summary = RichTextField(null=True, blank=True)
   description = RichTextField(null=True, blank=True)
+  display_general_information = models.BooleanField(default=True)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this Workshop')
-  start_date = models.DateField(null=False, blank=False, help_text='Workshop start date')
-  start_time = models.TimeField(null=False, blank=False, default=datetime.time(9, 0),  help_text='Workshop start time')
-  end_date = models.DateField(null=False, blank=False, help_text='Workshop end date')
-  end_time = models.TimeField(null=False, blank=False, default=datetime.time(17, 0), help_text='Workshop end time')
+  start_date = models.DateField(null=False, help_text='Workshop start date')
+  start_time = models.TimeField(null=False, default=datetime.time(9, 0),  help_text='Workshop start time')
+  end_date = models.DateField(null=False, help_text='Workshop end date')
+  end_time = models.TimeField(null=False, default=datetime.time(17, 0), help_text='Workshop end time')
   display_date = models.TextField(null=True, blank=True, help_text='For multi-day workshop, enter start and end times for each day')
   location = models.CharField(null=False, max_length=256, help_text='Workshop location')
   perks = models.CharField(null=True, blank=True, max_length=512, help_text='Workshop perks')
@@ -466,21 +488,80 @@ class Workshop (models.Model):
   featured =  models.BooleanField(default=False, help_text='If marked "Featured", this workshop will be displayed under "Past Workshop Examples" tab')
   cancelled =  models.BooleanField(default=False, help_text='If marked "Cancelled", registration will be closed and any pre-existing registration data will not be included in the registration report')
   meetup_link = models.URLField(null=True, blank=True, max_length=500)
-  nid = models.IntegerField(null=True, blank=True)#delete this field after import
-  tags = models.ManyToManyField('SubTag', null=True, blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  tags = models.ManyToManyField('SubTag', blank=True, help_text='On Windows use Ctrl+Click to make multiple selection.  On a Mac use Cmd+Click to make multiple selection')
+  gallery_title = models.CharField(null=True, blank=True, max_length=256, help_text='Gallery Title.')
+  gallery_display_setting = models.CharField(default='H', max_length=1, choices=WORKSHOP_DETAIL_DISPLAY_CHOICES)
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
       ordering = ['-id']
+      indexes = [
+            models.Index(fields=['workshop_category'], name='idx_workshop_category'),
+            models.Index(fields=['start_date'], name='idx_start_date'),
+            models.Index(fields=['end_date'], name='idx_end_date'),
+            models.Index(fields=['cancelled'], name='idx_cancelled'),
+            models.Index(fields=['status'], name='idx_status'),
+            models.Index(fields=['start_date', 'end_date'], name='idx_start_end_date'),
+        ]
 
   def __str__(self):
     if self.cancelled:
-      return 'Cancelled: %s' % self.name
+      return f'Cancelled: {self.name}'
     else:
       return self.name
 
+class WorkshopDetail(models.Model):
+  workshop = models.ForeignKey(Workshop, null=False, related_name="workshop_detail", on_delete=models.CASCADE)
+  title = models.CharField(null=False, blank=False, max_length=256, help_text='Section Title.')
+  content = RichTextField(null=True, blank=True)
+  display_setting = models.CharField(default='H', max_length=1, choices=WORKSHOP_DETAIL_DISPLAY_CHOICES)
+  survey = models.ForeignKey('Survey', null=True, blank=True, related_name="workshop_detail", on_delete=models.SET_NULL)
+  survey_button_label = models.CharField(null=True, blank=True, max_length=256, help_text='Survey Button Label. Defaults to the survey name.')
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this section')
+  image_position = models.CharField(default='L', max_length=1, choices=(('L', 'Left'), ('R', 'Right'),))
+  button_label = models.CharField(null=True, blank=True, max_length=256)
+  button_url = models.CharField(null=True, blank=True, max_length=256)
+  order = models.IntegerField(null=False, blank=False)
+  display_line_break = models.BooleanField(default=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['order']
+
+
+class WorkshopImage(models.Model):
+  workshop = models.ForeignKey(Workshop, null=False, related_name="workshop_image", on_delete=models.CASCADE)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image from the Workshop')
+  order = models.IntegerField(null=False, blank=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['order']
+
+class WorkshopInvitee(models.Model):
+  workshop = models.ForeignKey(Workshop, null=False, related_name="event_invitees", on_delete=models.CASCADE)
+  user = models.ForeignKey(UserProfile, related_name='invited_workshops', on_delete=models.CASCADE)
+  role = models.CharField(null=False, blank=False, max_length=1, choices=WORKSHOP_INVITEE_ROLE_CHOICES)
+  vip = models.BooleanField(default=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    ordering = ['role', '-created_date']
+    unique_together = ('workshop', 'user')
+
+  def clean(self):
+        if WorkshopInvitee.objects.filter(
+            workshop=self.workshop,
+            user=self.user
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError({
+                "user": "This user is already invited to this workshop."
+            })
 
 class TeacherLeader(models.Model):
   teacher = models.ForeignKey(UserProfile, null=False, blank=False, on_delete=models.CASCADE)
@@ -524,7 +605,7 @@ class WorkshopRegistrationSetting(models.Model):
 
   def capacity_reached(self):
     if self.registration_type == 'R' and self.capacity:
-      registrants = self.workshop_registrants.all().filter(status='R')
+      registrants = self.workshop_registrants.all().filter(status='R', sub_status='P')
       if registrants.count() >= self.capacity:
         return True
 
@@ -1174,7 +1255,7 @@ def check_registration_promotion(workshop):
     registration_type = workshop.registration_setting.registration_type
     capacity = workshop.registration_setting.capacity
     if registration_type == 'R':
-      registered_count = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R').count()
+      registered_count = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R', sub_status='P').count()
       waitlist = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').order_by('created_date')
       if waitlist.count() > 0:
         if capacity is not None and capacity > 0:
@@ -1284,4 +1365,22 @@ def create_calendar_invite(workshop, userProfile):
     f.write(cal.to_ical())
     f.close()
   return filename
+
+#
+# When new image is uploaded on the Workshop,
+# delete the old image from storage
+#
+@receiver(pre_save, sender=Workshop)
+def delete_old_image_on_change(sender, instance, **kwargs):
+  try:
+    obj = sender.objects.get(pk=instance.pk)
+    old_image = obj.image
+
+    new_image = instance.image
+    if old_image and old_image != new_image:
+      old_image.delete(save=False)
+
+  except sender.DoesNotExist:
+    # new object
+    return
 

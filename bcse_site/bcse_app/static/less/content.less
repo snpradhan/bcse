@@ -66,6 +66,9 @@ body {
     font-size : 1.5em !important;
     color : @bcse-black; /* black */
   }
+  h3.title {
+    color : @nu-purple !important; /* baxter purple */
+  }
   h3.subtitle {
     font-weight : 500 !important;
     color : @nu-purple !important; /* baxter purple */
@@ -149,6 +152,9 @@ body {
 
   .fa-calendar {
     cursor: pointer;
+  }
+  .accordion-button {
+    font-weight: 700; /* bold */
   }
 
   /*****************************
@@ -1374,6 +1380,22 @@ body {
 
       .workshop_content {
         margin-bottom: 1em;
+
+        .workshop_section {
+
+          display: flex;
+          flex-direction: column;
+
+          &::after {
+            content: "";
+            display: block;
+            clear: both;
+          }
+
+          hr.invisible {
+            background-color: unset;
+          }
+        }
       }
 
       div.collaborators{
@@ -1391,6 +1413,14 @@ body {
             max-height: 15em;
           }
         }
+      }
+      div.gallery{
+        margin: 3em 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4em;
       }
 
       div.teacher_leader_info {

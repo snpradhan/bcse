@@ -14,7 +14,12 @@
       {% csrf_token %}
       {{form.media}}
 
-      {% include "bcse_app/WorkshopTabs.html" with workshop=form.instance tab='edit' %}
+      {% include "bcse_app/WorkshopTabs.html" with workshop=form.instance tab='edit' subtab='basic'%}
+
+      {% if form.instance.id and form.instance.workshop_category.is_super %}
+        {% include "bcse_app/WorkshopSubTabs.html" with workshop=form.instance subtab='basic' %}
+      {% endif %}
+
 
       <div class="form-group mb-3">
         <label for="id_{{form.workshop_category.name}}" class="form-label"> {{form.workshop_category.label|title}}
@@ -149,6 +154,17 @@
       </div>
 
       <div class="form-group mb-3">
+        <label for="id_{{form.display_general_information.name}}" class="form-label">
+          {{form.display_general_information.label|title}}
+          {% if form.display_general_information.field.required %}
+            (<span class="required">*</span>)
+          {% endif %}
+        </label>
+        <div>{{form.display_general_information}}</div>
+        <div class="error">{{ form.display_general_information.errors }}</div>
+      </div>
+
+      <div class="form-group mb-3">
         <label for="id_{{form.image.name}}" class="form-label">
           {{form.image.label|title}}
           {% if form.image.field.required %}
@@ -225,6 +241,31 @@
         <div>{{form.tags}}</div>
         <div class="error">{{ form.tags.errors }}</div>
       </div>
+
+      {% if form.gallery_title and form.gallery_display_setting %}
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.gallery_title.name}}" class="form-label">
+              {{form.gallery_title.label|title}}
+              {% if form.gallery_title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.gallery_title}}</div>
+            <div class="error">{{ form.gallery_title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.gallery_display_setting.name}}" class="form-label">
+              {{form.gallery_display_setting.label|title}}
+              (<span class="required">*</span>)
+            </label>
+            <div>{{form.gallery_display_setting}}</div>
+            <div class="error">{{ form.gallery_display_setting.errors }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+
       <div class="form-group mb-3">
         <label for="id_{{form.featured.name}}" class="form-label">
           {{form.featured.label|title}}
@@ -241,7 +282,7 @@
           {{form.cancelled.label|title}}
           {% if form.cancelled.field.required %}
             (<span class="required">*</span>)
-          {% endif %}</label>
+          {% endif %}
           <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.cancelled.help_text}}"></i>
         </label>
         <div>{{form.cancelled}}</div>
@@ -252,7 +293,7 @@
           {{form.status.label|title}}
           {% if form.status.field.required %}
             (<span class="required">*</span>)
-          {% endif %}</label>
+          {% endif %}
         </label>
         <div>{{form.status}}</div>
         <div class="error">{{ form.status.errors }}</div>

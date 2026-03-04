@@ -115,14 +115,67 @@
 </div>
 
 <div class="workshop_content wysiwyg_content">
-  {% if workshop.description %}
+  {% if workshop.description and workshop.display_general_information %}
     {{workshop.description|safe}}
   {% endif %}
+
+  {% if workshop.workshop_category.is_super %}
+
+    {% for detail in workshop.workshop_detail.all %}
+
+      {% with display_setting=detail.display_setting %}
+      {% if display_setting == 'P' or display_setting == 'L' and user.is_authenticated or user.is_authenticated and user.userProfile.user_role in 'AS' or display_setting == 'R' and user.is_authenticated and registration and registration.current_status in 'RCT' %}
+
+        <div class="workshop_section">
+          <h3 class="title">{{ detail.title|default_if_none:"" }}</h3>
+          <div>
+            {% if detail.image %}
+              <img class="curve {% if detail.image_position == 'L' %} left {% else %} right {% endif %}" alt="" src="{{detail.image.url}}">
+            {% endif %}
+            <div>{{ detail.content|safe }}</div>
+          </div>
+
+          {% if detail.survey %}
+            <div class="center"> <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" href="#">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+          {% endif %}
+
+          {% if detail.button_url %}
+            <div class="center"> <a class="btn" href="{{detail.button_url}}">{{detail.button_label|default_if_none:detail.button_url}}</a></div>
+          {% endif %}
+        </div>
+        {% if detail.display_line_break %}
+          <hr>
+        {% else %}
+          <hr class="invisible">
+        {% endif %}
+
+      {% endif %}
+      {% endwith %}
+
+    {% endfor %}
+
+    {% with display_setting=workshop.gallery_display_setting %}
+    {% if display_setting == 'P' or display_setting == 'L' and user.is_authenticated or display_setting == 'H' and user.is_authenticated and user.userProfile.user_role in 'AS' or display_setting == 'R' and user.is_authenticated and registration and registration.current_status in 'RCT' %}
+
+      <h3 class="title"> {{workshop.gallery_title|default_if_none:"Image Gallery"|title}}</h3>
+      <div class="gallery">
+          {% for image in workshop.workshop_image.all %}
+            <img src="{{image.image.url}}" class="icon"/>
+          {% endfor %}
+      </div>
+
+    {% endif %}
+    {% endwith %}
+
+  {% endif %}
+
 </div>
+
+
 
 {% if workshop.collaborators.all %}
   <hr>
-  <h3>Our Collaborator{% if workshop.collaborators.all.count > 1 %}s{% endif %}</h3>
+  <h3 class="title">Our Collaborator{% if workshop.collaborators.all.count > 1 %}s{% endif %}</h3>
   <div class="collaborators">
     {% for collaborator in workshop.collaborators.all  %}
       <div class="collaborator" title="{{collaborator.name}}">
@@ -150,7 +203,7 @@
 <div class="workshop_teacher_leader">
   {% if workshop.teacher_leaders.all %}
     <hr>
-    <h3>About the Facilitator{% if workshop.teacher_leaders.all.count > 1 %}s{% endif %}</h3>
+    <h3 class="title">About the Facilitator{% if workshop.teacher_leaders.all.count > 1 %}s{% endif %}</h3>
     {% for teacher_leader in workshop.teacher_leaders.all %}
     <div class="teacher_leader_info">
       <div class="teacher_leader_image">

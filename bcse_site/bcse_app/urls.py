@@ -42,6 +42,7 @@ urlpatterns = [
     path('workshop/<int:id>/registrants/', views.workshopRegistrants, name='workshopRegistrants'),
     path('workshop/<int:id>/registrants/search', views.workshopRegistrantsSearch, name='workshopRegistrantsSearch'),
     path('workshop/<int:id>/registrants/upload', views.workshopRegistrantsUpload, name='workshopRegistrantsUpload'),
+
     path('adminConfiguration/workshops/upload', views.workshopsUpload, name='workshopsUpload'),
     path('adminConfiguration/workshops/registrants/upload', views.allWorkshopsRegistrantsUpload, name='allWorkshopsRegistrantsUpload'),
     path('workshop/<int:workshop_id>/registration/', views.workshopRegistration, name='workshopRegistration'),
@@ -64,6 +65,23 @@ urlpatterns = [
     path('workshop/<int:workshop_id>/email/<int:id>/preview', views.workshopEmailPreview, name='workshopEmailPreview'),
     path('workshop/<int:workshop_id>/email/<int:id>/send', views.workshopEmailSend, name='workshopEmailSend'),
     path('workshop/<int:workshop_id>/email/<int:id>/copy', views.workshopEmailCopy, name='workshopEmailCopy'),
+
+
+    path('workshop/<int:workshop_id>/invitees', views.workshopInvitees, name='workshopInvitees'),
+    path('workshop/<int:workshop_id>/invitees/search', views.workshopInviteesSearch, name='workshopInviteesSearch'),
+    path('workshop/<int:workshop_id>/invitee/<int:id>/edit', views.workshopInviteeEdit, name='workshopInviteeEdit'),
+    path('workshop/<int:workshop_id>/invitee/new', views.workshopInviteeEdit, name='workshopInviteeNew'),
+    path('workshop/<int:workshop_id>/invitee/<int:id>/delete', views.workshopInviteeDelete, name='workshopInviteeDelete'),
+
+    path('workshop/<int:workshop_id>/details', views.workshopDetails, name='workshopDetails'),
+    path('workshop/<int:workshop_id>/detail/<int:id>/edit', views.workshopDetailEdit, name='workshopDetailEdit'),
+    path('workshop/<int:workshop_id>/detail/new', views.workshopDetailEdit, name='workshopDetailNew'),
+    path('workshop/<int:workshop_id>/detail/<int:id>/delete', views.workshopDetailDelete, name='workshopDetailDelete'),
+
+    path('workshop/<int:workshop_id>/images', views.workshopImages, name='workshopImages'),
+    path('workshop/<int:workshop_id>/image/<int:id>/edit', views.workshopImageEdit, name='workshopImageEdit'),
+    path('workshop/<int:workshop_id>/image/new', views.workshopImageEdit, name='workshopImageNew'),
+    path('workshop/<int:workshop_id>/image/<int:id>/delete', views.workshopImageDelete, name='workshopImageDelete'),
 
     path('workshops/search/<str:display>/<str:period>/', views.workshopsSearch, name='workshopsSearch'),
     path('workshops/search/<str:display>/<str:period>/<str:extra>/', views.workshopsSearch, name='workshopsSearchExtra'),

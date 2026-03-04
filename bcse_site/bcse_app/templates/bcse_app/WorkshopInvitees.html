@@ -1,0 +1,24 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load base_extras %}
+{% load bcse_extras %}
+
+{% block configuration %}
+  <div class="workshop_container">
+    <h1 class="center"> {{workshop}}</h1>
+    {% include "bcse_app/WorkshopTabs.html" with tab='invitees' %}
+
+    {% include "bcse_app/WorkshopInviteesSearch.html" %}
+
+    <div class="search_results">
+    </div>
+  </div>
+
+  <script type="text/javascript">
+  $(function (){
+    $('.filter_form').submit();
+
+  });
+</script>
+
+
+{% endblock %}
