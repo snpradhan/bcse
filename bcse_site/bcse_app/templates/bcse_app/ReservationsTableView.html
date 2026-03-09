@@ -350,77 +350,64 @@
               <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 Action
               </button>
+
               <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                  <a class="dropdown-item" href="{% url 'bcse:reservationView' reservation.id %}">View</a>
-                </li>
-                <!-- Teacher action dropdown options -->
-                {% if user.userProfile.user_role in 'TP' %}
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    {% if reservation.status in 'RNOI' %}
-                      <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong>.  Please message us if you need to make any modifications.">Edit</a>
-                    {% elif reservation.delivery_date|is_past %}
-                      <a class="dropdown-item warn action" data-title="This reservation is in the past. Please message us if you need to make any modifications.">Edit</a>
-                    {% else %}
-                      <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a>
-                    {% endif %}
-                  </li>
-                  {% if reservation.status != 'N' %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      {% if reservation.status in 'IO' %}
-                        <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel Reservation</a>
+              <li>
+              <div class="d-flex flex-row">
+                
+                <div class="p-2">
+                <h6 class="dropdown-header">Reservation</h6>
+
+                <a class="dropdown-item" href="{% url 'bcse:reservationView' reservation.id %}">View Details</a>
+
+                  {% if user.userProfile.user_role in 'ASD' %}
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Quick Update</a>
+                  {% endif %}
+
+                  {% if user.userProfile.user_role in 'TP' %}
+                    <hr class="dropdown-divider">
+
+                      {% if reservation.status in 'RNOI' %}
+                        <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong>.  Please message us if you need to make any modifications.">Edit</a>
                       {% elif reservation.delivery_date|is_past %}
-                        <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel Reservation</a>
+                        <a class="dropdown-item warn action" data-title="This reservation is in the past. Please message us if you need to make any modifications.">Edit</a>
                       {% else %}
-                        <a class="dropdown-item cancelReservation" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="cancel" data-id="{{reservation.id}}">Cancel Reservation</a>
+                        <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit Reservation</a>
                       {% endif %}
-                    </li>
-                  {% endif %}
-                {% endif %}
 
-                <!-- Admin action dropdown options -->
-                {% if user.userProfile.user_role in 'AS' %}
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit</a></li>
-
-                  {% if reservation.activity %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:reservationActivityUpdate' reservation.activity.id reservation.id %}">Update Inventory</a>
-                    </li>
-                  {% endif %}
-
-                  {% get_reservation_feedback reservation.id as reservation_feedback %}
-                  {% if reservation_feedback %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' reservation_feedback.survey.id reservation_feedback.UUID %}" href="#">
-                        View Feedback
-                      </a>
-                    </li>
-                  {% else %}
-                    {% activate_reservation_feedback reservation.id as activate_feedback %}
-                    {% if activate_feedback %}
-                      <li><hr class="dropdown-divider"></li>
-                      <li>
-                        <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" data-id="{{reservation.id}}" href="#">
-                          Send Feedback Email
-                        </a>
-                      </li>
+                    {% if reservation.status != 'N' %}
+                      <hr class="dropdown-divider">
+                      
+                        {% if reservation.status in 'IO' %}
+                          <a class="dropdown-item warn action" data-title="This reservation is <strong>{{reservation.get_status_display}}</strong> and cannot be cancelled">Cancel Reservation</a>
+                        {% elif reservation.delivery_date|is_past %}
+                          <a class="dropdown-item warn action" data-title="This reservation is in the past and cannot be cancelled">Cancel Reservation</a>
+                        {% else %}
+                          <a class="dropdown-item cancelReservation" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="cancel" data-id="{{reservation.id}}">Cancel Reservation</a>
+                        {% endif %}
+                      
                     {% endif %}
                   {% endif %}
-                  {% if reservation.status != 'N' %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}?reservation_id={{reservation.id}}" href="#">Create Feedback</a>
-                    </li>
-                  {% endif %}
 
-                  {% if reservation.status not in 'UN' %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
+                  {% if user.userProfile.user_role in 'AS' %}
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item" href="{% url 'bcse:reservationEdit' reservation.id %}">Edit Reservation</a>
+                    
+                    {% if reservation.status != 'N' %}
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item cancelReservation" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="cancel" data-id="{{reservation.id}}">Cancel Reservation</a>
+                    {% endif %}
+                  {% endif %}
+                </div>
+                
+
+                <hr class="dropdown-divider">
+                <div class="p-2">
+                <h6 class="dropdown-header">Email</h6>
+
+                  {% if user.userProfile.user_role in 'AS' %}
+                    {% if reservation.status not in 'UN' %}
                       <a class="dropdown-item action useAjax" data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}" data-title="confirmation" data-id="{{reservation.id}}" href="#">
                         {% if reservation.email_sent %}
                           Resend
@@ -429,82 +416,94 @@
                         {% endif %}
                         Confirmation Email
                       </a>
-                    </li>
+                    {% endif %}
+                    {% if reservation.status != 'N' %}
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
+                    {% endif %}
                   {% endif %}
 
-                  {% if reservation.status != 'N' %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item cancelReservation" data-href="{% url 'bcse:reservationCancel' reservation.id %}" data-title="cancel" data-id="{{reservation.id}}">Cancel Reservation</a>
-                    </li>
-                  {% endif %}
-
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
-                  </li>
-
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' reservation.id %}">Update Workplace Association</a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}">Update Delivery Address</a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">Preview Confirmation Email</a>
-                  </li>
-                {% endif %}
-
-
-                <!-- Admin and Driver action options -->
-                {% if user.userProfile.user_role in 'ASD' %}
-
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationUpdate' reservation.id %}" href="#">Quick Update</a></li>
-
-                  {% if reservation.reservation_to_work_place %}
-                     <li><hr class="dropdown-divider"></li>
-                     <li>
-                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' reservation.reservation_to_work_place.work_place.id %}">Update Workplace Notes</a>
-                    </li>
-                  {% endif %}
-
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
+                  {% if user.userProfile.user_role in 'ASD' %}
+                    <hr class="dropdown-divider">
                     <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailEdit' reservation.id %}">Update Delivery/Pickup Emails</a>
-                  </li>
-
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'D' %}">Preview Delivery Email</a>
-                  </li>
-
-                  <li><hr class="dropdown-divider"></li>
-                  <li>
+                    
+                    <hr class="dropdown-divider">
                     <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'P' %}">Preview Pickup Email</a>
-                  </li>
+                    
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general"  data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'D' %}">Preview Delivery Email</a>
+                    
 
-                  {% if reservation.status in 'RI' %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}" data-title="delivery" data-id="{{reservation.id}}">Send Delivery Email</a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
+                    {% if reservation.status in 'RI' %}
+                      <hr class="dropdown-divider">
                       <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}" data-title="pickup" data-id="{{reservation.id}}">Send Pickup Email</a>
-                    </li>
+                      
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}" data-title="delivery" data-id="{{reservation.id}}">Send Delivery Email</a>
+                    {% endif %}
+                  {% endif %}
+                </div>
+                
+
+                <hr class="dropdown-divider">
+                <div class="p-2">
+                <h6 class="dropdown-header">Management</h6>
+
+                  {% if user.userProfile.user_role in 'AS' %}
+                    {% if reservation.activity %}
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:reservationActivityUpdate' reservation.activity.id reservation.id %}">Update Inventory</a>
+                    {% endif %}
+
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' reservation.id %}">Update Workplace Association</a>
+
+                    {% get_reservation_feedback reservation.id as reservation_feedback %}
+
+                    {% if reservation_feedback %}
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionViewModal' reservation_feedback.survey.id reservation_feedback.UUID %}" href="#">
+                        View Feedback
+                      </a>
+                    {% else %}
+                      {% activate_reservation_feedback reservation.id as activate_feedback %}
+
+                      {% if activate_feedback %}
+                        <hr class="dropdown-divider">
+                        <a class="dropdown-item useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" data-id="{{reservation.id}}" href="#">
+                          Send Feedback Email
+                        </a>
+                      {% endif %}
+                    {% endif %}
+
+                    {% if reservation.status != 'N' %}
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' survey.id %}?reservation_id={{reservation.id}}" href="#">Create Feedback</a>
+                    {% endif %}
+
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item" target="_blank" href="{% url 'bcse:userProfileView' reservation.user.id %}">View User Profile</a>
+
+                    <hr class="dropdown-divider">
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationDeliveryAddressEdit' reservation.id %}">Update Delivery Address</a>
+                    
                   {% endif %}
 
-                  {% if new_messages %}
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a></li>
+                  <!-- Admin and Driver action dropdown options -->
+                  {% if user.userProfile.user_role in 'ASD' %}
+                    {% if reservation.reservation_to_work_place %}
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workPlaceUpdate' reservation.reservation_to_work_place.work_place.id %}">Update Workplace Notes</a>
+                    {% endif %}
+                    {% if new_messages %}
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item" href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">Dismiss Messages</a>
+                    {% endif %}
                   {% endif %}
-
-                {% endif %}
+                </div>
+              </div>
+              </li>
               </ul>
+            </div>
             </div>
           </td>
         </tr>
