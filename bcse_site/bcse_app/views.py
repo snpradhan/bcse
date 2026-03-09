@@ -2181,13 +2181,20 @@ def reservationsSearch(request, display='table'):
       else:
         reservations = reservations.order_by('delivery_date')
         reservation_schedule_matrix = []
+        today = datetime.datetime.today().strftime('%Y-%m-%d')
         for reservation in reservations:
           schedule = {}
           if hasattr(reservation, 'reservation_to_work_place'):
             schedule['title'] = '%s - %s' % (reservation.reservation_to_work_place.work_place.name, reservation.user.user.get_full_name())
           else:
             schedule['title'] = '%s - %s' % ('No Workplace', reservation.user.user.get_full_name())
+
           schedule['start'] = reservation.delivery_date.strftime('%Y-%m-%d')
+
+          if reservation.delivery_date.strftime('%Y-%m-%d') == today:
+            schedule['start_today'] = True
+          else:
+            schedule['start_today'] = False
           schedule['url'] = '/reservation/%s/view'%reservation.id
           schedule['display'] = 'block'
           schedule['allDay'] = 'true'
@@ -2203,6 +2210,10 @@ def reservationsSearch(request, display='table'):
           if reservation.return_date:
             return_date = reservation.return_date + datetime.timedelta(days=1)
             schedule['end'] = return_date.strftime('%Y-%m-%d')
+            if reservation.return_date.strftime('%Y-%m-%d') == today:
+              schedule['end_today'] = True
+            else:
+              schedule['end_today'] = False
           else:
             schedule['dropoff_only'] = True
 

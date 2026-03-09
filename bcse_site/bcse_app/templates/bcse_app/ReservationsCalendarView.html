@@ -66,8 +66,23 @@
         const isEnd = arg.isEnd;
 
         // Add symbols only at start or end of event
-        let symbolPrefix = isStart ? '<i class="fas fa-shopping-cart" aria-hidden="true"></i><i class="fas fa-arrow-right" aria-hidden="true"></i> ' + event.extendedProps.delivery_assignee : '';
-        let symbolSuffix = isEnd && !event.extendedProps.dropoff_only ? event.extendedProps.pickup_assignee + ' <i class="fas fa-arrow-left" aria-hidden="true"></i><i class="fas fa-shopping-cart" aria-hidden="true"></i>' : '';
+        let symbolPrefix = ''
+        let symbolSuffix = '';
+
+        if (isStart) {
+          if (event.extendedProps.start_today) {
+            symbolPrefix = '<i class="fas fa-calendar-check" style="color:red;"></i> ';
+          }
+          symbolPrefix += '<i class="fas fa-shopping-cart" aria-hidden="true"></i><i class="fas fa-arrow-right" aria-hidden="true"></i> ' + event.extendedProps.delivery_assignee;
+        }
+
+        if (isEnd && !event.extendedProps.dropoff_only) {
+          symbolSuffix = event.extendedProps.pickup_assignee + ' <i class="fas fa-arrow-left" aria-hidden="true"></i><i class="fas fa-shopping-cart" aria-hidden="true"></i>';
+
+          if (event.extendedProps.end_today) {
+            symbolSuffix += ' <i class="fas fa-calendar-check" style="color:red;""></i>';
+          }
+        }
 
         return {
           html: `<div title="${event.title}"><div>${symbolPrefix}</div>` + `<div class="event_title">${event.title}</div>` + `<div>${symbolSuffix}</div></div>`
@@ -79,6 +94,24 @@
         if (info.event.url) {
           window.open(info.event.url, '_blank'); // open in new tab
         }
+      },
+      eventOrder: function(a, b) {
+
+        // Assign priority
+        function priority(event) {
+          if (event.extendedProps.start_today) return 0;   // start today → top
+          if (event.extendedProps.end_today) return 1; // end today → middle
+          return 2;             // ongoing → bottom
+
+        }
+
+        const aPri = priority(a);
+        const bPri = priority(b);
+
+        if (aPri !== bPri) return aPri - bPri;
+
+        // secondary sort by start time
+        return new Date(a.start) - new Date(b.start);
       }
 
     });
