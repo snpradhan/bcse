@@ -10538,7 +10538,7 @@ def reservationDeliveryPickupEmailSend(request, reservation_id, email_type=''):
       raise CustomException('You do not have the permission to send feedback email')
 
     reservation = models.Reservation.objects.get(id=reservation_id)
-    if reservation.status not in ['R', 'I']:
+    if reservation.status not in ['R', 'O', 'I']:
       raise CustomException('The reservation status is not Checked Out or Completed, so the delivery/pickup email cannot be sent')
     email_template = models.ReservationDeliveryPickupEmailTemplate.objects.get(delivery_or_pickup=email_type)
     try:
