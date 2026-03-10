@@ -27,6 +27,7 @@ import requests
 from requests.structures import CaseInsensitiveDict
 import urllib.parse
 from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
+from django.apps import apps
 
 # Create your models here.
 
@@ -739,6 +740,13 @@ class SubTag(models.Model):
 def get_placeholder_reservation_assignee():
   return 3
 
+#
+# Default Sub-status for a reservation
+#
+def get_default_reservation_sub_status():
+  SubStatus = apps.get_model('bcse_app', 'ReservationColor')
+  return SubStatus.objects.filter(order=1, target='R').first()
+
 class Reservation(models.Model):
   user = models.ForeignKey(UserProfile, related_name='user_reservations', on_delete=models.CASCADE)
   assignee = models.ForeignKey(UserProfile, null=True, blank=True, default=get_placeholder_reservation_assignee, related_name='assigned_reservations', on_delete=models.SET_NULL)
@@ -760,7 +768,7 @@ class Reservation(models.Model):
   notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Any additional information')
   additional_help_needed = models.BooleanField(default=False)
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
-  color = models.ForeignKey('ReservationColor', null=True, blank=True, on_delete=models.SET_NULL)
+  color = models.ForeignKey('ReservationColor', null=True, blank=True, default=get_default_reservation_sub_status, on_delete=models.SET_NULL)
   status = models.CharField(default='U', max_length=1, choices=RESERVATION_STATUS_CHOICES)
   email_sent = models.BooleanField(default=False)
   confirmation_email_dates = models.TextField(null=True, blank=True)
