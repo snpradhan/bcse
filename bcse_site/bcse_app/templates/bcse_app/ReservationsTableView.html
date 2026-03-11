@@ -353,10 +353,10 @@
 
               <ul class="dropdown-menu dropdown-menu-end">
               <li>
-              <div class="d-flex flex-row">
+              <div class="d-flex flex-row flex-lg-nowrap flex-wrap">
                 
                 <div class="p-2">
-                <h6 class="dropdown-header">Reservation</h6>
+                <h6 class="dropdown-header fs-5 fw-bold">Reservation</h6>
 
                 <a class="dropdown-item" href="{% url 'bcse:reservationView' reservation.id %}">View Details</a>
 
@@ -404,7 +404,7 @@
 
                 <hr class="dropdown-divider">
                 <div class="p-2">
-                <h6 class="dropdown-header">Email</h6>
+                <h6 class="dropdown-header fs-5 fw-bold">Email</h6>
 
                   {% if user.userProfile.user_role in 'AS' %}
                     {% if reservation.status not in 'UN' %}
@@ -447,7 +447,7 @@
 
                 <hr class="dropdown-divider">
                 <div class="p-2">
-                <h6 class="dropdown-header">Management</h6>
+                <h6 class="dropdown-header fs-5 fw-bold">Management</h6>
 
                   {% if user.userProfile.user_role in 'AS' %}
                     {% if reservation.activity %}
