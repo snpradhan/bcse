@@ -1241,13 +1241,15 @@ class WorkshopDetailsForm(ModelForm):
     super(WorkshopDetailsForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      if field_name in ['display_evergreen_language', 'display_save_the_date', 'display_call_for_presenters', 'display_faq', 'display_logistics', 'display_thank_you_and_recap', 'display_image_gallery']:
-        field.widget.attrs['class'] = 'form-check-input'
-      else:
-        field.widget.attrs['class'] = 'form-control'
-
+      field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+      if field_name == 'faq_title':
+        field.label = 'FAQ Title'
+      elif field_name == 'faq':
+        field.label = 'FAQ'
+      elif field_name == 'faq_display_setting':
+        field.label = 'FAQ Display Setting'
 
       if field_name == 'call_for_presenters_application':
         if self.instance.id and self.instance.call_for_presenters_application:

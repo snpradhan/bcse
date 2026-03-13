@@ -291,6 +291,7 @@
         {% if form.instance.id and form.instance.workshop_category.is_super %}
           <div class="tab-pane" id="extra_edit" role="tabpanel" aria-labelledby="extra-tab">
             {% include "bcse_app/WorkshopExtraEdit.html" with form=formExtra %}
+            <br>
           </div>
           <div class="tab-pane" id="workshop_images" role="tabpanel" aria-labelledby="workshop_images-tab">
             {% include "bcse_app/WorkshopImages.html" with form=formExtra formset=imageFormset %}

@@ -2,143 +2,300 @@
 
 {{form.media}}
 {{form.workshop.as_hidden}}
+<div class="accordion" id="accordionExtra">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        Evergreen Language
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#accordionExtra">
+      <div class="accordion-body">
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.field.name}}" class="form-label"> {{form.evergreen_language_title.label|title}}
+              {% if form.evergreen_language_title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.evergreen_language_title}}</div>
+            <div class="error">{{ form.evergreen_language_title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.evergreen_language_display_setting.name}}" class="form-label">
+              {{form.evergreen_language_display_setting.label|title}}
+              {% if form.evergreen_language_display_setting.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.evergreen_language_display_setting}}</div>
+            <div class="error">{{ form.evergreen_language_display_setting.errors }}</div>
+          </div>
+        </div>
 
-<div class="form-group mb-3">
-  <label for="id_{{form.evergreen_language.name}}" class="form-label"> {{form.evergreen_language.label|title}}
-    {% if form.evergreen_language.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.evergreen_language}}</div>
-  <div class="error">{{ form.evergreen_language.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.display_evergreen_language.name}}" class="form-label">
-    {{form.display_evergreen_language.label|title}}
-    {% if form.display_evergreen_language.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.display_evergreen_language}}</div>
-  <div class="error">{{ form.display_evergreen_language.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.save_the_date.name}}" class="form-label">
-    {{form.save_the_date.label|title}}
-    {% if form.save_the_date.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.save_the_date}}</div>
-  <div class="error">{{ form.save_the_date.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.display_save_the_date.name}}" class="form-label">
-    {{form.display_save_the_date.label|title}}
-    {% if form.display_save_the_date.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.display_save_the_date}}</div>
-  <div class="error">{{ form.display_save_the_date.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.call_for_presenters_description.name}}" class="form-label">
-    {{form.call_for_presenters_description.label|title}}
-    {% if form.call_for_presenters_description.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.call_for_presenters_description}}</div>
-  <div class="error">{{ form.call_for_presenters_description.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.call_for_presenters_application.name}}" class="form-label">
-    {{form.call_for_presenters_application.label|title}}
-    (<span class="required">*</span>)
-  </label>
-  <div>
-    {{form.call_for_presenters_application}}
-    {% if form.instance.id and form.instance.call_for_presenters_application.survey_submission.all|length %}
-      {{form.call_for_presenters_application.as_hidden}}
-    {% endif %}
+        <div class="form-group mb-3">
+          <label for="id_{{form.evergreen_language.name}}" class="form-label"> {{form.evergreen_language.label|title}}
+            {% if form.evergreen_language.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.evergreen_language}}</div>
+          <div class="error">{{ form.evergreen_language.errors }}</div>
+        </div>
+
+      </div>
+    </div>
   </div>
-  <div class="error">{{ form.call_for_presenters_application.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.display_call_for_presenters.name}}" class="form-label">
-    {{form.display_call_for_presenters.label|title}}
-    {% if form.display_call_for_presenters.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.display_call_for_presenters}}</div>
-  <div class="error">{{ form.display_call_for_presenters.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.faq.name}}" class="form-label">
-    {{form.faq.label|title}}
-    {% if form.faq.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.faq}}</div>
-  <div class="error">{{ form.faq.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.display_faq.name}}" class="form-label">
-    {{form.display_faq.label|title}}
-    {% if form.display_faq.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.display_faq}}</div>
-  <div class="error">{{ form.display_faq.errors }}</div>
-</div>
 
-<div class="form-group mb-3">
-  <label for="id_{{form.logistics_information.name}}" class="form-label">
-    {{form.logistics_information.label|title}}
-    {% if form.logistics_information.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.logistics_information}}</div>
-  <div class="error">{{ form.logistics_information.errors }}</div>
-</div>
-<div class="form-group mb-3">
-  <label for="id_{{form.display_logistics.name}}" class="form-label">
-    {{form.display_logistics.label|title}}
-    {% if form.display_logistics.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.display_logistics}}</div>
-  <div class="error">{{ form.display_logistics.errors }}</div>
-</div>
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingTwo">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        Save The Date
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse " aria-labelledby="headingTwo" data-bs-parent="#accordionExtra">
+      <div class="accordion-body">
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.save_the_date_title.name}}" class="form-label">
+              {{form.save_the_date_title.label|title}}
+              {% if form.save_the_date_title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.save_the_date_title}}</div>
+            <div class="error">{{ form.save_the_date_title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.save_the_date_display_setting.name}}" class="form-label">
+              {{form.save_the_date_display_setting.label|title}}
+              {% if form.save_the_date_display_setting.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.save_the_date_display_setting}}</div>
+            <div class="error">{{ form.save_the_date_display_setting.errors }}</div>
+          </div>
+        </div>
 
+        <div class="form-group mb-3">
+          <label for="id_{{form.save_the_date.name}}" class="form-label">
+            {{form.save_the_date.label|title}}
+            {% if form.save_the_date.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.save_the_date}}</div>
+          <div class="error">{{ form.save_the_date.errors }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="form-group mb-3">
-  <label for="id_{{form.thank_you_and_recap.name}}" class="form-label">
-    {{form.thank_you_and_recap.label|title}}
-    {% if form.thank_you_and_recap.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.thank_you_and_recap}}</div>
-  <div class="error">{{ form.thank_you_and_recap.errors }}</div>
-</div>
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingThree">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+        Call For Presenters
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse " aria-labelledby="headingThree" data-bs-parent="#accordionExtra">
+      <div class="accordion-body">
 
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.call_for_presenters_title.name}}" class="form-label">
+              {{form.call_for_presenters_title.label|title}}
+              {% if form.call_for_presenters_title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.call_for_presenters_title}}</div>
+            <div class="error">{{ form.call_for_presenters_title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.call_for_presenters_display_setting.name}}" class="form-label">
+              {{form.call_for_presenters_display_setting.label|title}}
+              {% if form.call_for_presenters_display_setting.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.call_for_presenters_display_setting}}</div>
+            <div class="error">{{ form.call_for_presenters_display_setting.errors }}</div>
+          </div>
+        </div>
 
-<div class="form-group mb-3">
-  <label for="id_{{form.display_thank_you_and_recap.name}}" class="form-label">
-    {{form.display_thank_you_and_recap.label|title}}
-    {% if form.display_thank_you_and_recap.field.required %}
-      (<span class="required">*</span>)
-    {% endif %}
-  </label>
-  <div>{{form.display_thank_you_and_recap}}</div>
-  <div class="error">{{ form.display_thank_you_and_recap.errors }}</div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.call_for_presenters_description.name}}" class="form-label">
+            {{form.call_for_presenters_description.label|title}}
+            {% if form.call_for_presenters_description.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.call_for_presenters_description}}</div>
+          <div class="error">{{ form.call_for_presenters_description.errors }}</div>
+        </div>
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.call_for_presenters_application.name}}" class="form-label">
+              {{form.call_for_presenters_application.label|title}}
+              (<span class="required">*</span>)
+            </label>
+            <div>
+              {{form.call_for_presenters_application}}
+              {% if form.instance.id and form.instance.call_for_presenters_application.survey_submission.all|length %}
+                {{form.call_for_presenters_application.as_hidden}}
+              {% endif %}
+            </div>
+            <div class="error">{{ form.call_for_presenters_application.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.call_for_presenters_button_label.name}}" class="form-label">
+              {{form.call_for_presenters_button_label.label|title}}
+              (<span class="required">*</span>)
+            </label>
+            <div>{{form.call_for_presenters_button_label}}</div>
+            <div class="error">{{ form.call_for_presenters_button_label.errors }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFour">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+        FAQ
+      </button>
+    </h2>
+    <div id="collapseFour" class="accordion-collapse collapse " aria-labelledby="headingFour" data-bs-parent="#accordionExtra">
+      <div class="accordion-body">
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.faq_title.name}}" class="form-label">
+              {{form.faq_title.label}}
+              {% if form.faq_title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.faq_title}}</div>
+            <div class="error">{{ form.faq_title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.faq_display_setting.name}}" class="form-label">
+              {{form.faq_display_setting.label}}
+              {% if form.faq_display_setting.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.faq_display_setting}}</div>
+            <div class="error">{{ form.faq_display_setting.errors }}</div>
+          </div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.faq.name}}" class="form-label">
+            {{form.faq.label}}
+            {% if form.faq.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.faq}}</div>
+          <div class="error">{{ form.faq.errors }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFive">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+        Logistics Information
+      </button>
+    </h2>
+    <div id="collapseFive" class="accordion-collapse collapse " aria-labelledby="headingFive" data-bs-parent="#accordionExtra">
+      <div class="accordion-body">
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.logistics_information_title.name}}" class="form-label">
+              {{form.logistics_information_title.label|title}}
+              {% if form.logistics_information_title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.logistics_information_title}}</div>
+            <div class="error">{{ form.logistics_information_title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.logistics_information_display_setting.name}}" class="form-label">
+              {{form.logistics_information_display_setting.label|title}}
+              {% if form.logistics_information_display_setting.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.logistics_information_display_setting}}</div>
+            <div class="error">{{ form.logistics_information_display_setting.errors }}</div>
+          </div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.logistics_information.name}}" class="form-label">
+            {{form.logistics_information.label|title}}
+            {% if form.logistics_information.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.logistics_information}}</div>
+          <div class="error">{{ form.logistics_information.errors }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingSix">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+        Thank Your and Recap
+      </button>
+    </h2>
+    <div id="collapseSix" class="accordion-collapse collapse " aria-labelledby="headingSix" data-bs-parent="#accordionExtra">
+      <div class="accordion-body">
+
+        <div class="form-group mb-3 row">
+          <div class="col">
+            <label for="id_{{form.thank_you_and_recap_title.name}}" class="form-label">
+              {{form.thank_you_and_recap_title.label|title}}
+              {% if form.thank_you_and_recap_title.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.thank_you_and_recap_title}}</div>
+            <div class="error">{{ form.thank_you_and_recap_title.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.thank_you_and_recap_display_setting.name}}" class="form-label">
+              {{form.thank_you_and_recap_display_setting.label|title}}
+              {% if form.display_thank_you_and_recap.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.thank_you_and_recap_display_setting}}</div>
+            <div class="error">{{ form.thank_you_and_recap_display_setting.errors }}</div>
+          </div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_{{form.thank_you_and_recap.name}}" class="form-label">
+            {{form.thank_you_and_recap.label|title}}
+            {% if form.thank_you_and_recap.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+          </label>
+          <div>{{form.thank_you_and_recap}}</div>
+          <div class="error">{{ form.thank_you_and_recap.errors }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="text/javascript">
