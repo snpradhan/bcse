@@ -194,6 +194,10 @@ def get_user_registration(context, workshop_id, user_id):
   request = context.get('request')
   return views.userRegistration(request, workshop_id, user_id)
 
+@register.filter
+def is_workshop_invitee(workshop, userProfile):
+  return views.is_workshop_invitee(workshop, userProfile)
+
 @register.simple_tag(takes_context=True)
 def get_registration_breakdown(context, workshop_registration_setting):
   registrants = models.Registration.objects.filter(workshop_registration_setting=workshop_registration_setting)

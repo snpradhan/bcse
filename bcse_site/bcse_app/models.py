@@ -27,6 +27,7 @@ import requests
 from requests.structures import CaseInsensitiveDict
 import urllib.parse
 from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
+from django.core.exceptions import ValidationError
 from django.apps import apps
 
 # Create your models here.
@@ -85,6 +86,20 @@ WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES = (
   ('S', 'Staff/Volunteer'),
   ('O', 'Observer'),
 )
+
+WORKSHOP_DETAILS_DISPLAY_CHOICES = (
+  ('H', 'Hide'),
+  ('P', 'Public'),
+  ('L', 'Logged in User'),
+  ('R', 'Registered User'),
+)
+
+WORKSHOP_INVITEE_ROLE_CHOICES = (
+  ('F', 'Facilitator/Presenter'),
+  ('S', 'Staff/Volunteer'),
+  ('O', 'VIPS (Collaborator/Partner)'),
+)
+
 
 RESERVATION_STATUS_CHOICES = (
   ('U', 'Unconfirmed'),
@@ -522,6 +537,25 @@ class WorkshopImage(models.Model):
   class Meta:
       ordering = ['-created_date']
 
+class WorkshopInvitee(models.Model):
+  workshop = models.ForeignKey(Workshop, null=False, related_name="event_invitees", on_delete=models.CASCADE)
+  user = models.ForeignKey(UserProfile, related_name='invited_workshops', on_delete=models.CASCADE)
+  role = models.CharField(null=False, blank=False, max_length=1, choices=WORKSHOP_INVITEE_ROLE_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    ordering = ['role', '-created_date']
+    unique_together = ('workshop', 'user')
+
+  def clean(self):
+        if WorkshopInvitee.objects.filter(
+            workshop=self.workshop,
+            user=self.user
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError({
+                "user": "This user is already invited to this workshop."
+            })
 
 class TeacherLeader(models.Model):
   teacher = models.ForeignKey(UserProfile, null=False, blank=False, on_delete=models.CASCADE)
@@ -565,7 +599,7 @@ class WorkshopRegistrationSetting(models.Model):
 
   def capacity_reached(self):
     if self.registration_type == 'R' and self.capacity:
-      registrants = self.workshop_registrants.all().filter(status='R')
+      registrants = self.workshop_registrants.all().filter(status='R', sub_status='P')
       if registrants.count() >= self.capacity:
         return True
 
@@ -1215,7 +1249,7 @@ def check_registration_promotion(workshop):
     registration_type = workshop.registration_setting.registration_type
     capacity = workshop.registration_setting.capacity
     if registration_type == 'R':
-      registered_count = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R').count()
+      registered_count = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R', sub_status='P').count()
       waitlist = Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').order_by('created_date')
       if waitlist.count() > 0:
         if capacity is not None and capacity > 0:

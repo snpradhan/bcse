@@ -11,6 +11,11 @@
       <li class="nav-item">
         <label><a class="nav-link {% if tab == 'edit' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:workshopEdit' workshop.id %}">Edit</a></label>
       </li>
+      {% if workshop.workshop_category.is_super %}
+        <li class="nav-item">
+          <label><a class="nav-link {% if tab == 'invitees' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:workshopInvitees' workshop.id %}">Invitees</a></label>
+        </li>
+      {% endif %}
       {% if workshop.enable_registration and workshop.registration_setting %}
         <li class="nav-item">
           <label><a class="nav-link {% if tab == 'registration_setting' %}active{% endif %}" href="{% url 'bcse:workshopRegistrationSetting' workshop.id %}">Registration Setting</a></label>
@@ -67,6 +72,10 @@
     {% elif tab == 'registration_emails'%}
        <li class="nav-item right">
         <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopRegistrationEmailNew' workshop.id %}" href="#">Create Automated Email</a>
+      </li>
+    {% elif tab == 'invitees'%}
+      <li class="nav-item right">
+        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopInviteeNew' workshop.id %}" href="#">Add Invitee</a>
       </li>
     {% endif %}
   </ul>

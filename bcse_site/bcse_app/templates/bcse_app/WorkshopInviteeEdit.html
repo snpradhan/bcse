@@ -1,0 +1,75 @@
+
+<div class="modal-dialog modal-md">
+  <div class="modal-content">
+    <div class="modal-header">
+      {% if form.instance.id %}
+        <h3 class="left">Edit Workshop Invitee</h3>
+      {% else %}
+        <h3 class="left">Add Workshop Invitee</h3>
+      {% endif %}
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div id="loginMsg" class="msg">
+      <ul class="errorlist">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="form" id="formInvitee" method="post" action="{% if form.instance.id %} {% url 'bcse:workshopInviteeEdit' workshop.id form.instance.id %}{% else %}{% url 'bcse:workshopInviteeNew' workshop.id %}{% endif %}">
+      {% csrf_token %}
+      {{form.management_form}}
+      <div class="modal-body">
+        {{form.workshop.as_hidden}}
+        <div class="form-group mb-3">
+          <label for="id_{{form.user.name}}">
+            {{ form.user.label }}
+          </label>
+          <div>{{form.user}}</div>
+          <div class="error">{{ form.user.errors }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.role.name}}">
+            {{ form.role.label }}
+          </label>
+          <div>{{form.role}}</div>
+          <div class="error">{{ form.role.errors }}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="form-group buttons right">
+          <button type="submit" id="submit" class="btn btn-success">
+            Save
+          </button>          
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function (){
+    $("#formInvitee").submit(function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: $(this).attr('method'),
+        url: this.action,
+        data: $(this).serialize(),
+        context: this,
+        success: function(data, status) {
+          if(data['success'] == true){
+            $('#general').modal('toggle');
+            location.reload();
+          }
+          else{
+            $('#general').html(data['html']);
+          }
+        },
+        error: function(){
+          displayErrorDialog();
+        }
+      });
+    });
+  });
+</script>
+

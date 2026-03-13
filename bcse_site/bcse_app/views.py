@@ -4450,7 +4450,7 @@ def workshopRegistration(request, workshop_id):
     registration['message_class'] = 'warning'
     return registration
   else:
-    registration_setting_status = workshopRegistrationSettingStatus(workshop)
+    registration_setting_status = workshopRegistrationSettingStatus(request, workshop)
 
     if workshop.enable_registration and workshop.registration_setting and workshop.registration_setting.registration_type:
 
@@ -4495,7 +4495,19 @@ def workshopRegistration(request, workshop_id):
               if current_status == 'N':
                 workshop_registration.status = registration_setting_status['default_registration_status']
             except models.Registration.DoesNotExist:
-              workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'])
+
+              if workshop.workshop_category.is_super:
+                try:
+                  #check if the user is an invitee
+                  invitee = models.WorkshopInvitee.objects.all().get(workshop=workshop, user=request.user.userProfile)
+                  sub_status = invitee.role
+                except models.WorkshopInvitee.DoesNotExist:
+                  sub_status = 'P'
+              else:
+                sub_status = 'P'
+
+              workshop_registration = models.Registration(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile, status=registration_setting_status['default_registration_status'], sub_status=sub_status)
+
               if registration_setting_status['message']:
                 user_message = registration_setting_status['message']
                 message_class = 'info'
@@ -4596,7 +4608,7 @@ def workshopRegistration(request, workshop_id):
 # if not provide a message when registration
 # will open or was closed
 ################################################
-def workshopRegistrationSettingStatus(workshop):
+def workshopRegistrationSettingStatus(request, workshop):
   """
   workshopRegistrationSettingStatus is called from the path 'workshops/edit'
   :param workshop: workshop to edit
@@ -4687,23 +4699,26 @@ def workshopRegistrationSettingStatus(workshop):
     elif registration_open:
       #check if workshop capacity has reached
       if workshop.registration_setting.registration_type == 'R' and workshop.registration_setting.capacity is not None and workshop.registration_setting.capacity >= 0:
-        total_registrations = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R').count()
-        #capacity has reached
-        if total_registrations >= workshop.registration_setting.capacity:
-          #check if there is room in the waitlist
-          if workshop.registration_setting.enable_waitlist:
-            if workshop.registration_setting.waitlist_capacity is not None and workshop.registration_setting.waitlist_capacity >= 0:
-              total_waitlisted = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').count()
-              if total_waitlisted >= workshop.registration_setting.waitlist_capacity:
-                registration_open = False
-                message = 'We have reached capacity for this workshop'
+        #allow invitees to register regardless of capacity
+        is_invitee = is_workshop_invitee(workshop, request.user.userProfile)
+        if not is_invitee:
+          total_registrations = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R', sub_status='P').count()
+          #capacity has reached
+          if total_registrations >= workshop.registration_setting.capacity:
+            #check if there is room in the waitlist
+            if workshop.registration_setting.enable_waitlist:
+              if workshop.registration_setting.waitlist_capacity is not None and workshop.registration_setting.waitlist_capacity >= 0:
+                total_waitlisted = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='W').count()
+                if total_waitlisted >= workshop.registration_setting.waitlist_capacity:
+                  registration_open = False
+                  message = 'We have reached capacity for this workshop'
+                else:
+                  default_registration_status = 'W'
               else:
                 default_registration_status = 'W'
             else:
-              default_registration_status = 'W'
-          else:
-            registration_open = False
-            message = 'We have reached capacity for this workshop'
+              registration_open = False
+              message = 'We have reached capacity for this workshop'
 
 
   return {'registration_open': registration_open, 'message': message, 'default_registration_status': default_registration_status}
@@ -4957,6 +4972,148 @@ def workshopRegistrationMessage(workshop_registration):
     message_class = 'warning'
 
   return {'message': message, 'message_class': message_class}
+
+
+################################################
+# WORKSHOP INVITEES
+################################################
+def workshopInvitees(request, workshop_id=''):
+  """
+  workshopInvitees is called from the path 'workshop/edit'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :returns: rendered template 'bcse_app/WorkshopInvitees.html, HTML view of workshop invitees or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view workshop invitees')
+
+    if request.method == 'GET':
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      workshop_invitees = models.WorkshopInvitee.objects.all().filter(workshop__id=workshop_id)
+      context = {'workshop': workshop, 'workshop_invitees': workshop_invitees}
+      return render(request, 'bcse_app/WorkshopInvitees.html', context)
+
+    return http.HttpResponseNotAllowed(['GET'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopInvitee.DoesNotExist:
+    messages.success(request, "Workshop Invitee not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# EDIT WORKSHOP INVITEE
+################################################
+def workshopInviteeEdit(request, workshop_id='', id=''):
+  """
+  workshopInviteeEdit is called from the path 'workshop/<id>/edit'
+  :param request: request from the browser
+  :param id='': id of workshop email
+  :returns: rendered template 'bcse_app/WorkshopInviteeModal.html, JSON view of workshops or error page
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit workshop invitee')
+
+    if '' != id:
+      workshop_invitee = models.WorkshopInvitee.objects.get(id=id)
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      if workshop_invitee.workshop.id != workshop.id:
+        raise CustomException('The workshop invitee does not belong to the workshop')
+    else:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+      workshop_invitee = models.WorkshopInvitee(workshop=workshop)
+
+    if request.method == 'GET':
+      form = forms.WorkshopInviteeForm(instance=workshop_invitee)
+      context = {'form': form, 'workshop': workshop}
+      return render(request, 'bcse_app/WorkshopInviteeEdit.html', context)
+
+    elif request.method == 'POST':
+      response_data = {}
+      data = request.POST.copy()
+      form = forms.WorkshopInviteeForm(data, instance=workshop_invitee)
+      if form.is_valid():
+        savedWorkshopInvitee = form.save()
+
+        messages.success(request, "Workshop Invitee saved")
+
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, 'Workshop Invitee could not be saved')
+        context = {'form': form, 'workshop': workshop}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/WorkshopInviteeEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except models.Workshop.DoesNotExist:
+    messages.success(request, "Workshop not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except models.WorkshopInvitee.DoesNotExist:
+    messages.success(request, "Workshop Invitee not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+################################################
+# DELETE WORKSHOP INVITEE
+################################################
+def workshopInviteeDelete(request, workshop_id='', id=''):
+  """
+  workshopInviteeDelete is called from the path 'workshop/<id>/invitees'
+  :param request: request from the browser
+  :param workshop_id='': id of workshop
+  :param id='': id of workshop invitee
+  :returns: rendered template 'bcse_app/WorkshopInvitees.html with remaining workshop invitees
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  :raises CustomException: redirects user to page they were on before encountering error due to registrant not belonging to workshop
+  """
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete workshop invitee')
+
+    if '' != id:
+      workshop_invitee = models.WorkshopInvitee.objects.get(id=id)
+      workshop_invitee.delete()
+      messages.success(request, 'Workshop Invitee deleted')
+
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+  except models.WorkshopInvitee.DoesNotExist:
+    messages.success(request, "Workshop Invitee not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def is_workshop_invitee(workshop, userProfile):
+  try:
+    if workshop.workshop_category.is_super:
+      invitee = models.WorkshopInvitee.objects.get(workshop=workshop, user=userProfile)
+      return True
+    else:
+      return False
+  except models.WorkshopInvitee.DoesNotExist:
+    return False
 
 ################################################
 # EDIT WORKSHOP EMAILS
@@ -5657,7 +5814,7 @@ def workshopsSearch(request, display='list', period='current', extra=''):
     if registration_open != '':
       workshops_with_open_registration = []
       for workshop in workshops:
-        registration_setting_status = workshopRegistrationSettingStatus(workshop)
+        registration_setting_status = workshopRegistrationSettingStatus(request, workshop)
         if str(registration_setting_status['registration_open']) == registration_open:
           workshops_with_open_registration.append(workshop.id)
 
@@ -9644,7 +9801,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
               #workshop application
               if survey.survey_type == 'W' and workshop_id:
-                registration_setting_status = workshopRegistrationSettingStatus(workshop)
+                registration_setting_status = workshopRegistrationSettingStatus(request, workshop)
                 #get or create registration and set status to default registration status
                 try:
                   registration = models.Registration.objects.get(workshop_registration_setting=workshop.registration_setting, user=request.user.userProfile)
