@@ -92,7 +92,7 @@
         info.jsEvent.preventDefault(); // prevent default browser navigation
 
         if (info.event.url) {
-          window.open(info.event.url, '_blank'); // open in new tab
+          window.open(info.event.url, '_self'); // open in same tab
         }
       },
       eventOrder: function(a, b) {
