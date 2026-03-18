@@ -16,7 +16,13 @@
       <div id="reservation_container">
         <div class="reservation_contact_details">
           <div class="reservation_details">
-            <h3 class="underline">Reservation Details</h3>
+            <div class="button-row">
+              <h3 class="underline">Reservation Details</h3>
+              {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
+                {% get_baxterbox_feedback_survey as survey %}
+                {% include "bcse_app/ReservationAction.html"%}
+              {% endif %}
+            </div>
             <table class="table table-striped">
               <tbody>
                 {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
