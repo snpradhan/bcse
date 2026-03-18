@@ -281,7 +281,7 @@
                             {% else %}
                               {% activate_reservation_feedback reservation.id as activate_feedback %}
                               {% if activate_feedback %}
-                                <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" href="#">
+                                <a class="btn btn-small useAjax" data-href="{% url 'bcse:reservationFeedbackEmailSend' reservation.id %}" data-title="feedback" data-id="{{reservation.id}}" href="#">
                                   Send Feedback Email
                                 </a>
                               {% endif %}
