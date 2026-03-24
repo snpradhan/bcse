@@ -92,7 +92,16 @@
         info.jsEvent.preventDefault(); // prevent default browser navigation
 
         if (info.event.url) {
-          window.open(info.event.url, '_self'); // open in same tab
+          const isNewTab =
+            info.jsEvent.metaKey || // ⌘ on Mac
+            info.jsEvent.ctrlKey;   // Ctrl on Windows/Linux
+
+          if (isNewTab) {
+            window.open(info.event.url, '_blank'); // open in a new tab
+          }
+          else {
+            window.location.href = info.event.url; //open in the same tab
+          }
         }
       },
       eventOrder: function(a, b) {
