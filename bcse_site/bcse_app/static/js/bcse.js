@@ -2,6 +2,14 @@ $(function (){
 
   $(".copyright_year").html(new Date().getFullYear());
 
+  if (localStorage.getItem('admin_menu_open') === 'false') {
+    toggleMenu();
+  }
+  $('#admin_menu_toggle').click(function () {
+    toggleMenu();
+    localStorage.setItem('admin_menu_open', $('div.left-navigation').is(':visible'));
+  });
+
   //generic filter form submit handler
   $('form.filter_form').on('submit', function(e){
     e.preventDefault();
@@ -153,6 +161,16 @@ $(function (){
   bindReservationStatusChange();
 
 });
+
+function toggleMenu(){
+  $('.left-navigation').toggle();
+  $('#admin_menu_toggle label').toggle();
+  $('.right-content').css(
+  $('div.left-navigation').is(':visible')
+    ? { 'padding-left': '1em' }
+    : { 'flex': '1 1 100%', 'padding-left': '0' }
+  );
+}
 
 var timeout = null;
 

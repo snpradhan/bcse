@@ -4,6 +4,10 @@
 
 {% block content %}
   {{block.super}}
+  <div style="padding-left:1em" id="admin_menu_toggle">
+    <label style="display:none;">Show Menu <span class="fa fa-plus-circle"></span></label>
+    <label>Hide Menu <span class="fa fa-minus-circle"></span></label>
+  </div>
   <div class="content admin">
     <div class="admin_config_container container">
       <div class="left-navigation">
