@@ -294,6 +294,12 @@ function bindRegistrationSubmit(){
         type: $(form).attr('method'),
         url: $(form).attr('action'),
         data: $(form).serialize(),
+        beforeSend: function(){
+          $(form).find('#spinner').show();
+        },
+        complete: function(){
+          $(form).find('#spinner').hide();
+        },
         success: function(data){
           if (data['success'] = true) {
             if (data['html']) {

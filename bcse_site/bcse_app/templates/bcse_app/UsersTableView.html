@@ -42,6 +42,9 @@
         {% if 'DP' in columns %}
           <th> Dietary Preference </th>
         {% endif %}
+        {% if 'AC' in columns %}
+          <th> Accessibility Notes </th>
+        {% endif %}
         {% if 'AN' in columns %}
           <th> Admin Notes </th>
         {% endif %}
@@ -111,6 +114,9 @@
           {% endif %}
           {% if 'DP' in columns %}
             <td> {{user_profile.dietary_preference|default_if_none:""}} </td>
+          {% endif %}
+          {% if 'AC' in columns %}
+            <td> {{user_profile.accessibility_notes|default_if_none:""}} </td>
           {% endif %}
           {% if 'AN' in columns %}
             <td> {{user_profile.admin_notes|default_if_none:""}} </td>

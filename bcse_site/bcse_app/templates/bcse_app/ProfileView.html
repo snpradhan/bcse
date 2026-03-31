@@ -65,6 +65,10 @@
       <label>Dietary Preference:</label>
       <div>{{userProfile.dietary_preference|default_if_none:""}}</div>
     </div>
+    <div class="mb-1">
+      <label>Accessibility Notes:</label>
+      <div>{{userProfile.accessibility_notes|default_if_none:""}}</div>
+    </div>
     {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
       <div class="mb-1">
         <label>Admin Notes:</label>

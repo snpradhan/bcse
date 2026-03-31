@@ -200,6 +200,7 @@ USER_TABLE_COLUMN_CHOICES = (
   ('SC', 'Subscribed'),
   ('PC', 'Photo Release Complete'),
   ('DP', 'Dietary Preference'),
+  ('AC', 'Accessibility Notes'),
   ('AN', 'Admin Notes'),
   ('ST', 'Status'),
   ('LU', 'Last Updated'),
@@ -402,6 +403,7 @@ class UserProfile(models.Model):
   dietary_preference = models.CharField(null=True, blank=True, max_length=256)
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   name_pronounciation = models.CharField(null=True, blank=True, max_length=256)
+  accessibility_notes = models.CharField(null=True, blank=True, max_length=256)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

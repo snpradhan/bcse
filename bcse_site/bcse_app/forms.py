@@ -94,7 +94,6 @@ class SignUpForm (forms.Form):
   subscribe = forms.BooleanField(required=False, label='Subscribe To Our Mailing List')
   image = forms.ImageField(required=False)
 
-
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
 
@@ -355,7 +354,7 @@ class UserProfileForm (ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['secondary_email', 'work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation']
+    fields = ['secondary_email', 'work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades_taught', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation', 'accessibility_notes']
     widgets = {
       'image': widgets.ClearableFileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
@@ -1394,7 +1393,7 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
 
   class Meta:
     model = models.UserProfile
-    fields = ['dietary_preference', 'iein', 'work_place']
+    fields = ['dietary_preference', 'iein', 'work_place', 'accessibility_notes']
 
   def __init__(self, *args, **kwargs):
 
@@ -1417,6 +1416,9 @@ class WorkshopRegistrationQuestionnaireForm(ModelForm):
       elif field_name == 'iein':
         field.widget.attrs['placeholder'] = 'Your IEIN will be saved in your profile'
         field.help_text = 'Your IEIN will be saved in your profile'
+      elif field_name == 'accessibility_notes':
+        field.widget.attrs['placeholder'] = 'Your accessibility notes will be saved in your profile'
+        field.help_text = 'Your accessibility notes will be saved in your profile'
 
   def clean(self):
     user = self.instance.user

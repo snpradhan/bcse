@@ -646,6 +646,7 @@ def userSignup(request):
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
       newUser.secondary_email = form.cleaned_data['secondary_email']
+
       if request.FILES:
         newUser.image = request.FILES['image']
       if form.cleaned_data['subscribe']:

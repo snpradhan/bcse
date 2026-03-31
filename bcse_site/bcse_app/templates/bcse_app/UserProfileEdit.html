@@ -149,10 +149,17 @@
           </div>
           {% endif %}
         </div>
-        <div class="form-group mb-3">
-          <label for="id_{{userProfileForm.dietary_preference.name}}" class="form-label"> {{userProfileForm.dietary_preference.label|title}}</label>
-          <div>{{userProfileForm.dietary_preference}}</div>
-          <div class="error">{{ userProfileForm.dietary_preference.errors }}</div>
+        <div class="row mb-3">
+          <div class="form-group col-md-6">
+            <label for="id_{{userProfileForm.dietary_preference.name}}" class="form-label"> {{userProfileForm.dietary_preference.label|title}}</label>
+            <div>{{userProfileForm.dietary_preference}}</div>
+            <div class="error">{{ userProfileForm.dietary_preference.errors }}</div>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="id_{{userProfileForm.accessibility_notes.name}}" class="form-label"> {{userProfileForm.accessibility_notes.label|title}}</label>
+            <div>{{userProfileForm.accessibility_notes}}</div>
+            <div class="error">{{ userProfileForm.accessibility_notes.errors }}</div>
+          </div>
         </div>
         {% if userProfileForm.admin_notes %}
           <div class="form-group mb-3">

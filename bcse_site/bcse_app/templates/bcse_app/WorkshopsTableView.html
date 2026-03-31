@@ -142,7 +142,7 @@
                       </button>
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'bcse:workshopView' workshop.id %}">View</a></li>
-                        {% if not workshop.cancelled %}
+                        {% if not workshop.cancelled and registration.status != 'N' %}
                           {% if current_date < workshop.start_date|date:'Y-m-d' %}
                             <li><hr class="dropdown-divider"></li>
                             <li>

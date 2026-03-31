@@ -6,6 +6,14 @@
   <div>{{form.dietary_preference}}</div>
   <div class="error">{{ form.dietary_preference.errors }}</div>
 </div>
+<div class="form-group mb-3">
+  <label for="id_{{form.accessibility_notes.name}}" class="form-label">
+    {{form.accessibility_notes.label|title}}
+    <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.accessibility_notes.help_text}}"></i>
+  </label>
+  <div>{{form.accessibility_notes}}</div>
+  <div class="error">{{ form.accessibility_notes.errors }}</div>
+</div>
 {% if user.userProfile.user_role == 'T' %}
   <div class="form-group mb-3">
     <label for="id_{{form.iein.name}}" class="form-label">
