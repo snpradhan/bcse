@@ -1390,23 +1390,46 @@ class WorkshopRegistrationForm(ModelForm):
 ####################################
 class WorkshopRegistrationQuestionnaireForm(ModelForm):
 
+  new_work_place_flag = forms.BooleanField(required=False, label='My Workplace Is Not Listed')
+
   class Meta:
     model = models.UserProfile
-    fields = ['dietary_preference', 'iein']
+    fields = ['dietary_preference', 'iein', 'work_place']
 
   def __init__(self, *args, **kwargs):
 
     super(WorkshopRegistrationQuestionnaireForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'work_place':
+        field.widget.attrs['class'] = 'form-control select2'
+        field.label = 'Workplace'
+        field.required = False # checking requirement with new_work_place_flag
+      elif field_name == 'new_work_place_flag':
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
+
       if field_name == 'dietary_preference':
         field.widget.attrs['placeholder'] = 'Your dietary preference will be saved in your profile'
         field.help_text = 'Your dietary preference will be saved in your profile'
       elif field_name == 'iein':
         field.widget.attrs['placeholder'] = 'Your IEIN will be saved in your profile'
         field.help_text = 'Your IEIN will be saved in your profile'
+
+  def clean(self):
+    user = self.instance.user
+    cleaned_data = super(WorkshopRegistrationQuestionnaireForm, self).clean()
+    work_place = cleaned_data.get('work_place')
+    new_work_place_flag = cleaned_data.get('new_work_place_flag')
+
+    #check fields for Teacher, Student and School Administrator
+    if user.is_authenticated:
+      if user.userProfile.user_role not in ['A', 'S']:
+        if work_place is None and not new_work_place_flag:
+          self.fields['work_place'].widget.attrs['class'] += ' error'
+          self.add_error('work_place', 'Workplace is required.')
 
 
 ###########################################

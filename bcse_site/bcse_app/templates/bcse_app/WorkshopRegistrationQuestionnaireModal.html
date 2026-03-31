@@ -1,5 +1,5 @@
 
-<div class="modal-dialog modal-md">
+<div class="modal-dialog modal-lg">
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="left">Registration Questionnaire</h3>
@@ -69,6 +69,24 @@
         }
       });
     });
+
+    $('input[name="user_profile-new_work_place_flag"]').on('change', function(){
+      if($(this).is(':checked')){
+        $('select#id_user_profile-work_place').prop('disabled', 'disabled');
+        $('span.workplace_required').hide();
+        $('div#work_place_form').show();
+        $('div#work_place_form :input').prop('disabled', false);
+        $('div.work_place_error').html('');
+      }
+      else {
+        $('div#work_place_form').hide();
+        $('div#work_place_form :input').prop('disabled', true);
+        $('span.workplace_required').show();
+        $('select#id_user_profile-work_place').prop('disabled', false);
+      }
+    });
+
+    $('input[name="user_profile-new_work_place_flag"]').trigger('change');
 
   });
 </script>

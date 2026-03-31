@@ -61,7 +61,7 @@
             </div>
             <hr>
           {% elif user.is_authenticated and user.userProfile.user_role != 'A' and page_num == 1 and userProfileForm %}
-            {% include "bcse_app/WorkshopRegistrationQuestionnaire.html" with form=userProfileForm workshop=workshop%}
+            {% include "bcse_app/WorkshopRegistrationQuestionnaire.html" with form=userProfileForm workshop=workshop %}
             <hr>
           {% endif %}
           {{formset.management_form}}
@@ -345,6 +345,24 @@
           return false;
         }
       });
+
+      $('input[name="user_profile-new_work_place_flag"]').on('change', function(){
+        if($(this).is(':checked')){
+          $('select#id_user_profile-work_place').prop('disabled', 'disabled');
+          $('span.workplace_required').hide();
+          $('div#work_place_form').show();
+          $('div#work_place_form :input').prop('disabled', false);
+          $('div.work_place_error').html('');
+        }
+        else {
+          $('div#work_place_form').hide();
+          $('div#work_place_form :input').prop('disabled', true);
+          $('span.workplace_required').show();
+          $('select#id_user_profile-work_place').prop('disabled', false);
+        }
+      });
+
+      $('input[name="user_profile-new_work_place_flag"]').trigger('change');
 
       function toggleOtherElement(element, show) {
         if(show) {
