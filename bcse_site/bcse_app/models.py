@@ -330,7 +330,8 @@ def upload_file_to(instance, filename):
     file_path = 'workshopDetail'
   elif isinstance(instance, WorkshopImage):
     file_path = 'workshopGallery'
-
+  elif isinstance(instance, WorkshopEmailAttachment):
+    file_path = 'workshopEmailAttachment'
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
 
@@ -704,7 +705,7 @@ class WorkshopEmail(models.Model):
 
   def get_registration_status_display(self):
     if self.registration_status:
-      return '<br>'.join([value for key, value in WORKSHOP_REGISTRATION_STATUS_CHOICES if key in self.registration_status.split(',')])
+      return "<ul>"+ "".join([f"<li>{value}</li>" for key, value in WORKSHOP_REGISTRATION_STATUS_CHOICES if key in self.registration_status.split(',')]) + "</ul>"
     else:
       return ""
 
@@ -716,13 +717,19 @@ class WorkshopEmail(models.Model):
 
   def get_registration_sub_status_display(self):
     if self.registration_sub_status:
-      return '<br>'.join([value for key, value in WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES if key in self.registration_sub_status.split(',')])
+      return "<ul>"+ "".join([f"<li>{value}</li>" for key, value in WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES if key in self.registration_sub_status.split(',')]) + "</ul>"
     else:
       return ""
 
   def set_registration_sub_status(self, sub_status_list):
     self.registration_sub_status = ','.join(sub_status_list)
 
+
+class WorkshopEmailAttachment(models.Model):
+  workshop_email = models.ForeignKey(WorkshopEmail, null=False, blank=False, on_delete=models.CASCADE, related_name="attachments")
+  file = models.FileField(upload_to=upload_file_to, null=False, blank=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
 
 
 class Activity(models.Model):

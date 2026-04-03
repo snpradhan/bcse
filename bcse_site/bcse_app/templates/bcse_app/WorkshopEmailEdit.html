@@ -15,7 +15,7 @@
       </ul>
     </div>
 
-    <form class="form" method="post" action="{% if form.instance.id %}{% url 'bcse:workshopEmailEdit' workshop.id form.instance.id  %} {% else %} {% url 'bcse:workshopEmailNew' workshop.id %}{% endif %}"  id="formWorkshopEmail">
+    <form class="form" method="post" enctype="multipart/form-data" action="{% if form.instance.id %}{% url 'bcse:workshopEmailEdit' workshop.id form.instance.id  %} {% else %} {% url 'bcse:workshopEmailNew' workshop.id %}{% endif %}"  id="formWorkshopEmail">
       {% csrf_token %}
       {{form.media}}
       <div class="modal-body">
@@ -69,6 +69,59 @@
           <div class="warning">{{form.email_subject.help_text}}</div>
           <div class="error">{{ form.email_subject.errors }}</div>
         </div>
+
+        <div class="form-group mb-3">
+          <label for="id_attachments">Attachments</label>
+          <div class="button-row right">
+            <button type="button" class="btn" onclick="cloneForm('attachments', 'attachment_formset')">Add Attachment</button>
+          </div>
+
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>Attachment</th>
+                <th>File size</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="attachment_formset">
+              {{formset.management_form}}
+              {% for form in formset %}
+                {{form.id}}
+                <tr class="form-row">
+                  <td>
+                    {% if form.instance.id %}
+                      <!-- Optional image preview -->
+                      {% if form.instance.file.url|lower|endswith:".jpg" or form.instance.file.url|lower|endswith:".png" %}
+                          <img src="{{ form.instance.file.url }}" width="50">
+                      {% else %}
+                        <a href="{{ form.instance.file.url }}" target="_blank">
+                            {{ form.instance.file.name }}
+                        </a>
+                      {% endif %}
+                    {% else %}
+                      {{form.file}}
+                      <div class="error">{{ form.file.errors }}</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if form.instance.id %}
+                      {{form.instance.file.size|filesize}}
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{form.DELETE.as_hidden}}
+                    <button type="button" class="btn btn-xsmall btn-danger delete_row"><i class="fa-solid fa-trash-can"></i></button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+
+
+
         <div class="form-group mb-3">
           <label for="id_{{form.email_message.name}}">{{ form.email_message.label|title }} (<span class="required">*</span>)</label>
           <div>{{form.email_message}}</div>
@@ -123,6 +176,8 @@
 
 <script type="text/javascript">
   $(function (){
+
+    bindFileSizeValidation();
 
     $('select.select2').select2({
       placeholder: {
@@ -180,6 +235,9 @@
           }
           else{
             $('#general').html(data['html']);
+            bindTooltipTrigger();
+            bindDateTimePicker();
+            bindSelect2();
           }
         },
         error: function(e){
@@ -188,8 +246,8 @@
       });
     });
 
-    $('#id_scheduled_date').trigger('change');
+    bindRowDelete();
 
+    $('#id_scheduled_date').trigger('change');
   });
 </script>
-

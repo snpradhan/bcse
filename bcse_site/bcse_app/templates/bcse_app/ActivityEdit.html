@@ -85,7 +85,7 @@
                 </td>
                 <td>
                   {{form.DELETE.as_hidden}}
-                  <button type="button" class="btn btn-danger delete_inventory"><i class="fa-solid fa-trash-can"></i></button>
+                  <button type="button" class="btn btn-danger delete_row"><i class="fa-solid fa-trash-can"></i></button>
                 </td>
               </tr>
             {% endfor %}
@@ -154,15 +154,7 @@
 
 <script type="text/javascript">
   $(function(){
-    $('.delete_inventory').on('click', function(e){
-      formRow = $(this).closest('.form-row');
-      deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
-
-      if (deleteInput) {
-        $(deleteInput).val('on'); // Mark for deletion
-        $(formRow).hide();
-      }
-    });
+    bindRowDelete();
   });
 </script>
 {% endblock %}

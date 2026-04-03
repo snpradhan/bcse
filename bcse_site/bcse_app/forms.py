@@ -1495,6 +1495,24 @@ class WorkshopEmailForm(ModelForm):
       self.add_error('registration_statuses', 'This field is required if To, Cc and Bcc fields are empty')
 
 
+class WorkshopEmailAttachmentForm(ModelForm):
+
+  class Meta:
+    model = models.WorkshopEmailAttachment
+    exclude = ('created_date', 'modified_date')
+    widgets = {
+      'file': widgets.FileInput,
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(WorkshopEmailAttachmentForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['placeholder'] = field.help_text
+
+
 ####################################
 # Registration Email Message Form
 ####################################
@@ -1675,6 +1693,29 @@ class WorkplaceLowIncomeStudentPercentageBaseFormSet(forms.BaseInlineFormSet):
         form.add_error("start_year", "Duplicate school year")
 
       years.add(start_year)
+
+class AttachmentBaseFormSet(forms.BaseInlineFormSet):
+  def clean(self):
+    super().clean()
+
+    total_size = 0
+
+    for form in self.forms:
+      # Skip empty forms
+      if not hasattr(form, "cleaned_data"):
+        continue
+
+      # Skip deleted forms
+      if form.cleaned_data.get("DELETE", False):
+        continue
+
+      file = form.cleaned_data.get("file")
+
+      if file:
+        total_size += file.size
+
+    if total_size > settings.MAX_EMAIL_SIZE:
+      raise forms.ValidationError(f"Total attachment size is {total_size/(1024*1024):.2f}MB and must not exceed {settings.MAX_EMAIL_SIZE/(1024*1024):.2f}MB.")
 
 ##########################################################
 # Workplace Update Form

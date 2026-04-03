@@ -306,6 +306,8 @@ REQUIRE_PROFILE_UPDATE = True
 PROFILE_UPDATE_CUTOFF_MONTH = '08'
 PROFILE_UPDATE_CUTOFF_DAY = '01'
 
+MAX_EMAIL_SIZE = 10 * 1024 * 1024 # 10MB
+
 CRONJOBS = [
     # run cron at 1 am to backup database
     ('0 1 * * *', 'bcse_app.cron.backup_db', '>> /srv/project/logs/cron.log'),

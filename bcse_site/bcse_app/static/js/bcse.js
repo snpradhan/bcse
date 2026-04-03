@@ -628,8 +628,8 @@ function bindCalendarNavigation() {
   $(window).bind("resize", equalheight);
 }
 
-function bindInventoryRowDelete() {
-  $('.delete_inventory').on('click', function(e){
+function bindRowDelete() {
+  $('.delete_row').on('click', function(e){
     formRow = $(this).closest('.form-row');
     deleteInput = formRow.find('input[type="hidden"][name$="-DELETE"]')[0];
 
@@ -787,9 +787,7 @@ function exportReservations() {
 }
 
 function cloneForm(prefix, parent) {
-  console.log(parent);
   const formset = document.getElementById(parent);
-  console.log(formset);
   const totalFormsInput = document.getElementById('id_'+prefix+'-TOTAL_FORMS');
   const totalForms = parseInt(totalFormsInput.value, 10);
 
@@ -799,6 +797,7 @@ function cloneForm(prefix, parent) {
   // Update attributes in the cloned form
   newForm.id = `form-${totalForms}`;
   const inputs = newForm.querySelectorAll('input, select, textarea');
+  $(newForm).find("div.error").html("");
 
   inputs.forEach(input => {
     // Update name and id attributes
@@ -820,13 +819,13 @@ function cloneForm(prefix, parent) {
     // Clear the value
     input.value = '';
   });
-  console.log(newForm);
 
   // Append new form and update TOTAL_FORMS
   formset.appendChild(newForm);
   totalFormsInput.value = totalForms + 1;
   bindDateTimePicker();
-  bindInventoryRowDelete();
+  bindRowDelete();
+  bindFileSizeValidation();
   $(newForm).show();
 }
 
@@ -835,6 +834,20 @@ function initializeForm($form) {
   if ($form.data("isTracking")) return; // avoid double tracking
   $form.data("isDirty", false);
   $form.data("isTracking", true);
+}
+
+function bindFileSizeValidation() {
+  $("input[type='file']").on("change", function () {
+      const file = this.files[0];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+
+      if (file && file.size > maxSize) {
+          $(this).next().text("File must be under 10MB");
+          $(this).val(""); // clear input
+      } else {
+          $$(this).next().text.text("");
+      }
+  });
 }
 
 function bindCkeditorChange() {

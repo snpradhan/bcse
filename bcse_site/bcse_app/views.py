@@ -5676,9 +5676,12 @@ def workshopEmailEdit(request, workshop_id='', id=''):
       workshop = models.Workshop.objects.get(id=workshop_id)
       workshop_email = models.WorkshopEmail(workshop=workshop)
 
+    AttachmentInlineFormset = inlineformset_factory(models.WorkshopEmail, models.WorkshopEmailAttachment, form=forms.WorkshopEmailAttachmentForm, formset=forms.AttachmentBaseFormSet, extra=1, can_delete=True)
+
     if request.method == 'GET':
       form = forms.WorkshopEmailForm(instance=workshop_email)
-      context = {'form': form, 'workshop': workshop}
+      formset = AttachmentInlineFormset(instance=workshop_email)
+      context = {'form': form, 'formset': formset, 'workshop': workshop}
       return render(request, 'bcse_app/WorkshopEmailEdit.html', context)
 
     elif request.method == 'POST':
@@ -5688,7 +5691,8 @@ def workshopEmailEdit(request, workshop_id='', id=''):
       if data['send'][0] == '1':
         send_email = True
       form = forms.WorkshopEmailForm(data, instance=workshop_email)
-      if form.is_valid():
+      formset = AttachmentInlineFormset(data, files=request.FILES, instance=workshop_email)
+      if form.is_valid() and formset.is_valid():
         selected_status = form.cleaned_data['registration_statuses']
         selected_sub_status = form.cleaned_data['registration_sub_statuses']
         savedWorkshopEmail = form.save(commit=False)
@@ -5699,6 +5703,8 @@ def workshopEmailEdit(request, workshop_id='', id=''):
         elif not savedWorkshopEmail.scheduled_date and savedWorkshopEmail.scheduled_time:
           savedWorkshopEmail.scheduled_time = None
         savedWorkshopEmail.save()
+        formset.instance = savedWorkshopEmail
+        formset.save()
 
         if send_email:
           workshopEmailSend(request, workshop_id, savedWorkshopEmail.id)
@@ -5714,8 +5720,13 @@ def workshopEmailEdit(request, workshop_id='', id=''):
         response_data['success'] = True
       else:
         print(form.errors)
+        print(formset.non_form_errors)
         messages.error(request, 'Workshop Email could not be saved')
-        context = {'form': form, 'workshop': workshop}
+        if formset.non_form_errors:
+          for error in formset.non_form_errors():
+            messages.error(request, error)
+
+        context = {'form': form, 'formset': formset, 'workshop': workshop}
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/WorkshopEmailEdit.html', context, request)
 
@@ -11930,46 +11941,52 @@ def send_workshop_email(id=id, cron=False):
         email_body = models.replace_workshop_tokens(email_body, workshop)
         context = {'email_body': email_body, 'domain': domain}
         body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
+        attachments = workshop_email.attachments.all()
+        email_messages = []
 
         if len(email_to) + len(email_cc) + len(email_bcc) <= 50:
           email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to, cc=email_cc, bcc=email_bcc)
-          email.content_subtype = "html"
-          sent = email.send(fail_silently=True)
+          email_messages.append(email)
         else:
 
           if len(email_to) > 0:
             if len(email_to) <= 50:
               email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to)
-              email.content_subtype = "html"
-              sent = email.send(fail_silently=True)
+              email_messages.append(email)
             else:
               for i in range(0, len(email_to), 50):
                 email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to[i:i+50])
-                email.content_subtype = "html"
-                sent = email.send(fail_silently=True)
+                email_messages.append(email)
 
           if len(email_cc) > 0:
             if len(email_cc) <= 50:
               email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, cc=email_cc)
-              email.content_subtype = "html"
-              sent = email.send(fail_silently=True)
+              email_messages.append(email)
             else:
               for i in range(0, len(email_cc), 50):
                 email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, cc=email_cc[i:i+50])
-                email.content_subtype = "html"
-                sent = email.send(fail_silently=True)
+                email_messages.append(email)
 
           if len(email_bcc) > 0:
             if len(email_bcc) <= 50:
               email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=email_bcc)
-              email.content_subtype = "html"
-              sent = email.send(fail_silently=True)
+              email_messages.append(email)
             else:
               for i in range(0, len(email_bcc), 50):
                 email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=email_bcc[i:i+50])
-                email.content_subtype = "html"
-                sent = email.send(fail_silently=True)
+                email_messages.append(email)
 
+        for email_message in email_messages:
+          email_message.content_subtype = "html"
+          for attachment in attachments:
+            f = attachment.file
+            filename = os.path.basename(f.name)
+            email_message.attach(
+              filename,
+              f.read(),
+              getattr(f.file, "content_type", "application/octet-stream")
+            )
+          sent = email_message.send(fail_silently=True)
 
         if sent:
           workshop_email.email_status = 'S'

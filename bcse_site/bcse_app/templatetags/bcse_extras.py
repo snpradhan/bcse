@@ -421,4 +421,19 @@ def get_url_mapping(context, mapping):
   else:
     return mark_safe("%s/<strong>%s</strong> → %s<strong>%s</strong>" % (domain, mapping.short_name, domain, mapping.target_url))
 
+@register.filter
+def endswith(value, arg):
+  return str(value).endswith(arg)
+
+@register.filter
+def filesize(value):
+  if not value:
+      return ""
+
+  kb = value / 1024
+  mb = kb / 1024
+
+  if mb >= 1:
+      return f"{mb:.2f} MB"
+  return f"{kb:.2f} KB"
 
