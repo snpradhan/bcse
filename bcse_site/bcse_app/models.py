@@ -286,6 +286,11 @@ INVENTORY_STORAGE_LOCATION = (
   ('FR', 'Freezer')
 )
 
+BUTTON_TARGET_CHOICES = (
+  ('_self', 'Same Window (_self)'),
+  ('_blank', 'New Window (_blank)')
+)
+
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
   YEAR_CHOICES.append((x, x))
@@ -522,10 +527,12 @@ class WorkshopDetail(models.Model):
   display_setting = models.CharField(default='H', max_length=1, choices=WORKSHOP_DETAIL_DISPLAY_CHOICES)
   survey = models.ForeignKey('Survey', null=True, blank=True, related_name="workshop_detail", on_delete=models.SET_NULL)
   survey_button_label = models.CharField(null=True, blank=True, max_length=256, help_text='Survey Button Label. Defaults to the survey name.')
+  survey_target = models.CharField(default='_self', max_length=10, choices=BUTTON_TARGET_CHOICES)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image for this section')
   image_position = models.CharField(default='L', max_length=1, choices=(('L', 'Left'), ('R', 'Right'),))
   button_label = models.CharField(null=True, blank=True, max_length=256)
   button_url = models.CharField(null=True, blank=True, max_length=256)
+  button_target = models.CharField(default='_self', max_length=10, choices=BUTTON_TARGET_CHOICES)
   order = models.IntegerField(null=False, blank=False)
   display_line_break = models.BooleanField(default=False)
   created_date = models.DateTimeField(auto_now_add=True)

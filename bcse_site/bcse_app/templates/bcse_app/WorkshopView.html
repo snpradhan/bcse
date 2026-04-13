@@ -136,11 +136,15 @@
           </div>
 
           {% if detail.survey %}
-            <div class="center"> <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" href="#">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+            {% if detail.survey_target == '_self' %}
+              <div class="center"> <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" href="#">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+            {% else %}
+              <div class="center"> <a class="btn" href="{{request.path}}?next={% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" target="{{detail.survey_target}}">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+            {% endif %}
           {% endif %}
 
           {% if detail.button_url %}
-            <div class="center"> <a class="btn" href="{{detail.button_url}}">{{detail.button_label|default_if_none:detail.button_url}}</a></div>
+            <div class="center"> <a class="btn" href="{{detail.button_url}}" target="{{detail.button_target}}">{{detail.button_label|default_if_none:detail.button_url}}</a></div>
           {% endif %}
         </div>
         {% if detail.display_line_break %}

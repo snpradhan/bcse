@@ -79,6 +79,16 @@
             <div>{{form.survey_button_label}}</div>
             <div class="error">{{ form.survey_button_label.errors }}</div>
           </div>
+          <div class="col">
+            <label for="id_{{form.survey_target.name}}" class="form-label">
+              {{form.survey_target.label|title}}
+              {% if form.survey_target.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.survey_target}}</div>
+            <div class="error">{{ form.survey_target.errors }}</div>
+          </div>
         </div>
 
         <div class="form-group mb-3 row">
@@ -130,6 +140,16 @@
             </label>
             <div>{{form.button_label}}</div>
             <div class="error">{{ form.button_label.errors }}</div>
+          </div>
+          <div class="col">
+            <label for="id_{{form.button_target.name}}" class="form-label">
+              {{form.button_target.label|title}}
+              {% if form.button_target.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.button_target}}</div>
+            <div class="error">{{ form.button_target.errors }}</div>
           </div>
         </div>
 
