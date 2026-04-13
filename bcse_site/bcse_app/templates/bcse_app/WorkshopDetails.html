@@ -16,6 +16,7 @@
               <th>Order</th>
               <th>Title</th>
               <th>Display Setting</th>
+              <th>Survey Responses</th>
               <th>Action</th>
           </tr>
       </thead>
@@ -26,6 +27,11 @@
             <td>{{detail.order}}</td>
             <td>{{detail.title}}</td>
             <td>{{detail.get_display_setting_display}}</td>
+            <td>
+              {% if detail.survey %}
+                <a href="{% url 'bcse:surveySubmissions' detail.survey.id %}" target="_blank">View Survey Responses</a>
+              {% endif %}
+            </td>
             <td>
               <div class="btn-group">
                 <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
