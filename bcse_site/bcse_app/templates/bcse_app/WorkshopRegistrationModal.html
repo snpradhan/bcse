@@ -42,6 +42,14 @@
           <div>{{form.work_place}}</div>
           <div class="error">{{ form.work_place.errors }}</div>
         </div>
+        <div class="form-group mb-3">
+          <label for="id_{{form.admin_notes.name}}" class="form-label">
+            {{form.admin_notes.label}}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.admin_notes.help_text}}"></i>
+          </label>
+          <div>{{form.admin_notes}}</div>
+          <div class="error">{{ form.admin_notes.errors }}</div>
+        </div>
       </div>
       <div class="modal-footer">
         <div class="form-group buttons">

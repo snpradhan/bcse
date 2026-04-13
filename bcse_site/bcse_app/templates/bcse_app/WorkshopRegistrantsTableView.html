@@ -18,6 +18,7 @@
           <th> Photo Release Complete?</th>
           <th> Dietary Preference </th>
           <th> Accessibility Notes </th>
+          <th> Admin Notes </th>
         {% endif %}
         <th> Created Date </th>
         <th> Registration Status </th>
@@ -53,6 +54,7 @@
             <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>
             <td> {{registrant.user.dietary_preference|default_if_none:""}}</td>
             <td> {{registrant.user.accessibiltiy_notes|default_if_none:""}}</td>
+            <td> {{registrant.admin_notes|default_if_none:""}}</td>
           {% endif %}
           <td> {{registrant.created_date|date:"F j, Y g:i a" }}</td>
           <td> {{registrant.get_status_display}} </td>

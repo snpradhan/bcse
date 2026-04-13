@@ -626,6 +626,7 @@ class Registration(models.Model):
   user = models.ForeignKey(UserProfile, related_name='registered_workshops', on_delete=models.CASCADE)
   status = models.CharField(default='R', max_length=1, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
   sub_status = models.CharField(default='P', max_length=1, choices=WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES)
+  admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

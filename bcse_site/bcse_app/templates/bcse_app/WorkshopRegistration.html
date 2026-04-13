@@ -49,6 +49,7 @@
           {{registration.form.sub_status.as_hidden}}
           <input type="hidden" id="recaptchaToken" name="recaptchaToken" class="recaptchaToken">
         {% endif %}
+        {{registration.form.admin_notes.as_hidden}}
         <div class="form-group mb-3 center">
           {% if user.userProfile.user_role in 'AS' %}
             <button class="btn registration_submit" type="button" id="workshop_{{workshop.id}}_registration_submit">

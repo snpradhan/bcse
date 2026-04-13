@@ -1365,7 +1365,8 @@ class WorkshopRegistrationForm(ModelForm):
     model = models.Registration
     exclude = ('created_date', 'modified_date')
     widgets = {
-      'user': autocomplete.ModelSelect2(url='registrant-autocomplete', forward=['workshop_registration_setting'], attrs={'data-placeholder': 'Start typing the name of the user ...',})
+      'user': autocomplete.ModelSelect2(url='registrant-autocomplete', forward=['workshop_registration_setting'], attrs={'data-placeholder': 'Start typing the name of the user ...',}),
+      'admin_notes': forms.Textarea(attrs={'rows':3}),
     }
 
   def __init__(self, *args, **kwargs):
