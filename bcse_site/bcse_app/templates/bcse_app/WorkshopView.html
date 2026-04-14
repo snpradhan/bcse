@@ -159,23 +159,23 @@
     {% endfor %}
 
     {% with display_setting=workshop.gallery_display_setting %}
-    {% if display_setting == 'P' or display_setting == 'L' and user.is_authenticated or display_setting == 'H' and user.is_authenticated and user.userProfile.user_role in 'AS' or display_setting == 'R' and user.is_authenticated and registration and registration.current_status in 'RCT' %}
+    {% if display_setting == 'P' or display_setting == 'L' and user.is_authenticated or user.is_authenticated and user.userProfile.user_role in 'AS' or display_setting == 'R' and user.is_authenticated and registration and registration.current_status in 'RCT' %}
 
       <h3 class="title"> {{workshop.gallery_title|default_if_none:"Image Gallery"|title}}</h3>
       <div class="gallery">
           {% for image in workshop.workshop_image.all %}
-            <img src="{{image.image.url}}" class="icon"/>
+            {% if image.highlight %}
+              <a href="{% url 'bcse:workshopImageGallery' workshop.id %}" target="_blank"><img src="{{image.image.url}}" class="icon"/></a>
+            {% endif %}
           {% endfor %}
       </div>
-
+      <div class="center"><a class="btn" href="{% url 'bcse:workshopImageGallery' workshop.id %}">View Full Gallery</a></div>
     {% endif %}
     {% endwith %}
 
   {% endif %}
 
 </div>
-
-
 
 {% if workshop.collaborators.all %}
   <hr>

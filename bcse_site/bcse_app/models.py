@@ -546,6 +546,7 @@ class WorkshopImage(models.Model):
   workshop = models.ForeignKey(Workshop, null=False, related_name="workshop_image", on_delete=models.CASCADE)
   image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image from the Workshop')
   order = models.IntegerField(null=False, blank=False)
+  highlight = models.BooleanField(default=False)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

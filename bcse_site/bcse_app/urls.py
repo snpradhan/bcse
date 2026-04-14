@@ -83,6 +83,8 @@ urlpatterns = [
     path('workshop/<int:workshop_id>/image/new', views.workshopImageEdit, name='workshopImageNew'),
     path('workshop/<int:workshop_id>/image/<int:id>/delete', views.workshopImageDelete, name='workshopImageDelete'),
 
+    path('workshop/<int:workshop_id>/gallery', views.workshopImageGallery, name='workshopImageGallery'),
+
     path('workshops/search/<str:display>/<str:period>/', views.workshopsSearch, name='workshopsSearch'),
     path('workshops/search/<str:display>/<str:period>/<str:extra>/', views.workshopsSearch, name='workshopsSearchExtra'),
     path('workshops/<str:display>/<str:period>/', views.workshops, name='workshops'),

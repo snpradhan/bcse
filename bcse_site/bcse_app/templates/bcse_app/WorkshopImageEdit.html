@@ -38,6 +38,17 @@
         </div>
 
         <div class="form-group mb-3">
+          <label for="id_{{form.highlight.name}}" class="form-label">
+              {{form.highlight.label|title}}
+              {% if form.highlight.field.required %}
+                (<span class="required">*</span>)
+              {% endif %}
+            </label>
+            <div>{{form.highlight}}</div>
+            <div class="error">{{ form.highlight.errors }}</div>
+        </div>
+
+        <div class="form-group mb-3">
           <label for="id_{{form.order.name}}" class="form-label">
               {{form.order.label|title}}
               {% if form.order.field.required %}
@@ -46,7 +57,8 @@
             </label>
             <div>{{form.order}}</div>
             <div class="error">{{ form.order.errors }}</div>
-        </div>        
+        </div>
+
       </div>
       <div class="modal-footer">
         <div class="form-group buttons right">

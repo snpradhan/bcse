@@ -4376,7 +4376,7 @@ def workshopView(request, id=''):
 
       registration = workshopRegistration(request, workshop.id)
 
-      context = {'workshop': workshop, 'registration': registration}
+      context = {'workshop': workshop, 'registration': registration, 'partial_template': "bcse_app/WorkshopView.html"}
 
       if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
         return render(request, 'bcse_app/WorkshopAdminView.html', context)
@@ -5353,6 +5353,60 @@ def workshopImageDelete(request, workshop_id='', id=''):
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
     except CustomException as ce:
+        messages.error(request, ce)
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+################################################
+# WORKSHOP IMAGES GALLERY
+################################################
+def workshopImageGallery(request, workshop_id=''):
+    """
+    View to display the image gallery for a specific workshop.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        workshop_id (str/int): The ID of the workshop whose images are to be displayed.
+
+    Returns:
+        HttpResponse: Renders the workshop gallery template with workshop details
+        and associated images.
+
+    Raises:
+        models.Workshop.DoesNotExist: If no workshop exists with the given ID.
+        CustomException: For any application-specific errors.
+
+    Description:
+        - Fetches the workshop using the provided workshop_id.
+        - Retrieves all images associated with that workshop.
+        - Passes the data to the 'WorkshopGallery.html' template.
+        - If the workshop does not exist, shows an error message and redirects back.
+    """
+    try:
+        # Get the workshop object using the provided ID
+        workshop = models.Workshop.objects.get(id=workshop_id)
+
+        if not workshop.workshop_category.is_super:
+          raise CustomException("This workshop does not have a gallery")
+
+        # Retrieve all images related to this workshop
+        workshop_images = models.WorkshopImage.objects.filter(workshop=workshop)
+
+        context =  {'workshop': workshop, 'workshop_images': workshop_images,
+                    'partial_template': 'bcse_app/WorkshopImageGallery.html'}
+
+        # Render the gallery template with context data
+        if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+          return render(request, 'bcse_app/WorkshopAdminView.html', context)
+        else:
+          return render(request, 'bcse_app/WorkshopPublicView.html', context)
+
+    except models.Workshop.DoesNotExist:
+        # Handle case where workshop ID does not exist
+        messages.error(request, "Workshop not found")
+        return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    except CustomException as ce:
+        # Handle custom application-specific errors
         messages.error(request, ce)
         return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 

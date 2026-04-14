@@ -1,0 +1,15 @@
+{% load bcse_extras %}
+{% load base_extras %}
+
+<h1 class="center"> <a href="{% url 'bcse:workshopView' workshop.id %}">{{workshop}}</a> Gallery</h1>
+{% if workshop_images %}
+  <div class="gallery-grid">
+    {% for image in workshop_images %}
+        <img src="{{ image.image.url }}" alt="Workshop Image">
+    {% empty %}
+        <p>No images available.</p>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="warning center">There are no images in this gallery</div>
+{% endif %}

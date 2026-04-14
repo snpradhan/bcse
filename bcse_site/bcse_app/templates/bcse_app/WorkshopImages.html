@@ -15,6 +15,7 @@
           <tr>
               <th>Order</th>
               <th>Image</th>
+              <th>Highlight?</th>
               <th>Action</th>
           </tr>
       </thead>
@@ -27,6 +28,9 @@
               {% if workshop_image.image %}
                 <img src="{{workshop_image.image.url}}" class="icon">
               {% endif %}
+            </td>
+            <td>
+              {{workshop_image.highlight|yesno:"Yes,No"}}
             </td>
             <td>
               <div class="btn-group">
