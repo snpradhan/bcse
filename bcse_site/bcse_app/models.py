@@ -216,6 +216,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('S1', 'Street Address 1'),
   ('S2', 'Street Address 2'),
   ('CT', 'City'),
+  ('CO', 'County'),
   ('SA', 'State'),
   ('ZP', 'Zip Code'),
   ('LT', 'Latitude'),
@@ -291,6 +292,12 @@ BUTTON_TARGET_CHOICES = (
   ('_blank', 'New Window (_blank)')
 )
 
+COUNTY_CHOICES = (
+  ('C', 'Cook'),
+  ('L', 'Lake'),
+  ('O', 'Other')
+)
+
 YEAR_CHOICES = [('', '---------')]
 for x in range(2008, datetime.datetime.now().year + 5):
   YEAR_CHOICES.append((x, x))
@@ -347,6 +354,8 @@ class WorkPlace(models.Model):
   street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
   street_address_2 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 2')
   city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
+  county = models.CharField(max_length=1, choices=COUNTY_CHOICES)
+  other_county = models.CharField(null=True, blank=True, max_length=256, help_text='County not on the list')
   state = USStateField(null=False, blank=False, help_text='State')
   zip_code = models.CharField(null=False, blank=False, max_length=256, help_text='Zip Code of Workplace')
   latitude = models.CharField(null=True, blank=True, max_length=256)

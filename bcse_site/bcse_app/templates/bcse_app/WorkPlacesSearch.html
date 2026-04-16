@@ -42,6 +42,11 @@
             <div>{{searchForm.city}}</div>
             <div class="error">{{ searchForm.city.errors }}</div>
           </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.county.name}}" class="form-label"> {{searchForm.county.label|title}}</label>
+            <div>{{searchForm.county}}</div>
+            <div class="error">{{ searchForm.county.errors }}</div>
+          </div>
 
         </div>
         <div class="filter_fields">

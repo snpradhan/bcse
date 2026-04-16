@@ -128,6 +128,16 @@
       <div>{{work_place.city}}</div>
     </div>
     <div class="mb-1">
+      <label>County:</label>
+      <div>
+        {% if work_place.county == 'O' %}
+          {{work_place.other_county|default_if_none:""}}
+        {% else %}
+          {{work_place.get_county_display}}
+        {% endif %}
+      </div>
+    </div>
+    <div class="mb-1">
       <label>State:</label>
       <div>{{work_place.state}}</div>
     </div>

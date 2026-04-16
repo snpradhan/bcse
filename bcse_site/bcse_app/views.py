@@ -8395,6 +8395,7 @@ def workPlacesSearch(request):
       street_address_1_filter = None
       street_address_2_filter = None
       city_filter = None
+      county_filter = None
       state_filter = None
       zip_code_filter = None
       status_filter = None
@@ -8405,6 +8406,7 @@ def workPlacesSearch(request):
       street_address_1 = request.GET.get('work_place_search-street_address_1', '')
       street_address_2 = request.GET.get('work_place_search-street_address_2', '')
       city = request.GET.get('work_place_search-city', '')
+      county = request.GET.get('work_place_search-county', '')
       state = request.GET.get('work_place_search-state', '')
       zip_code = request.GET.get('work_place_search-zip_code', '')
       status = request.GET.get('work_place_search-status', '')
@@ -8422,6 +8424,7 @@ def workPlacesSearch(request):
         'street_address_1': street_address_1,
         'street_address_2': street_address_2,
         'city': city,
+        'county': county,
         'state': state,
         'zip_code': zip_code,
         'status': status,
@@ -8443,6 +8446,8 @@ def workPlacesSearch(request):
         street_address_2_filter = Q(street_address_2=street_address_2)
       if city:
         city_filter = Q(city=city)
+      if county:
+        county_filter = Q(county=county)
       if state:
         state_filter = Q(state=state)
       if zip_code:
@@ -8462,6 +8467,8 @@ def workPlacesSearch(request):
         query_filter = query_filter & street_address_2_filter
       if city_filter:
         query_filter = query_filter & city_filter
+      if county_filter:
+        query_filter = query_filter & county_filter
       if state_filter:
         query_filter = query_filter & state_filter
       if zip_code_filter:
@@ -8672,6 +8679,7 @@ def workPlacesUpload(request):
     elif request.method == 'POST':
       form = forms.WorkPlacesUploadForm(user=request.user, files=request.FILES, data=request.POST)
       response_data = {}
+      COUNTY_LOOKUP = {v: k for k, v in models.COUNTY_CHOICES}
 
       if form.is_valid():
         if request.FILES:
@@ -8694,13 +8702,15 @@ def workPlacesUpload(request):
             street_address_1 = row[3]
             street_address_2 = row[4]
             city = row[5]
-            state = row[6]
-            zip_code = row[7]
+            county = row[6]
+            state = row[7]
+            zip_code = row[8]
             if name and work_place_type: # and street_address_1 and city and state and zip_code:
               if models.WorkPlace.objects.all().filter(name=name, work_place_type=work_place_types[work_place_type]).count() > 0:
                 upload_status.append("Workplace already exists")
               else:
-                work_place = models.WorkPlace(name=name, work_place_type=work_place_types[work_place_type], district_number=district_number, street_address_1=street_address_1, street_address_2=street_address_2, city=city, state=state, zip_code=zip_code, status='A')
+                county_key = COUNTY_LOOKUP.get(county) or 'O'
+                work_place = models.WorkPlace(name=name, work_place_type=work_place_types[work_place_type], district_number=district_number, street_address_1=street_address_1, street_address_2=street_address_2, city=city, county=county_key, state=state, zip_code=zip_code, status='A')
                 work_place.save()
                 new_schools += 1
                 upload_status.append("Workplace created")

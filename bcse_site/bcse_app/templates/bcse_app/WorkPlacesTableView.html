@@ -29,6 +29,9 @@
         {% if 'CT' in columns %}
           <th> City </th>
         {% endif %}
+        {% if 'CO' in columns %}
+          <th> County </th>
+        {% endif %}
         {% if 'SA' in columns %}
           <th> State </th>
         {% endif %}
@@ -97,6 +100,15 @@
           {% endif %}
           {% if 'CT' in columns %}
             <td> {{work_place.city|default_if_none:""}} </td>
+          {% endif %}
+          {% if 'CO' in columns %}
+            <td>
+              {% if work_place.county == 'O' %}
+                {{work_place.other_county|default_if_none:""}}
+              {% else %}
+                {{work_place.get_county_display}}
+              {% endif %}
+            </td>
           {% endif %}
           {% if 'SA' in columns %}
             <td> {{work_place.state|default_if_none:""}} </td>
