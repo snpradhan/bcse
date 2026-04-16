@@ -1480,6 +1480,7 @@ class WorkshopEmailForm(ModelForm):
           field.label = 'Subject'
         field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['aria-describedby'] = field.label
+      field.widget.attrs['autocomplete'] = 'new-password'
       #field.widget.attrs['placeholder'] = field.help_text
 
     if self.instance.id:
