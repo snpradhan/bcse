@@ -123,6 +123,7 @@
     {% if workplaces %}
       {% include "bcse_app/Pagination.html" with model=workplaces location='top' %}
       <table id="workplaces_summary" class="table table-bordered table-striped export">
+        <caption class="warning center top">Numbers in parenthesis are unique for the respective columns</caption>
         <thead>
           <tr>
             <th rowspan="2">Workplace ID</th>
@@ -160,20 +161,20 @@
                 <td>{{workplace.percentage_by_year|get_item:school_year|default_if_none:""}}</td>
               {% endfor %}
               <td>{{workplace.total_workshops}}</td>
-              <td>{{workplace.total_registrants}}</td>
-              <td>{{workplace.reg_accepted}}</td>
-              <td>{{workplace.reg_applied}}</td>
-              <td><strong>{{workplace.reg_attended}}</strong></td>
-              <td>{{workplace.reg_attended_facilitator}}</td>
-              <td>{{workplace.reg_attended_observer}}</td>
-              <td>{{workplace.reg_attended_participant}}</td>
-              <td>{{workplace.reg_attended_staff}}</td>
-              <td>{{workplace.reg_cancelled}}</td>
-              <td>{{workplace.reg_denied}}</td>
-              <td>{{workplace.reg_no_show}}</td>
-              <td>{{workplace.reg_pending}}</td>
-              <td>{{workplace.reg_registered}}</td>
-              <td>{{workplace.reg_waitlisted}}</td>
+              <td>{{workplace.total_registrants}} ({{workplace.total_registrants_unique}})</td>
+              <td>{{workplace.reg_accepted}} ({{workplace.reg_accepted_unique}})</td>
+              <td>{{workplace.reg_applied}} ({{workplace.reg_applied_unique}})</td>
+              <td><strong>{{workplace.reg_attended}} ({{workplace.reg_attended_unique}})</strong></td>
+              <td>{{workplace.reg_attended_facilitator}} ({{workplace.reg_attended_facilitator_unique}})</td>
+              <td>{{workplace.reg_attended_observer}} ({{workplace.reg_attended_observer_unique}})</td>
+              <td>{{workplace.reg_attended_participant}} ({{workplace.reg_attended_participant_unique}})</td>
+              <td>{{workplace.reg_attended_staff}} ({{workplace.reg_attended_staff_unique}})</td>
+              <td>{{workplace.reg_cancelled}} ({{workplace.reg_cancelled_unique}})</td>
+              <td>{{workplace.reg_denied}} ({{workplace.reg_denied_unique}})</td>
+              <td>{{workplace.reg_no_show}} ({{workplace.reg_no_show_unique}})</td>
+              <td>{{workplace.reg_pending}} ({{workplace.reg_pending_unique}})</td>
+              <td>{{workplace.reg_registered}} ({{workplace.reg_registered_unique}})</td>
+              <td>{{workplace.reg_waitlisted}} ({{workplace.reg_waitlisted_unique}})</td>
             </tr>
          {% endfor %}
         </tbody>

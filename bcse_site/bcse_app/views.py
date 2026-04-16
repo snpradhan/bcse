@@ -6946,21 +6946,33 @@ def workshopsRegistrantsSearch(request):
       workplaces = workplaces.annotate(
         total_workshops = Count('work_place_to_registration__registration__workshop_registration_setting__workshop__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
         total_registrants=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
+        total_registrants_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations), distinct=True),
         reg_accepted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='C'), distinct=True),
+        reg_accepted_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='C'), distinct=True),
         reg_applied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='A'), distinct=True),
+        reg_applied_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='A'), distinct=True),
         reg_attended=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T'), distinct=True),
-
+        reg_attended_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T'), distinct=True),
         reg_attended_participant=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='P'), distinct=True),
+        reg_attended_participant_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='P'), distinct=True),
         reg_attended_facilitator=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='F'), distinct=True),
+        reg_attended_facilitator_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='F'), distinct=True),
         reg_attended_staff=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='S'), distinct=True),
+        reg_attended_staff_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='S'), distinct=True),
         reg_attended_observer=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='O'), distinct=True),
-
+        reg_attended_observer_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='T', work_place_to_registration__registration__sub_status='O'), distinct=True),
         reg_no_show=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='U'), distinct=True),
         reg_cancelled=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='N'), distinct=True),
         reg_denied=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='D'), distinct=True),
         reg_pending=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='P'), distinct=True),
         reg_registered=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='R'), distinct=True),
         reg_waitlisted=Count('work_place_to_registration__registration__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='W'), distinct=True),
+        reg_no_show_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='U'), distinct=True),
+        reg_cancelled_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='N'), distinct=True),
+        reg_denied_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='D'), distinct=True),
+        reg_pending_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='P'), distinct=True),
+        reg_registered_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='R'), distinct=True),
+        reg_waitlisted_unique=Count('work_place_to_registration__registration__user__id', filter=Q(work_place_to_registration__registration__in=registrations, work_place_to_registration__registration__status='W'), distinct=True),
 
       ).prefetch_related(
           Prefetch(
