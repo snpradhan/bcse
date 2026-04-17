@@ -20,6 +20,9 @@
         {% if 'DN' in columns %}
           <th> District # </th>
         {% endif %}
+        {% if 'GS' in columns %}
+          <th> Grades Supported </th>
+        {% endif %}
         {% if 'S1' in columns %}
           <th> Street Address 1 </th>
         {% endif %}
@@ -91,6 +94,9 @@
           {% endif %}
           {% if 'DN' in columns %}
             <td> {{work_place.district_number|default_if_none:""}} </td>
+          {% endif %}
+          {% if 'GS' in columns %}
+            <td>{{work_place.get_grades_display|safe}}</td>
           {% endif %}
           {% if 'S1' in columns %}
             <td> {{work_place.street_address_1|default_if_none:""}} </td>

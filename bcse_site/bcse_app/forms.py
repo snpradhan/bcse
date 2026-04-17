@@ -1633,10 +1633,15 @@ class WorkshopCategoriesSearchForm(forms.Form):
 # Workplace Form
 ####################################
 class WorkPlaceForm(ModelForm):
+  grades = forms.MultipleChoiceField(
+        choices=models.WORKPLACE_GRADE_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
 
   class Meta:
     model = models.WorkPlace
-    exclude = ('id', 'created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base')
+    exclude = ('id', 'created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base'),
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -1646,7 +1651,11 @@ class WorkPlaceForm(ModelForm):
       self.fields.pop('admin_notes')
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'grades':
+        field.widget.attrs['class'] = 'form-check-input'
+        field.label = 'Grades supported at this school'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
       if field_name == 'name':
         field.label = 'Workplace Name'
@@ -2360,6 +2369,12 @@ class UsersSearchForm(forms.Form):
 # Workplace Search Form
 ####################################
 class WorkPlacesSearchForm(ModelForm):
+  grades = forms.MultipleChoiceField(
+        choices=models.WORKPLACE_GRADE_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('name', 'Name'),
                                                        ('users_desc', '# of Users (Desc)'),
@@ -2368,7 +2383,7 @@ class WorkPlacesSearchForm(ModelForm):
                                                       ('created_date_desc', 'Created Date (Desc)'),
                                                       ('created_date_asc', 'Created Date (Asc)')), initial='name')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
-  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'LI', 'DN', 'S1', 'S2', 'CT', 'CO', 'SA', 'NU', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'LI', 'DN', 'GS', 'S1', 'S2', 'CT', 'CO', 'SA', 'NU', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   class Meta:
@@ -2384,7 +2399,11 @@ class WorkPlacesSearchForm(ModelForm):
     self.fields['work_place_type'].label = 'Workplace Type'
 
     for field_name, field in list(self.fields.items()):
-      field.widget.attrs['class'] = 'form-control'
+      if field_name == 'grades':
+        field.widget.attrs['class'] = 'form-check-input'
+        field.label = 'Grades Supported'
+      else:
+        field.widget.attrs['class'] = 'form-control'
       if field_name == 'district_number':
         field.label = 'District #'
 

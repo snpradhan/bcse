@@ -8392,6 +8392,7 @@ def workPlacesSearch(request):
       name_filter = None
       work_place_type_filter = None
       district_number_filter = None
+      grades_filter = None
       street_address_1_filter = None
       street_address_2_filter = None
       city_filter = None
@@ -8403,6 +8404,7 @@ def workPlacesSearch(request):
       name = request.GET.get('work_place_search-name', '')
       work_place_type = request.GET.get('work_place_search-work_place_type', '')
       district_number = request.GET.get('work_place_search-district_number', '')
+      grades = request.GET.getlist('work_place_search-grades', '')
       street_address_1 = request.GET.get('work_place_search-street_address_1', '')
       street_address_2 = request.GET.get('work_place_search-street_address_2', '')
       city = request.GET.get('work_place_search-city', '')
@@ -8415,12 +8417,14 @@ def workPlacesSearch(request):
       rows_per_page = request.GET.get('work_place_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
       page = request.GET.get('page', '')
 
+      print(grades)
 
       #set session variable
       request.session['workplaces_search'] = {
         'name': name,
         'work_place_type': work_place_type,
         'district_number': district_number,
+        'grades': grades,
         'street_address_1': street_address_1,
         'street_address_2': street_address_2,
         'city': city,
@@ -8440,6 +8444,8 @@ def workPlacesSearch(request):
         work_place_type_filter = Q(work_place_type=work_place_type)
       if district_number:
         district_number_filter = Q(district_number=district_number)
+      if grades:
+        grades_filter = Q(grades__contains=grades)
       if street_address_1:
         street_address_1_filter = Q(street_address_1=street_address_1)
       if street_address_2:
@@ -8461,6 +8467,8 @@ def workPlacesSearch(request):
         query_filter = query_filter & work_place_type_filter
       if district_number_filter:
         query_filter = query_filter & district_number_filter
+      if grades_filter:
+        query_filter = query_filter & grades_filter
       if street_address_1_filter:
         query_filter = query_filter & street_address_1_filter
       if street_address_2_filter:

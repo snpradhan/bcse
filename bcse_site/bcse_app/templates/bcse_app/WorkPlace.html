@@ -19,16 +19,31 @@
     <div>{{work_place_form.name}}</div>
     <div class="error">{{ work_place_form.name.errors }}</div>
   </div>
-
-  <div class="form-group mb-3">
-    <label for="id_{{work_place_form.district_number.name}}">
-      {{ work_place_form.district_number.label|title }}
-      {% if work_place_form.district_number.field.required %}
-        (<span class="required">*</span>)
-      {% endif %}
-    </label>
-    <div>{{work_place_form.district_number}}</div>
-    <div class="error">{{ work_place_form.district_number.errors }}</div>
+  <div class="row mb-3 school_related">
+    <div class="form-group col-md-8">
+      <label for="id_{{work_place_form.district_number.name}}">
+        {{ work_place_form.district_number.label|title }}
+        {% if work_place_form.district_number.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.district_number}}</div>
+      <div class="error">{{ work_place_form.district_number.errors }}</div>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="id_{{work_place_form.grades.name}}">
+        {{ work_place_form.grades.label|title }}
+        {% if work_place_form.grades.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>
+        {% for grade in work_place_form.grades %}
+          <label>{{grade.tag}} {{grade.choice_label}} </label><br>
+        {% endfor %}
+      </div>
+      <div class="error">{{ work_place_form.grades.errors }}</div>
+    </div>
   </div>
   <div class="row mb-3">
     <div class="form-group col-md-6">
@@ -133,10 +148,18 @@
   $(function (){
     $('select[name="work_place-work_place_type"]').on('change', function(){
       if($(this).val() == "S"){
-        $('input[name="work_place-district_number"]').closest('.form-group').show();
+        $('.school_related').show();
       }
       else{
-        $('input[name="work_place-district_number"]').closest('.form-group').hide();
+        $('.school_related').find('input, textarea, select').each(function(){
+          if($(this).is(':checkbox, :radio')) {
+            $(this).prop('checked', false);
+          }
+          else {
+            $(this).val('');
+          }
+        });
+        $('.school_related').hide();
       }
     });
 

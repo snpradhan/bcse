@@ -77,7 +77,7 @@
             <div class="error">{{ userProfileForm.phone_number.errors }}</div>
           </div>
         </div>
-        <div class="row mb-3 school_related">
+        <div class="row mb-3 teacher_related">
           <div class="form-group col-md-6">
             <label for="id_{{userProfileForm.iein.name}}" class="form-label"> {{userProfileForm.iein.label|upper}}</label>
             <div>{{userProfileForm.iein}}</div>
@@ -214,11 +214,11 @@
 
     $('select[name="user_profile-user_role"]').on('change', function(){
       if($(this).val() == "T"){
-        $('.school_related').show();
+        $('.teacher_related').show();
       }
       else{
-        $('.school_related :input').val('');
-        $('.school_related').hide();
+        $('.teacher_related :input').val('');
+        $('.teacher_related').hide();
       }
     });
 

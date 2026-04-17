@@ -29,6 +29,7 @@ import urllib.parse
 from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
 from django.core.exceptions import ValidationError
 from django.apps import apps
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
@@ -115,6 +116,7 @@ RESERVATION_FEEDBACK_STATUS_CHOICES = (
   ('S', 'Feedback Submitted'),
 )
 
+#UserProfile Grade chocies
 GRADES_CHOICES = (
   ('E', 'Elementary School'),
   ('M', 'Middle School'),
@@ -122,6 +124,13 @@ GRADES_CHOICES = (
   ('O', 'Other'),
 )
 
+#Workplace Grade choices
+WORKPLACE_GRADE_CHOICES = (
+  ('E', 'Grades K-5'),
+  ('M', 'Grades 6-8'),
+  ('H', 'Grades 9-12'),
+  ('C', 'Above Grade 12'),
+)
 NUM_OF_CLASS_CHOICES = (
   ('1', '1'),
   ('2', '2'),
@@ -213,6 +222,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('WT', 'Workplace Type'),
   ('LI', '% Low Income Students'),
   ('DN', 'District #'),
+  ('GS', 'Grades Supported'),
   ('S1', 'Street Address 1'),
   ('S2', 'Street Address 2'),
   ('CT', 'City'),
@@ -351,6 +361,10 @@ class WorkPlace(models.Model):
   name = models.CharField(null=False, blank=False, max_length=256, help_text='Name of Workplace')
   work_place_type = models.CharField(max_length=1, choices=WORKPLACE_CHOICES)
   district_number = models.CharField(null=True, blank=True, max_length=256, help_text='District Number for School')
+  grades = ArrayField(base_field=models.CharField(max_length=1, choices=WORKPLACE_GRADE_CHOICES),
+        blank=True,
+        default=list
+    )
   street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
   street_address_2 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 2')
   city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
@@ -375,6 +389,10 @@ class WorkPlace(models.Model):
 
   def get_full_address(self):
     return '%s <br> %s %s, %s, %s' % (self.street_address_1, self.street_address_2 + '<br>' if self.street_address_2 else '', self.city, self.state, self.zip_code)
+
+  def get_grades_display(self):
+    mapping = dict(WORKPLACE_GRADE_CHOICES)
+    return "<br>".join(mapping.get(code, code) for code in self.grades)
 
 #
 # Placeholder workplace to assign to users when the users' workplace is deleted
