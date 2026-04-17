@@ -5,3 +5,5 @@ venv/*
 venv4.2/*
 www/*
 bcse_site/.DS_Store
+bcse_site/bcse_app/tests/*
+

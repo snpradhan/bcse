@@ -237,6 +237,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('AR', '# of Reservations'),
   ('AW', '# of Workshop Registrations'),
   ('AN', 'Admin Notes'),
+  ('UN', 'User Notes'),
   ('ST', 'Status'),
   ('CD', 'Created Date'),
   ('MD', 'Modified Date'),
@@ -377,6 +378,7 @@ class WorkPlace(models.Model):
   time_from_base = models.CharField(null=True, blank=True, max_length=256)
   distance_from_base = models.CharField(null=True, blank=True, max_length=256)
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
+  user_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Anything about this workplace not captured by the other fields')
   status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)

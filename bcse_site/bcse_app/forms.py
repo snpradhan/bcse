@@ -1650,6 +1650,9 @@ class WorkPlaceForm(ModelForm):
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('admin_notes')
 
+    if self.instance.id is None and user.is_authenticated and user.userProfile.user_role in 'AS':
+      self.fields.pop('user_notes')
+
     for field_name, field in list(self.fields.items()):
       if field_name == 'grades':
         field.widget.attrs['class'] = 'form-check-input'
@@ -1661,6 +1664,9 @@ class WorkPlaceForm(ModelForm):
         field.label = 'Workplace Name'
       if field_name == 'district_number':
         field.label = 'District #'
+      if field_name == 'user_notes':
+        if user.is_anonymous or user.userProfile.user_role not in 'AS':
+          field.label = 'Notes'
 
       if field_name == 'status':
         if not self.instance.id:

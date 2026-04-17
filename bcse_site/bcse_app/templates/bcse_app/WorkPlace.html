@@ -45,6 +45,7 @@
       <div class="error">{{ work_place_form.grades.errors }}</div>
     </div>
   </div>
+
   <div class="row mb-3">
     <div class="form-group col-md-6">
       <label for="id_{{work_place_form.street_address_1.name}}">
@@ -121,16 +122,30 @@
       <div class="error">{{ work_place_form.zip_code.errors }}</div>
     </div>
   </div>
-  <div class="form-group mb-3">
-    <label for="id_{{work_place_form.admin_notes.name}}">
-      {{ work_place_form.admin_notes.label|title }}
-      {% if work_place_form.admin_notes.field.required %}
-        (<span class="required">*</span>)
-      {% endif %}
-    </label>
-    <div>{{work_place_form.admin_notes}}</div>
-    <div class="error">{{ work_place_form.admin_notes.errors }}</div>
-  </div>
+  {% if work_place_form.user_notes %}
+    <div class="form-group mb-3">
+      <label for="id_{{work_place_form.user_notes.name}}">
+        {{ work_place_form.user_notes.label|title }}
+        {% if work_place_form.user_notes.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.user_notes}}</div>
+      <div class="error">{{ work_place_form.user_notes.errors }}</div>
+    </div>
+  {% endif %}
+  {% if work_place_form.admin_notes %}
+    <div class="form-group mb-3">
+      <label for="id_{{work_place_form.admin_notes.name}}">
+        {{ work_place_form.admin_notes.label|title }}
+        {% if work_place_form.admin_notes.field.required %}
+          (<span class="required">*</span>)
+        {% endif %}
+      </label>
+      <div>{{work_place_form.admin_notes}}</div>
+      <div class="error">{{ work_place_form.admin_notes.errors }}</div>
+    </div>
+  {% endif %}
   <div class="form-group mb-3" {% if source != 'workPlaceEdit' %}style="display: none;"{%endif%}>
     <label for="id_{{work_place_form.status.name}}">
       {{ work_place_form.status.label }}
