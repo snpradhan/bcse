@@ -36,6 +36,17 @@
           </div>
         </div>
         <div class="filter_fields">
+          {% if searchForm.school_categories.field.choices %}
+          <div class="form-group">
+            <label for="id_{{searchForm.school_categories.name}}" class="form-label"> {{searchForm.school_categories.label|title}}</label>
+            <div>
+              {% for school_category in searchForm.school_categories %}
+                <label>{{school_category.tag}} {{school_category.choice_label}} </label><br>
+              {% endfor %}
+            </div>
+            <div class="error">{{ searchForm.school_categories.errors }}</div>
+          </div>
+          {% endif %}
           <div class="form-group">
             <label for="id_{{searchForm.street_address_1.name}}" class="form-label"> {{searchForm.street_address_1.label|title}}</label>
             <div>{{searchForm.street_address_1}}</div>
@@ -51,14 +62,13 @@
             <div>{{searchForm.city}}</div>
             <div class="error">{{ searchForm.city.errors }}</div>
           </div>
+        </div>
+        <div class="filter_fields">
           <div class="form-group">
             <label for="id_{{searchForm.county.name}}" class="form-label"> {{searchForm.county.label|title}}</label>
             <div>{{searchForm.county}}</div>
             <div class="error">{{ searchForm.county.errors }}</div>
           </div>
-
-        </div>
-        <div class="filter_fields">
           <div class="form-group">
             <label for="id_{{searchForm.state.name}}" class="form-label"> {{searchForm.state.label|title}}</label>
             <div>{{searchForm.state}}</div>
@@ -74,13 +84,13 @@
             <div>{{searchForm.status}}</div>
             <div class="error">{{ searchForm.status.errors }}</div>
           </div>
+        </div>
+        <div class="filter_fields">
           <div class="form-group">
             <label for="id_{{searchForm.sort_by.name}}" class="form-label"> {{searchForm.sort_by.label|title}}</label>
             <div>{{searchForm.sort_by}}</div>
             <div class="error">{{ searchForm.sort_by.errors }}</div>
           </div>
-        </div>
-        <div class="filter_fields">
           <div class="form-group">
             <label for="id_{{searchForm.columns.name}}" class="form-label">
               {{searchForm.columns.label|title}}

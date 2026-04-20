@@ -1,0 +1,56 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+{% load base_extras %}
+
+{% block configuration %}
+  <h1> School Categories </h1>
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:schoolCategoryNew' %}" href="#">Create School Category</a>
+  </div>
+  <div class="search_results static">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> ID</th>
+          <th> Name </th>
+          <th> Is Other </th>
+          <th> Status </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in school_categories %}
+          <tr>
+            <td> {{category.id}}</td>
+            <td> {{category.name}} </td>
+            <td> {{category.is_other|yesno:"Yes,No"}} </td>
+            <td> {{category.get_status_display}} </td>
+            <td> {{category.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{category.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:schoolCategoryEdit' category.id %}" href="#">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:schoolCategoryDelete' category.id %}"
+                    data-title="the school category <strong>{{category.name}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

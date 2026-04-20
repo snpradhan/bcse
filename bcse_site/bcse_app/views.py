@@ -8393,6 +8393,7 @@ def workPlacesSearch(request):
       work_place_type_filter = None
       district_number_filter = None
       grades_filter = None
+      school_categories_filter = None
       street_address_1_filter = None
       street_address_2_filter = None
       city_filter = None
@@ -8405,6 +8406,7 @@ def workPlacesSearch(request):
       work_place_type = request.GET.get('work_place_search-work_place_type', '')
       district_number = request.GET.get('work_place_search-district_number', '')
       grades = request.GET.getlist('work_place_search-grades', '')
+      school_categories = request.GET.getlist('work_place_search-school_categories', '')
       street_address_1 = request.GET.get('work_place_search-street_address_1', '')
       street_address_2 = request.GET.get('work_place_search-street_address_2', '')
       city = request.GET.get('work_place_search-city', '')
@@ -8417,14 +8419,13 @@ def workPlacesSearch(request):
       rows_per_page = request.GET.get('work_place_search-rows_per_page', settings.DEFAULT_ITEMS_PER_PAGE)
       page = request.GET.get('page', '')
 
-      print(grades)
-
       #set session variable
       request.session['workplaces_search'] = {
         'name': name,
         'work_place_type': work_place_type,
         'district_number': district_number,
         'grades': grades,
+        'school_categories': school_categories,
         'street_address_1': street_address_1,
         'street_address_2': street_address_2,
         'city': city,
@@ -8445,7 +8446,9 @@ def workPlacesSearch(request):
       if district_number:
         district_number_filter = Q(district_number=district_number)
       if grades:
-        grades_filter = Q(grades__contains=grades)
+        grades_filter = Q(grades__overlap=grades)
+      if school_categories:
+        school_categories_filter = Q(school_categories__id__in=school_categories)
       if street_address_1:
         street_address_1_filter = Q(street_address_1=street_address_1)
       if street_address_2:
@@ -8469,6 +8472,8 @@ def workPlacesSearch(request):
         query_filter = query_filter & district_number_filter
       if grades_filter:
         query_filter = query_filter & grades_filter
+      if school_categories_filter:
+        query_filter = query_filter & school_categories_filter
       if street_address_1_filter:
         query_filter = query_filter & street_address_1_filter
       if street_address_2_filter:
@@ -8828,6 +8833,94 @@ def workPlacesExport(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+##########################################################
+# SCHOOL CATEGORY EDIT
+##########################################################
+@login_required
+def schoolCategoryEdit(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit school category')
+    if '' != id:
+      school_category = models.SchoolCategory.objects.get(id=id)
+    else:
+      school_category = models.SchoolCategory()
+
+    if request.method == 'GET':
+      form = forms.SchoolCategoryForm(instance=school_category)
+
+      context = {'form': form}
+      return render(request, 'bcse_app/SchoolCategoryEdit.html', context)
+
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.SchoolCategoryForm(data, instance=school_category)
+      response_data = {}
+      if form.is_valid():
+        savedSchoolCategory = form.save()
+        messages.success(request, "School Category saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        messages.error(request, 'Please check the forms below for missing required fields or duplicate entry')
+
+        context = {'form': form}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/SchoolCategoryEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+##########################################################
+# DELETE SCHOOL CATEGORY
+##########################################################
+@login_required
+def schoolCategoryDelete(request, id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete school category')
+
+    if '' != id:
+      school_category = models.SchoolCategory.objects.get(id=id)
+      if school_category.schools.count() > 0:
+        messages.success(request, "%s is associated with %s schools(s) and cannot be deleted" % (school_category.name, school_category.schools.count()))
+      else:
+        school_category.delete()
+        messages.success(request, "School Category deleted")
+
+    return shortcuts.redirect('bcse:schoolCategories')
+
+  except models.SchoolCategory.DoesNotExist:
+    messages.success(request, "School Category not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# LIST OF SCHOOL CATEGORIES
+##########################################################
+@login_required
+def schoolCategories(request):
+
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view school categories')
+
+    school_categories = models.SchoolCategory.objects.all()
+
+    context = {'school_categories': school_categories}
+    return render(request, 'bcse_app/SchoolCategories.html', context)
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # UPLOAD WORKSHOP REGISTRATIONS VIA AN EXCEL TEMPLATE

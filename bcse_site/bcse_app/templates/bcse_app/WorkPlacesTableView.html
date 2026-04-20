@@ -23,6 +23,9 @@
         {% if 'GS' in columns %}
           <th> Grades Supported </th>
         {% endif %}
+        {% if 'SC' in columns %}
+          <th> School Categories</th>
+        {% endif %}
         {% if 'S1' in columns %}
           <th> Street Address 1 </th>
         {% endif %}
@@ -100,6 +103,20 @@
           {% endif %}
           {% if 'GS' in columns %}
             <td>{{work_place.get_grades_display|safe}}</td>
+          {% endif %}
+          {% if 'SC' in columns %}
+            <td>
+              <ul>
+                {% for category in work_place.school_categories.all %}
+                  <li>
+                    {{category.name}}
+                    {% if category.is_other %}
+                      <ul><li>{{work_place.other_category}}</li></ul>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </td>
           {% endif %}
           {% if 'S1' in columns %}
             <td> {{work_place.street_address_1|default_if_none:""}} </td>

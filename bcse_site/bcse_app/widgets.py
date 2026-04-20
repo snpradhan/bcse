@@ -63,3 +63,26 @@ class SelectWithDisabled(Select):
         if disabled:
             option_dict['attrs']['disabled'] = 'disabled'
         return option_dict
+
+class CheckboxSelectMultipleWithOtherOption(forms.CheckboxSelectMultiple):
+
+    def __init__(self, *args, **kwargs):
+        self.other_ids = set(kwargs.pop('other_ids', []))
+        super().__init__(*args, **kwargs)
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(
+            name, value, label, selected, index, subindex=subindex, attrs=attrs
+        )
+
+        css_class = 'form-check-input'
+
+        try:
+            if value is not None and int(value.value) in self.other_ids:
+                css_class += ' other-category'
+        except (ValueError, TypeError):
+            pass  # safely ignore bad values
+
+        option['attrs']['class'] = css_class
+
+        return option

@@ -256,6 +256,11 @@ urlpatterns = [
     path('adminConfiguration/urlMapping/new', views.urlMappingEdit, name='urlMappingNew'),
     path('adminConfiguration/urlMappings', views.urlMappings, name='urlMappings'),
 
+    path('adminConfiguration/schoolCategory/<int:id>/edit', views.schoolCategoryEdit, name='schoolCategoryEdit'),
+    path('adminConfiguration/schoolCategory/<int:id>/delete', views.schoolCategoryDelete, name='schoolCategoryDelete'),
+    path('adminConfiguration/schoolCategory/new', views.schoolCategoryEdit, name='schoolCategoryNew'),
+    path('adminConfiguration/schoolCategories/', views.schoolCategories, name='schoolCategories'),
+
     path('survey/<int:survey_id>/submission/<uuid:submission_uuid>/page/<int:page_num>', views.surveySubmission, name='surveySubmission'),
     path('survey/<int:survey_id>/submission/new', views.surveySubmission, name='surveySubmissionNew'),
     path('baxter_box/info/', views.baxterBoxInfo, name='baxterBoxInfo'),

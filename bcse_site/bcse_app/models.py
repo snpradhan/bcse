@@ -223,6 +223,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('LI', '% Low Income Students'),
   ('DN', 'District #'),
   ('GS', 'Grades Supported'),
+  ('SC', 'School Categories'),
   ('S1', 'Street Address 1'),
   ('S2', 'Street Address 2'),
   ('CT', 'City'),
@@ -366,6 +367,8 @@ class WorkPlace(models.Model):
         blank=True,
         default=list
     )
+  school_categories = models.ManyToManyField('SchoolCategory', blank=True, related_name="schools")
+  other_category = models.CharField(null=True, blank=True, max_length=256, help_text='Other category not in the list')
   street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
   street_address_2 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 2')
   city = models.CharField(null=False, blank=False, max_length=256, help_text='City')
@@ -394,7 +397,8 @@ class WorkPlace(models.Model):
 
   def get_grades_display(self):
     mapping = dict(WORKPLACE_GRADE_CHOICES)
-    return "<br>".join(mapping.get(code, code) for code in self.grades)
+    items = [f"<li>{mapping.get(code, code)}</li>" for code in self.grades]
+    return f"<ul>{''.join(items)}</ul>"
 
 #
 # Placeholder workplace to assign to users when the users' workplace is deleted
@@ -420,6 +424,25 @@ class WorkplaceLowIncomeStudentPercentage(models.Model):
   @property
   def school_year(self):
     return f"{self.start_year}-{self.start_year + 1}"
+
+class SchoolCategory(models.Model):
+  name = models.CharField(null=False, blank=False, max_length=256, unique=True)
+  is_other = models.BooleanField(default=False)
+  status = models.CharField(default='A', max_length=1, choices=CONTENT_STATUS_CHOICES)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    ordering = ['is_other', 'name']
+    constraints = [
+      models.UniqueConstraint(fields=['is_other'],
+                              condition=Q(is_other=True),
+                              name='only_one_is_other_instance'
+                              )
+      ]
+
+  def __str__(self):
+    return '%s' % (self.name)
 
 class UserProfile(models.Model):
   user = models.OneToOneField(User, unique=True, null=False, related_name="userProfile", on_delete=models.CASCADE)

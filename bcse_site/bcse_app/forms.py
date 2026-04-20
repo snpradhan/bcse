@@ -1629,19 +1629,30 @@ class WorkshopCategoriesSearchForm(forms.Form):
         if field_name in initials:
           field.initial = initials[field_name]
 
+
 ####################################
 # Workplace Form
 ####################################
 class WorkPlaceForm(ModelForm):
   grades = forms.MultipleChoiceField(
         choices=models.WORKPLACE_GRADE_CHOICES,
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.CheckboxSelectMultiple(),
         required=False
     )
 
+  '''school_categories = forms.ModelMultipleChoiceField(
+    queryset=models.SchoolCategory.objects.all(),
+    widget=widgets.CheckboxSelectMultipleWithOtherOption(
+      other_ids=set(
+        models.SchoolCategory.objects.all().filter(is_other=True).values_list('id', flat=True)
+      )
+    ),
+    required=False
+  )'''
+
   class Meta:
     model = models.WorkPlace
-    exclude = ('id', 'created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base'),
+    exclude = ('id', 'created_date', 'modified_date', 'latitude', 'longitude', 'time_from_base', 'distance_from_base')
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -1654,19 +1665,22 @@ class WorkPlaceForm(ModelForm):
       self.fields.pop('user_notes')
 
     for field_name, field in list(self.fields.items()):
-      if field_name == 'grades':
+      if field_name in ['grades', 'school_categories']:
         field.widget.attrs['class'] = 'form-check-input'
-        field.label = 'Grades supported at this school'
       else:
         field.widget.attrs['class'] = 'form-control'
+
       field.widget.attrs['placeholder'] = field.help_text
+
       if field_name == 'name':
         field.label = 'Workplace Name'
-      if field_name == 'district_number':
+      elif field_name == 'district_number':
         field.label = 'District #'
-      if field_name == 'user_notes':
+      elif field_name == 'user_notes':
         if user.is_anonymous or user.userProfile.user_role not in 'AS':
           field.label = 'Notes'
+      elif field_name == 'grades':
+        field.label = 'Grades supported at this school'
 
       if field_name == 'status':
         if not self.instance.id:
@@ -1688,6 +1702,39 @@ class WorkplaceLowIncomeStudentPercentageForm(ModelForm):
       field.widget.attrs['class'] = 'form-control'
       field.widget.attrs['placeholder'] = field.help_text
 
+
+
+class SchoolCategoryForm(ModelForm):
+
+  class Meta:
+    model = models.SchoolCategory
+    exclude = ('id', 'created_date', 'modified_date')
+
+  def __init__(self, *args, **kwargs):
+    super(SchoolCategoryForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'is_other':
+        field.widget.attrs['class'] = 'form-check-input'
+      else:
+        field.widget.attrs['class'] = 'form-control'
+      field.widget.attrs['placeholder'] = field.help_text
+
+  def clean(self):
+    cleaned_data = super().clean()
+    is_other = cleaned_data.get("is_other")
+
+    if is_other:
+        qs = models.SchoolCategory.objects.filter(is_other=True)
+
+        # Exclude current instance when editing
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+          self.add_error('is_other', "Only one category can me marked as 'Is Other'.")
+
+    return cleaned_data
 
 class WorkplaceLowIncomeStudentPercentageBaseFormSet(forms.BaseInlineFormSet):
   def clean(self):
@@ -2377,9 +2424,15 @@ class UsersSearchForm(forms.Form):
 class WorkPlacesSearchForm(ModelForm):
   grades = forms.MultipleChoiceField(
         choices=models.WORKPLACE_GRADE_CHOICES,
-        widget=forms.CheckboxSelectMultiple,
+        widget=forms.CheckboxSelectMultiple(),
         required=False
     )
+
+  '''school_categories = forms.ModelMultipleChoiceField(
+    queryset=models.SchoolCategory.objects.all(),
+    widget=forms.CheckboxSelectMultiple(),
+    required=False
+  )'''
 
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('name', 'Name'),
@@ -2389,7 +2442,7 @@ class WorkPlacesSearchForm(ModelForm):
                                                       ('created_date_desc', 'Created Date (Desc)'),
                                                       ('created_date_asc', 'Created Date (Asc)')), initial='name')
   status = forms.ChoiceField(required=False, choices=(('', '---------'),)+models.CONTENT_STATUS_CHOICES)
-  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'LI', 'DN', 'GS', 'S1', 'S2', 'CT', 'CO', 'SA', 'NU', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
+  columns = forms.MultipleChoiceField(required=False, choices=models.WORKPLACE_TABLE_COLUMN_CHOICES, initial=['ID', 'NM', 'WT', 'LI', 'DN', 'GS', 'SC', 'S1', 'S2', 'CT', 'CO', 'SA', 'NU', 'ST', 'CD'],  widget=forms.SelectMultiple(attrs={'size':6}), label=u'Display Columns', help_text='On Windows use Ctrl+Click to make multiple selection. On a Mac use Cmd+Click to make multiple selection')
   rows_per_page = forms.ChoiceField(required=True, choices=models.TABLE_ROWS_PER_PAGE_CHOICES, initial=25)
 
   class Meta:
@@ -2405,9 +2458,8 @@ class WorkPlacesSearchForm(ModelForm):
     self.fields['work_place_type'].label = 'Workplace Type'
 
     for field_name, field in list(self.fields.items()):
-      if field_name == 'grades':
+      if field_name in['grades', 'school_categories']:
         field.widget.attrs['class'] = 'form-check-input'
-        field.label = 'Grades Supported'
       else:
         field.widget.attrs['class'] = 'form-control'
       if field_name == 'district_number':

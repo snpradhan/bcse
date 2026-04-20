@@ -127,7 +127,21 @@
             </li>
             <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'workPlace' in request.path or  'workPlaces' in request.path %} active {% endif %}">
-              <a class="nav-link" href="{% url 'bcse:workPlaces' %}">Workplaces</a>
+              <a class="nav-link" role="button" data-bs-toggle="collapse" aria-expanded="false" href="#workplace_config" aria-controls="workplace_config">
+                Workplace Configuration
+              </a>
+              <ul class="collapse navbar-nav {% leftnavactive request 'workPlaces' %}
+                {% leftnavactive request 'workplace' %}
+                {% leftnavactive request 'schoolCategories' %}
+                {% leftnavactive request 'schoolCategory' %}" id="workplace_config">
+
+                <li class="{% if 'workPlaces/' in request.path or  'workPlace/' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:workPlaces' %}">Workplaces</a>
+                </li>
+                 <li class="{% if 'schoolCategories/' in request.path or  'schoolCategory/' in request.path %} active {% endif %}">
+                  <a href="{% url 'bcse:schoolCategories' %}">School Categories</a>
+                </li>
+              </ul>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li class="nav-item {% if 'teamMember' in request.path or  'teamMembers' in request.path %} active {% endif %}">
