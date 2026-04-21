@@ -77,8 +77,10 @@ class CheckboxSelectMultipleWithOtherOption(forms.CheckboxSelectMultiple):
 
         css_class = 'form-check-input'
 
+        raw_value = getattr(value, 'value', value)
+
         try:
-            if value is not None and int(value.value) in self.other_ids:
+            if raw_value is not None and int(raw_value) in self.other_ids:
                 css_class += ' other-category'
         except (ValueError, TypeError):
             pass  # safely ignore bad values

@@ -1640,7 +1640,7 @@ class WorkPlaceForm(ModelForm):
         required=False
     )
 
-  '''school_categories = forms.ModelMultipleChoiceField(
+  school_categories = forms.ModelMultipleChoiceField(
     queryset=models.SchoolCategory.objects.all(),
     widget=widgets.CheckboxSelectMultipleWithOtherOption(
       other_ids=set(
@@ -1648,7 +1648,7 @@ class WorkPlaceForm(ModelForm):
       )
     ),
     required=False
-  )'''
+  )
 
   class Meta:
     model = models.WorkPlace
@@ -2428,11 +2428,11 @@ class WorkPlacesSearchForm(ModelForm):
         required=False
     )
 
-  '''school_categories = forms.ModelMultipleChoiceField(
+  school_categories = forms.ModelMultipleChoiceField(
     queryset=models.SchoolCategory.objects.all(),
     widget=forms.CheckboxSelectMultiple(),
     required=False
-  )'''
+  )
 
   sort_by = forms.ChoiceField(required=False, choices=(('', '---------'),
                                                        ('name', 'Name'),
