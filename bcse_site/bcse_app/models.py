@@ -356,6 +356,8 @@ def upload_file_to(instance, filename):
     file_path = 'workshopGallery'
   elif isinstance(instance, WorkshopEmailAttachment):
     file_path = 'workshopEmailAttachment'
+  elif isinstance(instance, WorkshopRegistrationSetting):
+    file_path = 'workshopRegistrationSetting'
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
 
@@ -657,6 +659,7 @@ class WorkshopRegistrationSetting(models.Model):
   isbe_link = models.URLField(null=True, blank=True)
   external_registration_link = models.URLField(null=True, blank=True, max_length=2048)
   external_link_label = models.CharField(null=True, blank=True, max_length=256)
+  email_banner = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that will be used as an email banner in ad-hoc and automated emails')
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 
@@ -1273,6 +1276,8 @@ def check_registration_status_change(sender, instance, **kwargs):
       email_body = replace_workshop_tokens(confirmation_message_object.email_message, workshop, instance)
 
       context = {'email_body': email_body, 'domain': domain}
+      if registration_setting and registration_setting.email_banner:
+        context['banner'] = registration_setting.email_banner.url
       body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
 
       email_addresses = [userProfile.user.email]

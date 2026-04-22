@@ -3717,7 +3717,7 @@ def registrationEmailMessageDelete(request, id=''):
 
 
 ################################################
-# PREVIEW WORKSHOP REGISTRATION EMAIL
+# PREVIEW GENERIC WORKSHOP REGISTRATION EMAIL
 ################################################
 def registrationEmailMessagePreview(request, id='', workshop_id=''):
   """
@@ -3750,6 +3750,8 @@ def registrationEmailMessagePreview(request, id='', workshop_id=''):
       email_body = models.replace_workshop_tokens(email_body, workshop)
 
       context = {'email_body': email_body, 'subject': subject}
+      if workshop.registration_setting and workshop.registration_setting.email_banner:
+        context['banner'] = workshop.registration_setting.email_banner.url
 
       return render(request, 'bcse_app/WorkshopEmailView.html', context)
 
@@ -5869,6 +5871,8 @@ def workshopEmailPreview(request, workshop_id='', id=''):
       email_body = models.replace_workshop_tokens(email_body, workshop)
 
       context = {'email_body': email_body, 'subject': subject}
+      if workshop.registration_setting and workshop.registration_setting.email_banner:
+        context['banner'] = workshop.registration_setting.email_banner.url
 
       return render(request, 'bcse_app/WorkshopEmailView.html', context)
 
@@ -6164,6 +6168,8 @@ def workshopRegistrationEmailPreview(request, id='', workshop_id=''):
       email_body = models.replace_workshop_tokens(email_body, workshop)
 
       context = {'email_body': email_body, 'subject': subject}
+      if workshop.registration_setting and workshop.registration_setting.email_banner:
+        context['banner'] = workshop.registration_setting.email_banner.url
 
       return render(request, 'bcse_app/WorkshopEmailView.html', context)
 
@@ -6502,7 +6508,7 @@ def workshopRegistrationSetting(request, id=''):
 
     elif request.method == 'POST':
       data = request.POST.copy()
-      form = forms.WorkshopRegistrationSettingForm(data, instance=workshop_registration_setting)
+      form = forms.WorkshopRegistrationSettingForm(data, files=request.FILES, instance=workshop_registration_setting)
       if form.is_valid():
         savedWorkshopRegistrationSetting = form.save()
 
@@ -12117,6 +12123,8 @@ def send_workshop_email(id=id, cron=False):
         email_body = workshop_email.email_message
         email_body = models.replace_workshop_tokens(email_body, workshop)
         context = {'email_body': email_body, 'domain': domain}
+        if workshop.registration_setting and workshop.registration_setting.email_banner:
+          context['banner'] = workshop.registration_setting.email_banner.url
         body = get_template('bcse_app/EmailGeneralTemplate.html').render(context)
         attachments = workshop_email.attachments.all()
         email_messages = []
