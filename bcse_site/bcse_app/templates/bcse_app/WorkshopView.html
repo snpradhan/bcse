@@ -137,9 +137,17 @@
 
           {% if detail.survey %}
             {% if detail.survey_target == '_self' %}
-              <div class="center"> <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" href="#">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+              {% if user.is_authenticated %}
+                <div class="center"> <a class="btn" href="?next={% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+              {% else %}
+                <div class="center"> <a class="btn" href="?next=/signin/?next={{request.path}}?next={% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" >{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+              {% endif %}
             {% else %}
-              <div class="center"> <a class="btn" href="{{request.path}}?next={% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" target="{{detail.survey_target}}">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+              {% if user.is_authenticated %}
+                <div class="center"> <a class="btn" href="{{request.path}}?next={% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" target="{{detail.survey_target}}">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+              {% else %}
+                <div class="center"> <a class="btn" href="?next=/signin/?next={{request.path}}?next={% url 'bcse:surveySubmissionNew' detail.survey.id %}?workshop_id={{workshop.id}}" target="{{detail.survey_target}}">{{detail.survey_button_label|default_if_none:detail.survey.name}}</a></div>
+              {% endif %}
             {% endif %}
           {% endif %}
 

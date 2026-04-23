@@ -4662,7 +4662,7 @@ def workshopRegistrationSettingStatus(request, workshop):
       #check if workshop capacity has reached
       if workshop.registration_setting.registration_type == 'R' and workshop.registration_setting.capacity is not None and workshop.registration_setting.capacity >= 0:
         #allow invitees to register regardless of capacity
-        is_invitee = is_workshop_invitee(workshop, request.user.userProfile)
+        is_invitee = request.user.is_authenticated and is_workshop_invitee(workshop, request.user.userProfile)
         if not is_invitee:
           total_registrations = models.Registration.objects.all().filter(workshop_registration_setting=workshop.registration_setting, status='R', sub_status='P').count()
           #capacity has reached
