@@ -45,6 +45,26 @@
             <div class="error">{{ form.photo_release_incomplete.errors }}</div>
           </div>
         </div>
+        <hr>
+        {% if workshop.workshop_category.is_super %}
+          <div class="row mb-3">
+            <div class="form-group col-md-8">
+              <label for="id_{{form.invitee_roles.name}}">
+                {{ form.invitee_roles.label|title }}
+              </label>
+              <div>{{form.invitee_roles}}</div>
+              <div class="warning">{{form.invitee_roles.help_text}}</div>
+              <div class="error">{{ form.invitee_roles.errors }}</div>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="id_{{form.vip_invitee.name}}">{{ form.vip_invitee.label }}</label>
+              <div>{{form.vip_invitee}}</div>
+              <div class="warning">{{form.vip_invitee.help_text}}</div>
+              <div class="error">{{ form.vip_invitee.errors }}</div>
+            </div>
+          </div>
+          <hr>
+        {% endif %}
         <div class="form-group mb-3">
           <label for="id_{{form.email_to.name}}">{{ form.email_to.label|title}}</label>
           <div>{{form.email_to}}</div>
@@ -63,6 +83,7 @@
           <div class="warning">{{form.email_bcc.help_text}}</div>
           <div class="error">{{ form.email_bcc.errors }}</div>
         </div>
+        <hr>
         <div class="form-group mb-3">
           <label for="id_{{form.email_subject.name}}">{{ form.email_subject.label|title }} (<span class="required">*</span>)</label>
           <div>{{form.email_subject}}</div>

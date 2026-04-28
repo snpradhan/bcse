@@ -374,7 +374,23 @@ def get_registrants_email(workshop_email):
 
   return registration_email_addresses
 
+@register.filter
+def get_invitees_email(workshop_email):
+  #get the receipients
+  invitee_email_addresses = None
+  if workshop_email.invitee_role or workshop_email.vip_invitee:
+    query_filter = Q(workshop__id=workshop_email.workshop.id)
+    if workshop_email.invitee_role:
+      invitee_role = workshop_email.get_invitee_role()
+      query_filter = query_filter & Q(role__in=invitee_role)
+    if workshop_email.vip_invitee:
+      query_filter = query_filter & Q(vip=True)
 
+    workshop_invitees = models.WorkshopInvitee.objects.all().filter(query_filter)
+    qs = workshop_invitees.values_list('user__user__email', 'user__secondary_email')
+    invitee_email_addresses = [email for email in chain.from_iterable(qs) if email]
+
+  return invitee_email_addresses
 
 @register.filter
 def get_reservation_equipment_types(reservation):

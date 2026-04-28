@@ -740,6 +740,9 @@ class WorkshopEmail(models.Model):
   registration_sub_status = models.CharField(null=True, blank=True, max_length=50, help_text='One or more registration sub statuses this email is sent to. Email will be bcc''d to these addresses.')
   photo_release_incomplete = models.BooleanField(default=False, help_text='If checked, this email will be sent to users with incomplete photo release within the selected registration status.')
   registration_email_addresses = models.TextField(null=True, blank=True)
+  invitee_role = models.CharField(null=True, blank=True, max_length=50, help_text='One or more invitee role this email is sent to. Email will be sent to these addresses individually.')
+  vip_invitee = models.BooleanField(default=False, help_text='If checked, this email will be sent to VIP invitees within the selected invitee role.')
+  invitee_email_addresses = models.TextField(null=True, blank=True)
   email_to = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')
   email_cc = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')
   email_bcc = models.CharField(null=True, blank=True, max_length=1024, help_text='One or more email addresses separated by a semicolon.')
@@ -787,6 +790,20 @@ class WorkshopEmail(models.Model):
 
   def set_registration_sub_status(self, sub_status_list):
     self.registration_sub_status = ','.join(sub_status_list)
+
+
+  def get_invitee_role(self):
+    return self.invitee_role.split(',') if self.invitee_role else []
+
+  def get_invitee_role_display(self):
+    if self.invitee_role:
+      return "<ul>"+ "".join([f"<li>{value}</li>" for key, value in WORKSHOP_INVITEE_ROLE_CHOICES if key in self.invitee_role.split(',')]) + "</ul>"
+    else:
+      return ""
+
+  def set_invitee_role(self, role_list):
+    self.invitee_role = ','.join(role_list)
+
 
 
 class WorkshopEmailAttachment(models.Model):
