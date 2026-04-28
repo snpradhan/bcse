@@ -5751,9 +5751,11 @@ def workshopEmailEdit(request, workshop_id='', id=''):
       if form.is_valid() and formset.is_valid():
         selected_status = form.cleaned_data['registration_statuses']
         selected_sub_status = form.cleaned_data['registration_sub_statuses']
+        selected_invitee_role = form.cleaned_data['invitee_roles']
         savedWorkshopEmail = form.save(commit=False)
         savedWorkshopEmail.set_registration_status(selected_status)
         savedWorkshopEmail.set_registration_sub_status(selected_sub_status)
+        savedWorkshopEmail.set_invitee_role(selected_invitee_role)
         if savedWorkshopEmail.scheduled_date and not savedWorkshopEmail.scheduled_time:
           savedWorkshopEmail.scheduled_time = '00:00:00'
         elif not savedWorkshopEmail.scheduled_date and savedWorkshopEmail.scheduled_time:
@@ -5954,6 +5956,7 @@ def workshopEmailCopy(request, workshop_id='', id=''):
       workshop_email.scheduled_time = None
       workshop_email.sent_date = None
       workshop_email.registration_email_addresses = None
+      workshop_email.invitee_email_addresses = None
       workshop_email.created_date = datetime.datetime.now()
       workshop_email.modified_date = datetime.datetime.now()
       workshop_email.save()
@@ -12075,6 +12078,7 @@ def send_workshop_email(id=id, cron=False):
     if workshop_email.email_subject and workshop_email.email_message:
 
       #get the receipients
+      #Get emails of registrants
       registration_email_addresses = None
       if workshop_email.registration_status or workshop_email.registration_sub_status:
         query_filter = Q(workshop_registration_setting__workshop__id=workshop_id)
@@ -12095,19 +12099,34 @@ def send_workshop_email(id=id, cron=False):
         qs = registrations.values_list('user__user__email', 'user__secondary_email')
         registration_email_addresses = [email for email in chain.from_iterable(qs) if email]
 
+      #get workshop invitees
+      workshop_invitees = None
+      if workshop.workshop_category.is_super:
+        query_filter = Q(workshop__id=workshop_id)
+        if workshop_email.invitee_role:
+          invitee_role = workshop_email.get_invitee_role()
+          query_filter = query_filter & Q(role__in=invitee_role)
+        if workshop_email.vip_invitee:
+          query_filter = query_filter & Q(vip=True)
+
+        workshop_invitees = models.WorkshopInvitee.objects.all().filter(query_filter)
+
       email_to = [settings.DEFAULT_FROM_EMAIL]
+      #get emails from the To field
       if workshop_email.email_to:
         email_to = email_to + workshop_email.email_to.split(';')
 
+      #get emails from the Cc field
       email_cc = []
       if workshop_email.email_cc:
         email_cc = workshop_email.email_cc.split(';')
 
+      #get emails from the Bcc field
       email_bcc = []
       if workshop_email.email_bcc:
         email_bcc = workshop_email.email_bcc.split(';')
 
-      if registration_email_addresses or email_to or email_cc or email_bcc:
+      if registration_email_addresses or workshop_invitees or email_to or email_cc or email_bcc:
 
         if registration_email_addresses:
           email_bcc += registration_email_addresses
@@ -12133,7 +12152,6 @@ def send_workshop_email(id=id, cron=False):
           email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to, cc=email_cc, bcc=email_bcc)
           email_messages.append(email)
         else:
-
           if len(email_to) > 0:
             if len(email_to) <= 50:
               email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to)
@@ -12161,6 +12179,18 @@ def send_workshop_email(id=id, cron=False):
                 email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=email_bcc[i:i+50])
                 email_messages.append(email)
 
+        #send email to invitees individually
+        if workshop_invitees:
+          invitee_email_addresses = []
+          for invitee in workshop_invitees:
+            invitee_emails = [invitee.user.user.email]
+            invitee_email_addresses.append(invitee.user.user.email)
+            if invitee.user.secondary_email:
+              invitee_emails.append(invitee.user.secondary_email)
+              invitee_email_addresses.append(invitee.user.secondary_email)
+            email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=invitee_emails)
+            email_messages.append(email)
+
         for email_message in email_messages:
           email_message.content_subtype = "html"
           for attachment in attachments:
@@ -12178,6 +12208,8 @@ def send_workshop_email(id=id, cron=False):
           workshop_email.sent_date = datetime.datetime.now()
           if registration_email_addresses:
             workshop_email.registration_email_addresses = ';'.join(registration_email_addresses)
+          if invitee_email_addresses:
+            workshop_email.invitee_email_addresses = ';'.join(invitee_email_addresses)
           workshop_email.save()
           message = (True, 'The email message with id %s has been sent' % id)
         else:

@@ -1445,10 +1445,11 @@ class WorkshopEmailForm(ModelForm):
 
   registration_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_STATUS_CHOICES, required=False, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration statuses this email is sent to. Email will be bcc\'d to these addresses.')
   registration_sub_statuses = forms.MultipleChoiceField(choices=models.WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES, required=False, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more registration sub statuses this email is sent to. Email will be bcc\'d to these addresses.')
+  invitee_roles = forms.MultipleChoiceField(choices=models.WORKSHOP_INVITEE_ROLE_CHOICES, required=False, widget=forms.SelectMultiple(attrs={'size':6}), help_text='One or more invitee role this email is sent to. Email will be sent to these addresses individually.')
 
   class Meta:
     model = models.WorkshopEmail
-    exclude = ('registration_status', 'registration_sub_status', 'registration_email_addresses', 'email_status', 'sent_date', 'created_date', 'modified_date')
+    exclude = ('registration_status', 'registration_sub_status', 'registration_email_addresses', 'invitee_role', 'invitee_email_addresses', 'email_status', 'sent_date', 'created_date', 'modified_date')
     widgets = {
       'scheduled_date': forms.DateInput(format='%B %d, %Y'),
       'scheduled_time': forms.TimeInput(format='%I:%M %p'),
@@ -1459,7 +1460,7 @@ class WorkshopEmailForm(ModelForm):
     super(WorkshopEmailForm, self).__init__(*args, **kwargs)
 
     for field_name, field in list(self.fields.items()):
-      if field_name in ['registration_statuses', 'registration_sub_statuses']:
+      if field_name in ['registration_statuses', 'registration_sub_statuses', 'invitee_roles']:
         field.widget.attrs['class'] = 'form-control select2'
       elif field_name == 'scheduled_date':
         field.widget.attrs['class'] = 'form-control datepicker'
@@ -1467,8 +1468,10 @@ class WorkshopEmailForm(ModelForm):
       elif field_name == 'scheduled_time':
         field.widget.attrs['class'] = 'form-control timepicker'
         field.input_formats = ['%I:%M %p']
-      elif field_name == 'photo_release_incomplete':
+      elif field_name in ['photo_release_incomplete', 'vip_invitee']:
         field.widget.attrs['class'] = 'form-check-input'
+        if field_name == 'vip_invitee':
+          field.label = 'VIP'
       else:
         if field_name == 'email_to':
           field.label = 'To'
@@ -1486,16 +1489,18 @@ class WorkshopEmailForm(ModelForm):
     if self.instance.id:
       self.fields['registration_statuses'].initial = self.instance.get_registration_status()
       self.fields['registration_sub_statuses'].initial = self.instance.get_registration_sub_status()
+      self.fields['invitee_roles'].initial = self.instance.get_invitee_role()
 
   def clean(self):
     cleaned_data = super(WorkshopEmailForm, self).clean()
     registration_statuses = cleaned_data.get('registration_statuses')
     registration_sub_statuses = cleaned_data.get('registration_sub_statuses')
+    invitee_roles = cleaned_data.get('invitee_roles')
     email_to = cleaned_data.get('email_to')
     email_cc = cleaned_data.get('email_cc')
     email_bcc = cleaned_data.get('email_bcc')
 
-    if not registration_statuses and not registration_sub_statuses and email_to is None and email_cc is None and email_bcc is None:
+    if not registration_statuses and not registration_sub_statuses and not invitee_roles and email_to is None and email_cc is None and email_bcc is None:
       self.fields['registration_statuses'].widget.attrs['class'] += ' error'
       self.add_error('registration_statuses', 'This field is required if To, Cc and Bcc fields are empty')
 
