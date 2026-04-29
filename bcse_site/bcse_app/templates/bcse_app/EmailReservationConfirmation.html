@@ -12,10 +12,12 @@
       <tbody>
          <tr>
             <td style="text-align: center; border-bottom: 1px solid #767676; padding: 8px 0; word-wrap: normal" colspan="2">
+               <img src="https://{{domain}}{% staticfile 'img/new.png' %}" style="width:48px; float:right;"/>
                <h3 style="font-weight: 600; font-size: 20px;">Hi!</h3>
                <h3 style="font-weight: 600; font-size: 20px;">Thanks for your reservation. </h3>
                <div>The countdown to your delivery starts now.</div>
             </td>
+
          </tr>
          {% if reservation.delivery_date %}
            <tr>

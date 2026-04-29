@@ -28,7 +28,12 @@
                 {% if user.is_authenticated and user.userProfile.user_role in 'ASD' %}
                   <tr>
                     <th>User:</th>
-                    <td>{{reservation.user.user.get_full_name}}</td>
+                    <td>
+                      {{reservation.user.user.get_full_name}}
+                      {% if reservation|is_new_reservation %}
+                        <i class="fa-sharp fa-2x fa-regular fa-burst-new"></i>
+                      {% endif %}
+                    </td>
                   </tr>
                   <tr>
                     <th>User Email:</th>
