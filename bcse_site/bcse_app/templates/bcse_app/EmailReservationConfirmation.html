@@ -138,16 +138,18 @@
              </tr>
            {% endif %}
            {% if reservation.equipment %}
-             {% for equipment_type in reservation|get_reservation_equipment_types %}
+             {% with reservation|get_reservation_equipment_types as equipment_types %}
+             {% for equipment_type_id, equipment_type in equipment_types.items %}
                <tr class="kit">
                   <td class="details" align="left" style="{% if not forloop.last %} border-bottom: 1px solid #767676; {% endif %} padding: 8px 0; word-wrap: normal;" colspan="2">
-                     <div class="title" style="font-weight: 600;">{{equipment_type.name}} </div>
+                     <div class="title" style="font-weight: 600;">{{equipment_type.name}} {% if equipment_type.count > 1 %} x ({{equipment_type.count}} Sets) {% endif %} </div>
                      <div class="description">
                         {{equipment_type.description|safe}}
                      </div>
                   </td>
                </tr>
              {% endfor %}
+             {% endwith %}
            {% endif %}
 
          {% endif %}
