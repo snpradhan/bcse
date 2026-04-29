@@ -2,7 +2,7 @@ from django import template
 from bcse_app import models, views, utils
 from django.contrib import messages
 import datetime
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from collections import OrderedDict
@@ -394,8 +394,12 @@ def get_invitees_email(workshop_email):
 
 @register.filter
 def get_reservation_equipment_types(reservation):
-  equipment_type_ids = list(set(list(reservation.equipment.all().values_list('equipment_type', flat=True))))
-  equipment_types = models.EquipmentType.objects.all().filter(id__in=equipment_type_ids)
+  equipment_types = {}
+  for equipment in reservation.equipment.all():
+    if equipment.equipment_type.id in equipment_types:
+      equipment_types[equipment.equipment_type.id]['count'] += 1
+    else:
+      equipment_types[equipment.equipment_type.id] = {'name': equipment.equipment_type.name, 'count': 1, 'description': equipment.equipment_type.description }
   return equipment_types
 
 @register.filter

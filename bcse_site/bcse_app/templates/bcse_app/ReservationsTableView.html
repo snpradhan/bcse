@@ -214,13 +214,15 @@
                       </li>
                     {% endfor %}
                   {% else %}
-                    {% for equipment_type in reservation|get_reservation_equipment_types %}
+                    {% with reservation|get_reservation_equipment_types as equipment_types %}
+                    {% for equipment_type_id, equipment_type in equipment_types.items %}
                       <li>
-                        <a class="modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment_type.id %}" href="#">
-                          {{equipment_type.name}}
+                        <a class="modal-open" data-bs-toggle="modal" data-bs-target="#kit" data-href="{% url 'bcse:equipmentTypeView' equipment_type_id %}" href="#">
+                          {{equipment_type.name}} {% if equipment_type.count > 1 %} x ({{equipment_type.count}}) {% endif %}
                         </a>
                       </li>
                     {% endfor %}
+                    {% endwith %}
                   {% endif %}
                 {% endif %}
               </ul>
