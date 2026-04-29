@@ -457,3 +457,10 @@ def filesize(value):
       return f"{mb:.2f} MB"
   return f"{kb:.2f} KB"
 
+@register.filter
+def is_new_reservation(reservation):
+  first = models.Reservation.objects.all().filter(user=reservation.user).exclude(status='N').order_by('created_date').first()
+  if first == reservation:
+    return True
+  else:
+    return False
