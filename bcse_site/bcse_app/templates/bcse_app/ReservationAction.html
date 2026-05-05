@@ -90,79 +90,6 @@
           <hr class="dropdown-divider">
         </div>
 
-        <!-- Email Section -->
-        <div class="p-2 flex-fill">
-          <h6 class="dropdown-header fs-5 fw-bold">Email</h6>
-          {% if user.userProfile.user_role in 'AS' %}
-            {% if reservation.status not in 'UN' %}
-              <hr class="dropdown-divider">
-              <a class="dropdown-item action useAjax"
-                 data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}"
-                 data-title="confirmation"
-                 data-id="{{reservation.id}}"
-                 href="#">
-                {% if reservation.email_sent %}
-                  Resend
-                {% else %}
-                  Send
-                {% endif %}
-                Confirmation Email
-              </a>
-            {% endif %}
-            {% if reservation.status != 'N' %}
-              <hr class="dropdown-divider">
-              <a class="dropdown-item modal-open"
-                 data-bs-toggle="modal"
-                 data-bs-target="#general"
-                 data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">
-                Preview Confirmation Email
-              </a>
-            {% endif %}
-          {% endif %}
-
-          {% if user.userProfile.user_role in 'ASD' %}
-            <hr class="dropdown-divider">
-            <a class="dropdown-item modal-open"
-               data-bs-toggle="modal"
-               data-bs-target="#general"
-               data-href="{% url 'bcse:reservationDeliveryPickupEmailEdit' reservation.id %}">
-              Update Delivery/Pickup Emails
-            </a>
-            <hr class="dropdown-divider">
-            <a class="dropdown-item modal-open"
-               data-bs-toggle="modal"
-               data-bs-target="#general"
-               data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'P' %}">
-              Preview Pickup Email
-            </a>
-            <hr class="dropdown-divider">
-            <a class="dropdown-item modal-open"
-               data-bs-toggle="modal"
-               data-bs-target="#general"
-               data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'D' %}">
-              Preview Delivery Email
-            </a>
-
-            {% if reservation.status in 'RIO' %}
-              <hr class="dropdown-divider">
-              <a class="dropdown-item useAjax"
-                 data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}"
-                 data-title="pickup"
-                 data-id="{{reservation.id}}">
-                Send Pickup Email
-              </a>
-              <hr class="dropdown-divider">
-              <a class="dropdown-item useAjax"
-                 data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}"
-                 data-title="delivery"
-                 data-id="{{reservation.id}}">
-                Send Delivery Email
-              </a>
-            {% endif %}
-          {% endif %}
-          <hr class="dropdown-divider">
-        </div>
-
         <!-- Management Section -->
         <div class="p-2 flex-fill">
           <h6 class="dropdown-header fs-5 fw-bold">Management</h6>
@@ -250,6 +177,79 @@
               <a class="dropdown-item"
                  href="{% url 'bcse:reservationMessageDismiss' reservation.id %}">
                 Dismiss Messages
+              </a>
+            {% endif %}
+          {% endif %}
+          <hr class="dropdown-divider">
+        </div>
+
+        <!-- Email Section -->
+        <div class="p-2 flex-fill">
+          <h6 class="dropdown-header fs-5 fw-bold">Email</h6>
+          {% if user.userProfile.user_role in 'AS' %}
+            {% if reservation.status not in 'UN' %}
+              <hr class="dropdown-divider">
+              <a class="dropdown-item action useAjax"
+                 data-href="{% url 'bcse:reservationConfirmationEmailSend' reservation.id %}"
+                 data-title="confirmation"
+                 data-id="{{reservation.id}}"
+                 href="#">
+                {% if reservation.email_sent %}
+                  Resend
+                {% else %}
+                  Send
+                {% endif %}
+                Confirmation Email
+              </a>
+            {% endif %}
+            {% if reservation.status != 'N' %}
+              <hr class="dropdown-divider">
+              <a class="dropdown-item modal-open"
+                 data-bs-toggle="modal"
+                 data-bs-target="#general"
+                 data-href="{% url 'bcse:reservationConfirmationEmailView' reservation.id %}">
+                Preview Confirmation Email
+              </a>
+            {% endif %}
+          {% endif %}
+
+          {% if user.userProfile.user_role in 'ASD' %}
+            <hr class="dropdown-divider">
+            <a class="dropdown-item modal-open"
+               data-bs-toggle="modal"
+               data-bs-target="#general"
+               data-href="{% url 'bcse:reservationDeliveryPickupEmailEdit' reservation.id %}">
+              Update Delivery/Pickup Emails
+            </a>
+            <hr class="dropdown-divider">
+            <a class="dropdown-item modal-open"
+               data-bs-toggle="modal"
+               data-bs-target="#general"
+               data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'P' %}">
+              Preview Pickup Email
+            </a>
+            <hr class="dropdown-divider">
+            <a class="dropdown-item modal-open"
+               data-bs-toggle="modal"
+               data-bs-target="#general"
+               data-href="{% url 'bcse:reservationDeliveryPickupEmailView' reservation.id 'D' %}">
+              Preview Delivery Email
+            </a>
+
+            {% if reservation.status in 'RIO' %}
+              <hr class="dropdown-divider">
+              <a class="dropdown-item useAjax"
+                 data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'P' %}"
+                 data-title="pickup"
+                 data-id="{{reservation.id}}">
+                Send Pickup Email
+              </a>
+              <hr class="dropdown-divider">
+              <a class="dropdown-item useAjax"
+                 data-href="{% url 'bcse:reservationDeliveryPickupEmailSend' reservation.id 'D' %}"
+                 data-title="delivery"
+                 data-id="{{reservation.id}}">
+                Send Delivery Email
               </a>
             {% endif %}
           {% endif %}
