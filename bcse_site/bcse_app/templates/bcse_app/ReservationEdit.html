@@ -19,6 +19,9 @@
             {{form.media}}
 
             <input type="hidden" id="recaptchaToken" name="recaptchaToken">
+            {% if user.userProfile.user_role in 'AS' %}
+              <p>Reminder: We encourage each teacher to make their own reservation. Thank you!</p>
+            {% endif %}
 
             {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
               <div class="form-group mb-4">
