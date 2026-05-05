@@ -10588,7 +10588,10 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               elif survey.survey_type == 'B' and reservation_id:
                 reservation = models.Reservation.objects.get(id=reservation_id)
                 #reservation feedback submitted
-                reservation.feedback_status = 'S'
+                if user and user.user_role == 'A':
+                  reservation.feedback_status = 'A'
+                else:
+                  reservation.feedback_status = 'S'
                 reservation.save()
                 messages.success(request, 'Your feedback has been submitted')
               #other surveys
