@@ -172,13 +172,13 @@ class AdminCalendar(HTMLCalendar):
             index += 1
             if equip_availability['available']:
               d += f'<div class="availability_row all_available"> \
-                   <div>Kit {index} - <i class="fas fa-check"></i></div></div>'
+                   <div>{equip.name} - <i class="fas fa-check"></i></div></div>'
             else:
               locations = equip_availability['locations']
               if locations is None:
                 locations = "Location not set"
               d += f'<div class="availability_row all_checked_out"> \
-                   <div>Kit {index} <i class="fas fa-at"></i>'
+                   <div>{equip.name} <i class="fas fa-at"></i>'
               if len(locations) > 1:
                 d += '<i class="fa-solid fa-calendar-circle-exclamation"></i>'
                 d += '<ul>'

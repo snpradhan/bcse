@@ -50,6 +50,9 @@ import sys
 from django.urls import reverse, resolve
 from django.contrib.postgres.aggregates import ArrayAgg
 from itertools import chain
+from django.db.models import IntegerField
+from django.db.models.functions import Cast
+from django.db.models.expressions import RawSQL
 
 # Create your views here.
 
@@ -1262,7 +1265,8 @@ def equipments(request):
     if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
       raise CustomException('You do not have the permission to view equipment list')
 
-    equipments = models.Equipment.objects.all()
+    equipments = models.Equipment.objects.all().annotate(text_part=RawSQL("regexp_replace(name, '#[0-9]+$', '')", [] ), number_part=Cast(RawSQL("substring(name from '#([0-9]+)$')", [] ), IntegerField() ) ) .order_by('text_part', 'number_part')
+
     context = {'equipments': equipments}
     return render(request, 'bcse_app/Equipments.html', context)
 
@@ -2260,7 +2264,7 @@ def getAvailabilityData(request, id=''):
     calender_type = 'ET'
 
   elif request.POST.getlist('equipment'):
-    equipment_sets = models.Equipment.objects.all().filter(id__in=request.POST.getlist('equipment', ''))
+    equipment_sets = models.Equipment.objects.all().filter(id__in=request.POST.getlist('equipment', '')).annotate(text_part=RawSQL("regexp_replace(name, '#[0-9]+$', '')", [] ), number_part=Cast(RawSQL("substring(name from '#([0-9]+)$')", [] ), IntegerField() ) ) .order_by('text_part', 'number_part')
     equipment_availability_matrix = checkEquipmentSetAvailability(request, id, equipment_sets, delivery_date, return_date)
     is_available = all([equipment_set['is_available'] for equipment_set in equipment_availability_matrix.values()])
     calender_type = 'ES'
@@ -2445,8 +2449,7 @@ def checkAvailabilityForAdmin(request, equipment_types, selected_month):
     equipment_availability_matrix[equipment_type] = {}
 
     #get all active equipment of the equipment category
-    equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='A').order_by('name')
-
+    equipment = models.Equipment.objects.all().filter(equipment_type__id=equipment_type.id, status='A').annotate(text_part=RawSQL("regexp_replace(name, '#[0-9]+$', '')", [] ), number_part=Cast(RawSQL("substring(name from '#([0-9]+)$')", [] ), IntegerField() ) ) .order_by('text_part', 'number_part')
     index_date = start_date
     while index_date <= end_date:
       equipment_availability_matrix[equipment_type][index_date] = {}

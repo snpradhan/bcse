@@ -17,6 +17,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.db.models import IntegerField
+from django.db.models.functions import Cast
+from django.db.models.expressions import RawSQL
 
 ####################################
 # Login Form
@@ -896,7 +899,7 @@ class ReservationForm(ModelForm):
       self.fields['equipment_types'].initial = models.EquipmentType.objects.all().filter(equipment__in=self.instance.equipment.all())
 
       equipment_qs = models.Equipment.objects.all().filter(status='A') | models.Equipment.objects.all().filter(id__in=self.instance.equipment.all())
-      self.fields['equipment'].queryset = equipment_qs.distinct().order_by('name')
+      self.fields['equipment'].queryset = equipment_qs.distinct().annotate(text_part=RawSQL("regexp_replace(name, '#[0-9]+$', '')", [] ), number_part=Cast(RawSQL("substring(name from '#([0-9]+)$')", [] ), IntegerField() ) ) .order_by('text_part', 'number_part')
       self.fields['equipment'].initial = models.Equipment.objects.all().filter(id__in=self.instance.equipment.all())
 
       self.fields['user'].widget.attrs['disabled'] = True
