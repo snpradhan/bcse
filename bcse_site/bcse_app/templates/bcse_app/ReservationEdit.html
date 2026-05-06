@@ -19,7 +19,7 @@
             {{form.media}}
 
             <input type="hidden" id="recaptchaToken" name="recaptchaToken">
-            {% if user.userProfile.user_role in 'AS' %}
+            {% if user.userProfile.user_role != 'A' %}
               <p>Reminder: We encourage each teacher to make their own reservation. Thank you!</p>
             {% endif %}
 
