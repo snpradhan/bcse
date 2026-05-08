@@ -19,46 +19,93 @@
   </tbody>
 </table>
 
-<table class="table table-bordered table-striped export" id="registrants_summary">
-  {% get_registration_breakdown workshop.registration_setting as registration_summary %}
+<!--table class="table table-bordered table-striped export" id="registrants_summary">
+  <{% get_registration_breakdown workshop.registration_setting as registration_summary %}
   {% get_registration_attended_breakdown workshop.registration_setting as registration_attended_summary %}
+  {% get_registration_status_breakdown workshop.registration_setting as registration_status_summary %}
   {% with rs_len=registration_summary|length ra_len=registration_attended_summary|length %}
+  <caption class="top">Registration Summary</caption>
   <thead>
     <tr>
-      <th colspan="{{ rs_len|add:1|add:ra_len }}" class="center"> Registration Summary </th>
-    </tr>
-    <tr>
-      <th rowspan="2" class="center">Total Registrants</th>
-      {% for status, total in registration_summary.items %}
-        {% if status == 'Attended' %}
-          <th colspan="{{ra_len|add:1}}" class="center">{{status}}</th>
-        {% else %}
-          <th rowspan="2">{{status}}</th>
-        {% endif %}
+      {% for status, summary in registration_status_summary.items %}
+        <th colspan="{{summary.roles|length|add:1}}" class="center">{{status}}</th>
       {% endfor %}
     </tr>
-    {% if registration_attended_summary.items %}
-      <tr>
-        <th>Total</th>
-        {% for sub_status, total in registration_attended_summary.items %}
-          <th>{{sub_status}}</th>
-        {% endfor %}
-      </tr>
-    {% endif %}
+    <tr>
+    {% for status, summary in registration_status_summary.items %}
+      <th>Total <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" title="Total {{status}} {% if summary.vip_total %} <br> VIP registrants in parenthesis{% endif %}"></th>
+      {% for sub_status, sub_status_summary in summary.roles.items %}
+        <th>{{sub_status|truncatechars:7}} <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" title="{{status}} {{sub_status}} {% if sub_status_summary.vip %}<br>VIP registrants in parenthesis{% endif %}"></i></th>
+      {% endfor %}
+    {% endfor %}
+    </tr>
   </thead>
   <tbody>
-    <td>{{workshop.registration_setting.workshop_registrants.all|length}}</td>
-    {% for status, total in registration_summary.items %}
-      <td>{{total}}</td>
-      {% if status == 'Attended' %}
-        {% for sub_status, total in registration_attended_summary.items %}
-          <td>{{total}}</td>
-        {% endfor %}
-      {% endif %}
+    {% for status, summary in registration_status_summary.items %}
+      <td>{{summary.total}} {% if summary.vip_total %}({{summary.vip_total}}){% endif %}</td>
+      {% for sub_status, sub_status_summary in summary.roles.items %}
+        <td>{{sub_status_summary.total}} {% if sub_status_summary.vip %}({{sub_status_summary.vip}}){% endif %}</td>
+      {% endfor %}
     {% endfor %}
   </tbody>
   {% endwith %}
+</table-->
+<table class="table table-bordered table-striped export" id="registrants_summary">
+  {% get_registration_status_breakdown workshop.registration_setting as registration_status_summary %}
+    <thead>
+        <tr>
+          <th colspan="6" class="center">Registration Summary</th>
+        </tr>
+        <tr>
+            <th>Registration Status</th>
+            <th>Status Total</th>
+            {% if workshop.workshop_category.is_super %}
+              <th>VIP Total</th>
+            {% endif %}
+            <th>Registration Sub Status</th>
+            <th>Sub Status Total</th>
+            {% if workshop.workshop_category.is_super %}
+              <th>Sub Status VIP Total</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+      {% for status, status_data in registration_status_summary.items %}
+        {% for role, role_data in status_data.roles.items %}
+          <tr>
+            {% if forloop.first %}
+              <td rowspan="{{ status_data.roles|length }}">
+                  {{ status }}
+              </td>
+
+              <td rowspan="{{ status_data.roles|length }}">
+                  {{ status_data.total }}
+              </td>
+              {% if workshop.workshop_category.is_super %}
+              <td rowspan="{{ status_data.roles|length }}">
+                {% if status_data.vip_total > 0 %}
+                    {{ status_data.vip_total }}
+                {% endif %}
+              </td>
+              {% endif %}
+            {% endif %}
+
+            <td>{{ role }}</td>
+
+            <td>{{ role_data.total }}</td>
+            {% if workshop.workshop_category.is_super %}
+            <td>
+              {% if role_data.vip > 0 %}
+                  {{ role_data.vip }}
+              {% endif %}
+            </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
 </table>
+
 <div class="workshops_registrants search_results">
 </div>
 

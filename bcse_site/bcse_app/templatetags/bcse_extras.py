@@ -230,6 +230,47 @@ def get_registration_attended_breakdown(context, workshop_registration_setting):
   sorted_breakdown = {i: breakdown[i] for i in keys}
   return sorted_breakdown
 
+@register.simple_tag(takes_context=True)
+def get_registration_status_breakdown(context, workshop_registration_setting):
+  registrants = models.Registration.objects.filter(workshop_registration_setting=workshop_registration_setting).order_by('status', 'sub_status')
+  is_super = workshop_registration_setting.workshop.workshop_category.is_super
+  vip_user_ids = set()
+  if is_super:
+    vip_user_ids = set(
+        models.WorkshopInvitee.objects.all().filter(
+            workshop=workshop_registration_setting.workshop,
+            vip=True).values_list('user__id', flat=True)
+        )
+  breakdown = {}
+  for registrant in registrants:
+    status = registrant.get_status_display()
+    role = sub_status = registrant.get_sub_status_display()
+    is_vip = registrant.user.id in vip_user_ids
+
+    status_data = breakdown.setdefault(
+      status,
+      {
+        'total': 0,
+        'vip_total': 0,
+        'roles': {}
+      }
+    )
+    role_data = status_data['roles'].setdefault(
+      role,
+      {
+        'total': 0,
+        'vip': 0
+      }
+    )
+    status_data['total'] += 1
+    role_data['total'] += 1
+
+    if is_vip:
+      status_data['vip_total'] += 1
+      role_data['vip'] += 1
+
+  #print(breakdown)
+  return dict(sorted(breakdown.items()))
 
 @register.simple_tag(takes_context=True)
 def get_survey_submission_breakdown(context, survey):
