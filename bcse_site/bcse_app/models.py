@@ -224,6 +224,7 @@ WORKPLACE_TABLE_COLUMN_CHOICES = (
   ('WT', 'Workplace Type'),
   ('LI', '% Low Income Students'),
   ('DN', 'District #'),
+  ('RT', 'RCDTS Code'),
   ('GS', 'Grades Supported'),
   ('SC', 'School Categories'),
   ('S1', 'Street Address 1'),
@@ -373,6 +374,7 @@ class WorkPlace(models.Model):
     )
   school_categories = models.ManyToManyField('SchoolCategory', blank=True, related_name="schools")
   other_category = models.CharField(null=True, blank=True, max_length=256, help_text='Other category not in the list')
+  rcdts_code = models.CharField(null=True, blank=True, max_length=256, help_text='RCDTS Code from Illinois State Board Of Education')
   street_address_1 = models.CharField(null=False, blank=False, max_length=256, help_text='Street Address 1')
   street_address_2 = models.CharField(null=True, blank=True, max_length=256, help_text='Street Address 2')
   city = models.CharField(null=False, blank=False, max_length=256, help_text='City')

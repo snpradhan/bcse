@@ -1668,6 +1668,7 @@ class WorkPlaceForm(ModelForm):
 
     if user.is_anonymous or user.userProfile.user_role not in 'AS':
       self.fields.pop('admin_notes')
+      self.fields.pop('rcdts_code')
 
     if self.instance.id is None and user.is_authenticated and user.userProfile.user_role in 'AS':
       self.fields.pop('user_notes')
@@ -1689,6 +1690,8 @@ class WorkPlaceForm(ModelForm):
           field.label = 'Notes'
       elif field_name == 'grades':
         field.label = 'Grades supported at this school'
+      elif field_name == 'rcdts_code':
+        field.label = 'RCDTS Code'
 
       if field_name == 'status':
         if not self.instance.id:
@@ -2472,6 +2475,8 @@ class WorkPlacesSearchForm(ModelForm):
         field.widget.attrs['class'] = 'form-control'
       if field_name == 'district_number':
         field.label = 'District #'
+      elif field_name == 'rcdts_code':
+        field.label = 'RCDTS Code'
 
       if initials:
         if field_name in initials:

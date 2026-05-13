@@ -8404,6 +8404,7 @@ def workPlacesSearch(request):
       name_filter = None
       work_place_type_filter = None
       district_number_filter = None
+      rcdts_code_filter = None
       grades_filter = None
       school_categories_filter = None
       street_address_1_filter = None
@@ -8417,6 +8418,7 @@ def workPlacesSearch(request):
       name = request.GET.get('work_place_search-name', '')
       work_place_type = request.GET.get('work_place_search-work_place_type', '')
       district_number = request.GET.get('work_place_search-district_number', '')
+      rcdts_code = request.GET.get('work_place_search-rcdts_code', '')
       grades = request.GET.getlist('work_place_search-grades', '')
       school_categories = request.GET.getlist('work_place_search-school_categories', '')
       street_address_1 = request.GET.get('work_place_search-street_address_1', '')
@@ -8436,6 +8438,7 @@ def workPlacesSearch(request):
         'name': name,
         'work_place_type': work_place_type,
         'district_number': district_number,
+        'rcdts_code': rcdts_code,
         'grades': grades,
         'school_categories': school_categories,
         'street_address_1': street_address_1,
@@ -8457,6 +8460,8 @@ def workPlacesSearch(request):
         work_place_type_filter = Q(work_place_type=work_place_type)
       if district_number:
         district_number_filter = Q(district_number=district_number)
+      if rcdts_code:
+        rcdts_code_filter = Q(rcdts_code__contains=rcdts_code)
       if grades:
         grades_filter = Q(grades__overlap=grades)
       if school_categories:
@@ -8484,6 +8489,8 @@ def workPlacesSearch(request):
         query_filter = query_filter & district_number_filter
       if grades_filter:
         query_filter = query_filter & grades_filter
+      if rcdts_code_filter:
+        query_filter = query_filter & rcdts_code_filter
       if school_categories_filter:
         query_filter = query_filter & school_categories_filter
       if street_address_1_filter:

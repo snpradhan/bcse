@@ -20,6 +20,9 @@
         {% if 'DN' in columns %}
           <th> District # </th>
         {% endif %}
+        {% if 'RT' in columns %}
+          <th> RCDTS Code </th>
+        {% endif %}
         {% if 'GS' in columns %}
           <th> Grades Supported </th>
         {% endif %}
@@ -100,6 +103,9 @@
           {% endif %}
           {% if 'DN' in columns %}
             <td> {{work_place.district_number|default_if_none:""}} </td>
+          {% endif %}
+          {% if 'RT' in columns %}
+            <td> {{work_place.rcdts_code|default_if_none:""}} </td>
           {% endif %}
           {% if 'GS' in columns %}
             <td>{{work_place.get_grades_display|safe}}</td>
