@@ -26,6 +26,11 @@
             <div class="error">{{ searchForm.district_number.errors }}</div>
           </div>
           <div class="form-group">
+            <label for="id_{{searchForm.rcdts_code.name}}" class="form-label"> {{searchForm.rcdts_code.label}}</label>
+            <div>{{searchForm.rcdts_code}}</div>
+            <div class="error">{{ searchForm.rcdts_code.errors }}</div>
+          </div>
+          <div class="form-group">
             <label for="id_{{searchForm.grades.name}}" class="form-label"> {{searchForm.grades.label|title}}</label>
             <div>
               {% for grade in searchForm.grades %}
