@@ -11587,7 +11587,7 @@ def reservationFeedbackEmailSend(request, id):
     email.content_subtype = "html"
     success = email.send(fail_silently=True)
     if success:
-      if reservation.feedback_status is None:
+      if reservation.feedback_status == 'N':
         reservation.feedback_status = 'E'
       if reservation.feedback_email_count:
         reservation.feedback_email_count = reservation.feedback_email_count + 1
