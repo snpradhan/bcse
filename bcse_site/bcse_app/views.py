@@ -2069,10 +2069,11 @@ def reservationsSearch(request, display='table'):
         elif pickup_assignee:
           assignee_filter = Q(pickup_assignee=pickup_assignee)
 
-      if activity:
+      if activity and consumable:
+        activity_filter = Q(activity__in=activity) | Q(consumables__in=consumable)
+      elif activity:
         activity_filter = Q(activity__in=activity)
-
-      if consumable:
+      elif consumable:
         consumable_filter = Q(consumables__in=consumable)
 
       if status:
@@ -2769,11 +2770,13 @@ def baxterBoxUsageReportSearch(request):
         query_filter = query_filter & Q(user__in=user)
         filter_selected = True
 
-      if activity:
+      if activity and consumable:
+        query_filter = query_filter & Q(Q(activity__in=activity) | Q(consumables__in=consumable))
+        filter_selected = True
+      elif activity:
         query_filter = query_filter & Q(activity__in=activity)
         filter_selected = True
-
-      if consumable:
+      elif consumable:
         query_filter = query_filter & Q(consumables__in=consumable)
         filter_selected = True
 

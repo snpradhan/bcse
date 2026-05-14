@@ -39,18 +39,23 @@
         </div>
         <div class="filter_fields">
           <div class="form-group">
-            <label for="id_{{searchForm.activity.name}}" class="form-label">
-              {{searchForm.activity.label|title}}
-            </label>
-            <div>{{searchForm.activity}}</div>
-            <div class="error">{{ searchForm.activity.errors }}</div>
-          </div>
-          <div class="form-group">
-            <label for="id_{{searchForm.consumable.name}}" class="form-label">
-              {{searchForm.consumable.label|title}}
-            </label>
-            <div>{{searchForm.consumable}}</div>
-            <div class="error">{{ searchForm.consumable.errors }}</div>
+            <div>
+              <label for="id_{{searchForm.activity.name}}" class="form-label">
+                {{searchForm.activity.label|title}}
+              </label>
+              <div>{{searchForm.activity}}</div>
+              <div class="error">{{ searchForm.activity.errors }}</div>
+            </div>
+            <div class="center mt-2">
+              <label class="form-label">OR</label>
+            </div>
+            <div>
+              <label for="id_{{searchForm.consumable.name}}" class="form-label">
+                {{searchForm.consumable.label|title}}
+              </label>
+              <div>{{searchForm.consumable}}</div>
+              <div class="error">{{ searchForm.consumable.errors }}</div>
+            </div>
           </div>
           <div class="form-group">
             <label for="id_{{searchForm.equipment.name}}" class="form-label">
