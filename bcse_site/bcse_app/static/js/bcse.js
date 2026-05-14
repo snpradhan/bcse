@@ -724,6 +724,24 @@ function exportTablesToExcel(tables, filename, filter) {
       }
     });
 
+    table_element[i].querySelectorAll('td, th').forEach(cell => {
+      let html = cell.innerHTML;
+
+      // Convert <br> → newline
+      html = html.replace(/<br\s*\/?>/gi, '\n');
+
+      // Convert <li> → newline + bullet
+      html = html.replace(/<li[^>]*>/gi, '\n• ');
+
+      // Remove closing </li>
+      html = html.replace(/<\/li>/gi, '');
+
+      // Optional: remove <ul> / <ol> wrappers
+      html = html.replace(/<\/?(ul|ol)>/gi, '');
+
+      cell.innerHTML = html.trim();
+    });
+
     // Convert tables to worksheet
     ws[i] = XLSX.utils.table_to_sheet(table_element[i]);
      // Set all cell types in the sheet to string
@@ -731,6 +749,7 @@ function exportTablesToExcel(tables, filename, filter) {
       if (cellAddress[0] !== '!') {
         ws[i][cellAddress].t = 's'; // Force text
         ws[i][cellAddress].z = '@';  // Excel "Text" format
+
       }
     });
 

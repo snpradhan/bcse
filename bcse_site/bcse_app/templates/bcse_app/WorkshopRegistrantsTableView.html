@@ -12,6 +12,7 @@
         <th> Full Name </th>
         <th> User Role </th>
         <th> Workplace </th>
+        <th> Workplace Address </th>
         <th> % Low Income Students <br> SY {{school_year}}</th>
         {% if user.userProfile.user_role in 'AS' %}
           <th> Subscribed?</th>
@@ -48,6 +49,11 @@
           <td> {{registrant.user.user.get_full_name}}</td>
           <td> {{registrant.user.get_user_role_display}}</td>
           <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
+          <td>
+            {% if registrant.registration_to_work_place.work_place %}
+              {{registrant.registration_to_work_place.work_place.get_full_address|safe}}
+            {% endif %}
+          </td>
           <td> {{registrant.percentage_low_income|default_if_none:""}}</td>
           {% if user.userProfile.user_role in 'AS' %}
             <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>

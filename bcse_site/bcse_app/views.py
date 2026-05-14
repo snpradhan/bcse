@@ -2708,7 +2708,7 @@ def baxterBoxUsageReportSearch(request):
       for consumable in consumables:
         consumable_usage[consumable.id] = {'name': consumable.name, 'unit_cost': consumable.unit_cost, 'reservations': 0, 'count': 0, 'total_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'workplaces': [], 'workplace_count': 0, 'classes': 0, 'students': 0}
       for workplace in workplaces:
-        workplace_usage[workplace.id] = {'name': workplace.name, 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'classes': 0, 'students': 0}
+        workplace_usage[workplace.id] = {'name': workplace.name, 'address': workplace.get_full_address(), 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'teachers': [], 'teacher_count': 0, 'classes': 0, 'students': 0}
       for user in users:
         user_usage[user.id] = {'name': '%s, %s' % (user.user.last_name, user.user.first_name), 'email': user.user.email, 'secondary_email': user.secondary_email, 'current_workplace': user.work_place.name, 'associated_workplaces': [], 'reservations': 0, 'equipment': 0, 'total_equipment_cost': 0.0,  'kits': 0, 'total_kit_cost': 0.0, 'consumables': 0, 'total_consumables_cost': 0.0, 'total_cost': 0.0, 'classes': 0, 'students': 0}
 
