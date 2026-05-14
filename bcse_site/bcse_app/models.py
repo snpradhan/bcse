@@ -399,7 +399,7 @@ class WorkPlace(models.Model):
       return '%s' % (self.name)
 
   def get_full_address(self):
-    return '%s <br> %s %s, %s, %s' % (self.street_address_1, self.street_address_2 + '<br>' if self.street_address_2 else '', self.city, self.state, self.zip_code)
+    return '%s <br> %s %s, %s %s %s' % (self.street_address_1, self.street_address_2 + '<br>' if self.street_address_2 else '', self.city, self.get_county_display() if self.county != 'O' else self.other_county if self.other_county else '', self.state, self.zip_code)
 
   def get_grades_display(self):
     mapping = dict(WORKPLACE_GRADE_CHOICES)
