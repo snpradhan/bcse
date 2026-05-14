@@ -11,33 +11,34 @@
       <div id="filter_fields">
       <div class="filter_fields">
         {% if searchForm.user %}
-          <div class="filter_fields">
-            <div class="form-group">
-              <label for="id_{{searchForm.user.name}}" class="form-label"> {{searchForm.user.label|title}}</label>
-              <div>{{searchForm.user}}</div>
-              <div class="error">{{ searchForm.user.errors }}</div>
-            </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.user.name}}" class="form-label"> {{searchForm.user.label|title}}</label>
+            <div>{{searchForm.user}}</div>
+            <div class="error">{{ searchForm.user.errors }}</div>
           </div>
         {% endif %}
         {% if searchForm.work_place %}
-          <div class="filter_fields">
-            <div class="form-group">
-              <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
-              <div>{{searchForm.work_place}}</div>
-              <div class="error">{{ searchForm.work_place.errors }}</div>
-            </div>
+          <div class="form-group">
+            <label for="id_{{searchForm.work_place.name}}" class="form-label"> {{searchForm.work_place.label|title}}</label>
+            <div>{{searchForm.work_place}}</div>
+            <div class="error">{{ searchForm.work_place.errors }}</div>
           </div>
         {% endif %}
 
         <div class="form-group">
-          <label for="id_{{searchForm.activity.name}}" class="form-label"> {{searchForm.activity.label|title}}</label>
-          <div>{{searchForm.activity}}</div>
-          <div class="error">{{ searchForm.activity.errors }}</div>
-        </div>
-        <div class="form-group">
-          <label for="id_{{searchForm.consumable.name}}" class="form-label"> {{searchForm.consumable.label|title}}</label>
-          <div>{{searchForm.consumable}}</div>
-          <div class="error">{{ searchForm.consumable.errors }}</div>
+          <div>
+            <label for="id_{{searchForm.activity.name}}" class="form-label"> {{searchForm.activity.label|title}}</label>
+            <div>{{searchForm.activity}}</div>
+            <div class="error">{{ searchForm.activity.errors }}</div>
+          </div>
+          <div class="center mt-2">
+            <label class="form-label">OR</label>
+          </div>
+          <div>
+            <label for="id_{{searchForm.consumable.name}}" class="form-label"> {{searchForm.consumable.label|title}}</label>
+            <div>{{searchForm.consumable}}</div>
+            <div class="error">{{ searchForm.consumable.errors }}</div>
+          </div>
         </div>
         <div class="form-group">
           <label for="id_{{searchForm.equipment.name}}" class="form-label">
