@@ -25,6 +25,10 @@
       </p>
 
       <p>In the mean time you may review your reservation <a href="https://{{domain}}/reservation/{{reservation.id}}/view">here</a></p>
+      {% if reservation.activity and reservation.activity.manuals_resources %}
+         <p> You may also review the manuals/resources needed for this lab linked below </p>
+         {{reservation.activity.manuals_resources|safe}}
+      {% endif %}
    </div>
 {% endblock %}
 
