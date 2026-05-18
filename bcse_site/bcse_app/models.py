@@ -1428,7 +1428,26 @@ def replace_workshop_tokens(text, workshop, registration=''):
   replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
   replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')
-  replaced_text = replaced_text.replace('[isbe_url]', workshop.registration_setting.isbe_link or '')
+
+  isbe_language = ''
+  if workshop.registration_setting.isbe_link:
+    isbe_language = f'If you are an Illinois licensed teacher and would like to \
+                     receive Professional Development hours for this event that \
+                     can be used toward licensure renewal, please register in \
+                     PD+ using this link <strong>prior to the event</strong>: <a href="{workshop.registration_setting.isbe_link}">{workshop.registration_setting.isbe_link}</a> \
+                     <br><br>\
+                     (Professional Development hours will be awarded in PD+. \
+                     The PD+ tab can be found in your ISBE, ELIS account here: \
+                     <a href="https://apps.isbe.net/iwasnet/login.aspx">https://apps.isbe.net/iwasnet/login.aspx</a> . \
+                     Once the professional development event is complete and \
+                     attendance has been verified and taken in PD+ by Northwestern, \
+                     you will be able to complete an evaluation form (77-21A) \
+                     by clicking on the PD+ button in ELIS. Once the evaluation \
+                     form is complete, you will receive Professional Development \
+                     hours credit. A "How to Receive Credit" guide can be found here:\
+                     <a href="https://www.isbe.net/Documents/Educator-How-to-Receive-Credit-for-a-Professional-Development-Activity-in-PD.pdf">https://www.isbe.net/Documents/Educator-How-to-Receive-Credit-for-a-Professional-Development-Activity-in-PD.pdf</a>'
+
+  replaced_text = replaced_text.replace('[isbe_url]', isbe_language or '')
 
   photo_release_text = 'We do not have a photo release on file for you. Please click <a href="%s">here</a> to complete it before attending this event.' % settings.PHOTO_RELEASE_URL
   if registration:
