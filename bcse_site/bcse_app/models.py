@@ -1454,7 +1454,19 @@ def replace_workshop_tokens(text, workshop, registration=''):
   replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
   replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')
-  replaced_text = replaced_text.replace('[isbe_url]', workshop.registration_setting.isbe_link or '')
+
+  isbe_language = ''
+  if workshop.registration_setting.isbe_link:
+    isbe_language = f'If you are an Illinois licensed teacher and would like to receive Professional Development \
+                      hours for this event that can be used toward licensure renewal, please follow these steps to \
+                      register in PD+ <strong>prior to the event.</strong>\
+                      Start by logging into your <a href="https://apps.isbe.net/iwasnet/login.aspx">ELIS account</a> on a computer. \
+                      After logging in, click on the PD+ tab at the top left to navigate to PD+. \
+                      Once in your PD+ account, click on the following link for this event to complete registration:\
+                      <a href="{workshop.registration_setting.isbe_link}">{workshop.registration_setting.isbe_link}</a> \
+                     <br><br>'
+
+  replaced_text = replaced_text.replace('[isbe_url]', isbe_language or '')
 
   photo_release_text = 'We do not have a photo release on file for you. Please click <a href="%s">here</a> to complete it before attending this event.' % settings.PHOTO_RELEASE_URL
   if registration:
