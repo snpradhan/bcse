@@ -11,6 +11,7 @@
         <th> Email </th>
         <th> Full Name </th>
         <th> User Role </th>
+        <th> IEIN </th>
         <th> Workplace </th>
         <th> Workplace Address </th>
         <th> % Low Income Students <br> SY {{school_year}}</th>
@@ -48,6 +49,11 @@
           </td>
           <td> {{registrant.user.user.get_full_name}}</td>
           <td> {{registrant.user.get_user_role_display}}</td>
+          <td>
+            {% if registrant.user.iein %}
+              {{registrant.user.iein|default_if_none:""}}
+            {% endif %}
+          </td>
           <td> {{registrant.registration_to_work_place.work_place|default_if_none:""}}</td>
           <td>
             {% if registrant.registration_to_work_place.work_place %}
