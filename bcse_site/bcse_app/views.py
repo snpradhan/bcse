@@ -2536,7 +2536,7 @@ def reservationUpdate(request, reservation_id):
 
     if request.method == 'GET':
       form = forms.ReservationUpdateForm(instance=reservation)
-      context = {'form': form, 'reservation_id': reservation_id}
+      context = {'form': form, 'reservation_id': reservation_id, 'reservation': reservation}
       return render(request, 'bcse_app/ReservationUpdateModal.html', context)
     elif request.method == 'POST':
       data = request.POST.copy()
