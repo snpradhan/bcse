@@ -16,6 +16,16 @@
       {% csrf_token %}
       {{form.media}}
       <div class="modal-body">
+        <div class="mb-3">
+          <div><b>User:</b> {{reservation.user.user.get_full_name}}</div>
+          <div><b>User Email:</b> {{reservation.user.user.email}}</div>
+          {% if reservation.activity %}
+            <div><b>Activity Name:</b> {{reservation.activity}}</div>
+          {% else %}
+            <div><b>Activity Name:</b> {{reservation.other_activity_name}}</div>
+          {% endif %}
+          <div><b>Workplace:</b> {{reservation.reservation_to_work_place.work_place.name}}</div>
+        </div>
         <div class="form-group mb-3">
           <label for="id_{{form.admin_notes.name}}">
             {{ form.admin_notes.label }}
