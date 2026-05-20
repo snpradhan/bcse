@@ -83,9 +83,8 @@
             symbolSuffix += ' <i class="fas fa-calendar-check" style="color:red;""></i>';
           }
         }
-
         return {
-          html: `<div title="${event.title}"><div>${symbolPrefix}</div>` + `<div class="event_title">${event.title}</div>` + `<div>${symbolSuffix}</div></div>`
+          html: `<div title="${event.title}"><div>${symbolPrefix}</div>` + `<div class="event_title"><a href='https://www.google.com/maps/search/?api=1&query=${event.title.split('-')[0].trim()}' target='_blank'>${event.title.split('-')[0].trim()}</a> - ${event.title.split('-')[1].trim()}</div>` + `<div>${symbolSuffix}</div></div>`
         };
       },
       eventClick: function(info) {
