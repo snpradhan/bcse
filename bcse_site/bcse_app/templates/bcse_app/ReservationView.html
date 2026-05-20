@@ -182,20 +182,27 @@
                     <div class="delivery_address">
                       <div>
                         {% if reservation.delivery_address %}
-                          {{reservation.delivery_address.street_address_1}}<br>
-                          {% if reservation.delivery_address.street_address_2 %}
-                            {{reservation.delivery_address.street_address_2}}<br>
-                          {% endif %}
-                          {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+                          <a href="https://www.google.com/maps/search/?api=1&query={{ reservation.delivery_address.street_address_1 }}{% if reservation.delivery_address.street_address_2 %} {{ reservation.delivery_address.street_address_2 }}{% endif %} {{ reservation.delivery_address.city }}"
+                          target="_blank">
+                            {{work_place.name}}<br>
+                            {{reservation.delivery_address.street_address_1}}<br>
+                            {% if reservation.delivery_address.street_address_2 %}
+                              {{reservation.delivery_address.street_address_2}}<br>
+                            {% endif %}
+                            {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+                          </a>
                         {% elif reservation.reservation_to_work_place %}
+                          <a href="https://www.google.com/maps/search/?api=1&query={{reservation.reservation_to_work_place.work_place.name}} {{ reservation.reservation_to_work_place.work_place.street_address_1 }}{% if reservation.reservation_to_work_place.work_place.street_address_2 %} {{ reservation.reservation_to_work_place.work_place.street_address_2 }}{% endif %} {{ reservation.reservation_to_work_place.work_place.city }}"
+                          target="_blank">
                           {% if user.is_authenticated and user.userProfile.user_role in 'TP'%}
-                            {{reservation.reservation_to_work_place.work_place.name}} <br>
+                            {{reservation.reservation_to_work_place.work_place.name}}<br>
                           {% endif %}
                           {{reservation.reservation_to_work_place.work_place.street_address_1}}<br>
                           {% if reservation.reservation_to_work_place.work_place.street_address_2 %}
                             {{reservation.reservation_to_work_place.work_place.street_address_2}}<br>
                           {% endif %}
                           {{reservation.reservation_to_work_place.work_place.city}}, {{reservation.reservation_to_work_place.work_place.state}} {{reservation.reservation_to_work_place.work_place.zip_code}}
+                          </a>
                         {% endif %}
                         <br><br>
                         <i>If your delivery address has changed, please message us.</i>
