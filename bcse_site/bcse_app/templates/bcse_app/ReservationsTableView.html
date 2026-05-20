@@ -262,22 +262,29 @@
             <td>
               {% if reservation.reservation_to_work_place %}
                 {% with work_place=reservation.reservation_to_work_place.work_place %}
-                {{work_place.name}}<br>
                 {% if reservation.delivery_address %}
-                  {{reservation.delivery_address.street_address_1}}<br>
-                  {% if reservation.delivery_address.street_address_2 %}
-                    {{reservation.delivery_address.street_address_2}}<br>
-                  {% endif %}
-                  {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+                  <a href="https://www.google.com/maps/search/?api=1&query={{ reservation.delivery_address.street_address_1 }}{% if reservation.delivery_address.street_address_2 %} {{ reservation.delivery_address.street_address_2 }}{% endif %} {{ reservation.delivery_address.city }}"
+                  target="_blank">
+                    {{work_place.name}}<br>
+                    {{reservation.delivery_address.street_address_1}}<br>
+                    {% if reservation.delivery_address.street_address_2 %}
+                      {{reservation.delivery_address.street_address_2}}<br>
+                    {% endif %}
+                    {{reservation.delivery_address.city}}, {{reservation.delivery_address.state}} {{reservation.delivery_address.zip_code}}
+                  </a>
                 {% else %}
-                  {{work_place.street_address_1}}<br>
-                  {% if work_place.street_address_2 %}
-                    {{work_place.street_address_2}}<br>
-                  {% endif %}
-                  {% if work_place.city %}
-                    {{work_place.city}},
-                  {% endif %}
-                  {{work_place.state}} {{work_place.zip_code}}
+                  <a href="https://www.google.com/maps/search/?api=1&query={{ work_place.name }} {{ work_place.street_address_1 }}{% if work_place.street_address_2 %} {{ work_place.street_address_2 }}{% endif %} {{ work_place.city }}"
+                  target="_blank">
+                    {{work_place.name}}<br>
+                    {{work_place.street_address_1}}<br>
+                    {% if work_place.street_address_2 %}
+                      {{work_place.street_address_2}}<br>
+                    {% endif %}
+                    {% if work_place.city %}
+                      {{work_place.city}},
+                    {% endif %}
+                    {{work_place.state}} {{work_place.zip_code}}
+                  </a>
                 {% endif %}
                 {% if work_place.admin_notes %}
                   <i class="fas fa-info-circle" type="button" data-bs-toggle="collapse" data-bs-target="#reservation_{{reservation.id}}_workplace_notes" aria-expanded="false" aria-controls="reservation_{{reservation.id}}_workplace_notes"></i>
