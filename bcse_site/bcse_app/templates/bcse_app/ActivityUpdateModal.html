@@ -104,6 +104,11 @@
             </div>
 
             <div class="form-group mb-3">
+              <label for="id_{{form.description.name}}" class="form-label"> {{form.description.label|title}}</label>
+              <div>{{form.description}}</div>
+              <div class="error">{{ form.description.errors }}</div>
+            </div>
+            <div class="form-group mb-3">
               <label for="id_{{form.notes.name}}">
                 {{ form.notes.label|title }}
                 {% if form.notes.field.required %}

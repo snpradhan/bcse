@@ -575,14 +575,16 @@ class ActivityUpdateForm(ModelForm):
 
   class Meta:
     model = models.Activity
-    fields = ['kit_unit_cost', 'notes', 'color']
+    fields = ['kit_unit_cost', 'notes', 'color', 'description']
     widgets = {
       'notes': forms.Textarea(attrs={'rows':1}),
+      'description': forms.Textarea(attrs={'rows':1}),
     }
 
   def __init__(self, *args, **kwargs):
     super(ActivityUpdateForm, self).__init__(*args, **kwargs)
     self.fields['notes'].label = 'Notes'
+    self.fields['description'].label = 'Description'
     self.fields['color'].queryset = models.ReservationColor.objects.all().filter(target__in=['K', 'B'])
     self.fields['color'].label = 'Inventory Status'
 
