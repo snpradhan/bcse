@@ -3,28 +3,34 @@
 {% load base_extras %}
 
 {% block configuration %}
-  <h1> Registration Confirmation Messages </h1>
+  <h1> Generic Registration Emails</h1>
   <div class="button-row">
-    <a class="btn" href="{% url 'bcse:registrationEmailMessageNew' %}" role="button">Create Registration Email Message</a>
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:registrationEmailMessageNew' %}" href="#">Create Registration Email</a>
   </div>
   <div class="search_results static">
     <table class="table table-bordered table-striped">
+      <caption class="top warning">These generic registration emails are sent when users apply or register for a workshop or when their existing registration status changes. You can only create one email message per registration status from/to combination.</caption>
       <thead>
         <tr>
-          <th> Message ID</th>
-          <th> Registration Status </th>
-          <th> Subject </th>
-          <th> Message </th>
-          <th> Email Trigger </th>
-          <th> Created Date</th>
-          <th> Modified Date </th>
-          <th> Action </th>
+          <th rowspan="2"> Message ID</th>
+          <th colspan="2" class="center"> Registration Status</th>
+          <th rowspan="2"> Subject </th>
+          <th rowspan="2"> Message </th>
+          <th rowspan="2"> Email Trigger </th>
+          <th rowspan="2"> Created Date</th>
+          <th rowspan="2"> Modified Date </th>
+          <th rowspan="2"> Action </th>
+        </tr>
+        <tr>
+          <th> From</th>
+          <th> To</th>
         </tr>
       </thead>
       <tbody>
         {% for email_message in registration_messages %}
           <tr>
             <td> {{email_message.id}}</td>
+            <td> {{email_message.get_registration_status_from_display|default_if_none:"Any"}} </td>
             <td> {{email_message.get_registration_status_display}} </td>
             <td> {{email_message.email_subject}} </td>
             <td> {{email_message.email_message|safe}} </td>
@@ -38,7 +44,7 @@
                 </button>
                 <ul class="dropdown-menu">
                   <li>
-                    <a class="dropdown-item" href="{% url 'bcse:registrationEmailMessageEdit' email_message.id %}">Edit</a>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:registrationEmailMessageEdit' email_message.id %}">Edit</a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>

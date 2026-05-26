@@ -715,18 +715,7 @@ class WorkshopApplication(models.Model):
       unique_together = ('registration', 'application')
 
 class RegistrationEmailMessage(models.Model):
-  registration_status = models.CharField(null=False, blank=False, max_length=1, unique=True, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
-  email_subject = models.CharField(null=False, max_length=256)
-  email_message = RichTextField(null=False, blank=False)
-  include_calendar_invite = models.BooleanField(default=False)
-  created_date = models.DateTimeField(auto_now_add=True)
-  modified_date = models.DateTimeField(auto_now=True)
-
-  class Meta:
-      ordering = ['registration_status']
-
-class WorkshopRegistrationEmail(models.Model):
-  workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_registration_email")
+  registration_status_from = models.CharField(null=True, blank=True, max_length=1, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
   registration_status = models.CharField(null=False, blank=False, max_length=1, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
   email_subject = models.CharField(null=False, max_length=256)
   email_message = RichTextField(null=False, blank=False)
@@ -735,8 +724,22 @@ class WorkshopRegistrationEmail(models.Model):
   modified_date = models.DateTimeField(auto_now=True)
 
   class Meta:
-      ordering = ['registration_status']
-      unique_together = ('workshop', 'registration_status')
+      ordering = ['registration_status_from', 'registration_status']
+      unique_together = ('registration_status_from', 'registration_status')
+
+class WorkshopRegistrationEmail(models.Model):
+  workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_registration_email")
+  registration_status_from = models.CharField(null=True, blank=True, max_length=1, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
+  registration_status = models.CharField(null=False, blank=False, max_length=1, choices=WORKSHOP_REGISTRATION_STATUS_CHOICES)
+  email_subject = models.CharField(null=False, max_length=256)
+  email_message = RichTextField(null=False, blank=False)
+  include_calendar_invite = models.BooleanField(default=False)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['registration_status_from', 'registration_status']
+      unique_together = ('workshop', 'registration_status_from', 'registration_status')
 
 class WorkshopEmail(models.Model):
   workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE, related_name="workshop_email")
@@ -1267,10 +1270,26 @@ class URLMapping(models.Model):
       raise ValidationError("This URL mapping is protected and cannot be deleted.")
     super().delete(*args, **kwargs)
 
+
+# signal to check if registration status has changed
+# and check if anyone on the waitlist needs to be promoted
+@receiver(post_save, sender=Registration)
+def check_post_registration_status_change(sender, instance, **kwargs):
+  try:
+    workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
+    current_datetime = datetime.datetime.now()
+    current_date = current_datetime.date()
+    #only check waitlist promotion if the workshop hasn't ended
+    if current_date < workshop.end_date:
+      check_registration_promotion(workshop)
+
+  except Workshop.DoesNotExist as e:
+    pass
+
 # signal to check if registration status has changed
 # and then send an email to the registrant
-@receiver(post_save, sender=Registration)
-def check_registration_status_change(sender, instance, **kwargs):
+@receiver(pre_save, sender=Registration)
+def check_pre_registration_status_change(sender, instance, **kwargs):
   try:
     workshop = Workshop.objects.get(id=instance.workshop_registration_setting.workshop.id)
     current_datetime = datetime.datetime.now()
@@ -1278,11 +1297,20 @@ def check_registration_status_change(sender, instance, **kwargs):
     #only send email notification if the workshop hasn't ended
     if current_date < workshop.end_date:
       try:
-        #get email message from Workshop first
-        confirmation_message_object = WorkshopRegistrationEmail.objects.get(workshop=workshop, registration_status=instance.status)
-      except WorkshopRegistrationEmail.DoesNotExist:
-        #get general registration email message for the respective registration status
-        confirmation_message_object = RegistrationEmailMessage.objects.get(registration_status=instance.status)
+        obj = sender.objects.get(pk=instance.pk)
+        status_from = obj.status
+      except sender.DoesNotExist:
+        status_from = None
+
+      status_to = instance.status
+
+      confirmation_message_object = WorkshopRegistrationEmail.objects.filter(workshop=workshop, registration_status_from=status_from, registration_status=status_to).first() \
+      or WorkshopRegistrationEmail.objects.filter(workshop=workshop, registration_status_from__isnull=True, registration_status=status_to).first() \
+      or RegistrationEmailMessage.objects.filter(registration_status_from=status_from, registration_status=status_to).first() \
+      or RegistrationEmailMessage.objects.filter(registration_status_from__isnull=True, registration_status=status_to).first()
+
+      if not confirmation_message_object:
+        return
 
       userProfile = instance.user
       registration_setting = workshop.registration_setting
@@ -1313,8 +1341,6 @@ def check_registration_status_change(sender, instance, **kwargs):
 
       email.content_subtype = "html"
       email.send(fail_silently=True)
-
-      check_registration_promotion(workshop)
 
   except RegistrationEmailMessage.DoesNotExist as e:
     pass
