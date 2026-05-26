@@ -1542,8 +1542,33 @@ class RegistrationEmailMessageForm(ModelForm):
         field.widget.attrs['class'] = 'form-check-input'
       else:
         field.widget.attrs['class'] = 'form-control'
+        if field_name == 'registration_status':
+          field.label = 'Registration Status To'
+
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
+
+  def clean(self):
+    cleaned_data = super(RegistrationEmailMessageForm, self).clean()
+    registration_status_from = cleaned_data.get('registration_status_from')
+    registration_status = cleaned_data.get('registration_status')
+
+    if registration_status_from and registration_status and registration_status_from == registration_status:
+      self.fields['registration_status_from'].widget.attrs['class'] += ' error'
+      self.fields['registration_status'].widget.attrs['class'] += ' error'
+      self.add_error('registration_status_from', 'From and To statuses cannot be the same')
+    else:
+      if registration_status_from:
+        qs = models.RegistrationEmailMessage.objects.all().filter(registration_status_from=registration_status_from, registration_status=registration_status)
+      else:
+        qs = models.RegistrationEmailMessage.objects.all().filter(registration_status_from__isnull=True, registration_status=registration_status)
+      if self.instance.pk:
+        qs = qs.exclude(pk=self.instance.pk)
+
+      if qs.exists():
+        self.fields['registration_status_from'].widget.attrs['class'] += ' error'
+        self.fields['registration_status'].widget.attrs['class'] += ' error'
+        self.add_error('registration_status', 'Generic registration email with this Registration status combination already exists.')
 
 ########################################################################
 # Worksho Registration Email Form for automated registration emails
@@ -1561,20 +1586,34 @@ class WorkshopRegistrationEmailForm(ModelForm):
         field.widget.attrs['class'] = 'form-check-input'
       else:
         field.widget.attrs['class'] = 'form-control'
+        if field_name == 'registration_status':
+          field.label = 'Registration Status To'
       field.widget.attrs['aria-describedby'] = field.label
       field.widget.attrs['placeholder'] = field.help_text
 
   def clean(self):
     cleaned_data = super(WorkshopRegistrationEmailForm, self).clean()
+    registration_status_from = cleaned_data.get('registration_status_from')
     registration_status = cleaned_data.get('registration_status')
     workshop = cleaned_data.get('workshop')
-    qs = models.WorkshopRegistrationEmail.objects.all().filter(registration_status=registration_status, workshop=workshop)
-    if self.instance.pk:
-      qs = qs.exclude(pk=self.instance.pk)
 
-    if qs.exists():
+    if registration_status_from and registration_status and registration_status_from == registration_status:
+      self.fields['registration_status_from'].widget.attrs['class'] += ' error'
       self.fields['registration_status'].widget.attrs['class'] += ' error'
-      self.add_error('registration_status', 'Automated registration email with this Registration status already exists.')
+      self.add_error('registration_status_from', 'From and To statuses cannot be the same')
+
+    else:
+      if registration_status_from:
+        qs = models.WorkshopRegistrationEmail.objects.all().filter(registration_status_from=registration_status_from, registration_status=registration_status, workshop=workshop)
+      else:
+        qs = models.WorkshopRegistrationEmail.objects.all().filter(registration_status_from__isnull=True, registration_status=registration_status, workshop=workshop)
+      if self.instance.pk:
+        qs = qs.exclude(pk=self.instance.pk)
+
+      if qs.exists():
+        self.fields['registration_status_from'].widget.attrs['class'] += ' error'
+        self.fields['registration_status'].widget.attrs['class'] += ' error'
+        self.add_error('registration_status', 'Automated registration email with this Registration status combination already exists.')
 
 
 

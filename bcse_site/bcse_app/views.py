@@ -3644,11 +3644,12 @@ def get_registration_emails(request):
 
     registration_messages = models.RegistrationEmailMessage.objects.all().annotate(
       trigger=Case(
+          When(Q(registration_status_from='W') &  Q(registration_status='R'), then=Value('When an admin moves a user from waitlist to registered status or when a spot opens up and a user is automatically moved from the waitlist to registered for a workshop scheduled for a future date.')),
           When(registration_status='R', then=Value('When a user registers for a workshop scheduled for a future date and the workshop has capacity.')),
           When(registration_status='A', then=Value('When a user applies to a workshop scheduled for a future date.')),
           When(registration_status='C', then=Value('When a user\'s application is accepted by an admin and the workshop is scheduled for a future date.')),
           When(registration_status='D', then=Value('When a user\'s application is denied by an admin and the workshop is scheduled for a future date.')),
-          When(registration_status='N', then=Value('When a user\'s application or registration is denied by an admin and the workshop is scheduled for a future date.')),
+          When(registration_status='N', then=Value('When a user\'s application or registration is cancelled by an admin and the workshop is scheduled for a future date.')),
           When(registration_status='W', then=Value('When a user attempts to register for a workshop that is full or when an admin moves an existing registration to waitlist.  In both cases the workshop is scheduled for a future date ')),
           When(registration_status='P', then=Value('When an admin moves an existing registration or application to pending status and the workshop is scheduled for a future date. ')),
           default=Value('Registration email should not be created for this status'),
@@ -3681,15 +3682,19 @@ def registrationEmailMessageEdit(request, id=''):
     elif request.method == 'POST':
       data = request.POST.copy()
       form = forms.RegistrationEmailMessageForm(data, files=request.FILES, instance=registration_confirmation)
+      response_data = {}
       if form.is_valid():
         savedMessage = form.save()
-        messages.success(request, "Registration confirmation message saved")
-        return shortcuts.redirect('bcse:registrationEmailMessageEdit', id=savedMessage.id)
+        messages.success(request, "Registration email saved")
+        response_data['success'] = True
       else:
         print(form.errors)
-        messages.error(request, "Registration email message could not be saved. Check the errors below.")
+        messages.error(request, "Registration email could not be saved. Check the errors below.")
         context = {'form': form}
-        return render(request, 'bcse_app/RegistrationEmailMessageEdit.html', context)
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/RegistrationEmailMessageEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
 
     return http.HttpResponseNotAllowed(['GET', 'POST'])
 
@@ -6035,13 +6040,14 @@ def workshopRegistrationEmails(request, workshop_id=''):
       workshop = models.Workshop.objects.get(id=workshop_id)
       registration_emails = models.WorkshopRegistrationEmail.objects.all().filter(workshop__id=workshop_id).annotate(
         trigger=Case(
-            When(registration_status='R', then=Value('When a user registers for a workshop scheduled for a future date and the workshop has capacity.')),
-            When(registration_status='A', then=Value('When a user applies to a workshop scheduled for a future date.')),
-            When(registration_status='C', then=Value('When a user\'s application is accepted by an admin and the workshop is scheduled for a future date.')),
-            When(registration_status='D', then=Value('When a user\'s application is denied by an admin and the workshop is scheduled for a future date.')),
-            When(registration_status='N', then=Value('When a user\'s application or registration is denied by an admin and the workshop is scheduled for a future date.')),
-            When(registration_status='W', then=Value('When a user attempts to register for a workshop that is full or when an admin moves an existing registration to waitlist.  In both cases the workshop is scheduled for a future date ')),
-            When(registration_status='P', then=Value('When an admin moves an existing registration or application to pending status and the workshop is scheduled for a future date. ')),
+            When(Q(registration_status_from='W') &  Q(registration_status='R'), then=Value('When an admin moves a user from waitlist to registered status for this workshop or when a spot opens up and a user is automatically moved from the waitlist to registered.')),
+            When(registration_status='R', then=Value('When a user registers for this workshop and this workshop has capacity.')),
+            When(registration_status='A', then=Value('When a user applies to this workshop')),
+            When(registration_status='C', then=Value('When a user\'s application is accepted by an admin for this workshop.')),
+            When(registration_status='D', then=Value('When a user\'s application is denied by an admin for this workshop.')),
+            When(registration_status='N', then=Value('When a user\'s application or registration is cancelled by an admin for this workshop')),
+            When(registration_status='W', then=Value('When a user attempts to register for this workshop and the capacity is full or when an admin moves an existing registration to waitlist.')),
+            When(registration_status='P', then=Value('When an admin moves an existing registration or application to pending status.')),
             default=Value('Registration email should not be created for this status'),
             output_field=CharField(),
           ))

@@ -11,19 +11,24 @@
       <caption>These automated registration emails are sent when users apply/register to/for this workshop and when their registration status changes. You can only create one email message per registration status. The automated registration emails override the generic registration emails in the other table below.</caption>
       <thead>
         <tr>
-          <th> Message ID</th>
-          <th> Registration Status </th>
-          <th> Subject </th>
-          <th> Email Trigger </th>
-          <th> Created Date</th>
-          <th> Modified Date </th>
-          <th> Action </th>
+          <th rowspan="2"> Message ID</th>
+          <th colspan="2" class="center"> Registration Status</th>
+          <th rowspan="2"> Subject </th>
+          <th rowspan="2"> Email Trigger </th>
+          <th rowspan="2"> Created Date</th>
+          <th rowspan="2"> Modified Date </th>
+          <th rowspan="2"> Action </th>
+        </tr>
+        <tr>
+          <th> From</th>
+          <th> To</th>
         </tr>
       </thead>
       <tbody>
         {% for email in registration_emails %}
           <tr>
             <td> {{email.id}}</td>
+            <td> {{email.get_registration_status_from_display|default_if_none:"Any"}} </td>
             <td> {{email.get_registration_status_display}} </td>
             <td> {{email.email_subject|replace_workshop_tokens:workshop}} </td>
             <td> {{email.trigger}}</td>
@@ -70,19 +75,24 @@
         <caption>The generic registration emails in the table below are used when automated registration emails are not available for a workshop.  To update the generic registration emails below, please use the Generic Registration Emails menu in the left navigation under Workshop Configuration.</caption>
         <thead>
           <tr>
-            <th> Message ID</th>
-            <th> Registration Status </th>
-            <th> Subject </th>
-            <th> Email Trigger </th>
-            <th> Created Date</th>
-            <th> Modified Date </th>
-            <th> Action </th>
+            <th rowspan="2"> Message ID</th>
+            <th colspan="2" class="center"> Registration Status</th>
+            <th rowspan="2"> Subject </th>
+            <th rowspan="2"> Email Trigger </th>
+            <th rowspan="2"> Created Date</th>
+            <th rowspan="2"> Modified Date </th>
+            <th rowspan="2"> Action </th>
+          </tr>
+          <tr>
+            <th> From</th>
+            <th> To</th>
           </tr>
         </thead>
         <tbody>
           {% for email_message in generic_registration_emails %}
             <tr>
               <td> {{email_message.id}}</td>
+              <td> {{email_message.get_registration_status_from_display|default_if_none:"Any"}} </td>
               <td> {{email_message.get_registration_status_display}} </td>
               <td> {{email_message.email_subject|replace_workshop_tokens:workshop}} </td>
               <td> {{email_message.trigger}}</td>
