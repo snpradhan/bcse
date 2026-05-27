@@ -2190,10 +2190,14 @@ def reservationsSearch(request, display='table'):
         for reservation in reservations:
           schedule = {}
           if hasattr(reservation, 'reservation_to_work_place'):
-            schedule['title'] = '%s - %s' % (reservation.reservation_to_work_place.work_place.name, reservation.user.user.get_full_name())
+            schedule['workplace_name'] = reservation.reservation_to_work_place.work_place.name
+            schedule['delivery_address'] = reservation.reservation_to_work_place.work_place.get_full_address()
           else:
-            schedule['title'] = '%s - %s' % ('No Workplace', reservation.user.user.get_full_name())
+            schedule['workplace_name'] = 'No Workplace'
+            schedule['delivery_address'] = ''
 
+          schedule['user_name'] = reservation.user.user.get_full_name()
+          schedule['user_email'] = reservation.user.user.email
           schedule['start'] = reservation.delivery_date.strftime('%Y-%m-%d')
 
           if reservation.delivery_date.strftime('%Y-%m-%d') == today:
