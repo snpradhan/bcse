@@ -83,25 +83,15 @@
             symbolSuffix += ' <i class="fas fa-calendar-check" style="color:red;""></i>';
           }
         }
+
+        const eventTooltip = `${event.extendedProps.user_name} (${event.extendedProps.user_email})<br>` + `${event.extendedProps.workplace_name}<br>` + `${event.extendedProps.delivery_address}`;
+        
         return {
-          html: `<div title="${event.title}"><div>${symbolPrefix}</div>` + `<div class="event_title"><a href='https://www.google.com/maps/search/?api=1&query=${event.title.split('-')[0].trim()}' target='_blank'>${event.title.split('-')[0].trim()}</a> - ${event.title.split('-')[1].trim()}</div>` + `<div>${symbolSuffix}</div></div>`
+          html: `<div><div>${symbolPrefix}</div>` +
+          `<div class="event_title"><a href='https://www.google.com/maps/search/?api=1&query=${event.extendedProps.delivery_address}' target='_blank'>${event.extendedProps.workplace_name}</a> - ${event.extendedProps.user_name} ` +
+          `<i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="right" title="${eventTooltip}"></i></div>` +
+          `<div>${symbolSuffix}</div></div>`
         };
-      },
-      eventClick: function(info) {
-        info.jsEvent.preventDefault(); // prevent default browser navigation
-
-        if (info.event.url) {
-          const isNewTab =
-            info.jsEvent.metaKey || // ⌘ on Mac
-            info.jsEvent.ctrlKey;   // Ctrl on Windows/Linux
-
-          if (isNewTab) {
-            window.open(info.event.url, '_blank'); // open in a new tab
-          }
-          else {
-            window.location.href = info.event.url; //open in the same tab
-          }
-        }
       },
       eventOrder: function(a, b) {
 
