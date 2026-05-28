@@ -24,7 +24,18 @@
           {% else %}
             <div><b>Activity Name:</b> {{reservation.other_activity_name}}</div>
           {% endif %}
-          <div><b>Workplace:</b> {{reservation.reservation_to_work_place.work_place.name}}</div>
+          <div><b>Workplace:</b>
+            {% if reservation.reservation_to_work_place %}
+              {{reservation.reservation_to_work_place.work_place.name}}
+            {% else %}
+              No Workplace Association
+            {% endif %}
+          </div>
+          <div><b>Delivery Date:</b> {{reservation.delivery_date}}</div>
+          {% if reservation.return_date %}
+            <div><b>Return Date:</b> {{reservation.return_date}}</div>
+          {% endif %}
+
         </div>
         <div class="form-group mb-3">
           <label for="id_{{form.admin_notes.name}}">
@@ -92,8 +103,30 @@
 <script type="text/javascript">
   $(function (){
 
+    function validateReturnDateAtCompletion() {
+      var newStatus = $('#id_status').val();
+
+      if (newStatus === 'I') {
+        var returnDateExists = '{{reservation.return_date}}'
+
+        if (returnDateExists) {
+          var returnDate = new Date('{{reservation.return_date}}');
+
+          if (returnDate > new Date()) {
+            displayWarningDialog('Return date must be set to current or past date in order to complete this reservation.');
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
     $("#formReservationUpdate").submit(function(e){
       e.preventDefault();
+
+      if (!validateReturnDateAtCompletion()) {
+        return false;
+      }
 
       var formData = new FormData(this);
 

@@ -819,6 +819,17 @@
               }
             }
           }
+
+          if (["A", "S"].includes(user_role)) {
+            var newStatus = $('#id_status').val();
+
+            if (newStatus === 'I') {
+              if (return_date && return_date > current_date) {
+                displayWarningDialog('Return date must be set to current or past date in order to complete this reservation.');
+                return false;
+              }
+            }
+          }
           return true;
         }
 
