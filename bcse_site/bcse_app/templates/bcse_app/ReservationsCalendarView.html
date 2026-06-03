@@ -48,6 +48,7 @@
             success: function(data){
               if (data['success'] === true) {
                 console.log('calendar view and date updated');
+                bindTooltipTrigger();
               }
               else {
                 displayErrorDialog();
