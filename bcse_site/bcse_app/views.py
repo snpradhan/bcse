@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render
 from bcse_app import models, forms, utils
 from bcse_app.exceptions import CustomException
@@ -9181,6 +9183,231 @@ def allWorkshopsRegistrantsUpload(request):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+##########################################################
+# ADD/EDIT TIMESLOTS
+##########################################################
+@login_required
+def timeSlots(request, workshop_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit this workshop')
+    if '' != workshop_id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+    else:
+      raise CustomException('Workshop does not exist')
+
+    TimeslotFormset = inlineformset_factory(models.Workshop, models.TimeSlot, form=forms.TimeSlotForm, extra=1, can_delete=True)
+
+    if request.method == 'GET':
+      formset = TimeslotFormset(instance=workshop)
+
+      context = {'formset': formset, 'workshop': workshop}
+      return render(request, 'bcse_app/TimeSlots.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+
+      formset = TimeslotFormset(data, instance=workshop)
+      if formset.is_valid():
+        formset.save()
+        messages.success(request, "Timeslot saved successfully")
+        return shortcuts.redirect('bcse:timeSlots', workshop_id=workshop.id)
+      else:
+        print(formset.errors)
+        messages.error(request, 'Please check the forms below for missing required fields or duplicate entry')
+
+        context = {'formset': formset, 'workshop': workshop}
+        return render(request, 'bcse_app/TimeSlots.html', context)
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# VIEW BREAKOUT SESSIONS TABLE
+####################################
+@login_required
+def breakoutSessions(request, workshop_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view breakout sessions')
+    if '' != workshop_id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+    else:
+      raise CustomException('Workshop does not exist')
+    
+    breakout_sessions = models.BreakoutSession.objects.all().filter(timeslot__workshop=workshop)
+    timeslots = models.TimeSlot.objects.all().filter(workshop=workshop)
+    context = {'breakout_sessions': breakout_sessions, 'workshop': workshop, 'timeslots': timeslots}
+
+    return render(request, 'bcse_app/BreakoutSessionsTableView.html', context)
+
+  except models.BreakoutSession.DoesNotExist as e:
+    messages.error(request, 'Breakout sessions not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# VIEW BREAKOUT SESSIONS
+####################################
+def breakoutSessionsView(request, workshop_id=''):
+  try: 
+    if '' != workshop_id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+    else:
+      raise CustomException('Workshop does not exist')
+    
+    breakout_sessions = models.BreakoutSession.objects.all().filter(timeslot__workshop=workshop)
+    timeslots = models.TimeSlot.objects.all().filter(workshop=workshop)
+    context = {'breakout_sessions': breakout_sessions, 'workshop': workshop, 'timeslots': timeslots}
+
+    if request.user.is_authenticated and request.user.userProfile.user_role in ['A', 'S']:
+        return render(request, 'bcse_app/BreakoutSessionsAdminView.html', context)
+    else:
+      return render(request, 'bcse_app/BreakoutSessionsPublicView.html', context)
+
+  except models.BreakoutSession.DoesNotExist as e:
+    messages.error(request, 'Breakout sessions not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+####################################
+# VIEW BREAKOUT SESSION
+####################################
+def breakoutSessionView(request, breakout_session_id='', workshop_id=''):
+  try:
+    if '' != workshop_id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+    else:
+      raise CustomException('Workshop does not exist')
+    if '' != breakout_session_id:
+      breakout_session = models.BreakoutSession.objects.get(id=breakout_session_id, timeslot__workshop=workshop)
+      context = {'breakout_session': breakout_session, 'workshop': workshop}
+      return render(request, 'bcse_app/BreakoutSessionsViewModal.html', context)
+    else:
+      raise CustomException('Breakout session does not exist')
+
+  except models.BreakoutSession.DoesNotExist:
+    messages.error(request, 'Breakout session not found')
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# EDIT BREAKOUT SESSIONS
+##########################################################
+@login_required
+def breakoutSessionEdit(request, breakout_session_id='', workshop_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to edit breakout session')
+    if '' != workshop_id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+    else:
+      raise CustomException('Workshop does not exist')
+    if '' != breakout_session_id:
+      breakout_session = models.BreakoutSession.objects.get(id=breakout_session_id, timeslot__workshop=workshop)
+    else:
+      breakout_session = models.BreakoutSession()
+
+    if request.method == 'GET':
+      form = forms.BreakoutSessionForm(instance=breakout_session)
+      form.fields["timeslot"].queryset = models.TimeSlot.objects.filter(workshop=workshop)
+      context = {'form': form, 'workshop': workshop}
+      return render(request, 'bcse_app/BreakoutSessionEdit.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.BreakoutSessionForm(data, files=request.FILES, instance=breakout_session)
+      form.fields["timeslot"].queryset = models.TimeSlot.objects.filter(workshop=workshop)
+      response_data = {}
+      if form.is_valid():
+        savedbreakout_session = form.save()
+        messages.success(request, "Breakout session saved successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form, 'workshop': workshop}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/BreakoutSessionEdit.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# DELETE BREAKOUT SESSION
+##########################################################
+@login_required
+def breakoutSessionDelete(request, breakout_session_id='', workshop_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to delete breakout session')
+    if '' != breakout_session_id and '' != workshop_id:
+      breakout_session = models.BreakoutSession.objects.get(id=breakout_session_id, timeslot__workshop__id=workshop_id)
+      breakout_session.delete()
+      messages.success(request, "Breakout session deleted")
+
+    return shortcuts.redirect('bcse:breakoutSessions', workshop_id=workshop_id)
+
+  except models.BreakoutSession.DoesNotExist:
+    messages.success(request, "Breakout Session not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# UPDATE BREAKOUT SESSION
+##########################################################
+@login_required
+def breakoutSessionUpdate(request, breakout_session_id='', workshop_id=''):
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to update breakout session')
+    if '' != workshop_id:
+      workshop = models.Workshop.objects.get(id=workshop_id)
+    else:
+      raise CustomException('Workshop does not exist')
+    if '' != breakout_session_id:
+      breakout_session = models.BreakoutSession.objects.get(id=breakout_session_id, timeslot__workshop=workshop)
+    else:
+      breakout_session = models.BreakoutSession()
+
+    if request.method == 'GET':
+      form = forms.BreakoutSessionUpdateForm(instance=breakout_session)
+      context = {'form': form, 'workshop': workshop}
+      return render(request, 'bcse_app/BreakoutSessionUpdateModal.html', context)
+    elif request.method == 'POST':
+      data = request.POST.copy()
+      form = forms.BreakoutSessionUpdateForm(data, files=request.FILES, instance=breakout_session)
+      response_data = {}
+      if form.is_valid():
+        savedbreakout_session = form.save()
+        messages.success(request, "Breakout session updated successfully")
+        response_data['success'] = True
+      else:
+        print(form.errors)
+        context = {'form': form, 'workshop': workshop}
+        response_data['success'] = False
+        response_data['html'] = render_to_string('bcse_app/BreakoutSessionUpdateModal.html', context, request)
+
+      return http.HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    return http.HttpResponseNotAllowed(['GET', 'POST'])
+
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # VIEW TEAM MEMBERS

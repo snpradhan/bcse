@@ -1,0 +1,68 @@
+{% extends "bcse_app/AdminConfiguration.html" %}
+{% load bcse_extras %}
+
+{% block configuration %}
+
+  <h1 class="center"> {{workshop}} </h1>
+
+  {% include "bcse_app/WorkshopTabs.html" with workshop=workshop tab='schedule' %}
+
+  {% include "bcse_app/BreakoutSessionSubTabs.html" with workshop=workshop subtab='edit_breakout_sessions' %}
+
+  <div class="button-row">
+    <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:breakoutSessionNew' workshop.id%}" href="#">Create Breakout Session</a>
+  </div>
+
+  <div class="search_results static">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th> ID</th>
+          <th> Title </th>
+          <th> Timeslot </th>
+          <th> Created Date</th>
+          <th> Modified Date </th>
+          <th> Action </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for session in breakout_sessions %}
+          <tr>
+            <td> {{session.id}}</td>
+            <td> {{session.title}} </td>
+            <td> {{session.timeslot.start_time|date:"g:i A" }} - {{ session.timeslot.end_time|date:"g:i A"}} {% if session.timeslot.title %} ({{ session.timeslot.title}}) {% endif %}</td>
+            <td> {{session.created_date|date:"F j, Y g:i A"}}</td>
+            <td> {{session.modified_date|date:"F j, Y g:i A"}} </td>
+            <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-small dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  Action
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:breakoutSessionView' workshop.id session.id %}" href="#">View</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:breakoutSessionEdit' workshop.id session.id %}" href="#">Edit</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:breakoutSessionUpdate' workshop.id session.id %}" href="#">Update</a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item delete action" data-href="{% url 'bcse:breakoutSessionDelete' workshop.id session.id %}"
+                    data-title="the session <strong>{{session.title}}</strong>">
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

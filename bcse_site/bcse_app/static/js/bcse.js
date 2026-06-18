@@ -217,6 +217,47 @@ function bindDateTimePicker() {
     $(this).closest('.input-group').find('.datepicker').datepicker("show");
   });
 
+  $('.timepicker').each(function () {
+    const $input = $(this);
+    const $group = $input.closest('.input-group');
+
+    $group.find('.clear-time').remove();
+
+    if ($input.data('has-clear-time')) return;
+    $input.data('has-clear-time', true);
+
+    const clearBtn = `
+      <span class="input-group-text clear-time" style="cursor:pointer; display:none;">
+        <i class="fa fa-times"></i>
+      </span>
+    `;
+
+    $group.find('.fa-clock').closest('.input-group-text').before(clearBtn);
+  });
+
+  $(document).on('click', '.clear-time', function () {
+    const $input = $(this).closest('.input-group').find('.timepicker');
+
+    $input.val('');
+    $(this).hide();
+    $input.trigger('change');
+  });
+
+  function toggleClearTimeIcon(input) {
+    const $input = $(input);
+    const $clearBtn = $input.closest('.input-group').find('.clear-time');
+
+    $clearBtn.toggle(!!$input.val());
+  }
+
+  $(document).on('change', '.timepicker', function () {
+    toggleClearTimeIcon(this);
+  });
+
+  $('.timepicker').each(function () {
+    toggleClearTimeIcon(this);
+  });
+
   //insert clear(X) icon on datepicker input to clear the date
 
   $('.datepicker').each(function () {

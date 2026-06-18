@@ -1,0 +1,11 @@
+<ul class="nav nav-tabs mb-3" id="subTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if subtab == 'timeslots' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:timeSlots' workshop.id %}">Time Slots</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if subtab == 'edit_breakout_sessions' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:breakoutSessions' workshop.id %}">Edit Breakout Sessions</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link {% if subtab == 'view_breakout_sessions' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:breakoutSessionsView' workshop.id %}">View Breakout Sessions</a>
+    </li>
+</ul>

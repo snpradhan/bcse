@@ -90,6 +90,16 @@ urlpatterns = [
     path('workshops/<str:display>/<str:period>/', views.workshops, name='workshops'),
     path('workshops/<str:display>/<str:period>/<str:extra>/', views.workshops, name='workshopsExtra'),
 
+    path('workshop/<int:workshop_id>/timeslots/', views.timeSlots, name='timeSlots'),
+
+    path('workshop/<int:workshop_id>/breakout_sessions', views.breakoutSessions, name='breakoutSessions'),
+    path('workshop/<int:workshop_id>/breakout_sessions/new', views.breakoutSessionEdit, name='breakoutSessionNew'),
+    path('workshop/<int:workshop_id>/breakout_sessions/<int:breakout_session_id>/edit', views.breakoutSessionEdit, name='breakoutSessionEdit'),
+    path('workshop/<int:workshop_id>/breakout_sessions/<int:breakout_session_id>/delete', views.breakoutSessionDelete, name='breakoutSessionDelete'),
+    path('workshop/<int:workshop_id>/breakout_sessions/<int:breakout_session_id>/update', views.breakoutSessionUpdate, name='breakoutSessionUpdate'),
+    path('workshop/<int:workshop_id>/breakout_sessions/<int:breakout_session_id>/view', views.breakoutSessionView, name='breakoutSessionView'),
+    path('workshop/<int:workshop_id>/breakout_sessions/view', views.breakoutSessionsView, name='breakoutSessionsView'),
+
     path('signin/', views.userSignin, name='signin'),
     path('signin_redirect/', views.signinRedirect, name='signinRedirect'),
     path('signin/<str:user_email>/', views.userSignin, name='signin'),

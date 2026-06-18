@@ -15,6 +15,9 @@
         <li class="nav-item">
           <label><a class="nav-link {% if tab == 'invitees' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:workshopInvitees' workshop.id %}">Invitees</a></label>
         </li>
+        <li class="nav-item">
+          <label><a class="nav-link {% if tab == 'schedule' %}active{% endif %}" aria-current="page"  href="{% url 'bcse:timeSlots' workshop.id %}">Schedule</a></label>
+        </li>
       {% endif %}
       {% if workshop.enable_registration and workshop.registration_setting %}
         <li class="nav-item">

@@ -2022,6 +2022,83 @@ class StandalonePageForm(ModelForm):
       return self.cleaned_data['url_alias']
 
 ####################################
+# TimeSlot Form
+####################################
+class TimeSlotForm(ModelForm):
+
+  class Meta:
+    model = models.TimeSlot
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'start_time': forms.TimeInput(format='%I:%M %p'),
+      'end_time': forms.TimeInput(format='%I:%M %p')
+    }
+
+  def __init__(self, *args, **kwargs):
+    super(TimeSlotForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name in ['start_time', 'end_time']:
+          field.widget.attrs['class'] = 'form-control timepicker'
+          field.input_formats = ['%I:%M %p']
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+####################################
+# BreakoutSession Form
+####################################
+class BreakoutSessionForm(ModelForm):
+
+  class Meta:
+    model = models.BreakoutSession
+    exclude = ('id', 'created_date', 'modified_date')
+    widgets = {
+      'image': widgets.ClearableFileInput,
+      'description': forms.Textarea(attrs={'rows':5}),
+      'resources': forms.Textarea(attrs={'rows':3}),
+      'facilitators': forms.SelectMultiple,
+    }
+
+  timeslot = forms.ModelChoiceField(required=True, queryset=models.TimeSlot.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+
+  def __init__(self, *args, **kwargs):
+    super(BreakoutSessionForm, self).__init__(*args, **kwargs)
+    self.fields['collaborators'].queryset = models.Collaborator.objects.all().filter(status='A').order_by('name')
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'image':
+        field.widget.attrs['placeholder'] = field.help_text
+      elif field_name in ['facilitators', 'collaborators']:
+        field.widget.attrs['class'] = 'form-control select2'
+        field.widget.attrs['size'] = 6
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+####################################
+# BreakoutSessionUpdate Form
+####################################
+class BreakoutSessionUpdateForm(ModelForm):
+
+  class Meta:
+    model = models.BreakoutSession
+    fields = ('timeslot', 'title', 'facilitators')
+    widgets = {
+      'facilitators': forms.SelectMultiple,
+    }
+
+    timeslot = forms.ModelChoiceField(required=True, queryset=models.TimeSlot.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+
+  def __init__(self, *args, **kwargs):
+    super(BreakoutSessionUpdateForm, self).__init__(*args, **kwargs)
+
+    for field_name, field in list(self.fields.items()):
+      if field_name == 'facilitators':
+        field.widget.attrs['class'] = 'form-control select2'
+        field.widget.attrs['size'] = 6
+      else:
+        field.widget.attrs['class'] = 'form-control'
+
+####################################
 # Survey Form
 ####################################
 class SurveyForm(ModelForm):

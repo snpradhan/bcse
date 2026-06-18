@@ -381,6 +381,8 @@ def upload_file_to(instance, filename):
     file_path = 'workshopEmailAttachment'
   elif isinstance(instance, WorkshopRegistrationSetting):
     file_path = 'workshopRegistrationSetting'
+  elif isinstance(instance, BreakoutSession):
+    file_path = 'breakoutSession'
   return '%s/%s_%s%s' % (file_path, instance.id, dt, filename_ext.lower(),)
 
 
@@ -692,6 +694,40 @@ class TeacherLeader(models.Model):
   def __str__(self):
       return '%s %s' % (self.teacher.user.first_name, self.teacher.user.last_name)
 
+class TimeSlot(models.Model):
+  workshop = models.ForeignKey(Workshop, null=False, related_name="workshop_timeslots", on_delete=models.CASCADE)
+  start_time = models.TimeField(null=False, blank=False)
+  end_time = models.TimeField(null=False, blank=False)
+  title = models.CharField(null=True, blank=True, max_length=256)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['start_time']
+
+  def __str__(self):
+      if self.title:
+        return '%s - %s (%s)' % (self.start_time, self.end_time, self.title)
+      return '%s - %s' % (self.start_time, self.end_time)
+
+class BreakoutSession(models.Model):
+  timeslot = models.ForeignKey(TimeSlot, null=False, related_name="timeslot_breakout_sessions", on_delete=models.CASCADE)
+  title = models.CharField(null=False, blank=False, max_length=256)
+  sub_title = models.CharField(null=True, blank=True, max_length=256)
+  description = RichTextField(null=False, blank=False)
+  facilitators = models.ManyToManyField('TeacherLeader', null=True, blank=True)
+  collaborators = models.ManyToManyField('Collaborator', null=True, blank=True)
+  image = models.ImageField(upload_to=upload_file_to, blank=True, null=True, help_text='Upload an image that represents this session.')
+  location = models.CharField(null=False, blank=False, max_length=256)
+  resources = RichTextField(null=True, blank=True)
+  created_date = models.DateTimeField(auto_now_add=True)
+  modified_date = models.DateTimeField(auto_now=True)
+
+  class Meta:
+      ordering = ['timeslot__start_time']
+
+  def __str__(self):
+      return '%s' % (self.title)
 
 class WorkshopRegistrationSetting(models.Model):
   workshop = models.OneToOneField(Workshop, null=False, related_name="registration_setting", on_delete=models.CASCADE)
