@@ -926,79 +926,78 @@ body {
     ******************************/
     div#reservation_container {
       display: flex;
-      justify-content: space-between;
       gap: 1em;
 
       @media only screen and (max-width: 1024px) {
         display: block;
       }
 
+      form#reservationForm {
+        width: 100%;
+      }
       .fa-calendar-circle-exclamation {
         color: red;
       }
       /*****************************
       * RESERVATION FORM START
       ******************************/
-      div.reservation_form {
-        flex: 1 1 47%;
 
-        div.equipment_info, div.reservation_rules {
-          background-color: #fafad2;
-          padding: 1em;
-        }
-        div#id_equipment_types {
-          border: 1px solid #ced4da;
-          border-radius: 0.25rem;
-          padding: 0.375rem 0.75rem;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          grid-gap: 0.5em;
 
-          & > div {
-            label {
-              display: flex;
-              input {
-                margin-right: 0.25em;
-              }
-              a {
-                color: #0d6efd;
-                text-decoration: underline;
-                font-weight: normal;
-              }
+      div.equipment_info, div.reservation_rules {
+        background-color: #fafad2;
+        padding: 1em;
+      }
+      div#id_equipment_types {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 0.375rem 0.75rem;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 0.5em;
+
+        & > div {
+          label {
+            display: flex;
+            input {
+              margin-right: 0.25em;
+            }
+            a {
+              color: #0d6efd;
+              text-decoration: underline;
+              font-weight: normal;
             }
           }
         }
       }
-      div.other_info {
-        flex: 1 1 50%;
 
-        div.activity, div.availability_calendar {
-          overflow-y: scroll;
-          border: 1px solid black;
-          border-radius: 1em;
-          padding: 1em;
+      div.activity, div.availability_calendar {
+        overflow-y: scroll;
+        border: 1px solid black;
+        border-radius: 1em;
+        padding: 1em;
 
-        }
-        div.activity_container {
-          height: 40em;
+      }
+      div.activity_container {
+        max-height: 40em;
+        margin-bottom: 1em;
+        div.activity {
+          max-height: 40em;
           margin-bottom: 1em;
-          div.activity {
-            height: 40em;
-            margin-bottom: 1em;
 
+          img {
+            max-width: 25em;
+          }
+          .activity_image {
+            float: left;
+            margin-right: 1em;
+            margin-bottom: 1em;
             img {
-              max-width: 25em;
-            }
-            .activity_image {
-              float: left;
-              margin-right: 1em;
-              margin-bottom: 1em;
-              img {
-                max-width: 10em;
-              }
+              max-width: 10em;
             }
           }
         }
+
       }
       /*****************************
       * RESERVATION FORM END

@@ -13,355 +13,401 @@
       {% endif %}
       {% include "bcse_app/ReservationTabs.html" with reservation=form.instance tab='edit'%}
       <div id="reservation_container">
-        <div class="reservation_form">
-          <form method="post" enctype="multipart/form-data" id="reservationForm">
-            {% csrf_token %}
-            {{form.media}}
+        <form method="post" enctype="multipart/form-data" id="reservationForm">
+          {% csrf_token %}
+          {{form.media}}
 
-            <input type="hidden" id="recaptchaToken" name="recaptchaToken">
-            {% if user.userProfile.user_role != 'A' %}
-              <p class="warning">Reminder: We encourage each teacher to make their own reservation. Thank you!</p>
-            {% endif %}
+          <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="activity_details-tab" data-bs-toggle="tab"  type="button" data-bs-target="#activity_details" role="tab" aria-controls="activity_details" aria-selected="true">Activity/Lab</button>
+            </li>
 
-            {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
-              <div class="form-group mb-4">
-                <label for="id_{{form.user.name}}" class="form-label">
-                  {{form.user.label}}
-                  {% if form.user.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div>{{form.user}}</div>
-                <div class="error">{{ form.user.errors }}</div>
-              </div>
-              {% if form.instance.id %}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="equipment_details-tab" data-bs-toggle="tab" type="button" data-bs-target="#equipment_details" role="tab" aria-controls="equipment_details"  aria-selected="false">Equipment
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="other_details-tab" data-bs-toggle="tab" type="button" data-bs-target="#other_details" role="tab" aria-controls="other_details"  aria-selected="false">Other Details
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="reservationTabContent">
+
+            <div class="tab-pane active" id="activity_details" role="tabpanel" aria-labelledby="activity_details-tab">
+              <input type="hidden" id="recaptchaToken" name="recaptchaToken">
+              {% if user.userProfile.user_role != 'A' %}
+                <p class="warning">Reminder: We encourage each teacher to make their own reservation. Thank you!</p>
+              {% endif %}
+
+              {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+                <div class="form-group mb-4">
+                  <label for="id_{{form.user.name}}" class="form-label">
+                    {{form.user.label}}
+                    {% if form.user.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div>{{form.user}}</div>
+                  <div class="error">{{ form.user.errors }}</div>
+                </div>
+                {% if form.instance.id %}
+                  <div>{{form.user.as_hidden}}</div>
+                {% endif %}
+              {% else %}
                 <div>{{form.user.as_hidden}}</div>
               {% endif %}
-            {% else %}
-              <div>{{form.user.as_hidden}}</div>
-            {% endif %}
 
-            {% if form.confirm_workplace %}
-              <div class="form-group mb-4" id="confirm_workplace">
-                <label for="id_{{form.confirm_workplace.name}}" class="form-label">
-                  <span id="confirm_workplace_label">{{form.confirm_workplace.label|safe}}</span>
-                  <span>(<span class="required">*</span>)</span>
-                </label>
-                <div>{{form.confirm_workplace}}</div>
-                <div class="error">{{ form.confirm_workplace.errors }}</div>
-              </div>
-              <a id="update_workplace" class="modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' user.userProfile.id %}" href="#" style="display:none;">Edit Profile</a>
-            {% endif %}
-
-            <div class="form-group mb-4">
-              <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}
-                <span>(<span class="required">*</span>)</span>
-              </label>
-              <div>{{form.activity}}</div>
-              <div class="error">{{ form.activity.errors }}</div>
-            </div>
-            {% if form.consumables %}
-              <div class="form-group mb-4">
-                <label for="id_{{form.consumables.name}}" class="form-label"> {{form.consumables.label}}
-                  {% if form.consumables.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div id="id_consumable_options">{{form.consumables}}</div>
-                <div class="error">{{ form.consumables.errors }}</div>
-              </div>
-            {% endif %}
-            <div class="form-group form-check mb-4">
-              <div>{{form.other_activity}}</div>
-              <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}
-                {% if form.other_activity.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div class="error">{{ form.other_activity.errors }}</div>
-            </div>
-            <div class="form-group mb-4">
-              <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}}
-                (<span class="required">*</span>)
-              </label>
-              <div>{{form.other_activity_name}}</div>
-              <div class="error">{{ form.other_activity_name.errors }}</div>
-            </div>
-            <div class="form-group mb-4 row">
-              <div class="col">
-                <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}}
-                  <span>(<span class="required">*</span>)</span>
-                </label>
-                <div>{{form.num_of_classes}}</div>
-                <div class="error">{{ form.num_of_classes.errors }}</div>
-              </div>
-              <div class="col more_classes">
-                {% if form.more_num_of_classes %}
-                  <label for="id_{{form.more_num_of_classes.name}}" class="form-label"> {{form.more_num_of_classes.label}} (<span class="required">*</span>)</label>
-                  <div>{{form.more_num_of_classes}}</div>
-                  <div class="error">{{ form.more_num_of_classes.errors }}</div>
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="form-group mb-4">
-              <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}
-                {% if form.num_of_students.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div>{{form.num_of_students}}</div>
-              <div class="error">{{ form.num_of_students.errors }}</div>
-            </div>
-
-            <div class="form-group form-check mb-4">
-              <div>{{form.activity_kit_not_needed}}</div>
-              <label for="id_{{form.activity_kit_not_needed.name}}" class="form-label"> {{form.activity_kit_not_needed.label}}
-                {% if form.activity_kit_not_needed.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div class="error">{{ form.activity_kit_not_needed.errors }}</div>
-            </div>
-
-            <div class="form-group form-check mb-4">
-              <div>{{form.include_gloves}}</div>
-              <label for="id_{{form.include_gloves.name}}" class="form-label"> {{form.include_gloves.label}}
-                {% if form.include_gloves.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div class="error">{{ form.include_gloves.errors }}</div>
-            </div>
-            <div class="form-group form-check mb-4">
-              <div>{{form.include_goggles}}</div>
-              <label for="id_{{form.include_goggles.name}}" class="form-label"> {{form.include_goggles.label}}
-                {% if form.include_goggles.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-                <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.include_goggles.help_text}}"></i>
-              </label>
-              <div class="error">{{ form.include_goggles.errors }}</div>
-            </div>
-
-            <div class="form-group mb-4 equipment_info">
-            </div>
-            <div class="form-group form-check mb-2">
-              <div>{{form.equipment_not_needed}}</div>
-              <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}
-                {% if form.equipment_not_needed.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div class="error">{{ form.equipment_not_needed.errors }}</div>
-            </div>
-            {% if form.equipment_types %}
-              <div class="form-group mb-4">
-                <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}
-                  {% if form.equipment_types.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div id="id_{{form.equipment_types.name}}">
-                  <!-- Equipment selection will be loaded via an ajax all -->
+              {% if form.confirm_workplace %}
+                <div class="form-group mb-4" id="confirm_workplace">
+                  <label for="id_{{form.confirm_workplace.name}}" class="form-label">
+                    <span id="confirm_workplace_label">{{form.confirm_workplace.label|safe}}</span>
+                    <span>(<span class="required">*</span>)</span>
+                  </label>
+                  <div>{{form.confirm_workplace}}</div>
+                  <div class="error">{{ form.confirm_workplace.errors }}</div>
                 </div>
-                <div class="error">{{ form.equipment_types.errors }}</div>
-              </div>
-            {% elif form.equipment %}
-              <div class="form-group mb-4">
-                <label for="id_{{form.equipment.name}}" class="form-label"> {{form.equipment.label}}
-                  {% if form.equipment.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div id="id_{{form.equipment.name}}">
-                  <div> {{form.equipment}} </div>
-                  <div class="warning">{{form.equipment.help_text}}</div>
-                  <div class="error">{{ form.equipment.errors }}</div>
+                <a id="update_workplace" class="modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' user.userProfile.id %}" href="#" style="display:none;">Edit Profile</a>
+              {% endif %}
 
+              <div class="form-group mb-4 row">
+                <div class="col-md-9">
+                  <label for="id_{{form.activity.name}}" class="form-label"> {{form.activity.label}}
+                    <span>(<span class="required">*</span>)</span>
+                  </label>
+                  <div>{{form.activity}}</div>
+                  <div class="error">{{ form.activity.errors }}</div>
                 </div>
-              </div>
-            {% endif %}
-
-
-            <div class="form-group mb-2 row">
-              <div class="col">
-                <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label|title}} (<span class="required">*</span>)</label>
-                <div class="input-group">
-                  {{form.delivery_date}}
-                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                </div>
-                <div class="error">{{ form.delivery_date.errors }}</div>
-              </div>
-              <div class="col">
-                <label for="id_{{form.return_date.name}}" class="form-label"> {{form.return_date.label|title}} (<span class="required">*</span>)</label>
-                <div class="input-group">
-                  {{form.return_date}}
-                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                </div>
-                <div class="error">{{ form.return_date.errors }}</div>
-              </div>
-            </div>
-            <div class="form-group mb-2 reservation_rules">
-               {% if user.userProfile.user_role in 'AS' %}
-                <label>The restrictions below apply only to non-admins.</label>
-               {% endif %}
-               <!--ul>
-                  {% if reservation_settings.reservation_delivery_days %}
-                    <li>Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.</li>
-                  {% endif %}
-                  {% if reservation_settings.reservation_return_days %}
-                    <li>Baxter Boxes are picked up on {{reservation_settings.reservation_return_days|get_days_of_week}} only.</li>
-                  {% endif %}
-                  <li>Reservations dates need to be between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.</li>
-                  <li>Reservations need to be for a minimum of {{reservation_settings.reservation_min_days}} days and can be for a maximum of  {{reservation_settings.reservation_max_days}} days at a time.</li>
-                  <{% if reservation_settings.reservation_blackout_dates %}
-                    <li>Delivery and Pickup are not available on the following dates:
-                      <ul>
-                        {% for blackout_date in reservation_settings.reservation_blackout_dates %}
-                          <li>{{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} </li>
-                        {% endfor %}
-                      </ul>
-                    </li>
-                  {% endif %}>
-                  {% if reservation_settings.blackout_message %}
-                    <li>{{reservation_settings.blackout_message.message}}</li>
-                  {% endif %}
-               </ul-->
-               <ul>
-                {% if reservation_settings.reservation_rule_messages %}
-                  {% for rule_message in reservation_settings.reservation_rule_messages %}
-                    <li>{{rule_message.message}}</li>
-                  {% endfor %}
-                {% endif %}
-               </ul>
-            </div>
-            <div class="form-group mb-4">
-              <button class="btn" type="button" id="check_availability">Check Availibility</button>
-              <button class="btn" type="button" id="clear_dates">Clear Dates</button>
-            </div>
-            <div class="form-group mb-4">
-              <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label}}
-                {% if form.notes.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div>{{form.notes}}</div>
-              <div class="error">{{ form.notes.errors }}</div>
-            </div>
-            <div class="form-group form-check mb-4">
-              <div>{{form.additional_help_needed}}</div>
-              <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}
-                {% if form.additional_help_needed.field.required %}
-                  (<span class="required">*</span>)
-                {% endif %}
-              </label>
-              <div class="error">{{ form.additional_help_needed.errors }}</div>
-            </div>
-
-            {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
-              {% if form.instance.id %}
-                <div class="form-group mb-4">
-                  <label for="id_workplace_association" class="form-label"> Workplace Association</label>
-                  <div id="workplace_association">
-                    {% if form.instance.reservation_to_work_place %}
-                      {% include "bcse_app/DeliveryAddress.html" with name=form.instance.reservation_to_work_place.work_place.name delivery_address=form.instance.reservation_to_work_place.work_place %}
+                <div class="col-md-3">
+                  <label for="id_{{form.other_activity.name}}" class="form-label"> {{form.other_activity.label}}
+                    {% if form.other_activity.field.required %}
+                      (<span class="required">*</span>)
                     {% endif %}
-                  </div>
-                  <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' form.instance.id %}" href="#">Update Workplace Association</a>
+                  </label>
+                  <div>{{form.other_activity}}</div>
+                  <div class="error">{{ form.other_activity.errors }}</div>
                 </div>
+              </div>
+              {% if form.consumables %}
                 <div class="form-group mb-4">
-                  <label for="id_delivery_address" class="form-label"> Delivery Address</label>
-                  <div id="delivery_address">
-                    {% with reservation=form.instance %}
-                      {% if reservation.delivery_address %}
-                        {% include "bcse_app/DeliveryAddress.html" with delivery_address=reservation.delivery_address warning='True' %}
-                      {% elif reservation.reservation_to_work_place %}
-                        <div class="warning">This delivery address is the workplace address above</div>
-                      {% endif %}
-                    {% endwith %}
+                  <label for="id_{{form.consumables.name}}" class="form-label"> {{form.consumables.label}}
+                    {% if form.consumables.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div id="id_consumable_options">{{form.consumables}}</div>
+                  <div class="error">{{ form.consumables.errors }}</div>
+                </div>
+              {% endif %}
+
+              <div class="form-group mb-4">
+                <label for="id_{{form.other_activity_name.name}}" class="form-label"> {{form.other_activity_name.label}}
+                  (<span class="required">*</span>)
+                </label>
+                <div>{{form.other_activity_name}}</div>
+                <div class="error">{{ form.other_activity_name.errors }}</div>
+              </div>
+
+
+              <div class="activity_container">
+              </div>
+
+
+              <div class="form-group mb-4 row">
+                <div class="col">
+                  <label for="id_{{form.num_of_classes.name}}" class="form-label"> {{form.num_of_classes.label}}
+                    <span>(<span class="required">*</span>)</span>
+                  </label>
+                  <div>{{form.num_of_classes}}</div>
+                  <div class="error">{{ form.num_of_classes.errors }}</div>
+                </div>
+                <div class="col more_classes">
+                  {% if form.more_num_of_classes %}
+                    <label for="id_{{form.more_num_of_classes.name}}" class="form-label"> {{form.more_num_of_classes.label}} (<span class="required">*</span>)</label>
+                    <div>{{form.more_num_of_classes}}</div>
+                    <div class="error">{{ form.more_num_of_classes.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="form-group mb-4">
+                <label for="id_{{form.num_of_students.name}}" class="form-label"> {{form.num_of_students.label}}
+                  {% if form.num_of_students.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div>{{form.num_of_students}}</div>
+                <div class="error">{{ form.num_of_students.errors }}</div>
+              </div>
+
+              <div class="form-group form-check mb-4">
+                <div>{{form.activity_kit_not_needed}}</div>
+                <label for="id_{{form.activity_kit_not_needed.name}}" class="form-label"> {{form.activity_kit_not_needed.label}}
+                  {% if form.activity_kit_not_needed.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div class="error">{{ form.activity_kit_not_needed.errors }}</div>
+              </div>
+
+              <div class="form-group form-check mb-4">
+                <div>{{form.include_gloves}}</div>
+                <label for="id_{{form.include_gloves.name}}" class="form-label"> {{form.include_gloves.label}}
+                  {% if form.include_gloves.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div class="error">{{ form.include_gloves.errors }}</div>
+              </div>
+              <div class="form-group form-check mb-4">
+                <div>{{form.include_goggles}}</div>
+                <label for="id_{{form.include_goggles.name}}" class="form-label"> {{form.include_goggles.label}}
+                  {% if form.include_goggles.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.include_goggles.help_text}}"></i>
+                </label>
+                <div class="error">{{ form.include_goggles.errors }}</div>
+              </div>
+
+              <div class="form-group mb-3 right">
+                <button type="button" class="btn btn-primary tab-btn" data-tab="#equipment_details-tab">Next</button>
+              </div>
+            </div>
+
+            <div class="tab-pane" id="equipment_details" role="tabpanel" aria-labelledby="equipment_details-tab">
+              <div class="form-group mb-4 equipment_info">
+              </div>
+              <div class="form-group form-check mb-2">
+                <div>{{form.equipment_not_needed}}</div>
+                <label for="id_{{form.equipment_not_needed.name}}" class="form-label"> {{form.equipment_not_needed.label}}
+                  {% if form.equipment_not_needed.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div class="error">{{ form.equipment_not_needed.errors }}</div>
+              </div>
+              {% if form.equipment_types %}
+                <div class="form-group mb-4">
+                  <label for="id_{{form.equipment_types.name}}" class="form-label"> {{form.equipment_types.label}}
+                    {% if form.equipment_types.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div id="id_{{form.equipment_types.name}}">
+                    <!-- Equipment selection will be loaded via an ajax all -->
+                    {{form.equipment_types}}
                   </div>
-                  <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' form.instance.id %}" href="#">Update Delivery Address</a>
+                  <div class="error">{{ form.equipment_types.errors }}</div>
+                </div>
+              {% elif form.equipment %}
+                <div class="form-group mb-4">
+                  <label for="id_{{form.equipment.name}}" class="form-label"> {{form.equipment.label}}
+                    {% if form.equipment.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div id="id_{{form.equipment.name}}">
+                    <div> {{form.equipment}} </div>
+                    <div class="warning">{{form.equipment.help_text}}</div>
+                    <div class="error">{{ form.equipment.errors }}</div>
+                  </div>
+                </div>
+              {% endif %}
+
+
+              <div class="form-group mb-2 row">
+                <div class="col">
+                  <label for="id_{{form.delivery_date.name}}" class="form-label"> {{form.delivery_date.label|title}} (<span class="required">*</span>)</label>
+                  <div class="input-group">
+                    {{form.delivery_date}}
+                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  </div>
+                  <div class="error">{{ form.delivery_date.errors }}</div>
+                </div>
+                <div class="col">
+                  <label for="id_{{form.return_date.name}}" class="form-label"> {{form.return_date.label|title}} (<span class="required">*</span>)</label>
+                  <div class="input-group">
+                    {{form.return_date}}
+                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  </div>
+                  <div class="error">{{ form.return_date.errors }}</div>
+                </div>
+              </div>
+              <div class="form-group mb-2 reservation_rules">
+                 {% if user.userProfile.user_role in 'AS' %}
+                  <label>The restrictions below apply only to non-admins.</label>
+                 {% endif %}
+                 <!--ul>
+                    {% if reservation_settings.reservation_delivery_days %}
+                      <li>Baxter Boxes are delivered on {{reservation_settings.reservation_delivery_days|get_days_of_week}} only.</li>
+                    {% endif %}
+                    {% if reservation_settings.reservation_return_days %}
+                      <li>Baxter Boxes are picked up on {{reservation_settings.reservation_return_days|get_days_of_week}} only.</li>
+                    {% endif %}
+                    <li>Reservations dates need to be between {{reservation_settings.reservation_min_advance_days}} days and {{reservation_settings.reservation_max_advance_days}} days from today.</li>
+                    <li>Reservations need to be for a minimum of {{reservation_settings.reservation_min_days}} days and can be for a maximum of  {{reservation_settings.reservation_max_days}} days at a time.</li>
+                    <{% if reservation_settings.reservation_blackout_dates %}
+                      <li>Delivery and Pickup are not available on the following dates:
+                        <ul>
+                          {% for blackout_date in reservation_settings.reservation_blackout_dates %}
+                            <li>{{blackout_date.start_date|date:"F j, Y"}} - {{blackout_date.end_date|date:"F j, Y"}} </li>
+                          {% endfor %}
+                        </ul>
+                      </li>
+                    {% endif %}>
+                    {% if reservation_settings.blackout_message %}
+                      <li>{{reservation_settings.blackout_message.message}}</li>
+                    {% endif %}
+                 </ul-->
+                 <ul>
+                  {% if reservation_settings.reservation_rule_messages %}
+                    {% for rule_message in reservation_settings.reservation_rule_messages %}
+                      <li>{{rule_message.message}}</li>
+                    {% endfor %}
+                  {% endif %}
+                 </ul>
+              </div>
+              <div class="form-group mb-4">
+                <button class="btn" type="button" id="check_availability">Check Availibility</button>
+                <button class="btn" type="button" id="clear_dates">Clear Dates</button>
+              </div>
+              <div class="availability_calendar_container">
+                {% include "bcse_app/AvailabilityCalendar.html" %}
+              </div>
+              <div class="button-row">
+                <button type="button" class="btn btn-primary tab-btn" data-tab="#activity_details-tab">Back</button>
+                <button type="button" class="btn btn-primary tab-btn" data-tab="#other_details-tab">Next</button>
+              </div>
+            </div>
+
+            <div class="tab-pane" id="other_details" role="tabpanel" aria-labelledby="other_details-tab">
+
+              <div class="form-group mb-4">
+                <label for="id_{{form.notes.name}}" class="form-label"> {{form.notes.label}}
+                  {% if form.notes.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div>{{form.notes}}</div>
+                <div class="error">{{ form.notes.errors }}</div>
+              </div>
+              <div class="form-group form-check mb-4">
+                <div>{{form.additional_help_needed}}</div>
+                <label for="id_{{form.additional_help_needed.name}}" class="form-label"> {{form.additional_help_needed.label}}
+                  {% if form.additional_help_needed.field.required %}
+                    (<span class="required">*</span>)
+                  {% endif %}
+                </label>
+                <div class="error">{{ form.additional_help_needed.errors }}</div>
+              </div>
+
+              {% if user.userProfile.user_role == 'A' or user.userProfile.user_role == 'S' %}
+                {% if form.instance.id %}
+                  <div class="form-group mb-4 row">
+                    <div class="col">
+                      <label for="id_workplace_association" class="form-label"> Workplace Association</label>
+                      <div id="workplace_association">
+                        {% if form.instance.reservation_to_work_place %}
+                          {% include "bcse_app/DeliveryAddress.html" with name=form.instance.reservation_to_work_place.work_place.name delivery_address=form.instance.reservation_to_work_place.work_place %}
+                        {% endif %}
+                      </div>
+                      <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:reservationWorkPlaceEdit' form.instance.id %}" href="#">Update Workplace Association</a>
+                    </div>
+                    <div class="col">
+                      <label for="id_delivery_address" class="form-label"> Delivery Address</label>
+                      <div id="delivery_address">
+                        {% with reservation=form.instance %}
+                          {% if reservation.delivery_address %}
+                            {% include "bcse_app/DeliveryAddress.html" with delivery_address=reservation.delivery_address warning='True' %}
+                          {% elif reservation.reservation_to_work_place %}
+                            <div class="warning">This delivery address is the workplace address</div>
+                          {% endif %}
+                        {% endwith %}
+                      </div>
+                      <a class="btn btn-small modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:reservationDeliveryAddressEdit' form.instance.id %}" href="#">Update Delivery Address</a>
+                    </div>
+                  </div>
+
+                {% endif %}
+
+                <div class="form-group mb-4">
+                  <label for="id_{{form.admin_notes.name}}" class="form-label"> {{form.admin_notes.label}}
+                    {% if form.admin_notes.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                  </label>
+                  <div>{{form.admin_notes}}</div>
+                  <div class="error">{{ form.admin_notes.errors }}</div>
+                </div>
+                <div class="form-group mb-4 row">
+                  <div class="col">
+                    <label for="id_{{form.assignee.name}}" class="form-label"> {{form.assignee.label}}
+                      {% if form.assignee.field.required %}
+                        (<span class="required">*</span>)
+                      {% endif %}
+                    </label>
+                    <div>{{form.assignee}}</div>
+                    <div class="error">{{ form.assignee.errors }}</div>
+                  </div>
+                  <div class="col">
+                    <label for="id_{{form.pickup_assignee.name}}" class="form-label"> {{form.pickup_assignee.label}}
+                    {% if form.pickup_assignee.field.required %}
+                      (<span class="required">*</span>)
+                    {% endif %}
+                    </label>
+                    <div>{{form.pickup_assignee}}</div>
+                    <div class="error">{{ form.pickup_assignee.errors }}</div>
+                  </div>
                 </div>
 
+                <div class="form-group mb-4 row">
+                  <div class="col">
+                    <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}
+                      {% if form.status.field.required %}
+                        (<span class="required">*</span>)
+                      {% endif %}
+                    </label>
+                    <div>{{form.status}}</div>
+                    <div class="error">{{ form.status.errors }}</div>
+                  </div>
+                  <div class="col">
+                    <label for="id_{{form.color.name}}" class="form-label"> {{form.color.label}}
+                      {% if form.color.field.required %}
+                        (<span class="required">*</span>)
+                      {% endif %}
+                    </label>
+                    <div>{{form.color}}</div>
+                    <div class="error">{{ form.color.errors }}</div>
+                  </div>
+                </div>
+              {% else %}
+                <div>{{form.status.as_hidden}}</div>
               {% endif %}
 
-              <div class="form-group mb-4">
-                <label for="id_{{form.admin_notes.name}}" class="form-label"> {{form.admin_notes.label}}
-                  {% if form.admin_notes.field.required %}
-                    (<span class="required">*</span>)
+              <div class="button-row">
+                <button type="button" class="btn btn-primary tab-btn" data-tab="#equipment_details-tab">Back</button>
+                <div class="form-group right">
+                  <button class="btn btn-success" type="button" id="reservationSubmit">
+                    {% if form.instance.id %}
+                      Save Reservation
+                    {% else %}
+                      Make Reservation
+                    {% endif %}
+                  </button>
+                  {% if form.instance.id %}
+                    {% if user.userProfile.user_role in 'AS'%}
+                      <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' form.instance.id %}" data-title="this reservation">Delete</button>
+                    {% else %}
+                      <button type="button" class="btn btn-danger cancel action" data-href="{% url 'bcse:reservationCancel' form.instance.id %}" data-title="this reservation">Cancel Reservation</button>
+                    {% endif %}
                   {% endif %}
-                </label>
-                <div>{{form.admin_notes}}</div>
-                <div class="error">{{ form.admin_notes.errors }}</div>
+                </div>
               </div>
-              <div class="form-group mb-4">
-                <label for="id_{{form.assignee.name}}" class="form-label"> {{form.assignee.label}}
-                  {% if form.assignee.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div>{{form.assignee}}</div>
-                <div class="error">{{ form.assignee.errors }}</div>
-              </div>
-              <div class="form-group mb-4">
-                <label for="id_{{form.pickup_assignee.name}}" class="form-label"> {{form.pickup_assignee.label}}
-                  {% if form.pickup_assignee.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div>{{form.pickup_assignee}}</div>
-                <div class="error">{{ form.pickup_assignee.errors }}</div>
-              </div>
-              <div class="form-group mb-4">
-                <label for="id_{{form.status.name}}" class="form-label"> {{form.status.label}}
-                  {% if form.status.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div>{{form.status}}</div>
-                <div class="error">{{ form.status.errors }}</div>
-              </div>
-              <div class="form-group mb-4">
-                <label for="id_{{form.color.name}}" class="form-label"> {{form.color.label}}
-                  {% if form.color.field.required %}
-                    (<span class="required">*</span>)
-                  {% endif %}
-                </label>
-                <div>{{form.color}}</div>
-                <div class="error">{{ form.color.errors }}</div>
-              </div>
-            {% else %}
-              <div>{{form.status.as_hidden}}</div>
-            {% endif %}
-
-            <button class="btn btn-success" type="button" id="reservationSubmit">
-              {% if form.instance.id %}
-                Save Reservation
-              {% else %}
-                Make Reservation
-              {% endif %}
-            </button>
-            {% if form.instance.id %}
-              {% if user.userProfile.user_role in 'AS'%}
-                <button type="button" class="btn btn-danger delete action" data-href="{% url 'bcse:reservationDelete' form.instance.id %}" data-title="this reservation">Delete</button>
-              {% else %}
-                <button type="button" class="btn btn-danger cancel action" data-href="{% url 'bcse:reservationCancel' form.instance.id %}" data-title="this reservation">Cancel Reservation</button>
-              {% endif %}
-            {% endif %}
-          </form>
-        </div>
-        <div class="other_info">
-          <div class="activity_container">
-            <div class="activity center general">
-              <h3 class="center underline"> Select an activity</h3>
-              <img src="{% staticfile 'img/Baxter_box_infographic.svg' %}"/>
             </div>
           </div>
-          <div class="availability_calendar_container">
-            {% include "bcse_app/AvailabilityCalendar.html" %}
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   </div>
@@ -390,6 +436,11 @@
         var max_reservation_unixdate = current_timestamp + reservation_max_advance_days * 24 * 60 * 60;
 
 
+        $('.tab-btn').on('click', function () {
+          const tabButton = $(this).data('tab')
+          new bootstrap.Tab(tabButton).show();
+
+        });
 
         /* Set date restriction based on user role */
         function bindDateRestrictions() {
@@ -603,7 +654,6 @@
                 type: 'GET',
                 url: url,
                 beforeSend: function(){
-                  $('div.activity_container div.activity.general').hide();
                   $('div.activity_container div.activity.specific').remove();
                   $('div.form-group.equipment_info').html('');
                   $('div.form-group.equipment_info').hide()
@@ -614,7 +664,7 @@
                 success: function(data){
                   if (data['success'] = true) {
                     if (data['html']) {
-                      $('div.activity_container div.activity.general').after(data['html']);
+                      $('div.activity_container').html(data['html']);
                       if(data['materials_equipment']) {
                         $('div.form-group.equipment_info').html(data['materials_equipment']);
                         $('div.form-group.equipment_info').show();
@@ -699,12 +749,6 @@
 
               $('div.form-group.equipment_info').html('');
               $('div.form-group.equipment_info').hide();
-              if($('input#id_other_activity').is(':checked')) {
-                $('div.activity_container div.activity.general').hide();
-              }
-              else {
-                $('div.activity_container div.activity.general').show();
-              }
               $('div.activity_container div.activity.specific').remove();
               //hide kit not need fields
               $('input#id_activity_kit_not_needed').prop('checked', false).closest('.form-group').hide();
@@ -850,7 +894,6 @@
               $('select#id_activity').closest('.form-group').find('label > span').hide();
               $('input#id_other_activity_name').prop('required', true);
               $('input#id_other_activity_name').closest('.form-group').show();
-              $('div.activity_container div.activity.general').hide();
               $('div.activity_container div.activity.specific').remove();
             }
             //other activity checkbox unchecked
@@ -860,7 +903,6 @@
               $('select#id_activity').closest('.form-group').find('label > span').show();
               $('input#id_other_activity_name').prop('required', false);
               $('input#id_other_activity_name').closest('.form-group').hide();
-              $('div.activity_container div.activity.general').show();
               $('div.activity_container div.activity.specific').remove();
             }
           });
@@ -888,7 +930,7 @@
             }
             //checkbox unchecked
             else{
-              $('#id_equipment_types input.form-check-input').prop('required', true).prop('disabled', false);
+              $('#id_equipment_types input.form-check-input').prop('disabled', false);
               $('#id_equipment_types').closest('.form-group').show();
               $('#id_equipment').closest('.form-group').show();
               $('input#id_return_date').prop('disabled', false);

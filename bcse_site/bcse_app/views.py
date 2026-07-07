@@ -7418,9 +7418,12 @@ def userProfileEdit(request, id=''):
                 if old_secondary_email is not None and savedUserProfile.secondary_email is None:
                   userSecondaryDetails = {'email_address': old_secondary_email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
                   subscription(userSecondaryDetails, 'delete', secondary_hash)
+
                 #user added secondary email
                 elif old_secondary_email is None and savedUserProfile.secondary_email is not None:
+                  userSecondaryDetails = {'email_address': savedUserProfile.secondary_email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
                   subscription(userSecondaryDetails, 'add')
+
                 #user changed secondary email or other details
                 else:
                   subscription(userSecondaryDetails, 'update', secondary_hash)
