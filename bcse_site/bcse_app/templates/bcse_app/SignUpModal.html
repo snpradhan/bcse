@@ -153,6 +153,18 @@
           </div>
         </div>
 
+        <div class="form-group mb-3 school_related">
+          <label for="id_{{form.subjects_taught.name}}" class="form-label"> {{form.subjects_taught.label|title}}</label>
+          <div>{{form.subjects_taught}}</div>
+          <div class="error">{{ form.subjects_taught.errors }}</div>
+        </div>
+        <div class="form-group mb-3" style="display: none;">
+          <label for="id_{{form.other_subject.name}}" class="form-label"> {{form.other_subject.label|title}}</label>
+          <div>{{form.other_subject}}</div>
+          <div class="error">{{ form.other_subject.errors }}</div>
+        </div>
+
+
         <div class="row mb-3">
           <div class="form-group col-md-4">
             <label for="id_{{form.twitter_handle.name}}">
@@ -256,6 +268,18 @@
       }
 
     });
+
+    $('#id_subjects_taught').on('change', function(){
+      var subjects = $(this).val();
+      if(subjects && subjects.includes('EO')){
+        $('#id_other_subject').closest('.form-group').show();
+      }
+      else{
+        $('#id_other_subject').val('');
+        $('#id_other_subject').closest('.form-group').hide();
+      }
+    })
+
     $('input[name="new_work_place_flag"]').trigger('change');
 
     /**************************/

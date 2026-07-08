@@ -89,6 +89,17 @@
             <div class="error">{{ userProfileForm.grades.errors }}</div>
           </div>
         </div>
+        <div class="form-group mb-3 teacher_related">
+          <label for="id_{{userProfileForm.subjects.name}}" class="form-label"> {{userProfileForm.subjects.label|title}}</label>
+          <div>{{userProfileForm.subjects}}</div>
+          <div class="error">{{ userProfileForm.subjects.errors }}</div>
+        </div>
+        <div class="form-group mb-3" style="display: none;">
+          <label for="id_{{userProfileForm.other_subject.name}}" class="form-label"> {{userProfileForm.other_subject.label|title}}</label>
+          <div>{{userProfileForm.other_subject}}</div>
+          <div class="error">{{ userProfileForm.other_subject.errors }}</div>
+        </div>
+
 
         <div class="row mb-3">
           <div class="form-group col-md-8">
@@ -215,12 +226,24 @@
     $('select[name="user_profile-user_role"]').on('change', function(){
       if($(this).val() == "T"){
         $('.teacher_related').show();
+        bindSelect2();
       }
       else{
         $('.teacher_related :input').val('');
         $('.teacher_related').hide();
       }
     });
+
+    $('#id_user_profile-subjects').on('change', function(){
+      var subjects = $(this).val();
+      if(subjects && subjects.includes('EO')){
+        $('#id_user_profile-other_subject').closest('.form-group').show();
+      }
+      else{
+        $('#id_user_profile-other_subject').val('');
+        $('#id_user_profile-other_subject').closest('.form-group').hide();
+      }
+    })
 
     $('input[name="user_profile-new_work_place_flag"]').on('change', function(){
       if($(this).is(':checked')){
@@ -241,6 +264,7 @@
     $('input[name="user_profile-new_work_place_flag"]').trigger('change');
 
     $('select[name="user_profile-user_role"]').trigger('change');
+    $('#id_user_profile-subjects').trigger('change');
 
     $('#formUserProfile').submit(function(e){
       e.preventDefault();

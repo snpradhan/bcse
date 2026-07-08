@@ -33,6 +33,9 @@
         {% if 'GT' in columns %}
           <th> Grades Taught </th>
         {% endif %}
+        {% if 'SU' in columns %}
+          <th> Subjects Taught </th>
+        {% endif %}
         {% if 'SC' in columns %}
           <th> Subscribed? </th>
         {% endif %}
@@ -105,6 +108,9 @@
           {% endif %}
           {% if 'GT' in columns %}
             <td> {{user_profile.get_grades_taught_display|safe|default_if_none:""}} </td>
+          {% endif %}
+          {% if 'SU' in columns %}
+            <td> {{user_profile.get_subjects_taught_display|safe|default_if_none:""}} </td>
           {% endif %}
           {% if 'SC' in columns %}
             <td> {{user_profile.subscribe|yesno:"Yes,No"}} </td>

@@ -645,6 +645,8 @@ def userSignup(request):
       newUser.user_role = form.cleaned_data['user_role']
       newUser.iein = form.cleaned_data['iein']
       newUser.grades = form.cleaned_data['grades_taught']
+      newUser.subjects = form.cleaned_data['subjects_taught']
+      newUser.other_subject = form.cleaned_data['other_subject']
       newUser.phone_number = form.cleaned_data['phone_number']
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
@@ -8224,8 +8226,8 @@ def usersExport(request):
       date_time_format = xlwt.XFStyle()
       date_time_format.num_format_str = 'mm/dd/yyyy hh:mm AM/PM'
 
-      columns = ['User ID', 'Email', 'Full Name', 'Role', 'Workplace', 'Phone Number', 'IEIN', 'Grades Taught', 'Instagram Handle', 'Twitter Handle', 'Subscribed?', 'Photo Release Complete?', 'Status', 'Joined On', 'Last Login']
-      font_styles = [font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_time_format]
+      columns = ['User ID', 'Email', 'Full Name', 'Role', 'Workplace', 'Phone Number', 'IEIN', 'Grades Taught', 'Subjects Taught', 'Instagram Handle', 'Twitter Handle', 'Subscribed?', 'Photo Release Complete?', 'Status', 'Joined On', 'Last Login']
+      font_styles = [font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, font_style, date_format, date_time_format]
 
       ws = wb.add_sheet('BCSE Users')
       row_num = 0
@@ -8242,6 +8244,7 @@ def usersExport(request):
                user.phone_number,
                user.iein,
                user.get_grades_taught_display(),
+               user.get_subjects_taught_display(),
                user.instagram_handle,
                user.twitter_handle,
                'Yes' if user.subscribe else 'No',

@@ -131,6 +131,20 @@ GRADES_CHOICES = (
   ('I', 'Informal'),
 )
 
+#USER PROFILE SUBJECTS CHOICES
+SUBJECTS_CHOICES = (
+  ('GS', 'General Science'),
+  ('BI', 'Biology'),
+  ('AB', 'AP Biology '),
+  ('DB', 'Dual Credit Biology'),
+  ('IB', 'IB Biology'),
+  ('CH', 'Chemistry'),
+  ('PH', 'Physics'),
+  ('BT', 'Biotech'),
+  ('AP', 'Anatomy and Physiology'),
+  ('EO', 'Electives/Other'),
+)
+
 #Workplace Grade choices
 WORKPLACE_GRADE_CHOICES = (
   ('E', 'Grades K-5'),
@@ -211,6 +225,7 @@ USER_TABLE_COLUMN_CHOICES = (
   ('PN', 'Phone Number'),
   ('IE', 'IEIN'),
   ('GT', 'Grades Taught'),
+  ('SU', 'Subjects Taught'),
   ('IH', 'Instagram Handle'),
   ('TH', 'Twitter Handle'),
   ('SC', 'Subscribed'),
@@ -468,6 +483,11 @@ class UserProfile(models.Model):
         blank=True,
         default=list
     )
+  subjects = ArrayField(base_field=models.CharField(max_length=2, choices=SUBJECTS_CHOICES),
+        blank=True,
+        default=list
+    )
+  other_subject = models.CharField(null=True, blank=True, max_length=20)
 
   twitter_handle = models.CharField(null=True, blank=True, max_length=20)
   instagram_handle = models.CharField(null=True, blank=True, max_length=20)
@@ -495,6 +515,17 @@ class UserProfile(models.Model):
   def get_grades_taught_display(self):
     mapping = dict(GRADES_CHOICES)
     items = [f"<li>{mapping.get(code, code)}</li>" for code in self.grades]
+    return f"<ul>{''.join(items)}</ul>"
+
+  def get_subjects_taught_display(self):
+    mapping = dict(SUBJECTS_CHOICES)
+
+    def get_label(code):
+      if code == "EO" and self.other_subject:
+        return f"{mapping[code]}: {self.other_subject}"
+      return mapping.get(code, code)
+
+    items = [f"<li>{get_label(code)}</li>" for code in self.subjects]
     return f"<ul>{''.join(items)}</ul>"
 
 class EquipmentType(models.Model):

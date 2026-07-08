@@ -91,6 +91,8 @@ class SignUpForm (forms.Form):
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
   iein = forms.CharField(required=False, max_length=20, label='IEIN')
   grades_taught = forms.MultipleChoiceField(choices=models.GRADES_CHOICES, widget=forms.SelectMultiple(), required=False)
+  subjects_taught = forms.MultipleChoiceField(choices=models.SUBJECTS_CHOICES, widget=forms.SelectMultiple(), required=False)
+  other_subject = forms.CharField(required=True, max_length=20, label='Other Subject')
   twitter_handle = forms.CharField(required=False, max_length=20, label='Twitter ID')
   instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
   new_work_place_flag = forms.BooleanField(required=False, label='My Workplace Is Not Listed')
@@ -110,7 +112,7 @@ class SignUpForm (forms.Form):
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['new_work_place_flag', 'subscribe']:
-        if field_name == 'grades_taught':
+        if field_name in ['grades_taught', 'subjects_taught']:
           field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
@@ -362,10 +364,15 @@ class UserProfileForm (ModelForm):
         widget=forms.SelectMultiple(),
         required=False,
     )
+  subjects = forms.MultipleChoiceField(
+        choices=models.SUBJECTS_CHOICES,
+        widget=forms.SelectMultiple(),
+        required=False,
+    )
 
   class Meta:
     model = models.UserProfile
-    fields = ['secondary_email', 'work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation', 'accessibility_notes']
+    fields = ['secondary_email', 'work_place', 'user_role', 'image', 'phone_number', 'iein', 'grades', 'subjects', 'other_subject', 'twitter_handle', 'instagram_handle', 'subscribe', 'photo_release_complete', 'dietary_preference', 'admin_notes', 'name_pronounciation', 'accessibility_notes']
     widgets = {
       'image': widgets.ClearableFileInput,
       'work_place': autocomplete.ModelSelect2(url='workplace-autocomplete',
@@ -382,6 +389,7 @@ class UserProfileForm (ModelForm):
     self.fields['subscribe'].label = 'Subscribe To Our Mailing List'
     self.fields['work_place'].label = 'Workplace'
     self.fields['grades'].label = 'Grades Taught'
+    self.fields['subjects'].label = 'Subjects Taught'
 
     if user.is_authenticated:
       if user.userProfile.user_role not in ['A', 'S']:
@@ -396,7 +404,7 @@ class UserProfileForm (ModelForm):
 
     for field_name, field in list(self.fields.items()):
       if field_name not in ['new_work_place_flag', 'subscribe', 'photo_release_complete']:
-        if field_name == 'grades':
+        if field_name in ['grades', 'subjects']:
           field.widget.attrs['class'] = 'form-control select2'
         else:
           field.widget.attrs['class'] = 'form-control'
