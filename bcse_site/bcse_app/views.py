@@ -644,7 +644,7 @@ def userSignup(request):
       newUser.name_pronounciation = form.cleaned_data['name_pronounciation']
       newUser.user_role = form.cleaned_data['user_role']
       newUser.iein = form.cleaned_data['iein']
-      newUser.grades_taught = form.cleaned_data['grades_taught']
+      newUser.grades = form.cleaned_data['grades_taught']
       newUser.phone_number = form.cleaned_data['phone_number']
       newUser.twitter_handle = form.cleaned_data['twitter_handle']
       newUser.instagram_handle = form.cleaned_data['instagram_handle']
@@ -7425,7 +7425,8 @@ def userProfileEdit(request, id=''):
                   subscription(userSecondaryDetails, 'add')
 
                 #user changed secondary email or other details
-                else:
+                elif old_secondary_email:
+                  userSecondaryDetails = {'email_address': savedUserProfile.secondary_email, 'first_name': savedUserProfile.user.first_name, 'last_name': savedUserProfile.user.last_name}
                   subscription(userSecondaryDetails, 'update', secondary_hash)
 
         messages.success(request, "User profile saved successfully")

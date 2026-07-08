@@ -103,7 +103,7 @@
       </div>
       <div class="mb-1">
         <label>Grades Taught:</label>
-        <div>{{userProfile.get_grades_taught_display|default_if_none:""}}</div>
+        <div>{{userProfile.get_grades_taught_display|safe|default_if_none:""}}</div>
       </div>
     {% endif %}
     {% if work_place.district_number %}

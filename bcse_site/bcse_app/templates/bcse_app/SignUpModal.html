@@ -143,7 +143,7 @@
           </div>
           <div class="form-group col-md-6">
             <label for="id_{{form.grades_taught.name}}">
-              {{ form.grades_taught.label }}
+              {{ form.grades_taught.label|title }}
               {% if form.grades_taught.field.required %}
                 (<span class="required">*</span>)
               {% endif %}
@@ -263,6 +263,7 @@
     $('select[name="user_role"]').on('change', function(){
       if($(this).val() == "T"){
         $('.school_related').show();
+        bindSelect2();
       }
       else{
         $('.school_related').hide();

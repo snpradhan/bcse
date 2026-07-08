@@ -122,8 +122,13 @@ RESERVATION_FEEDBACK_STATUS_CHOICES = (
 GRADES_CHOICES = (
   ('E', 'Elementary School'),
   ('M', 'Middle School'),
-  ('H', 'High School'),
-  ('O', 'Other'),
+  ('F', 'Freshman'),
+  ('S', 'Sophomores'),
+  ('J', 'Juniors'),
+  ('N', 'Seniors'),
+  ('O', 'Out-of-school Time'),
+  ('P', 'Post-Secondary'),
+  ('I', 'Informal'),
 )
 
 #Workplace Grade choices
@@ -459,7 +464,11 @@ class UserProfile(models.Model):
   validation_code = models.CharField(null=False, max_length=5)
   phone_number = models.CharField(null=True, blank=True, max_length=20)
   iein = models.CharField(null=True, blank=True, max_length=20)
-  grades_taught = models.CharField(null=True, blank=True, max_length=1, choices=GRADES_CHOICES)
+  grades = ArrayField(base_field=models.CharField(max_length=1, choices=GRADES_CHOICES),
+        blank=True,
+        default=list
+    )
+
   twitter_handle = models.CharField(null=True, blank=True, max_length=20)
   instagram_handle = models.CharField(null=True, blank=True, max_length=20)
   subscribe =  models.BooleanField(default=False)
@@ -482,6 +491,11 @@ class UserProfile(models.Model):
     first = self.user.first_name[:1] if self.user.first_name else ''
     last = self.user.last_name[:1] if self.user.last_name else ''
     return '%s.%s.' % (first.upper(), last.upper())
+
+  def get_grades_taught_display(self):
+    mapping = dict(GRADES_CHOICES)
+    items = [f"<li>{mapping.get(code, code)}</li>" for code in self.grades]
+    return f"<ul>{''.join(items)}</ul>"
 
 class EquipmentType(models.Model):
   name = models.CharField(null=False, max_length=256, help_text='Name of Equipment Category')
