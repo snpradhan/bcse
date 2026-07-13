@@ -316,3 +316,156 @@ def send_workshop_emails():
     print(message[1])
 
   print('end workshop emails', datetime.today())
+
+
+####################################
+# Export Workshops and Registrations to Excel
+####################################
+def export_workshops_registrations():
+  print('start workshops/registrations export', datetime.today())
+
+  start_of_year = datetime(timezone.now().year, 1, 1)
+
+  workshops = models.Workshop.objects.all().filter(start_date__gte=start_of_year).order_by('start_date')
+  registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__in=workshops).order_by('workshop_registration_setting__workshop__start_date')
+
+  #response = http.HttpResponse(content_type='application/ms-excel')
+  #response['Content-Disposition'] = 'attachment; filename="reservations_%s.xls"'%datetime.datetime.now()
+  wb = xlwt.Workbook(encoding='utf-8')
+
+  borders = xlwt.Borders()
+  borders.left = xlwt.Borders.THIN
+  borders.right = xlwt.Borders.THIN
+  borders.top = xlwt.Borders.THIN
+  borders.bottom = xlwt.Borders.THIN
+
+  bold_font_style = xlwt.XFStyle()
+  bold_font_style.font.bold = True
+  bold_font_style.borders = borders
+  font_style = xlwt.XFStyle()
+  font_style.alignment.wrap = 1
+  font_style.borders = borders
+  date_format = xlwt.XFStyle()
+  date_format.num_format_str = 'mm/dd/yyyy'
+  date_format.borders = borders
+
+  columns = ['ID', 'Workshop Type', 'Title', 'Start Date/Time', 'End Date/Time', 'Location', 'Status']
+  font_styles = [font_style, font_style, font_style, date_format, date_format, font_style, font_style]
+
+  ws = wb.add_sheet('Workshops')
+  row_num = 0
+  #write the headers
+  header_style = copy.deepcopy(bold_font_style)
+  header_style.font.colour_index = xlwt.Style.colour_map['ivory']
+  header_style.font.height = 240
+  pattern = xlwt.Pattern()
+  pattern.pattern = pattern.SOLID_PATTERN
+  pattern.pattern_fore_colour = xlwt.Style.colour_map['gray50']
+  header_style.pattern = pattern
+  for col_num in range(len(columns)):
+    ws.write(row_num, col_num, columns[col_num], header_style)
+
+  for workshop in workshops:
+    row = [workshop.id,
+           workshop.workshop_category.name,
+           workshop.name,
+           workshop.start_date,
+           workshop.end_date,
+           workshop.location,
+           workshop.get_status_display()
+        ]
+
+    row_num += 1
+    for col_num in range(len(row)):
+      ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+  ws = wb.add_sheet('Registrations')
+  row_num = 0
+  columns = ['Workshop ID',
+             'Workshop',
+             'Registration ID',
+             'User ID',
+             'Email',
+             'Full Name',
+             'User Role',
+             'IEIN',
+             'Workplace',
+             'Workplace Address',
+             'Subscribed?',
+             'Photo Release Complete?',
+             'Dietary Preference',
+             'Accessibility Notes',
+             'Admin Notes',
+             'Registration Status',
+             'Registration Sub Status',
+             'Created Date']
+
+  font_styles = [font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             font_style,
+             date_format]
+
+  for col_num in range(len(columns)):
+    ws.write(row_num, col_num, columns[col_num], header_style)
+
+  for registration in registrations:
+    row = [registration.workshop_registration_setting.workshop.id,
+           registration.workshop_registration_setting.workshop.name,
+           registration.id,
+           registration.user.id,
+           registration.user.user.email,
+           registration.user.user.get_full_name(),
+           registration.user.get_user_role_display(),
+           registration.user.iein,
+           registration.registration_to_work_place.work_place.name,
+           utils.strip_html(registration.registration_to_work_place.work_place.get_full_address()),
+           "Yes" if registration.user.subscribe else "No",
+           "Yes" if registration.user.photo_release_complete else "No",
+           registration.user.dietary_preference,
+           registration.user.accessibility_notes,
+           registration.user.admin_notes,
+           registration.get_status_display(),
+           registration.get_sub_status_display(),
+           registration.created_date.replace(tzinfo=None)
+        ]
+    row_num += 1
+    for col_num in range(len(row)):
+      ws.write(row_num, col_num, row[col_num], font_styles[col_num])
+
+  ws = wb.add_sheet('Export Details')
+  ws.write(0, 0, 'Exported Date', bold_font_style)
+  date_format.num_format_str = 'mm/dd/yyyy h:mm:ss AM/PM'
+  ws.write(0, 1, datetime.today(), date_format)
+  ws.write(1, 0, '# of Workshops', bold_font_style)
+  ws.write(1, 1, workshops.count(), font_style)
+  ws.write(2, 0, '# of Registrations', bold_font_style)
+  ws.write(2, 1, registrations.count(), font_style)
+
+  cmd = 'rm /tmp/workshops_registrations.xls'
+  subprocess.call(cmd, shell=True)
+
+  wb.save('/tmp/workshops_registrations.xls')
+
+  print('exporting %s workshops_registrations' % registrations.count())
+
+  cmd = 's3cmd --access_key=%s --secret_key=%s -s put %s s3://%s/export/workshops_registrations.xls' % (settings.AWS_ACCESS_KEY_ID,
+                                                                     settings.AWS_SECRET_ACCESS_KEY,
+                                                                     '/tmp/workshops_registrations.xls',
+                                                                     settings.AWS_STORAGE_BUCKET_NAME)
+  subprocess.call(cmd, shell=True)
+
+  print('end workshops/registrations export', datetime.today())
