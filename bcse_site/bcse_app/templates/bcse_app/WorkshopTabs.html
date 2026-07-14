@@ -93,6 +93,17 @@
       <li class="nav-item right">
         <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:workshopInviteeNew' workshop.id %}" href="#">Add Invitee</a>
       </li>
+    {% elif tab == 'schedule' %}
+      {% if subtab == 'edit_breakout_sessions' %}
+        <li class="nav-item right">
+          <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:breakoutSessionNew' workshop.id%}" href="#">Create Breakout Session</a>
+        </li>
+      {% elif subtab == 'timeslots' %}
+        <li class="nav-item right">
+          <button type="button" class="btn" onclick="cloneForm('workshop_timeslots', 'timeslots_formset')">Add Row</button>
+        </li>
+      {% endif %}
+
     {% endif %}
   </ul>
 {% elif user.is_authenticated and user.userProfile.user_role in 'TP' and workshop.id and workshop|is_workshop_teacher_leader:user.userProfile %}

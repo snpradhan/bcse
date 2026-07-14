@@ -1,0 +1,14 @@
+<h2 class="left">Plan your day!</h2>
+{% for timeslot in timeslots %}
+  <div class="my-4 mx-1">
+    <h3 class="left">{{ timeslot }}</h3>
+    {% for breakout_session in timeslot.timeslot_breakout_sessions.all %}
+      <div class="m-1 p-2" style="background-color: rgb(243, 243, 243); border-radius: 10px; border: 1px solid rgb(217, 217, 217);">
+        <a class="modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:breakoutSessionView' workshop.id breakout_session.id %}" href="#">
+        <h4 class="d-flex justify-content-between align-items-center mb-0"> {{breakout_session.title}}
+          <i class="fa-utility fa-semibold fa-arrow-up-right-from-square" title="Breakout Session Expand"></i></h4>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% endfor %}

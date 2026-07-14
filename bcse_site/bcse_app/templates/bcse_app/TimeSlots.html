@@ -5,71 +5,59 @@
 
   <h1 class="center"> {{workshop}} </h1>
 
-  {% include "bcse_app/WorkshopTabs.html" with workshop=workshop tab='schedule' %}
-
+  {% include "bcse_app/WorkshopTabs.html" with workshop=workshop tab='schedule' subtab='timeslots' %}
   {% include "bcse_app/BreakoutSessionSubTabs.html" with workshop=workshop subtab='timeslots' %}
 
   <form class="form" method="post" action="{% url 'bcse:timeSlots' workshop.id%}" id="formTimeSlots">
     {% csrf_token %}
     {{form.management_form}}
-    <div class="modal-body">
 
-      <div class="form-group right">
-          <button type="button" class="btn" onclick="cloneForm('workshop_timeslots', 'timeslots_formset')">Add Row</button>
-      </div>
-
-      <table class="table table-condensed table-bordered">
-        <thead>
-          <tr>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Title</th>
-            <th>Action</th>
+    <table class="table table-condensed table-bordered">
+      <thead>
+        <tr>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Title</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="timeslots_formset">
+        {{formset.management_form}}
+        {% for form in formset %}
+          {{form.id}}
+          <tr class="form-row">
+            {{form.workshop.as_hidden}}
+            <td>
+              <div class="input-group">
+                {{form.start_time}}
+                <span class="input-group-text"><i class="fa fa-clock"></i></span>
+              </div>
+              <div class="error">{{ form.start_time.errors }}</div>
+            </td>
+            <td>
+              <div class="input-group">
+                {{form.end_time}}
+                <span class="input-group-text"><i class="fa fa-clock"></i></span>
+              </div>
+              <div class="error">{{ form.end_time.errors }}</div>
+            </td>
+            <td>
+              {{form.title}}
+              <div class="error">{{ form.title.errors }}</div>
+            </td>
+            <td>
+              {{form.DELETE.as_hidden}}
+              <button type="button" class="btn btn-xsmall btn-danger delete_row"><i class="fa-solid fa-trash-can"></i></button>
+            </td>
           </tr>
-        </thead>
-        <tbody id="timeslots_formset">
-          {{formset.management_form}}
-          {% for form in formset %}
-            {{form.id}}
-            <tr class="form-row">
-              {{form.workshop.as_hidden}}
-              <td>
-                <div class="input-group">
-                  {{form.start_time}}
-                  <span class="input-group-text"><i class="fa fa-clock"></i></span>
-                </div>
-                <div class="error">{{ form.start_time.errors }}</div>
-              </td>
-              <td>
-                <div class="input-group">
-                  {{form.end_time}}
-                  <span class="input-group-text"><i class="fa fa-clock"></i></span>
-                </div>
-                <div class="error">{{ form.end_time.errors }}</div>
-              </td>
-              <td>
-                {{form.title}}
-                <div class="error">{{ form.title.errors }}</div>
-              </td>
-              <td>
-                {{form.DELETE.as_hidden}}
-                <button type="button" class="btn btn-xsmall btn-danger delete_row"><i class="fa-solid fa-trash-can"></i></button>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        {% endfor %}
+      </tbody>
+    </table>
 
-      <div class="form-group" id="spinner">
-        <img src="/static/img/page-loader.gif" class="icon"/>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <div class="form-group buttons">
-        <button type="submit" class="btn btn-success user_profile_save">
-          Save
-        </button>
-      </div>
+    <div class="form-group buttons right">
+      <button type="submit" class="btn btn-success user_profile_save">
+        Save
+      </button>
     </div>
 
   </form>

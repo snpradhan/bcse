@@ -677,6 +677,9 @@ function bindRowDelete() {
     if (deleteInput) {
       $(deleteInput).val('on'); // Mark for deletion
       $(formRow).hide();
+      var $form = $(this).closest("form");
+      initializeForm($form);
+      $form.data("isDirty", true);
     }
   });
 }

@@ -1,28 +1,24 @@
 <div class="modal-dialog modal-lg">
-  <div class="p-3 modal-content">
+  <div class="modal-content">
     <div class="modal-header">
       <h2 class="center"> {{breakout_session.title}} </h2>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">
-        <div>
-          <h3 class="subtitle">{{breakout_session.sub_title|default:""}}</h3>
-        </div>
-        <div>
+      <div class="breakout_description">
         {% if breakout_session.image %}
           <img class="curve right" src="{{breakout_session.image.url}}">
         {% endif %}
-        </div>
-        <div>
-          {{breakout_session.description|safe}}
-        </div>
+        <h3 class="subtitle">{{breakout_session.sub_title|default:""}}</h3>
+        {{breakout_session.description|safe}}
       </div>
+
       <div class="date_location">
         {% if breakout_session.resources %}
-          <div class="location">
-            <div><i id="resources" class="far fa-fw fa-person-chalkboard fa-regular fa-folder" title="Breakout Session Resource(s)"></i></div>
-            <div>{{breakout_session.resources|safe}}</div>
-          </div>
+        <div class="location">
+          <div><i id="resources" class="far fa-fw fa-person-chalkboard fa-regular fa-folder" title="Breakout Session Resource(s)"></i></div>
+          <div>{{breakout_session.resources|safe}}</div>
+        </div>
         {% endif %}
 
         <div class="location">
@@ -30,38 +26,38 @@
           <div>{{breakout_session.location}}</div>
         </div>
 
-      {% if breakout_session.facilitators.all %}
+        {% if breakout_session.facilitators.all %}
         <div class="location">
           <div><i class="far fa-fw fa-person-chalkboard" aria-hidden="true" title="Breakout Session Facilitator(s)"></i></div>
           <div>
             {% for facilitator in breakout_session.facilitators.all %}
-              {{facilitator}}{% if not forloop.last %},{% endif %}
+            {{facilitator}}{% if not forloop.last %},{% endif %}
             {% endfor %}
           </div>
         </div>
-      {% endif %}
-      {% if breakout_session.collaborators.all %}
+        {% endif %}
+        {% if breakout_session.collaborators.all %}
         <div class="location">
           <div><i class="far fa-fw fa-puzzle" aria-hidden="true" title="Workshop Collaborator(s)"></i></div>
           <div>
             {% for collaborator in breakout_session.collaborators.all %}
-              <a href="{{collaborator.url}}" target="_blank">{{collaborator.name}}</a>
-              {% if not forloop.last %}<br>{% endif %}
+            <a href="{{collaborator.url}}" target="_blank">{{collaborator.name}}</a>
+            {% if not forloop.last %}<br>{% endif %}
             {% endfor %}
           </div>
         </div>
-      {% endif %}
-    </div>
+        {% endif %}
+      </div>
 
-    <div class="workshop_teacher_leader">
-      {% if breakout_session.facilitators.all %}
+      <div class="workshop_teacher_leader">
+        {% if breakout_session.facilitators.all %}
         <hr>
         <h3 class="title">About the Facilitator{% if breakout_session.facilitators.all.count > 1 %}s{% endif %}</h3>
         {% for teacher_leader in breakout_session.facilitators.all %}
         <div class="teacher_leader_info">
           <div class="teacher_leader_image">
             {% if teacher_leader.teacher.image %}
-              <img src="{{teacher_leader.teacher.image.url}}"/>
+            <img src="{{teacher_leader.teacher.image.url}}"/>
             {% endif %}
           </div>
           <div class="teacher_leader_details">
@@ -72,46 +68,9 @@
           </div>
         </div>
         {% endfor %}
-      {% endif %}
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
 
-<style>
-.modal-content {
-  .teacher_leader_info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1em;
-    .teacher_leader_image {
-      flex: 0 0 15%;
-      img {
-        width: 100%;
-      }
-    }
-    .teacher_leader_details {
-      flex: 0 0 83%;
-    }
-  }
-
-.date_location {
-  flex: 0 0 30%;
-  .far, .fas {
-    font-size: 1.5em;
-    color: #4e2a84;
-    margin-right: 0.5em;
-  }
-
-  div.location {
-    margin-bottom: 1em;
-    font-weight: 600;
-    font-size: 1.1em;
-    display: flex;
-    p {
-      margin: 0;
-    }
-  }
-}
-}
-
-</style>

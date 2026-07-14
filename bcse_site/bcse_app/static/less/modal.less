@@ -96,6 +96,43 @@ div#kit.modal {
     font-size: 1rem;
   }
 
+  .breakout_description {
+    display: flow-root;
+  }
+  .teacher_leader_info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1em;
+    .teacher_leader_image {
+      flex: 0 0 15%;
+      img {
+        width: 100%;
+      }
+    }
+    .teacher_leader_details {
+      flex: 0 0 83%;
+    }
+  }
+
+  .date_location {
+    flex: 0 0 30%;
+    .far, .fas {
+      font-size: 1.5em;
+      color: #4e2a84;
+      margin-right: 0.5em;
+    }
+
+    div.location {
+      margin-bottom: 1em;
+      font-weight: 600;
+      font-size: 1.1em;
+      display: flex;
+      p {
+        margin: 0;
+      }
+    }
+  }
+
 }
 
 .modal-static .modal-dialog {

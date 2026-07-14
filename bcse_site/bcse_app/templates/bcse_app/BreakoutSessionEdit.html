@@ -18,7 +18,6 @@
   <form method="post" enctype="multipart/form-data" action="{% if form.instance.id %}{% url 'bcse:breakoutSessionEdit' workshop.id form.instance.id %} {% else %} {% url 'bcse:breakoutSessionNew' workshop.id %}{% endif %}" id="formBreakoutSession">
     {% csrf_token %}
     {{form.media}}
-    {{form.management_form}}
     <div class="modal-body">
       <div class="form-group mb-3">
         <label for="id_{{form.timeslot.name}}">

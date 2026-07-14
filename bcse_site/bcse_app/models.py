@@ -707,8 +707,8 @@ class TimeSlot(models.Model):
 
   def __str__(self):
       if self.title:
-        return '%s - %s (%s)' % (self.start_time, self.end_time, self.title)
-      return '%s - %s' % (self.start_time, self.end_time)
+        return '%s - %s (%s)' % (self.start_time.strftime("%-I:%M %p"), self.end_time.strftime("%-I:%M %p"), self.title)
+      return '%s - %s' % (self.start_time.strftime("%-I:%M %p"), self.end_time.strftime("%-I:%M %p"))
 
 class BreakoutSession(models.Model):
   timeslot = models.ForeignKey(TimeSlot, null=False, related_name="timeslot_breakout_sessions", on_delete=models.CASCADE)

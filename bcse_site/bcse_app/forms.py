@@ -2039,8 +2039,8 @@ class TimeSlotForm(ModelForm):
 
     for field_name, field in list(self.fields.items()):
       if field_name in ['start_time', 'end_time']:
-          field.widget.attrs['class'] = 'form-control timepicker'
-          field.input_formats = ['%I:%M %p']
+        field.widget.attrs['class'] = 'form-control timepicker'
+        field.input_formats = ['%I:%M %p']
       else:
         field.widget.attrs['class'] = 'form-control'
 
@@ -2056,23 +2056,21 @@ class BreakoutSessionForm(ModelForm):
       'image': widgets.ClearableFileInput,
       'description': forms.Textarea(attrs={'rows':5}),
       'resources': forms.Textarea(attrs={'rows':3}),
-      'facilitators': forms.SelectMultiple,
     }
 
-  timeslot = forms.ModelChoiceField(required=True, queryset=models.TimeSlot.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-
   def __init__(self, *args, **kwargs):
+    workshop = kwargs.pop('workshop')
     super(BreakoutSessionForm, self).__init__(*args, **kwargs)
-    self.fields['collaborators'].queryset = models.Collaborator.objects.all().filter(status='A').order_by('name')
+
+    self.fields['timeslot'].queryset = models.TimeSlot.objects.all().filter(workshop=workshop)
 
     for field_name, field in list(self.fields.items()):
-      if field_name == 'image':
-        field.widget.attrs['placeholder'] = field.help_text
-      elif field_name in ['facilitators', 'collaborators']:
+      if field_name in ['facilitators', 'collaborators']:
         field.widget.attrs['class'] = 'form-control select2'
         field.widget.attrs['size'] = 6
       else:
         field.widget.attrs['class'] = 'form-control'
+        field.widget.attrs['placeholder'] = field.help_text
 
 ####################################
 # BreakoutSessionUpdate Form
@@ -2081,15 +2079,13 @@ class BreakoutSessionUpdateForm(ModelForm):
 
   class Meta:
     model = models.BreakoutSession
-    fields = ('timeslot', 'title', 'facilitators')
-    widgets = {
-      'facilitators': forms.SelectMultiple,
-    }
-
-    timeslot = forms.ModelChoiceField(required=True, queryset=models.TimeSlot.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
+    fields = ['timeslot', 'title', 'facilitators']
 
   def __init__(self, *args, **kwargs):
+    workshop = kwargs.pop('workshop')
     super(BreakoutSessionUpdateForm, self).__init__(*args, **kwargs)
+
+    self.fields['timeslot'].queryset = models.TimeSlot.objects.all().filter(workshop=workshop)
 
     for field_name, field in list(self.fields.items()):
       if field_name == 'facilitators':
