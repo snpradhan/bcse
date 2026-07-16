@@ -90,8 +90,8 @@ class SignUpForm (forms.Form):
                                   )
   phone_number = forms.CharField(required=False, max_length=20, label='Phone Number')
   iein = forms.CharField(required=False, max_length=20, label='IEIN')
-  grades_taught = forms.MultipleChoiceField(choices=models.GRADES_CHOICES, widget=forms.SelectMultiple(), required=False)
-  subjects_taught = forms.MultipleChoiceField(choices=models.SUBJECTS_CHOICES, widget=forms.SelectMultiple(), required=False)
+  grades_taught = forms.MultipleChoiceField(choices=models.GRADES_CHOICES, widget=forms.SelectMultiple(), required=False, help_text="Multiple Grades Taught can be selected")
+  subjects_taught = forms.MultipleChoiceField(choices=models.SUBJECTS_CHOICES, widget=forms.SelectMultiple(), required=False, help_text="Multiple Subjects Taught can be selected")
   other_subject = forms.CharField(required=True, max_length=20, label='Other Subject')
   twitter_handle = forms.CharField(required=False, max_length=20, label='Twitter ID')
   instagram_handle = forms.CharField(required=False, max_length=20, label='Instagram ID')
@@ -362,12 +362,12 @@ class UserProfileForm (ModelForm):
   grades = forms.MultipleChoiceField(
         choices=models.GRADES_CHOICES,
         widget=forms.SelectMultiple(),
-        required=False,
+        required=False, help_text="Multiple Grades Taught can be selected"
     )
   subjects = forms.MultipleChoiceField(
         choices=models.SUBJECTS_CHOICES,
         widget=forms.SelectMultiple(),
-        required=False,
+        required=False, help_text="Multiple Subjects Taught can be selected"
     )
 
   class Meta:

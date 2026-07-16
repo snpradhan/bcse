@@ -84,13 +84,19 @@
             <div class="error">{{ userProfileForm.iein.errors }}</div>
           </div>
           <div class="form-group col-md-6">
-            <label for="id_{{userProfileForm.grades.name}}" class="form-label"> {{userProfileForm.grades.label|title}}</label>
+            <label for="id_{{userProfileForm.grades.name}}" class="form-label">
+              {{userProfileForm.grades.label|title}}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{userProfileForm.grades.help_text}}"></i>
+            </label>
             <div>{{userProfileForm.grades}}</div>
             <div class="error">{{ userProfileForm.grades.errors }}</div>
           </div>
         </div>
         <div class="form-group mb-3 teacher_related">
-          <label for="id_{{userProfileForm.subjects.name}}" class="form-label"> {{userProfileForm.subjects.label|title}}</label>
+          <label for="id_{{userProfileForm.subjects.name}}" class="form-label">
+            {{userProfileForm.subjects.label|title}}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{userProfileForm.subjects.help_text}}"></i>
+          </label>
           <div>{{userProfileForm.subjects}}</div>
           <div class="error">{{ userProfileForm.subjects.errors }}</div>
         </div>

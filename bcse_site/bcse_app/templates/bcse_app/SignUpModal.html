@@ -147,6 +147,7 @@
               {% if form.grades_taught.field.required %}
                 (<span class="required">*</span>)
               {% endif %}
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.grades_taught.help_text}}"></i>
             </label>
             <div>{{form.grades_taught}}</div>
             <div class="error">{{ form.grades_taught.errors }}</div>
@@ -154,7 +155,13 @@
         </div>
 
         <div class="form-group mb-3 school_related">
-          <label for="id_{{form.subjects_taught.name}}" class="form-label"> {{form.subjects_taught.label|title}}</label>
+          <label for="id_{{form.subjects_taught.name}}" class="form-label">
+            {{form.subjects_taught.label|title}}
+            {% if form.subjects_taught.field.required %}
+              (<span class="required">*</span>)
+            {% endif %}
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.subjects_taught.help_text}}"></i>
+          </label>
           <div>{{form.subjects_taught}}</div>
           <div class="error">{{ form.subjects_taught.errors }}</div>
         </div>
