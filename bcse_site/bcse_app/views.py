@@ -7382,7 +7382,7 @@ def userProfileEdit(request, id=''):
 
           savedUser.save()
           savedUserProfile.save()
-
+          workplaceAssociationsUpdate(savedUserProfile)
 
           new_password = savedUserProfile.user.password
           if request.user.id == userProfile.user.id and new_password != old_password:
@@ -8871,6 +8871,26 @@ def workPlacesExport(request):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+##########################################################
+# ON USER PROFILE UPDATE, CHECK IF WORKPLACE HAS CHANGED
+# AND UPDATE ALL FUTURE BOX RESERVATION AND WORKSHOP REGISTRATION
+# WORKPLACE ASSOCIATIONS
+##########################################################
+@login_required
+def workplaceAssociationsUpdate(userProfile):
+  reservation_workplaces = models.ReservationWorkPlace.objects.all().filter(reservation__user=userProfile, reservation__delivery_date__gte=datetime.date.today())
+  registration_workplaces = models.RegistrationWorkPlace.objects.all().filter(registration__user=userProfile, registration__workshop_registration_setting__workshop__start_date__gte=datetime.date.today())
+
+  for reservation_workplace in reservation_workplaces:
+    if userProfile.work_place and reservation_workplace.work_place != userProfile.work_place:
+      reservation_workplace.work_place = userProfile.work_place
+      reservation_workplace.save()
+
+  for registration_workplace in registration_workplaces:
+    if userProfile.work_place and registration_workplace.work_place != userProfile.work_place:
+      registration_workplace.work_place = userProfile.work_place
+      registration_workplace.save()
 
 ##########################################################
 # SCHOOL CATEGORY EDIT
