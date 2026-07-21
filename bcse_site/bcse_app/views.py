@@ -4882,7 +4882,7 @@ def workshopRegistrationQuestionnaire(request, workshop_id=''):
       work_place = models.WorkPlace()
       if not workshop.enable_registration:
         raise CustomException('Workshop registration is not enabled')
-      elif not workshop.registration_setting or workshop.registration_setting.registration_type != 'R':
+      elif not workshop.registration_setting or workshop.registration_setting.registration_type not in ['R', 'A']:
         raise CustomException('Workshop registration questionnaire is not available for this workshop')
     else:
       raise models.Workshop.DoesNotExist
@@ -10650,8 +10650,7 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           submission.save()
 
         if submission.user and submission.user.work_place:
-          submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
-          submission_work_place.save()
+          surveySubmissionWorkplaceUpdate(submission)
 
         if survey.survey_type == 'B' and reservation_id:
           reservation = models.Reservation.objects.get(id=reservation_id)
@@ -10676,20 +10675,30 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           form = forms.SurveySubmissionForm(instance=submission)
           context['form'] = form
 
+        #workshop application and/or questionnaire
         if survey.survey_type == 'W' and workshop_id:
           context['workshop_id'] = workshop_id
-          if user and user.user_role != 'A' and workshop.registration_setting.registration_type == 'R':
+          if user and user.user_role != 'A':
+            context['workshop'] = workshop
             if page_num == 1:
+              #for all workshop registration survey (Register/Apply) load the questionnaire
               userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user_profile')
               work_place_form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
               context['userProfileForm'] = userProfileForm
-              context['photo_release_url'] = settings.PHOTO_RELEASE_URL
               context['work_place_form'] = work_place_form
+              context['photo_release_url'] = settings.PHOTO_RELEASE_URL
 
-            context['workshop'] = workshop
-
+        #reservation feedback
         elif survey.survey_type == 'B' and reservation_id:
           context['reservation_id'] = reservation_id
+
+        #general survey
+        else:
+          if user and user.user_role != 'A' and page_num == 1:
+            userProfileForm = forms.SurveyWorkplaceForm(instance=user, prefix='user_profile')
+            work_place_form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
+            context['userProfileForm'] = userProfileForm
+            context['work_place_form'] = work_place_form
 
         return render(request, 'bcse_app/SurveySubmission.html', context)
 
@@ -10708,25 +10717,33 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
           surveyComponents = getSurveyComponents(request, survey.id, submission, next_page_num)
           formset = SurveyResponseFormSet(queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
           context = {'survey': survey, 'formset': formset, 'submission': submission, 'page_num': next_page_num, 'total_pages': total_pages}
+
           if user and user.user_role == 'A' and next_page_num == 1:
             form = forms.SurveySubmissionForm(instance=submission)
             context['form'] = form
 
-          #workshop application
+          #workshop application and/or questionnaire
           if survey.survey_type == 'W' and workshop_id:
             context['workshop_id'] = workshop_id
-            if user and user.user_role != 'A' and workshop.registration_setting.registration_type == 'R':
+            if user and user.user_role != 'A':
+              context['workshop'] = workshop
               if next_page_num == 1:
                 userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(instance=user, prefix='user_profile')
                 work_place_form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
                 context['userProfileForm'] = userProfileForm
-                context['photo_release_url'] = settings.PHOTO_RELEASE_URL
                 context['work_place_form'] = work_place_form
-              context['workshop'] = workshop
+                context['photo_release_url'] = settings.PHOTO_RELEASE_URL
 
           #reservation feedback
           elif survey.survey_type == 'B' and reservation_id:
             context['reservation_id'] = reservation_id
+          #general survey
+          else:
+            if user and user.user_role != 'A' and next_page_num == 1:
+              userProfileForm = forms.SurveyWorkplaceForm(instance=user, prefix='user_profile')
+              work_place_form = forms.WorkPlaceForm(instance=work_place, user=request.user, prefix='work_place')
+              context['userProfileForm'] = userProfileForm
+              context['work_place_form'] = work_place_form
 
           response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
           return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -10738,13 +10755,16 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
 
           is_valid = False
           formset = SurveyResponseFormSet(data, request.FILES, queryset=models.SurveyResponse.objects.filter(submission=submission, survey_component__in=surveyComponents))
+          #admin submitted survey
           if user and user.user_role == 'A' and page_num == 1:
             form = forms.SurveySubmissionForm(data, instance=submission)
             if recaptcha_passed and form.is_valid() and formset.is_valid():
               is_valid = True
-          elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type == 'W' and workshop_id and workshop.registration_setting.registration_type == 'R':
+          #workshop application/questionnaire survey
+          elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type == 'W' and workshop_id:
             userProfileForm = forms.WorkshopRegistrationQuestionnaireForm(data, instance=user, prefix='user_profile')
             work_place_form = forms.WorkPlaceForm(data, instance=work_place, user=request.user, prefix='work_place')
+
             if recaptcha_passed and userProfileForm.is_valid() and formset.is_valid():
               new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
               if new_work_place_flag:
@@ -10753,6 +10773,17 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               else:
                 is_valid = True
 
+          #general survey
+          elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type not in ['W', 'B']:
+            userProfileForm = forms.SurveyWorkplaceForm(data, instance=user, prefix='user_profile')
+            work_place_form = forms.WorkPlaceForm(data, instance=work_place, user=request.user, prefix='work_place')
+            if recaptcha_passed and userProfileForm.is_valid() and formset.is_valid():
+              new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
+              if new_work_place_flag:
+                if work_place_form.is_valid():
+                  is_valid = True
+              else:
+                is_valid = True
           else:
             if recaptcha_passed and formset.is_valid():
               is_valid = True
@@ -10762,15 +10793,18 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               submission = form.save()
               submission.admin_notes = 'Submission created by admin'
               submission.save()
-              if submission.user and submission.user.work_place:
-                try:
-                  submission_work_place = models.SurveySubmissionWorkPlace.objects.get(submission=submission)
-                  submission_work_place.work_place = submission.user.work_place
-                  submission_work_place.save()
-                except  models.SurveySubmissionWorkPlace.DoesNotExist:
-                  submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
-                  submission_work_place.save()
-            elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type == 'W' and workshop_id and workshop.registration_setting.registration_type == 'R' and not autosave:
+
+            elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type == 'W' and workshop_id and not autosave:
+              new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
+              savedUserProfile = userProfileForm.save(commit=False)
+              if new_work_place_flag:
+                new_work_place = work_place_form.save(commit=False)
+                new_work_place.save()
+                savedUserProfile.work_place = new_work_place
+
+              savedUserProfile.save()
+
+            elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type not in ['W', 'B'] and not autosave:
               new_work_place_flag = userProfileForm.cleaned_data['new_work_place_flag']
               savedUserProfile = userProfileForm.save(commit=False)
               if new_work_place_flag:
@@ -10855,6 +10889,9 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
               else:
                 messages.success(request, 'The survey has been submitted')
 
+              #update survey workplace association
+              surveySubmissionWorkplaceUpdate(submission)
+
               #send survey submission confirmation email
               surveySubmissionEmailSend(request, survey, user, submission)
 
@@ -10863,6 +10900,8 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                 return http.HttpResponse(json.dumps(response_data), content_type="application/json")
               else:
                 return shortcuts.redirect('bcse:home')
+
+          #survey submission invalid
           else:
 
             if not recaptcha_passed:
@@ -10885,11 +10924,17 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
                 context['workshop_id'] = workshop_id
                 if user and user.user_role != 'A' and page_num == 1 and workshop.registration_setting.registration_type == 'R':
                   context['userProfileForm'] = userProfileForm
+                  context['work_place_form'] = work_place_form
                   context['photo_release_url'] = settings.PHOTO_RELEASE_URL
                   context['workshop'] = workshop
 
               elif survey.survey_type == 'B' and reservation_id:
                 context['reservation_id'] = reservation_id
+
+              elif user and user.user_role != 'A' and page_num == 1 and survey.survey_type not in ['W', 'B']:
+                context['userProfileForm'] = userProfileForm
+                context['work_place_form'] = work_place_form
+
               response_data['success'] = False
               response_data['html'] = render_to_string('bcse_app/SurveySubmission.html', context, request)
               return http.HttpResponse(json.dumps(response_data), content_type="application/json")
@@ -10907,6 +10952,17 @@ def surveySubmission(request, survey_id='', submission_uuid='', page_num=''):
   except CustomException as ce:
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def surveySubmissionWorkplaceUpdate(submission):
+  if submission.user and submission.user.work_place:
+    try:
+      submission_work_place = models.SurveySubmissionWorkPlace.objects.get(submission=submission)
+      submission_work_place.work_place = submission.user.work_place
+      submission_work_place.save()
+    except  models.SurveySubmissionWorkPlace.DoesNotExist:
+      submission_work_place = models.SurveySubmissionWorkPlace(submission=submission, work_place=submission.user.work_place)
+      submission_work_place.save()
+
 
 def surveySubmissionEmailSend(request, survey, user, submission):
   """
