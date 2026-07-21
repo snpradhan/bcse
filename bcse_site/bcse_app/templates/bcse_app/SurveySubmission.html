@@ -60,8 +60,11 @@
               {{form.status.as_hidden}}
             </div>
             <hr>
-          {% elif user.is_authenticated and user.userProfile.user_role != 'A' and page_num == 1 and userProfileForm %}
+          {% elif user.is_authenticated and user.userProfile.user_role != 'A' and page_num == 1 and userProfileForm and workshop %}
             {% include "bcse_app/WorkshopRegistrationQuestionnaire.html" with form=userProfileForm workshop=workshop %}
+            <hr>
+          {% elif user.is_authenticated and user.userProfile.user_role != 'A' and page_num == 1 and userProfileForm %}
+            {% include "bcse_app/SurveyWorkplaceConfirmation.html" with form=userProfileForm %}
             <hr>
           {% endif %}
           {{formset.management_form}}
