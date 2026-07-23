@@ -1,0 +1,42 @@
+{% load base_extras %}
+{% load bcse_extras %}
+<div class="modal-dialog modal-xl">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="left">{{userProfile.user.get_full_name}} Audit Log</h3>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      {% if audit_log %}
+        <table class="table table-bordered table-striped" id="audit_log">
+          <thead>
+            <tr>
+              <th>Date/Time</th>
+              <th>Modified By</th>
+              <th>Field</th>
+              <th>Old Value</th>
+              <th>New Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key, changes in audit_log.items %}
+              {% for change in changes %}
+                <tr>
+                    {% if forloop.first %}
+                        <td rowspan="{{ changes|length }}">{{ key.0 }}</td>
+                        <td rowspan="{{ changes|length }}">{{ key.1 }}</td>
+                    {% endif %}
+
+                    <td>{{ change.field|title }}</td>
+                    <td>{{ change.old|default_if_none:"" }}</td>
+                    <td>{{ change.new|default_if_none:"" }}</td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="warning">No audit log available</div>
+      {% endif %}
+  </div>
+</div>

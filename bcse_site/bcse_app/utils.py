@@ -318,3 +318,9 @@ def is_absolute_url(url):
     parsed = urlparse(url)
     return bool(parsed.scheme and parsed.netloc)
 
+
+def is_empty(value):
+    return value is None or (
+        isinstance(value, str) and value.strip() == ""
+    )
+

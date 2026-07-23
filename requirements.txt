@@ -15,6 +15,7 @@ django-crontab==0.7.1
 django-dbbackup==5.0.1
 django-js-asset==2.0.0
 django-localflavor==3.1
+django-simple-history==3.13.0
 django-storages==1.14.6
 et-xmlfile==1.1.0
 globre==0.1.5
@@ -24,6 +25,7 @@ idna==3.3
 jmespath==0.10.0
 lml==0.1.0
 mailchimp-marketing==3.0.80
+natsort==8.4.0
 openpyxl==3.0.10
 packaging==25.0
 Pillow==9.0.0
@@ -35,11 +37,13 @@ pyexcel-io==0.6.6
 pyexcel-xls==0.7.0
 pyexcel-xlsx==0.6.0
 python-dateutil==2.8.2
+python-magic==0.4.27
 python-stdnum==1.17
 pytz==2021.3
 rcssmin==1.1.2
 requests==2.27.1
 rjsmin==1.2.2
+s3cmd==2.4.0
 s3transfer==0.9.0
 six==1.16.0
 sqlparse==0.4.2
