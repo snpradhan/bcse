@@ -30,6 +30,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator, FileExt
 from django.core.exceptions import ValidationError
 from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
+from simple_history.models import HistoricalRecords
 
 # Create your models here.
 
@@ -499,6 +500,14 @@ class UserProfile(models.Model):
   admin_notes = models.CharField(null=True, blank=True, max_length=2048, help_text='Notes only admins can add/view')
   name_pronounciation = models.CharField(null=True, blank=True, max_length=256)
   accessibility_notes = models.CharField(null=True, blank=True, max_length=256)
+  history = HistoricalRecords(
+    excluded_fields = [
+      "twitter_handle",
+      "instagram_handle",
+      "created_date",
+      "modified_date",
+    ]
+  )
   created_date = models.DateTimeField(auto_now_add=True)
   modified_date = models.DateTimeField(auto_now=True)
 

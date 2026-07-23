@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'compressor',
     'django_crontab',
     'dbbackup', #django-dbbackup
+    'simple_history',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,7 @@ MIDDLEWARE = [
     'bcse_app.middleware.OnlineNowMiddleware',
     'bcse_app.middleware.NextParameterMiddleware',
     'bcse_app.middleware.DomainMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 
 
 ]

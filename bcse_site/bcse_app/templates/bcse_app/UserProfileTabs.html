@@ -6,5 +6,10 @@
     <li class="nav-item">
       <label><a class="nav-link modal-open" data-bs-toggle="modal" data-bs-target="#profile" data-href="{% url 'bcse:userProfileEdit' userProfile.id %}" href="#">Edit</a></label>
     </li>
+    {% if user.is_authenticated and user.userProfile.user_role in 'AS' %}
+      <li class="nav-item right">
+        <a class="btn modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:userProfileAuditLogView' userProfile.id %}" href="#">View Audit Log</a>
+      </li>
+    {% endif %}
   </ul>
 {% endif %}

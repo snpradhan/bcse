@@ -167,6 +167,10 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
+                  <a class="dropdown-item modal-open" data-bs-toggle="modal" data-bs-target="#general" data-href="{% url 'bcse:userProfileAuditLogView' user_profile.id %}" href="#">View Audit Log</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
                   {% if user_profile|is_default_reservation_assignee %}
                     <a class="dropdown-item action" onclick="displayWarningDialog('<strong>{{user_profile.user.email}}</strong> is the default reservation assignee and cannot be deleted');">
                       Delete
