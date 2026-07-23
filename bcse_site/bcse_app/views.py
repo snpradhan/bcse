@@ -53,6 +53,7 @@ from itertools import chain
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
 from django.db.models.expressions import RawSQL
+from collections import defaultdict
 
 # Create your views here.
 
@@ -7439,7 +7440,6 @@ def userProfileEdit(request, id=''):
       else:
         has_error = True
 
-
       if has_error:
         print(userForm.errors)
         print(userProfileForm.errors)
@@ -7461,6 +7461,75 @@ def userProfileEdit(request, id=''):
     messages.error(request, ce)
     return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
+@login_required
+def userProfileAuditLogView(request, id=''):
+  """
+  userProfileAuditLogView is called from the path 'users'
+  :param request: request from the browser
+  :param id='': id of user
+  :returns: redirects to page with all user profiles
+  :raises CustomException: redirects user to page they were on before encountering error due to lack of permissions
+  """
+  try:
+    if request.user.is_anonymous or request.user.userProfile.user_role not in ['A', 'S']:
+      raise CustomException('You do not have the permission to view user audit log')
+
+    userProfile = models.UserProfile.objects.get(id=id)
+    history = sorted(
+      chain(
+        userProfile.history.all(),
+        userProfile.user.history.all()
+        ),
+      key=lambda h: h.history_date,
+      reverse=True,
+    )
+
+    GRADES_DICT = dict(models.GRADES_CHOICES)
+    SUBJECTS_DICT = dict(models.SUBJECTS_CHOICES)
+
+    audit_log = defaultdict(list)
+    for record in history:
+      prev = record.prev_record
+      if not prev:
+        continue
+
+      model = record.instance.__class__
+      key = (
+        record.history_date.replace(second=0, microsecond=0),
+        record.history_user.get_full_name()
+      )
+      delta = record.diff_against(prev)
+      for change in delta.changes:
+        if change.field == "grades":
+          old = ", ".join(GRADES_DICT.get(v, v) for v in (change.old or []))
+          new = ", ".join(GRADES_DICT.get(v, v) for v in (change.new or []))
+        elif change.field == "subjects":
+          old = ", ".join(SUBJECTS_DICT.get(v, v) for v in (change.old or []))
+          new = ", ".join(SUBJECTS_DICT.get(v, v) for v in (change.new or []))
+        elif change.field == "work_place":
+          old = models.WorkPlace.objects.get(id=change.old).name
+          new = models.WorkPlace.objects.get(id=change.new).name
+        else:
+          old = change.old
+          new = change.new
+
+        audit_log[key].append({
+          "modified_date": record.history_date,
+          "field": model._meta.get_field(change.field).verbose_name,
+          "old": old,
+          "new": new
+        })
+
+    context = {'userProfile': userProfile, 'audit_log': dict(audit_log)}
+    return render(request, 'bcse_app/UserProfileAuditLogView.html', context)
+
+  except models.UserProfile.DoesNotExist:
+    messages.success(request, "User not found")
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+  except CustomException as ce:
+    messages.error(request, ce)
+    return http.HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 ##########################################################
 # DELETE USER PROFILE

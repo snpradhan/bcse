@@ -108,6 +108,7 @@ urlpatterns = [
     path('userProfile/<int:id>/edit', views.userProfileEdit, name='userProfileEdit'),
     path('userProfile/<int:id>/view', views.userProfileView, name='userProfileView'),
     path('userProfile/<int:id>/delete', views.userProfileDelete, name='userProfileDelete'),
+    path('userProfile/<int:id>/auditlog', views.userProfileAuditLogView, name='userProfileAuditLogView'),
     path('userProfile/<int:id>/workplace', views.userProfileWorkPlace, name='userProfileWorkPlace'),
     path('adminConfiguration/', views.adminConfiguration, name='adminConfiguration'),
     path('adminConfiguration/activity/<int:id>/edit', views.activityEdit, name='activityEdit'),
