@@ -947,7 +947,7 @@ class ReservationForm(ModelForm):
     #self.fields['equipment_types'].label_from_instance = lambda obj: "%s (%s)" % (obj.name, obj.short_name)
     self.fields['other_activity'].label = 'I am doing something not listed here.'
     self.fields['other_activity_name'].label = 'What activity are you planning to do?'
-    self.fields['activity_kit_not_needed'].label = 'I already have all the kits I need.'
+    self.fields['activity_kit_not_needed'].label = 'I already have all the consumables I need.'
     self.fields['num_of_students'].label = 'Total # of students who will be doing this activity?'
     self.fields['num_of_classes'].label = 'Number of classes'
     self.fields['more_num_of_classes'].label = 'Number of classes more than 4'

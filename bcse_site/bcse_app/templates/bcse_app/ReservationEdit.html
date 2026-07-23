@@ -147,6 +147,7 @@
                   {% if form.activity_kit_not_needed.field.required %}
                     (<span class="required">*</span>)
                   {% endif %}
+                  <i class="fas fa-info-circle equipment_info_tooltip" data-bs-custom-class="tooltip-wide" data-bs-html="true" data-bs-toggle="tooltip" data-bs-placement="right" title=""></i>
                 </label>
                 <div class="error">{{ form.activity_kit_not_needed.errors }}</div>
               </div>
@@ -668,6 +669,8 @@
                       if(data['materials_equipment']) {
                         $('div.form-group.equipment_info').html(data['materials_equipment']);
                         $('div.form-group.equipment_info').show();
+                        $('i.equipment_info_tooltip').attr('title', data['materials_equipment']);
+                        bindTooltipTrigger();
                       }
                       if(data['low_stock_message']) {
                         displayWarningDialog(data['low_stock_message']);
