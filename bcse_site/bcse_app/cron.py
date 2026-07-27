@@ -324,9 +324,10 @@ def send_workshop_emails():
 def export_workshops_registrations():
   print('start workshops/registrations export', datetime.today())
 
-  start_of_year = datetime(timezone.now().year, 1, 1)
+  current_year = timezone.now().year
+  start_date = datetime(current_year-1, 1, 1)
 
-  workshops = models.Workshop.objects.all().filter(start_date__gte=start_of_year).order_by('start_date')
+  workshops = models.Workshop.objects.all().filter(start_date__gte=start_date).order_by('start_date')
   registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__in=workshops).order_by('workshop_registration_setting__workshop__start_date')
 
   #response = http.HttpResponse(content_type='application/ms-excel')
@@ -383,6 +384,7 @@ def export_workshops_registrations():
   row_num = 0
   columns = ['Workshop ID',
              'Workshop',
+             'Workshop Start Date',
              'Registration ID',
              'User ID',
              'Email',
@@ -402,6 +404,7 @@ def export_workshops_registrations():
 
   font_styles = [font_style,
              font_style,
+             date_format,
              font_style,
              font_style,
              font_style,
@@ -425,6 +428,7 @@ def export_workshops_registrations():
   for registration in registrations:
     row = [registration.workshop_registration_setting.workshop.id,
            registration.workshop_registration_setting.workshop.name,
+           registration.workshop_registration_setting.workshop.start_date,
            registration.id,
            registration.user.id,
            registration.user.user.email,
@@ -454,6 +458,8 @@ def export_workshops_registrations():
   ws.write(1, 1, workshops.count(), font_style)
   ws.write(2, 0, '# of Registrations', bold_font_style)
   ws.write(2, 1, registrations.count(), font_style)
+  ws.write(3, 0, 'Workshop Start Date >=', bold_font_style)
+  ws.write(3, 1, start_date, date_format)
 
   cmd = 'rm /tmp/workshops_registrations.xls'
   subprocess.call(cmd, shell=True)
