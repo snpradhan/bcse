@@ -7316,9 +7316,9 @@ def userProfileEdit(request, id=''):
       context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
       if update_required:
         if userProfile.work_place.id == models.get_placeholder_workplace():
-          messages.warning(request, "Your profile is incomplete. <br> Please update your %s workplace below." % ('IEIN and ' if userProfile.user_role == 'T' else ''))
+          messages.warning(request, "Your profile is incomplete. <br> Please update your %s workplace below." % ('IEIN, grade(s), subject(s) and ' if userProfile.user_role == 'T' else ''))
         else:
-          messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your %s workplace below." % (userProfile.modified_date.strftime('%b %d, %Y'), 'IEIN and ' if userProfile.user_role == 'T' else ''))
+          messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your %s workplace below." % (userProfile.modified_date.strftime('%b %d, %Y'), 'IEIN, grade(s), subject(s) and ' if userProfile.user_role == 'T' else ''))
 
       return render(request, 'bcse_app/UserProfileEdit.html', context)
 
@@ -7375,7 +7375,7 @@ def userProfileEdit(request, id=''):
               print(work_place_form.errors)
               context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
               if update_required:
-                messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
+                messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your %s workplace below." % (userProfile.modified_date.strftime('%b %d, %Y'), 'IEIN, grade(s), subject(s) and ' if userProfile.user_role == 'T' else ''))
 
               response_data['success'] = False
               response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
@@ -7445,7 +7445,7 @@ def userProfileEdit(request, id=''):
         print(userProfileForm.errors)
         context = {'userProfileForm': userProfileForm, 'userForm': userForm, 'work_place_form': work_place_form, 'update_required': update_required, 'redirect_url': redirect_url}
         if update_required:
-          messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your workplace below." % userProfile.modified_date.strftime('%b %d, %Y'))
+          messages.warning(request, "Your profile was last updated on %s. <br> Please confirm or update your %s workplace below." % (userProfile.modified_date.strftime('%b %d, %Y'), 'IEIN, grade(s), subject(s) and ' if userProfile.user_role == 'T' else ''))
 
         response_data['success'] = False
         response_data['html'] = render_to_string('bcse_app/UserProfileEdit.html', context, request)
