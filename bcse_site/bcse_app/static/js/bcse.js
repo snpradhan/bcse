@@ -739,6 +739,8 @@ function bindSelect2() {
     },
     width : '100%'
   });
+
+  $('select.select2.border-warning').next('.select2-container').find('span.select2-selection').addClass('border-warning');
 }
 
 /*

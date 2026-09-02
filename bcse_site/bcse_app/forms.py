@@ -406,6 +406,8 @@ class UserProfileForm (ModelForm):
       if field_name not in ['new_work_place_flag', 'subscribe', 'photo_release_complete']:
         if field_name in ['grades', 'subjects']:
           field.widget.attrs['class'] = 'form-control select2'
+          if update_required:
+            field.widget.attrs['class'] += ' border-warning'
         else:
           field.widget.attrs['class'] = 'form-control'
           if field_name in ['iein', 'work_place'] and update_required:
