@@ -1361,6 +1361,31 @@ class URLMapping(models.Model):
     super().delete(*args, **kwargs)
 
 
+class PageView(models.Model):
+  path = models.CharField(max_length=500)
+  query_string = models.TextField(blank=True)
+
+  user = models.ForeignKey(
+      User,
+      null=True,
+      blank=True,
+      related_name='page_views',
+      on_delete=models.SET_NULL
+  )
+  created_date = models.DateTimeField(auto_now_add=True)
+
+  class Meta:
+      ordering = ["-created_date"]
+      indexes = [
+          models.Index(fields=["path"]),
+          models.Index(fields=["created_date"]),
+          models.Index(fields=["user", "created_date"]),
+      ]
+
+  def __str__(self):
+      username = self.user.username if self.user else "Anonymous"
+      return f"{username} - {self.path} - {self.created_date}"
+
 # signal to check if registration status has changed
 # and check if anyone on the waitlist needs to be promoted
 @receiver(post_save, sender=Registration)

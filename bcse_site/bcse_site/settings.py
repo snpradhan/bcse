@@ -73,6 +73,7 @@ MIDDLEWARE = [
     'bcse_app.middleware.OnlineNowMiddleware',
     'bcse_app.middleware.NextParameterMiddleware',
     'bcse_app.middleware.DomainMiddleware',
+    'bcse_app.middleware.PageViewMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 
 

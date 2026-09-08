@@ -119,3 +119,54 @@ class AjaxDetectionMiddleware:
     def __call__(self, request):
         request.is_ajax = lambda: request.headers.get('x-requested-with') == 'XMLHttpRequest'
         return self.get_response(request)
+
+
+############################################################
+# Middleware to track page views excluding Admin pages
+#############################################################
+class PageViewMiddleware:
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        response = self.get_response(request)
+
+        if self.should_track(request, response):
+
+            models.PageView.objects.create(
+                path=request.path,
+                query_string=request.META.get("QUERY_STRING", ""),
+                user=request.user if request.user.is_authenticated else None
+            )
+
+        return response
+
+    def should_track(self, request, response):
+
+        # Only track actual page visits
+        if request.method != "GET":
+            return False
+
+        # Only successful pages
+        if response.status_code != 200:
+            return False
+
+        # Only track HTML page responses
+        content_type = response.get(
+            "Content-Type", ""
+        )
+
+        if "text/html" not in content_type:
+            return False
+
+        # Exclude unnecessary paths
+        excluded_prefixes = (
+            "/admin/",
+            "/static/",
+            "/media/",
+            "/adminConfiguration/",
+        )
+
+        return not request.path.startswith(excluded_prefixes)
