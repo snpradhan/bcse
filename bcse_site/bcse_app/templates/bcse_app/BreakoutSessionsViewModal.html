@@ -62,7 +62,9 @@
           </div>
           <div class="teacher_leader_details">
             <h4>{{teacher_leader.teacher.user.get_full_name}}</h4>
-            <h4>{{teacher_leader.get_bcse_role_display}}</h4>
+            {% if teacher_leader.bcse_role == 'T' %}
+              <h4>{{teacher_leader.get_bcse_role_display}}</h4>
+            {% endif %}
             <h4>{{teacher_leader.teacher.work_place.name}}</h4>
             <div class="wysiwyg_content">{{teacher_leader.bio|safe}}</div>
           </div>
