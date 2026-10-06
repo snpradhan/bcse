@@ -72,14 +72,15 @@ WORKSHOP_REGISTRATION_TYPE_CHOICES = (
 
 WORKSHOP_REGISTRATION_STATUS_CHOICES = (
   ('R', 'Registered'),
+  ('W', 'Waitlisted'),
+  ('T', 'Attended'),
+  ('N', 'Cancelled'),
+  ('U', 'Did Not Attend'),
+  ('P', 'Pending'),
   ('A', 'Applied'),
   ('C', 'Accepted'),
   ('D', 'Denied'),
-  ('N', 'Cancelled'),
-  ('W', 'Waitlisted'),
-  ('P', 'Pending'),
-  ('T', 'Attended'),
-  ('U', 'Did Not Attend'),
+
 )
 
 WORKSHOP_REGISTRATION_SUB_STATUS_CHOICES = (
