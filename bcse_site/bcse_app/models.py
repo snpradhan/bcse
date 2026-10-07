@@ -1570,6 +1570,7 @@ def replace_workshop_tokens(text, workshop, registration=''):
   replaced_text = replaced_text.replace('[workshop_summary]', workshop.summary or '')
   replaced_text = replaced_text.replace('[workshop_location]', workshop.location or '')
   replaced_text = replaced_text.replace('[workshop_meetup_url]', workshop.meetup_link or '')
+  replaced_text = replaced_text.replace('[display_date]', workshop.display_date or '')
 
   isbe_language = ''
   if workshop.registration_setting.isbe_link:
