@@ -954,6 +954,10 @@ class ReservationForm(ModelForm):
     self.fields['num_of_classes'].label = 'Number of classes'
     self.fields['more_num_of_classes'].label = 'Number of classes more than 4'
     self.fields['include_gloves'].label = 'I would like to get gloves.'
+    self.fields['include_gloves'].help_text = 'NITRILE GLOVE RECYCLING INITIATIVE: The BCSE will now recycle used gloves \
+                                                from your lab day! If you request gloves, you will receive a bag to be \
+                                                filled with your used gloves. Simply include them in your box for pick up, \
+                                                and we will work with Fisher Scientific to get them recycled!'
     self.fields['include_goggles'].label = 'I would like to borrow goggles.'
     self.fields['include_goggles'].help_text = 'Goggles will need to be returned.'
     self.fields['equipment_not_needed'].label = 'I already have all the equipment I need.'
