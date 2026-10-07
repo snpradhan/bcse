@@ -505,3 +505,11 @@ def is_new_reservation(reservation):
     return True
   else:
     return False
+
+@register.filter
+def is_new_registration(registration):
+  first = models.Registration.objects.all().filter(user=registration.user).order_by('workshop_registration_setting__workshop__start_date').first()
+  if first == registration:
+    return True
+  else:
+    return False
