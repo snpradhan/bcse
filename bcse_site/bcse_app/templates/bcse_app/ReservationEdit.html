@@ -158,6 +158,7 @@
                   {% if form.include_gloves.field.required %}
                     (<span class="required">*</span>)
                   {% endif %}
+                  <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="{{form.include_gloves.help_text}}"></i>
                 </label>
                 <div class="error">{{ form.include_gloves.errors }}</div>
               </div>
