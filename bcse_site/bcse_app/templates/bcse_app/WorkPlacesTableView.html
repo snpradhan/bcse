@@ -6,85 +6,93 @@
     <thead>
       <tr>
         {% if 'ID' in columns %}
-          <th> ID</th>
+          <th rowspan="2"> ID</th>
         {% endif %}
         {% if 'NM' in columns %}
-          <th> Name </th>
+          <th rowspan="2"> Name </th>
         {% endif %}
         {% if 'WT' in columns %}
-          <th> Workplace Type </th>
+          <th rowspan="2"> Workplace Type </th>
         {% endif %}
         {% if 'LI' in columns %}
-          <th>% Low Income Students <br> SY {{school_year}}</th>
+          <th colspan="{{school_years|length}}" class="center">% Low Income Students</th>
         {% endif %}
         {% if 'DN' in columns %}
-          <th> District # </th>
+          <th rowspan="2"> District # </th>
         {% endif %}
         {% if 'RT' in columns %}
-          <th> RCDTS Code </th>
+          <th rowspan="2"> RCDTS Code </th>
         {% endif %}
         {% if 'GS' in columns %}
-          <th> Grades Supported </th>
+          <th rowspan="2"> Grades Supported </th>
         {% endif %}
         {% if 'SC' in columns %}
-          <th> School Categories</th>
+          <th rowspan="2"> School Categories</th>
         {% endif %}
         {% if 'S1' in columns %}
-          <th> Street Address 1 </th>
+          <th rowspan="2"> Street Address 1 </th>
         {% endif %}
         {% if 'S2' in columns %}
-          <th> Street Address 2 </th>
+          <th rowspan="2"> Street Address 2 </th>
         {% endif %}
         {% if 'CT' in columns %}
-          <th> City </th>
+          <th rowspan="2"> City </th>
         {% endif %}
         {% if 'CO' in columns %}
-          <th> County </th>
+          <th rowspan="2"> County </th>
         {% endif %}
         {% if 'SA' in columns %}
-          <th> State </th>
+          <th rowspan="2"> State </th>
         {% endif %}
         {% if 'ZP' in columns %}
-          <th> Zip Code </th>
+          <th rowspan="2"> Zip Code </th>
         {% endif %}
         {% if 'LT' in columns %}
-          <th> Latitude </th>
+          <th rowspan="2"> Latitude </th>
         {% endif %}
         {% if 'LO' in columns %}
-          <th> Longitude </th>
+          <th rowspan="2"> Longitude </th>
         {% endif %}
         {% if 'DT' in columns %}
-          <th> Distance (miles) </th>
+          <th rowspan="2"> Distance (miles) </th>
         {% endif %}
         {% if 'TM' in columns %}
-          <th> Travel Time (mins) </th>
+          <th rowspan="2"> Travel Time (mins) </th>
         {% endif %}
         {% if 'NU' in columns %}
-          <th> # of Users </th>
+          <th rowspan="2"> # of Users </th>
         {% endif %}
         {% if 'AR' in columns %}
-          <th> # of Reservations </th>
+          <th rowspan="2"> # of Reservations </th>
         {% endif %}
         {% if 'AW' in columns %}
-          <th> # of Workshop Registrations </th>
+          <th rowspan="2"> # of Workshop Registrations </th>
         {% endif %}
         {% if 'UN' in columns %}
-            <th> User Notes </th>
+          <th rowspan="2"> User Notes </th>
           {% endif %}
         {% if 'AN' in columns %}
-          <th> Admin Notes </th>
+          <th rowspan="2"> Admin Notes </th>
         {% endif %}
         {% if 'ST' in columns %}
-          <th> Status </th>
+          <th rowspan="2"> Status </th>
         {% endif %}
         {% if 'CD' in columns %}
-          <th> Created Date</th>
+          <th rowspan="2"> Created Date</th>
         {% endif %}
         {% if 'MD' in columns %}
-          <th> Modified Date</th>
+          <th rowspan="2"> Modified Date</th>
         {% endif %}
-        <th class='ignore-column'> Action </th>
+        <th rowspan="2" class='ignore-column'> Action </th>
       </tr>
+      {% if 'LI' in columns %}
+        <tr>
+          {% for school_year in school_years %}
+            <th>SY {{school_year}}-{{school_year|add:1}}</th>
+          {% endfor %}
+        </tr>
+      {% endif %}
+
     </thead>
     <tbody>
       {% for work_place in work_places %}
@@ -99,7 +107,8 @@
             <td> {{work_place.get_work_place_type_display}} </td>
           {% endif %}
           {% if 'LI' in columns %}
-            <td>{{work_place.percentage_low_income|default_if_none:""}}</td>
+            <td>{{work_place.percentage_previous_year|default_if_none:""}}</td>
+            <td>{{work_place.percentage_current_year|default_if_none:""}}</td>
           {% endif %}
           {% if 'DN' in columns %}
             <td> {{work_place.district_number|default_if_none:""}} </td>
