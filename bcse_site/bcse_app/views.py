@@ -2975,7 +2975,7 @@ def baxterBoxUsageReportSearch(request):
           school_start = utils.get_school_year(from_date)
           school_end = current_school_year
       else:
-        school_start = current_school_year
+        school_start = current_school_year - 1
         school_end = current_school_year
 
       if school_start and school_end:
@@ -6702,12 +6702,20 @@ def workshopRegistrantsSearch(request, id=''):
       registrations = models.Registration.objects.all().filter(workshop_registration_setting__workshop__id=id)
       registrations = registrations.filter(query_filter)
 
-      percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.filter(
-          workplace=OuterRef("registration_to_work_place__work_place"),
-          start_year=school_year
-      ).values("percentage")[:1]
+      school_years = [school_year-1, school_year]
+      percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.all().filter(workplace=OuterRef("registration_to_work_place__work_place"), start_year__in=school_years)
 
-      registrations = registrations.annotate(percentage_low_income=Subquery(percentage_subquery))
+      registrations = registrations.annotate(percentage_previous_year=Subquery(
+                                              percentage_subquery
+                                              .filter(start_year=school_year-1)
+                                              .values("percentage")[:1]
+                                            ),
+                                            percentage_current_year=Subquery(
+                                                percentage_subquery
+                                                .filter(start_year=school_year)
+                                                .values("percentage")[:1]
+                                            )
+                                          )
 
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
@@ -6732,7 +6740,7 @@ def workshopRegistrantsSearch(request, id=''):
 
       registrations = paginate(request, registrations, sort_order, rows_per_page, page)
 
-      context = {'workshop': workshop, 'registrations': registrations, 'school_year': '%s - %s' % (school_year, school_year+1)}
+      context = {'workshop': workshop, 'registrations': registrations, 'school_years': school_years}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkshopRegistrantsTableView.html', context, request)
@@ -6964,8 +6972,9 @@ def workshopsRegistrantsSearch(request):
         unique_school_years = set()
         for workshop_date in workshop_dates:
           unique_school_years.add(utils.get_school_year(workshop_date))
-        school_years = list(unique_school_years)
+        school_years = sorted(list(unique_school_years))
       else:
+        school_years.append(current_school_year-1)
         school_years.append(current_school_year)
 
       percentages_qs = models.WorkplaceLowIncomeStudentPercentage.objects.all().filter(start_year__in=school_years)
@@ -8211,6 +8220,23 @@ def usersSearch(request):
 
       users = models.UserProfile.objects.all().filter(query_filter)
 
+      current_school_year = utils.get_school_year(datetime.date.today())
+      school_years = [current_school_year-1, current_school_year]
+      percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.all().filter(workplace=OuterRef("work_place"), start_year__in=school_years)
+
+      users = users.annotate(percentage_previous_year=Subquery(
+                                              percentage_subquery
+                                              .filter(start_year=current_school_year-1)
+                                              .values("percentage")[:1]
+                                            ),
+                                            percentage_current_year=Subquery(
+                                                percentage_subquery
+                                                .filter(start_year=current_school_year)
+                                                .values("percentage")[:1]
+                                            )
+                                          )
+
+
       direction = request.GET.get('direction') or 'asc'
       ignorecase = request.GET.get('ignorecase') or 'false'
 
@@ -8240,7 +8266,7 @@ def usersSearch(request):
 
       users = paginate(request, users, sort_order, rows_per_page, page)
 
-      context = {'users': users, 'columns': columns}
+      context = {'users': users, 'columns': columns, 'school_years': school_years}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/UsersTableView.html', context, request)
@@ -8610,13 +8636,23 @@ def workPlacesSearch(request):
 
       work_places = models.WorkPlace.objects.all().filter(query_filter)
 
-      percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.filter(
+      '''percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.filter(
           workplace=OuterRef("pk"),
           start_year=school_year
-      ).values("percentage")[:1]
+      ).values("percentage")[:1]'''
+
+      school_years = [school_year-1, school_year]
+      percentage_subquery = models.WorkplaceLowIncomeStudentPercentage.objects.all().filter(workplace=OuterRef("pk"), start_year__in=school_years)
 
       work_places = work_places.annotate(users_count=Count('users'),
-                                          percentage_low_income=Subquery(percentage_subquery)
+                                          percentage_previous_year=Subquery(
+                                              percentage_subquery.filter(start_year=school_year-1).values("percentage")[:1]
+                                          ),
+                                          percentage_current_year=Subquery(
+                                              percentage_subquery
+                                              .filter(start_year=school_year)
+                                              .values("percentage")[:1]
+                                          ),
                                         )
       ignorecase = 'false'
       direction = request.GET.get('direction') or 'asc'
@@ -8644,7 +8680,7 @@ def workPlacesSearch(request):
       sort_order = [{'order_by': order_by, 'direction': direction, 'ignorecase': ignorecase}]
       work_places = paginate(request, work_places, sort_order, rows_per_page, page)
 
-      context = {'work_places': work_places, 'columns': columns, 'school_year': '%s - %s' % (school_year, school_year+1)}
+      context = {'work_places': work_places, 'columns': columns, 'school_years': school_years}
       response_data = {}
       response_data['success'] = True
       response_data['html'] = render_to_string('bcse_app/WorkPlacesTableView.html', context, request)

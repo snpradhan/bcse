@@ -222,6 +222,7 @@ USER_TABLE_COLUMN_CHOICES = (
   ('EM', 'Email'),
   ('RL', 'Role'),
   ('WP', 'Workplace'),
+  ('LI', '% Low Income Students'),
   ('JD', 'Joined Date'),
   ('LL', 'Last Login'),
   ('PN', 'Phone Number'),

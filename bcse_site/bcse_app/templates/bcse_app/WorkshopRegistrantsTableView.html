@@ -5,31 +5,36 @@
     <thead>
       <tr class='noExl'>
         {% if user.userProfile.user_role in 'AS' %}
-          <th> Registration ID</th>
-          <th> User ID </th>
+          <th rowspan="2"> Registration ID</th>
+          <th rowspan="2"> User ID </th>
         {% endif %}
-        <th> Email </th>
-        <th> Full Name </th>
-        <th> User Role </th>
-        <th> IEIN </th>
-        <th> Workplace </th>
-        <th> Workplace Address </th>
-        <th> % Low Income Students <br> SY {{school_year}}</th>
+        <th rowspan="2"> Email </th>
+        <th rowspan="2"> Full Name </th>
+        <th rowspan="2"> User Role </th>
+        <th rowspan="2"> IEIN </th>
+        <th rowspan="2"> Workplace </th>
+        <th rowspan="2"> Workplace Address </th>
+        <th colspan="{{school_years|length}}" class="center">% Low Income Students</th>
         {% if user.userProfile.user_role in 'AS' %}
-          <th> Subscribed?</th>
-          <th> Photo Release Complete?</th>
-          <th> Dietary Preference </th>
-          <th> Accessibility Notes </th>
-          <th> Admin Notes </th>
+          <th rowspan="2"> Subscribed?</th>
+          <th rowspan="2"> Photo Release Complete?</th>
+          <th rowspan="2"> Dietary Preference </th>
+          <th rowspan="2"> Accessibility Notes </th>
+          <th rowspan="2"> Admin Notes </th>
         {% endif %}
-        <th> Created Date </th>
-        <th> Registration Status </th>
-        <th> Registration Sub Status </th>
+        <th rowspan="2"> Created Date </th>
+        <th rowspan="2"> Registration Status </th>
+        <th rowspan="2"> Registration Sub Status </th>
         {% if user.userProfile.user_role in 'AS' %}
-          <th class='ignore-column'> Action </th>
+          <th rowspan="2" class='ignore-column'> Action </th>
         {% elif user.userProfile.user_role in 'TP' and workshop.id and workshop|is_workshop_teacher_leader:user.userProfile %}
-          <th class='ignore-column'> Action </th>
+          <th rowspan="2" class='ignore-column'> Action </th>
         {% endif %}
+      </tr>
+      <tr>
+        {% for school_year in school_years %}
+          <th>SY {{school_year}}-{{school_year|add:1}}</th>
+        {% endfor %}
       </tr>
     </thead>
     <tbody>
@@ -66,7 +71,8 @@
               {{registrant.registration_to_work_place.work_place.get_full_address|safe}}
             {% endif %}
           </td>
-          <td> {{registrant.percentage_low_income|default_if_none:""}}</td>
+          <td>{{registrant.percentage_previous_year|default_if_none:""}}</td>
+          <td>{{registrant.percentage_current_year|default_if_none:""}}</td>
           {% if user.userProfile.user_role in 'AS' %}
             <td> {{registrant.user.subscribe|yesno:"Yes,No"}}</td>
             <td> {{registrant.user.photo_release_complete|yesno:"Yes,No"}}</td>
