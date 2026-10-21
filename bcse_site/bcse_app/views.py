@@ -12568,59 +12568,48 @@ def send_workshop_email(id=id, cron=False):
         attachments = workshop_email.attachments.all()
         email_messages = []
 
-        if len(email_to) + len(email_cc) + len(email_bcc) <= 50:
-          email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to, cc=email_cc, bcc=email_bcc)
+        #send emails individually
+        for to_email in email_to:
+          email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=[to_email])
           email_messages.append(email)
-        else:
-          if len(email_to) > 0:
-            if len(email_to) <= 50:
-              email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to)
-              email_messages.append(email)
-            else:
-              for i in range(0, len(email_to), 50):
-                email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=email_to[i:i+50])
-                email_messages.append(email)
 
-          if len(email_cc) > 0:
-            if len(email_cc) <= 50:
-              email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, cc=email_cc)
-              email_messages.append(email)
-            else:
-              for i in range(0, len(email_cc), 50):
-                email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, cc=email_cc[i:i+50])
-                email_messages.append(email)
+        for cc_email in email_cc:
+          email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, cc=[cc_email])
+          email_messages.append(email)
 
-          if len(email_bcc) > 0:
-            if len(email_bcc) <= 50:
-              email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=email_bcc)
-              email_messages.append(email)
-            else:
-              for i in range(0, len(email_bcc), 50):
-                email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=email_bcc[i:i+50])
-                email_messages.append(email)
+        for bcc_email in email_bcc:
+          email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, bcc=[bcc_email])
+          email_messages.append(email)
+
 
         #send email to invitees individually
         invitee_email_addresses = []
         if workshop_invitees:
           for invitee in workshop_invitees:
-            invitee_emails = [invitee.user.user.email]
             invitee_email_addresses.append(invitee.user.user.email)
-            if invitee.user.secondary_email:
-              invitee_emails.append(invitee.user.secondary_email)
-              invitee_email_addresses.append(invitee.user.secondary_email)
-            email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=invitee_emails)
+            email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=[invitee.user.user.email])
             email_messages.append(email)
+
+            if invitee.user.secondary_email:
+              invitee_email_addresses.append(invitee.user.secondary_email)
+              email = EmailMessage(subject=subject, body=body, from_email=settings.DEFAULT_FROM_EMAIL, to=[invitee.user.secondary_email])
+              email_messages.append(email)
+
+        attachment_data = []
+        for attachment in attachments:
+          f = attachment.file
+          f.open('rb')
+          attachment_data.append((
+            os.path.basename(f.name),
+            f.read(),
+            getattr(f.file, 'content_type', 'application/octet-stream'),
+          ))
+          f.close()
 
         for email_message in email_messages:
           email_message.content_subtype = "html"
-          for attachment in attachments:
-            f = attachment.file
-            filename = os.path.basename(f.name)
-            email_message.attach(
-              filename,
-              f.read(),
-              getattr(f.file, "content_type", "application/octet-stream")
-            )
+          for name, data, mime in attachment_data:
+            email_message.attach(name, data, mime)
           sent = email_message.send(fail_silently=True)
 
         if sent:
